@@ -70,16 +70,13 @@ getFittedResultWrapper <- function (filePath, jpsurvDataString) {
   adanced_options=list(numbetwn,numfromstart,numtoend)
   delLastIntvl=as.logical(jpsurvData$calculate$static$advDeleteInterval)
 
-  fileName = paste('output', jpsurvData$tokenId, sep="-" )
-  fileName = paste(fileName, "rds", sep="." )
-  outputFileName = fileName
 
   fileName = paste('output', jpsurvData$tokenId, sep="-" )
   fileName = paste(fileName, "rds", sep="." )
 
   outputFileName =paste(filePath, fileName, sep="/" )
-  
-  getFittedResult(filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange, allVars, cohortVars, cohortValues, covariateVars, numJP,adanced_options,delLastIntvlAdv,outputFileName)
+  print (outputFileName)
+  getFittedResult(filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange, allVars, cohortVars, cohortValues, covariateVars, numJP,adanced_options, delLastIntvl, outputFileName)
   getAllData(filePath,jpsurvDataString)
   print("return from getAllData")
   return
@@ -107,9 +104,9 @@ getAllData<- function(filePath,jpsurvDataString)
  # return (jsonl)
 }
 #Creates the SEER Data and Fitted Result
-getFittedResult <- function (filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange, allVars, cohortVars, cohortValues, covariateVars, numJP, adanced_options,outputFileName) {
+getFittedResult <- function (filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange, allVars, cohortVars, cohortValues, covariateVars, numJP, adanced_options,delLastIntvlAdv,outputFileName) {
   print ("creating RDS")
-
+  print (numJP)
   file=paste(filePath, seerFilePrefix, sep="/" )
   
   varLabels=getCorrectFormat(allVars)
