@@ -63,9 +63,9 @@ getFittedResultWrapper <- function (filePath, jpsurvDataString) {
   covariateVars=jpsurvData$calculate$form$covariateVars
   numJP=jpsurvData$calculate$form$maxjoinPoints
   
-  numbetwn=jpsurvData$calculate$static$advBetween
-  numfromstart=jpsurvData$calculate$static$advFirst
-  numtoend=jpsurvData$calculate$static$advLast
+  numbetwn=jpsurvData$calculate$static$advanced$advBetween
+  numfromstart=jpsurvData$calculate$static$advanced$advFirst
+  numtoend=jpsurvData$calculate$static$advanced$advLast
   
   adanced_options=list(numbetwn,numfromstart,numtoend)
   delLastIntvl=as.logical(jpsurvData$calculate$static$advDeleteInterval)
