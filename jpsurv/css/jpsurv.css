@@ -280,15 +280,16 @@ input[type="file"] {
   cursor: pointer;
 }
 .left_advanced{
-
   width:80%;
 }
 .right_advanced{
-
   width:20%;
   display:inline;
   padding-left:2%;
   float:right;
+}
+.right_advanced > input {
+  width:45px;
 }
 .options_wrapper{
   padding-bottom:15%;
@@ -340,4 +341,25 @@ input[type="file"] {
 }
 .glyphicon-blue {
     color: #337ab7;
+}
+#adv-options > div > label {
+  max-width: 70%;
+  margin-left:10px;
+}
+.sm-input {
+    max-width: 15%;
+    font-size: 12px  !important;
+    height: 20px  !important;
+    line-height: 1.42857  !important;
+    padding: 2px 2px  !important;
+    margin-right:10px;
+}
+.form-inline {
+  padding-bottom: 10px;
+}
+#stage2b-advanced {
+  display: block;
+  height: 250px;
+  opacity: 1;
+  overflow-y: hidden;
 }

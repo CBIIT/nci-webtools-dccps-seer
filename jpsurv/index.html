@@ -100,7 +100,7 @@
                   </div>
                   <div class="form-group jpsurv-label-container">
                     <label class="jpsurv-label" for="cohort_select">Cohort Variables:</label>
-                    <select id='cohort_select' class="jpsurv-label-content" name='cohort_select'multiple></select>
+                    <select id='cohort_select' class="jpsurv-label-content" name='cohort_select' multiple></select>
                   </div>
                   <fieldset id="cohort-fieldset" class="jpsurv-fieldset">
                     <legend class="jpsurv-legend">Cohort Values:</legend>
@@ -124,54 +124,76 @@
                 </form>
               </div>
               <!-- Advanced Options - STAGE 2b -->
-              <div class="box col-md-12" div id="stage2b-advanced" style="display:none;height:0px;opacity=0; overflow-y:hidden">
+              <div class="box col-md-12" div id="stage2b-advanced">
                 <h2 class="stage-header" >Advanced Options</h2>
                 <hr class="stage-separator">
-                </hr>
-                <div class="form-group jpsurv-label-container">
-                  <div id= "options_warpper" class="options_wrapper">
-                    <div id ="left_advanced" class="left_advanced">
-                      <label for="delete_interval" class="jpsurv-label">Delete Last Interval:</label>
-                    </div>
-                    <div id ="right_advanced" class="right_advanced" style="width:25%">
-                      <div class="fieldgroup">
-                        <input type="radio" name="yes"value="Yes"><label for= "yes">Yes</label>
-                        <input type="radio" name="no"value="No" checked="checked"><label for= "no">No</label>
+
+<!--
+<form class="form-horizontal" role="form">
+    <div class="form-group">
+      <label for="inputType" class="col-md-2 control-label">What is this.  How is this going to work</label>
+      <div class="col-md-1">
+          <input type="number" class="form-control" id="inputType" placeholder="Type">
+      </div>
+    </div>
+    <div class="form-group">
+        <span class="col-md-2 control-label">Metadata</span>
+        <div class="col-md-6">
+            <div class="form-group row">
+                <label for="inputKey" class="col-md-1 control-label">Key</label>
+                <div class="col-md-2">
+                    <input type="text" class="form-control" id="inputKey" placeholder="Key">
+                </div>
+                <label for="inputValue" class="col-md-1 control-label">Value</label>
+                <div class="col-md-2">
+                    <input type="text" class="form-control" id="inputValue" placeholder="Value">
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+-->
+
+                <div id="adv-options">
+                  <!-- Delete Last Interval -->
+                  <div class="row" style="margin-bottom:10px;">
+
+                      <label for="adv-delete-interval" class="pull-left">Delete Last Interval:</label>
+                      <div class="pull-right" style="margin-right:12px;">
+                        <form id="adv-delete-interval">
+                          <div class="radio-inline">
+                            <label for="del-int-yes" style="vertical-align: middle;"><input type="radio" id="del-int-yes" value="Yes" name="adv-delete-interval" style="vertical-align: middle;">Yes</label>
+                          </div>
+                          <div class="radio-inline">
+                            <label for="del-int-no"><input type="radio" id="del-int-no" value="No" name="adv-delete-interval"checked>No</label>
+                          </div>
+                        </form>
                       </div>
-                    </div>
+                  
                   </div>
-                  <div id= "options_warpper" class="options_wrapper">
-                    <div id ="left_advanced" class="left_advanced">
-                      <label for="join_point_between_lebel" class="jpsurv-label">Number of Skipped Observations Between Jointpoints Exclusive:</label>
-                    </div>
-                    <div id ="right_advanced" class="right_advanced">
-                      <select id='join_point_between_select' class="jpsurv-label-content-advanced" name='join_point_between_select'></select>
-                    </div>
+                  <!-- Skipped Observations between (adv-between)-->
+                  <div class="row form-inline">
+                    <label for="adv-between" class="pull-left">Number of Skipped Observations Between Jointpoints Exclusive:</label>
+                    <input id="adv-between" type="number" class="form-control pull-right sm-input" value="2" min="0"/>
                   </div>
-                  <div id= "options_warpper" class="options_wrapper">
-                    <div id ="left_advanced" class="left_advanced">
-                      <label for="join_point_first_lebel" class="jpsurv-label">Number of Skipped Observations From First to Jointpoints Exclusive:</label>
-                    </div>
-                    <div id ="right_advanced" class="right_advanced">
-                      <select id='join_point_first_select' class="jpsurv-label-content-advanced" name='join_point_first_select'></select>
-                    </div>
+
+                  <!-- Skipped Obervations from First (adv-first) -->
+                  <div class="row form-inline">
+                    <label for="adv-first" class="pull-left">Number of Skipped Observations From First to Jointpoints Exclusive:</label>
+                    <input id="adv-first" type="number" class="form-control pull-right sm-input" value="3" min="0"/>
                   </div>
-                  <div id= "options_warpper" class="options_wrapper">
-                    <div id ="left_advanced" class="left_advanced">
-                      <label for="join_point_last_lebel" class="jpsurv-label">Number of Skipped Observations From Jointpoints to Last Exclusive:</label>
-                    </div>
-                    <div id ="right_advanced" class="right_advanced">
-                      <select id='join_point_last_select' class="jpsurv-label-content-advanced" name='join_point_last_select'></select>
-                    </div>
+
+                  <!-- Skipped Obervations to Last (adv-last) -->
+                  <div class="row form-inline">
+                    <label for="adv-last" class="pull-left">Number of Skipped Observations From Jointpoints to Last Exclusive:</label>
+                    <input id="adv-last" type="number" class="form-control pull-right sm-input" value="4" min="0"/>
                   </div>
-                  <div id= "options_warpper" class="options_wrapper">
-                    <div id ="left_advanced" class="left_advanced">
-                      <label for="calendar_year" class="jpsurv-label">Number of Calender Year of Project:</label>
-                    </div>
-                    <div id ="right_advanced" class="right_advanced">
-                      <select id='calendar_year_select' class="jpsurv-label-content-advanced" name='calendar_year_select'></select>
-                    </div>
+                  <!-- Number of Calendar Year of Project (adv-year) -->
+                  <div class="row form-inline">
+                    <label for="adv-year" class="pull-left">Number of Calender Year of Project:</label>
+                    <input id="adv-year" type="number" class="form-control pull-right sm-input" value="10" min="0"/>
                   </div>
+
                 </div>
               </div>
               <!-- Email form -->
@@ -212,7 +234,7 @@
             </div>
             <div class="col-md-4">
               <div class="pull-right">
-                <b>Number of Join Points (help)</b>
+                <b>Number of Join Points</b>
                 <select id="header-join-points">
                   <option>1</option>
                   <option>2</option>
@@ -258,8 +280,22 @@
               <div class="tab-content">
                   <div id="graph-year-tab" class="tab-pane fade active in">
                     <div class="row">
+                      <div class="col-md-2 col-md-offset-1">
+                        <b>Interval Years</b>
+                      </div>
+                      <div class="col-md-2">
+                        <select id="interval-years" multiple>
+                          <option selected>1</option>
+                          <option>2</option>
+                          <option>3</option>
+                          <option selected>4</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div class="row">
                       <div class="col-md-offset-2">
-                        <img src="tmp/plot_Int-793978.png">
+                        <img src="">
                       </div>
                     </div>
                     <div class="table-responsive">  
@@ -275,11 +311,11 @@
                         </thead>
                         <tbody>
                           <tr>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
+                            <td>1982</td>
+                            <td>0.125</td>
+                            <td>0.36985</td>
+                            <td>0.1854</td>
+                            <td>0.585</td>
                           </tr>
                           <tr>
                             <td>&nbsp;</td>
@@ -322,8 +358,16 @@
                   </div>
                   <div id="graph-time-tab" class="tab-pane fade">
                       <div class="row">
+                        <div class="col-md-2 col-md-offset-1">
+                          <label for="year_of_diagnosis_start" style="display:none">Start Year</label> 
+                        </div>
+                        <div class="col-md-2">
+                          <select id='year-of-diagnosis' name='year_of_diagnosis_start'></select>
+                        </div>
+                      </div>
+                      <div class="row">
                         <div class="col-md-offset-2">
-                          <img src="tmp/plot_Year-793978.png">
+                          <img src="">
                         </div>
                       </div>
                     <div class="table-responsive">  
@@ -338,10 +382,10 @@
                         </thead>
                         <tbody>
                           <tr>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
+                            <td>1982</td>
+                            <td>1</td>
+                            <td>0.125</td>
+                            <td>.0127</td>
                           </tr>
                           <tr>
                             <td>&nbsp;</td>
@@ -386,8 +430,20 @@
                   </thead>
                   <tbody>
                     <tr>
-                      <td>John</td>
-                      <td>Doe</td>
+                      <td>Boyesian Information Criterion (BIC)</td>
+                      <td>827</td>
+                    </tr>
+                    <tr>
+                      <td>Akaike Information Criterial (AIC)</td>
+                      <td>1270</td>
+                    </tr>
+                    <tr>
+                      <td>Log Likelihood</td>
+                      <td>-377</td>
+                    </tr>
+                    <tr>
+                      <td>Convergence Status</td>
+                      <td>TRUE</td>
                     </tr>
                   </tbody>
                 </table>
@@ -405,19 +461,19 @@
                   </thead>
                   <tbody>
                     <tr>
-                      <td>John</td>
-                      <td>Doe</td>
-                      <td>john@example.com</td>
+                      <td>Xp_1</td>
+                      <td>-0.12548</td>
+                      <td>65346534</td>
                     </tr>
                     <tr>
-                      <td>Mary</td>
-                      <td>Moe</td>
-                      <td>mary@example.com</td>
+                      <td>XYear</td>
+                      <td>-0.67856</td>
+                      <td>56346534</td>
                     </tr>
                     <tr>
-                      <td>July</td>
-                      <td>Dooley</td>
-                      <td>july@example.com</td>
+                      <td>XInterval_1</td>
+                      <td>-0.1324238</td>
+                      <td>-0.5436647</td>
                     </tr>
                   </tbody>
                 </table>

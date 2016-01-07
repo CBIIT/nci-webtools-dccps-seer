@@ -13,7 +13,15 @@ if(getUrlParameter('status')) {
 }
 
 $(document).ready(function() {
+/*
+$('#myForm input').on('change', function() {
+   alert($('input[name="myRadio"]:checked', '#myForm').val()); 
+});
 
+$('#adv-options input').on('change', function() {
+   alert($('input[name=adv-delete-interval]:checked', '#adv-delete-interval').val()); 
+});
+*/
 	//console.log("jpsurvData");
 	//console.dir(jpsurvData);
 	$('[data-toggle="tooltip"]').tooltip();
@@ -214,15 +222,41 @@ function setUploadData() {
 
 
 }
+function updateGraphs(token_id) {
+	//alert(token_id);
+	$("#graph-year-tab").find( "img" ).attr("src", "tmp/plot_Year-"+token_id+".png");
+	$("#graph-time-tab").find( "img" ).attr("src", "tmp/plot_Int-"+token_id+".png");
+	return
+}
+function updateEstimates(token_id) {
+	return
+}
+function updateTrends(token_id) {
+	return
+}
+function updateSelections(token_id) {
+	return
+}
+function updateTabs() {
 
+	updateGraphs("793978");
+	updateEstimates(jpsurvData.tokenId);
+	updateTrends(jpsurvData.tokenId);
+	updateSelections(jpsurvData.tokenId);
+}
 //Set Data after STAGE 2
 function setCalculateData() {
+
+	updateTabs();
+	//Old stuff below....
+	/*
 	var joints=parseInt($("#max_join_point_select option:selected").text());
 	if(joints>=3)
 	{
 		Slide_menu_Vert('email_fields','show')
 	}
 	else{
+	*/
 		$('#calculate-instructions').hide();
 
 		//Set static data
@@ -260,13 +294,38 @@ function setCalculateData() {
 		jpsurvData.calculate.form.yearOfDiagnosisRange = [parseInt($('#year_of_diagnosis_start').val()), parseInt($('#year_of_diagnosis_end').val())];
 		jpsurvData.calculate.form.maxjoinPoints = parseInt($('#max_join_point_select').val()),
 
-		//console.log("setCalculateData()");
-		//console.dir(jpsurvData);
+		//
+		// Get Advanced Options
+		//
+		jpsurvData.calculate.static.advanced =[];
+
+		jpsurvData.calculate.static.advanced.advDeleteInterval = $("input[name='adv-delete-interval']:checked").val();
+		jpsurvData.calculate.static.advanced.advBetween = $("#adv-between").val();
+		jpsurvData.calculate.static.advanced.advFirst = $("#adv-first").val();
+		jpsurvData.calculate.static.advanced.advLast = $("#adv-last").val();
+		jpsurvData.calculate.static.advanced.advYear = $("#adv-year").val();
+
+		//
+		// Get Additional Variables
+		//
+		jpsurvData.additional = [];
+
+		jpsurvData.additional.headerJoinPoints = $("#header-join-points").val();
+		jpsurvData.additional.yearOfDiagnosis = parseInt($("#year-of-diagnosis").val());
+		jpsurvData.additional.intervals = $.map($("#interval-years:selected"), function(elem){
+			return $(elem).text();
+		});
+
+		console.log("setCalculateData()");
+		console.info("jpsurvData - (ie. input variable json");
+		console.dir(jpsurvData);
 
 		//Append the plot intervals
+		//Old stuff below
 		append_plot_intervals(jpsurvData.calculate.form.yearOfDiagnosisRange[1] - jpsurvData.calculate.form.yearOfDiagnosisRange[0]);
+		return;
 		getApcTable();
-	}
+	//}
 
 }
 
@@ -548,6 +607,7 @@ function set_year_of_diagnosis_select() {
 	for (i=0;i<jpsurvData.calculate.static.years.length;i++) {
 		$("#year_of_diagnosis_start").append("<OPTION>"+jpsurvData.calculate.static.years[i]+"</OPTION>");
 		$("#year_of_diagnosis_end").append("<OPTION>"+jpsurvData.calculate.static.years[i]+"</OPTION>");
+		$("#year-of-diagnosis").append("<OPTION>"+jpsurvData.calculate.static.years[i]+"</OPTION>");
 	}
 	//
 	//Set last entry in year_of_diagnosis_end
@@ -1041,12 +1101,14 @@ function replaceAll(find, replace, str) {
 
 //################################################## END OF SLIDING FUNCTIONS
  //Popualtes drop down menus 1-100
+/*
 $(function(){
     var $select = $(".jpsurv-label-content-advanced");
     for (i=1;i<=10;i++){
         $select.append($('<option></option>').val(i).html(i))
     }
 });
+*/
 
 $(function() {
 $("#covariate_select").on("change",onChange_covariate); 
