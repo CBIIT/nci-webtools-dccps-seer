@@ -67,7 +67,7 @@ getFittedResultWrapper <- function (filePath, jpsurvDataString) {
   numtoend=jpsurvData$calculate$static$advanced$advLast
   
   adanced_options=list(numbetwn,numfromstart,numtoend)
-  delLastIntvl=as.logical(jpsurvData$calculate$static$advDeleteInterval)
+  delLastIntvl=as.logical(jpsurvData$calculate$static$advanced$advDeleteInterval)
 
 
   fileName = paste('output', jpsurvData$tokenId, sep="-" )
@@ -94,7 +94,8 @@ getAllData<- function(filePath,jpsurvDataString)
   IntGraph=getRelativeSurvivalByIntWrapper(filePath,jpsurvDataString)
   YearGraph=getRelativeSurvivalByYearWrapper(filePath,jpsurvDataString)
   Trends=getTrendWrapper(filePath,jpsurvDataString)
-  jsonl =c(IntGraph,YearGraph,ModelEstimate,Coefficients,Trends,"ModelSelection" = ModelSelection) #returns
+  JP=getJPWrapper(filePath,jpsurvDataString)
+  jsonl =c(IntGraph,YearGraph,ModelEstimate,Coefficients,Trends,"ModelSelection" = ModelSelection, "JP"=JP) #returns
   exportJson <- toJSON(jsonl)
   print (jsonl)
   print("Creating results file")
@@ -141,6 +142,13 @@ getFittedResult <- function (filePath, seerFilePrefix, yearOfDiagnosisVarName, y
  # getFullDataDownload(outputData, subsetStr, downloadFile, 0) 
   
 
+}
+getJPWrapper()<-function(filePath,jpsurvDataString)
+{
+  file=paste(filePath, paste("output-", jpsurvData$tokenId,".rds", sep=""), sep="/")
+  outputData=readRDS(file)
+  JP=outputData$fittedResult$jp
+  return(JP)
 }
 getFullDataDownload <- function(outputData, subsetStr, downloadFile, jpInd) {
   downloadOutput = output.overview(outputData$seerdata, outputData$fittedResult$FitList[[jpInd+1]], subsetStr);
