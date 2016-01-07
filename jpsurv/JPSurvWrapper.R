@@ -1,6 +1,6 @@
 library('rjson')
 library('JPSurv')
-
+library('jsonlite')
 VERBOSE=TRUE
  
 getDictionary <- function (inputFile, path, tokenId) {
@@ -158,14 +158,20 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString) {
   
   file=paste(filePath, paste("output-", jpsurvData$tokenId,".rds", sep=""), sep="/")
   outputData=readRDS(file)
-  interval1=jpsurvData$additional$headerJoinPoints[[1]]
-  interval2=jpsurvData$additional$headerJoinPoints[[2]]
-  intervals=c(interval1,interval2)
+  intervals=c()
+  for(i in 1:length(jpsurvData$additional$intervals)) 
+  {
+    intervals=c(intervals,jpsurvData$additional$intervals[[i]])
+  }
 #  intervals = jpsurvData$plot$form$intervals #<-----new
   # jpind=jpsurvData$calculate$form$jpInd #<-----new
   jpInd=jpsurvData$additional$headerJoinPoints
-  covariateValues = c("Localized", "Distant")
-#  covariateValues = jpsurvData$plot$form$covariateVars
+  covariateValues = c()
+
+  for(i in 1:length(jpsurvData$cohortValues)) 
+  {
+    covariateValues=c(covariateValues,jpsurvData$cohortValues[[i]])
+  }
 
   #take the nth from FitList
   fit.result=outputData$FitList[jpInd+1]
