@@ -145,6 +145,7 @@ getFittedResult <- function (filePath, seerFilePrefix, yearOfDiagnosisVarName, y
 }
 getJPWrapper()<-function(filePath,jpsurvDataString)
 {
+  jpsurvData=fromJSON(jpsurvDataString)
   file=paste(filePath, paste("output-", jpsurvData$tokenId,".rds", sep=""), sep="/")
   outputData=readRDS(file)
   JP=outputData$fittedResult$jp
