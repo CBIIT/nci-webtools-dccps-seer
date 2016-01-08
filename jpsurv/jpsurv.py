@@ -210,7 +210,14 @@ def stage2_calculate():
     out_json = json.dumps(status)
     return current_app.response_class(out_json, mimetype=mimetype)
 
-
+def sendqueue(jpsurvDataString):
+    CONFIG = StompConfig('tcp://ncias-d1207-v.nci.nih.gov:61613')
+    QUEUE = '/queue/jpsurv-dev'
+    client = Stomp(CONFIG)
+    client.connect()
+    client.send(QUEUE,json.dumps({'fileName':'test','path':'/home/user/python/testDir','email':'scott.goldweber@nih.gov','timeStamp':'2015-06-25','outputDir':'/local/content/analysistools/public_html/apps/jpsurv/tmp',"data":jpsurvDataString}))
+    client.disconnect()
+    
 @app.route('/jpsurvRest/stage3_plot', methods=['GET'])
 def stage3_plot():
 
