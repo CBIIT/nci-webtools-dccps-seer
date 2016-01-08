@@ -308,6 +308,12 @@ function setCalculateData() {
 		//
 		// Get Additional Variables
 		//
+		/*
+		for (i=jpsurvData.calculate.form.yearOfDiagnosisRange[0];i<jpsurvData.calculate.form.yearOfDiagnosisRange[1]-jpsurvData.calculate.form.yearOfDiagnosisRange[0];i++) {
+			$("#year-of-diagnosis").append("<OPTION>"+i+"</OPTION>");
+		}
+		*/
+
 		jpsurvData.additional = [];
 
 		jpsurvData.additional.headerJoinPoints = $("#header-join-points").val();
@@ -601,9 +607,7 @@ function find_year_of_diagnosis_row() {
 
 function set_year_of_diagnosis_select() {
 
-	$("#diagnosis_title").empty()
-		.append(jpsurvData.calculate.static.yearOfDiagnosisTitle);
-
+	$("#diagnosis_title").empty().append(jpsurvData.calculate.static.yearOfDiagnosisTitle);
 	for (i=0;i<jpsurvData.calculate.static.years.length;i++) {
 		$("#year_of_diagnosis_start").append("<OPTION>"+jpsurvData.calculate.static.years[i]+"</OPTION>");
 		$("#year_of_diagnosis_end").append("<OPTION>"+jpsurvData.calculate.static.years[i]+"</OPTION>");
@@ -1153,6 +1157,9 @@ $("#cohort_select").on("change", parse_cohort);
 
 function parse_cohort() {
 	var variables = $("#cohort_select").val();
+	console.log("parse_cohort");
+	console.dir(variables);
+
 	var values = [];	
 
 	for (var i = 0; i < variables.length; i ++) {
@@ -1179,7 +1186,7 @@ function parse_cohort() {
 
 	}
 
-	$("#cohort-join-points").css("height", ((variables.length + 1) * 25) + "px");
+	//$("#cohort-join-points").css("height", ((variables.length + 1) * 25) + "px");
 
 
 	selectors += "</table>";

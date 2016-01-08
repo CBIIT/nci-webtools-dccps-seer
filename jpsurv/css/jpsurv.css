@@ -314,7 +314,7 @@ input[type="file"] {
 
 #cohort-join-points {
   border: 1px solid #DDDDDD;
-  padding: 20px 10px 40px 10px;
+  padding: 10px 10px 0px;
 }
 
 #header-cohort-name, #header-cohort-value {
