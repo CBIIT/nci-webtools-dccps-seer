@@ -282,6 +282,16 @@ def stage4_link():
     mimetype = 'application/json'
     content = json.dumps(link)
     return current_app.response_class(content, mimetype=mimetype)
+
+
+def sendqueue(jpsurvDataString):
+    CONFIG = StompConfig('tcp://ncias-d1207-v.nci.nih.gov:61613')
+    QUEUE = '/queue/jpsurv-dev'
+    client = Stomp(CONFIG)
+    client.connect()
+    client.send(QUEUE,json.dumps({'fileName':'test','path':'/home/user/python/testDir','email':'scott.goldweber@nih.gov','timeStamp':'2015-06-25','outputDir':'/local/content/analysistools/public_html/apps/jpsurv/tmp',"data":jpsurvDataString}))
+    client.disconnect()
+    
  
 def info(msg):
     d={'clientip': request.remote_addr}
