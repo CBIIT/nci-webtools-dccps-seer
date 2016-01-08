@@ -61,8 +61,8 @@ class RequestProcessor(DisconnectListener):
     print "printing file:"
     data=json.loads(parameters['data'])
     jpsurvDataString=parameters['data']
-  #  rSource = robjects.r['source']('JPSurvWrapper.R')
-  #  robjects.r['getFittedResultWrapper'](self.UPLOAD_DIR, jpsurvDataString)
+    rSource = robjects.r['source']('JPSurvWrapper.R')
+    robjects.r['getFittedResultWrapper'](self.UPLOAD_DIR, jpsurvDataString)
 
 #    rSource = robjects.r('source')
 #    rSource('./JPSurvWrapper.R')
