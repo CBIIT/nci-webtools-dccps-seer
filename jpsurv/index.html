@@ -280,6 +280,23 @@
               </div>
           </div>
           </div>
+              <!-- Spinner -->
+              <div class="row">
+                <div id="spinner" style="display:none;">
+                  <i class="fa fa-spinner fa-spin fa-2x">&nbsp;</i>
+                  <span style="font-weight:bold;font-size:150%;margin-top:100px;">Calculating</span>
+                </div>
+              </div>
+              <!-- Message Panel for Error or Warning-->
+              <div class="row">
+                <div class="col-lg-10 col-lg-offset-1" id="jpsurv-message-container" style="display:none">
+                  <div class="panel panel-danger">
+                    <div class="panel-heading">Error</div>
+                    <div class="panel-body" id="jpsurv-message-content"></div>
+                  </div>
+                </div>
+              </div>
+
           <ul id="jpsurv-tabs" class="nav nav-tabs responsive">
             <li class="active"><a href="#home" data-toggle="tab">Survival Graph/Data</a></li>
             <li><a href="#estimates-tab" data-toggle="tab">Model Estimates</a></li>
@@ -295,22 +312,6 @@
                 <li class="active"><a href="#graph-year-tab" data-toggle="tab">Survival vs. Year of Diagnosis</a></li>
                 <li><a href="#graph-time-tab" data-toggle="tab">Survival vs. Time Since Diagnosis</a></li>
               </ul>
-              <!-- Spinner -->
-              <div id="spinner" style="display:none;">
-                <i class="fa fa-spinner fa-spin fa-2x">&nbsp;</i>
-                <span style="font-weight:bold;font-size:150%;margin-top:100px;">Calculating</span>
-              </div>
-              <!-- Message Panel for Error or Warning-->
-              <div class="row">
-                <div class="col-lg-10 col-lg-offset-1" id="jpsurv-message-container" style="display:none">
-                  <div class="panel panel-danger">
-                    <div class="panel-heading">Error</div>
-                    <div class="panel-body" id="jpsurv-message-content"></div>
-                  </div>
-                </div>
-              </div>
-              <div style="clear:both;"></div>
-
               <!-- Sub Graphs here -->
               <div class="tab-content">
                   <div id="graph-year-tab" class="tab-pane fade active in">
@@ -318,13 +319,16 @@
                       <div class="col-md-2 col-md-offset-1">
                         <b>Interval Years</b>
                       </div>
-                      <div class="col-md-2">
+                      <div class="col-md-1">
                         <select id="interval-years" multiple>
                           <option selected>1</option>
                           <option>2</option>
                           <option>3</option>
                           <option selected>4</option>
                         </select>
+                      </div>
+                      <div class="col-md-1">
+                        <input type="button" class="pull-left" class="btn btn-sm" value="Select" id="recalculate">
                       </div>
                     </div>
 

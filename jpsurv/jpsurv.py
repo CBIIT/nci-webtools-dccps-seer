@@ -199,7 +199,6 @@ def stage2_calculate():
     rSource = robjects.r('source')
     rSource('./JPSurvWrapper.R')
 
-
     info(BOLD+"**** Calling getFittedResultsWrapper ****"+ENDC)
     # Next two lines execute the R Program
     getFittedResultWrapper = robjects.globalenv['getFittedResultWrapper']
@@ -211,42 +210,41 @@ def stage2_calculate():
     return current_app.response_class(out_json, mimetype=mimetype)
 
 
-@app.route('/jpsurvRest/stage3_plot', methods=['GET'])
-def stage3_plot():
+@app.route('/jpsurvRest/stage3_recalculate', methods=['GET'])
+def stage3_recalculate():
 
     print 'Go'
 
     debug(OKGREEN+UNDERLINE+BOLD + "****** Stage 3: PLOT BUTTON ***** " + ENDC)
-    info("Plotting ...")
+    info("Recalculating ...")
 
-
-    #for k, v in request.args.iteritems():
-    #    print "var: %s = %s" % (k, v)
-    #name = request.get_json().get('jpsurvData', '')
-    #print name
-    jpsurvDataString = request.args.get('jpsurvData', True)
+    jpsurvDataString = request.args.get('jpsurvData', False)
     jpsurvDataString = fix_jpsurv(jpsurvDataString)
-
+    
     info(BOLD+"**** jpsurvDataString ****"+ENDC)
     info(jpsurvDataString)
+    debug(OKBLUE+"The jpsurv STRING::::::"+ENDC)
+    debug(jpsurvDataString)
     jpsurvData = json.loads(jpsurvDataString)
-    info(BOLD+"**** jpsurvData ****"+ENDC)
+    #info(BOLD+"**** jpsurvData ****"+ENDC)
     for key, value in jpsurvData.iteritems():
         info("var: %s = %s" % (key, value))
-
+        print("var: %s = %s" % (key, value))
+    
     #Init the R Source
     rSource = robjects.r('source')
     rSource('./JPSurvWrapper.R')
 
-    info(BOLD+OKBLUE+"**** Calling getGraph ****"+ENDC)
-    getGraphWrapper = robjects.globalenv['getGraphWrapper']
-    getGraphWrapper(UPLOAD_DIR, jpsurvDataString)
+    info(BOLD+"**** Calling getAllData ****"+ENDC)
+    # Next two lines execute the R Program
+    getAllData = robjects.globalenv['getAllData']
+    getAllData(UPLOAD_DIR, jpsurvDataString)
+    
     status = '{"status":"OK"}'
-
     mimetype = 'application/json'
     out_json = json.dumps(status)
-
     return current_app.response_class(out_json, mimetype=mimetype)
+
 
 @app.route('/jpsurvRest/stage4_link', methods=['GET'])
 def stage4_link():
