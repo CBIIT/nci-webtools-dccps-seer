@@ -1,6 +1,5 @@
 library('rjson')
 library('JPSurv')
-library('jsonlite')
 VERBOSE=TRUE
 
 getDictionary <- function (inputFile, path, tokenId) {
