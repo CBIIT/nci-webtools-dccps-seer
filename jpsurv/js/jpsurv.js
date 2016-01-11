@@ -28,7 +28,8 @@ $('#adv-options input').on('change', function() {
 
 	loadHelp();
 	$('#plot-form').hide();
-
+	$("#year-of-diagnosis").on('change', setCalculateData);
+	$("#recalculate").on('click', setCalculateData);
 	var status = getUrlParameter('status');
 	if(status == "uploaded") {
 		$('#upload-instructions').hide();
@@ -413,7 +414,7 @@ function setCalculateData() {
 		//Append the plot intervals
 		//Old stuff below
 		//append_plot_intervals(jpsurvData.calculate.form.yearOfDiagnosisRange[1] - jpsurvData.calculate.form.yearOfDiagnosisRange[0]);
-
+		$("#spinner").show();
 		if(jpsurvData.stage2completed == 1) {
 			stage3();  // This is a recalculation.
 		} else {
@@ -421,6 +422,7 @@ function setCalculateData() {
 		}
 
 		retrieveResults();
+		$("#spinner").hide();
 		//getApcTable();
 	//}
 
