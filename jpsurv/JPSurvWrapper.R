@@ -96,7 +96,7 @@ getAllData<- function(filePath,jpsurvDataString)
   YearGraph=getRelativeSurvivalByYearWrapper(filePath,jpsurvDataString)
   Trends=getTrendWrapper(filePath,jpsurvDataString)
   JP=getJPWrapper(filePath,jpsurvDataString)
-  jsonl =c(IntGraph,YearGraph,Trends,"ModelSelection" = ModelSelection, "JP"=JP) #returns
+  jsonl =c(IntGraph,YearGraph,ModelEstimate,Coefficients,Trends,"ModelSelection" = ModelSelection, "JP"=JP) #returns
   exportJson <- toJSON(jsonl)
   print (jsonl)
   print("Creating results file")
