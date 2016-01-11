@@ -363,3 +363,10 @@ input[type="file"] {
   opacity: 1;
   overflow-y: hidden;
 }
+#graph-year-table, #graph-time-table {
+  /*
+  height: 400px;
+  overflow: auto;
+  */
+
+}
