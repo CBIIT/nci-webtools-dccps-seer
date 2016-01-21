@@ -93,7 +93,8 @@ $('#adv-options input').on('change', function() {
 			.append($('<div>').append(JSON.stringify(output_file)));
 		*/
 	} else {
-		$("#parameter_submit").on("click", build_output_format_column);
+		//$("#parameter_submit").on("click", build_output_format_column);
+		$("table").hide();
 	}
 /*
 
@@ -1256,8 +1257,9 @@ $("#cohort_select").on("change", parse_cohort);
 
 function parse_cohort() {
 	var variables = $("#cohort_select").val();
-	console.log("parse_cohort");
-	console.dir(variables);
+	
+	//console.log("parse_cohort");
+	//console.dir(variables);
 
 	var values = [];	
 

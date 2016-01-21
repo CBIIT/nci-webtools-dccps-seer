@@ -65,7 +65,8 @@ def parse():
 @app.route('/jpsurvRest/status', methods = ['GET'])
 def status():
     # python LDpair.py rs2720460 rs11733615 EUR 38
-
+    debug(OKGREEN+"Calling status::::::"+ENDC)
+    
     mimetype = 'application/json'
     debug("")
     debug('Execute jpsurvRest/status status:OK')
