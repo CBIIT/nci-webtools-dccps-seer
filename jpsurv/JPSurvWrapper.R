@@ -181,7 +181,7 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString) {
   #  write.csv(survData, downloadFile) #<----need to fix this
   
   dev.off()
-  results =c("RelSurYearGraph"=graphFile) #returns 
+  results =c("RelSurYearGraph"=graphFile,"RelSurvYearData"=survData) #returns 
   return (results)
   
   
