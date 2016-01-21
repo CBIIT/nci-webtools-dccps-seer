@@ -266,25 +266,36 @@ function updateGraphs(token_id) {
 	console.log("updateGraph");
 	//alert(token_id);
 	//Populate graph-year
-	$("#graph-year-tab").find( "img" ).attr("src", "tmp/plot_Year-"+token_id+".png");
+	$("#graph-year-tab").find( "img" ).attr("src", "tmp/plot_Year-"+token_id+"-"+jpsurvData.plot.static.imageId+".png");
 	$("#graph-year-table > tbody").empty();
 	$("#graph-year-table > tbody").append('<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>');
 
 	//Populate time-year
-	$("#graph-time-tab").find( "img" ).attr("src", "tmp/plot_Int-"+token_id+".png");
-
-	$("#graph-time-table > tbody").empty();
+	$("#graph-time-tab").find( "img" ).attr("src", "tmp/plot_Int-"+token_id+"-"+jpsurvData.plot.static.imageId+".png");
 
 	var year = jpsurvData.additional.yearOfDiagnosis;
-	//console.log("RelSurIntData");
-	//console.dir(jpsurvData.results.RelSurIntData);
-	//console.log("Year_of_diagnosis_"+year);
-
-	//console.dir(jpsurvData.results.RelSurIntData["Year_of_diagnosis_"+year]);
+	console.log("RelSurIntData");
+	console.dir(jpsurvData.results.RelSurIntData);
+	console.log("Year_of_diagnosis_"+year);
+	
+	console.dir(jpsurvData.results.RelSurIntData["Year_of_diagnosis_"+year]);
 	
 	var row;
-	var yod = jpsurvData.results.RelSurIntData["Year_of_diagnosis_"+year];
+	var yod = jpsurvData.results["RelSurvYearData.Year_of_diagnosis_"+year];
 
+	$("#graph-year-table > tbody").empty();
+	$.each(yod, function( index, value ) {
+		row = "<tr><td>"+value+"</td>";
+		row += "<td>"+jpsurvData.results["RelSurvYearData.Expected_Survivial_Interval"][index]+"</td>";
+		row += "<td>"+jpsurvData.results["RelSurvYearData.Relative_Survival_Cum"][index]+"</td>";
+		row += "<td>"+jpsurvData.results["RelSurvYearData.pred_int"][index]+"</td>";
+		row += "<td>"+jpsurvData.results["RelSurvYearData.pred_cum"][index]+"</td></tr>/n";
+		$("#graph-year-table > tbody").append(row);
+	});
+
+	yod = jpsurvData.results.RelSurIntData["Year_of_diagnosis_"+year];
+
+	$("#graph-time-table > tbody").empty();
 	$.each(yod, function( index, value ) {
 		row = "<tr><td>"+value+"</td>";
 		row += "<td>"+jpsurvData.results.RelSurIntData.Interval[index]+"</td>";
@@ -442,7 +453,6 @@ function setPlotData() {
 	$('#plot-image').attr('src', '../jpsurv/tmp/plot-'+jpsurvData.tokenId+'-'+jpsurvData.plot.static.imageId+'.png')
 }
 
-
 function file_submit(event) {
 	event.preventDefault();
 
@@ -507,11 +517,19 @@ function getParams() {
 	return params;
 }
 
+function incrementImageId() {
+	console.log("incrementImageId:"+jpsurvData.plot.static.imageId);
+	jpsurvData.plot.static.imageId++;
+	console.log("incrementImageId (new value):"+jpsurvData.plot.static.imageId);
+
+}
+
 function stage2() {
 
 	console.log("STAGE 2");
 	//Run initial calculation with setup.
 	var params = getParams();
+	incrementImageId();
 	var comm_results = JSON.parse(jpsurvRest('stage2_calculate', params));
 
 	jpsurvData.stage2completed = 1;
@@ -536,6 +554,8 @@ function stage2() {
 function stage3() {
 		//Run initial calculation with setup.
 	console.log("STAGE 3");
+	incrementImageId();
+
 	var params = getParams();
 	var comm_results = JSON.parse(jpsurvRest('stage3_recalculate', params));
 
