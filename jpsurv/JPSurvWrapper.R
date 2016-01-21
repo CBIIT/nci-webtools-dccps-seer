@@ -171,15 +171,16 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString) {
   }
   
   #take the nth from FitList
+  iteration=jpsurvData$plot$static$imageId+1
   fit.result=outputData$FitList[jpInd+1]
-  graphFile= png(filename = paste(filePath, paste("plot_Year-", jpsurvData$tokenId,".png", sep=""), sep="/"))
-  graphFile= paste(filePath, paste("plot_Year-", jpsurvData$tokenId,".png", sep=""), sep="/")
-  downloadFile = paste(filePath, paste("data_Year-", jpsurvData$tokenId, "-",jpsurvData$plot$static[[1]], ".csv", sep=""), sep="/") #CSV file to download
-  survData=plot.relsurv.year(outputData$fittedResult$FitList[[jpInd+1]],intervals, c(NA, NA, NA), covariateValues)
+  png(filename = paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",iteration,".png", sep=""), sep="/"))
+  graphFile= paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",iteration,".png", sep=""), sep="/")
+  downloadFile = paste(filePath, paste("data_Year-", jpsurvData$tokenId, "-",iteration, ".csv", sep=""), sep="/") #CSV file to download
+  survData=plot.relsurv.year(outputData$fittedResult,intervals, c(NA, NA, NA), covariateValues)
   #  write.csv(survData, downloadFile) #<----need to fix this
   
   dev.off()
-  results =c("RelSurYearData"=survData,"RelSurYearGraph"=graphFile) #returns 
+  results =c("RelSurYearGraph"=graphFile) #returns 
   return (results)
   
   
@@ -195,10 +196,12 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString) {
   outputData=readRDS(file)
   yearOfDiagnosisVarName = jpsurvData$calculate$static$yearOfDiagnosisVarName
   yearOfDiagnosis = jpsurvData$calculate$form$yearOfDiagnosisRange[[1]]
+  iteration=jpsurvData$plot$static$imageId+1
   
   downloadFile = paste(filePath, paste("data_Int-", jpsurvData$tokenId,".csv", sep=""), sep="/") #CSV file to download
-  png(filename = paste(filePath, paste("plot_Int-", jpsurvData$tokenId, ".png", sep=""), sep="/")) #png file for graph
-  graphFile=paste(filePath, paste("plot_Int-", jpsurvData$tokenId, ".png", sep=""), sep="/") #png file for graph
+  png(filename = paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",iteration,".png", sep=""), sep="/"))
+  graphFile= paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",iteration,".png", sep=""), sep="/")
+  downloadFile = paste(filePath, paste("data_Year-", jpsurvData$tokenId, "-",iteration, ".csv", sep=""), sep="/") #CSV file to download
   survData=plot.relsurv.int(outputData$fittedResult$FitList[[jpInd+1]], yearOfDiagnosisVarName, yearOfDiagnosis);
   #  write.csv(survData, downloadFile) #<----need to fix this
   
