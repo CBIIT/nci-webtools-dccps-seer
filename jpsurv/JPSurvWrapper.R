@@ -172,7 +172,7 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString) {
   }
   
   #take the nth from FitList
-  iteration=jpsurvData$plot$static$imageId+1
+  iteration=jpsurvData$plot$static$imageId
   fit.result=outputData$FitList[jpInd+1]
   png(filename = paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",iteration,".png", sep=""), sep="/"))
   graphFile= paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",iteration,".png", sep=""), sep="/")
@@ -197,7 +197,7 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString) {
   outputData=readRDS(file)
   yearOfDiagnosisVarName = jpsurvData$calculate$static$yearOfDiagnosisVarName
   yearOfDiagnosis = jpsurvData$calculate$form$yearOfDiagnosisRange[[1]]
-  iteration=jpsurvData$plot$static$imageId+1
+  iteration=jpsurvData$plot$static$imageId
   
   downloadFile = paste(filePath, paste("data_Int-", jpsurvData$tokenId,".csv", sep=""), sep="/") #CSV file to download
   png(filename = paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",iteration,".png", sep=""), sep="/"))
