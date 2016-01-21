@@ -163,11 +163,12 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString) {
   #  intervals = jpsurvData$plot$form$intervals #<-----new
   # jpind=jpsurvData$calculate$form$jpInd #<-----new
   jpInd=jpsurvData$additional$headerJoinPoints
-  covariateValues = c()
-  
+  cohortValues = c()
+  NAs=c()
   for(i in 1:length(jpsurvData$cohortValues)) 
   {
-    covariateValues=c(covariateValues,jpsurvData$cohortValues[[i]])
+    cohortValues=c(cohortValues,jpsurvData$cohortValues[[i]])
+    NAs=c(NAs,NA)
   }
   
   #take the nth from FitList
@@ -176,7 +177,7 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString) {
   png(filename = paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",iteration,".png", sep=""), sep="/"))
   graphFile= paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",iteration,".png", sep=""), sep="/")
   downloadFile = paste(filePath, paste("data_Year-", jpsurvData$tokenId, "-",iteration, ".csv", sep=""), sep="/") #CSV file to download
-  survData=plot.relsurv.year(outputData$fittedResult,intervals, c(NA, NA, NA), covariateValues)
+  survData=plot.relsurv.year(outputData$fittedResult,intervals, NAs, cohortValues)
   #  write.csv(survData, downloadFile) #<----need to fix this
   
   dev.off()
@@ -203,8 +204,6 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString) {
   graphFile= paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",iteration,".png", sep=""), sep="/")
   downloadFile = paste(filePath, paste("data_Year-", jpsurvData$tokenId, "-",iteration, ".csv", sep=""), sep="/") #CSV file to download
   survData=plot.relsurv.int(outputData$fittedResult$FitList[[jpInd+1]], yearOfDiagnosisVarName, yearOfDiagnosis);
-  #  write.csv(survData, downloadFile) #<----need to fix this
-  
   dev.off()
   results =c("RelSurIntData"=survData,"RelSurIntGraph"=graphFile) #returns 
   
