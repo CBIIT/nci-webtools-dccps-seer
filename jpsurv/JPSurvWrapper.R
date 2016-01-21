@@ -75,7 +75,7 @@ getFittedResultWrapper <- function (filePath, jpsurvDataString) {
   
   outputFileName =paste(filePath, fileName, sep="/" )
   print (outputFileName)
-  getFittedResult(filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange, allVars, cohortVars, cohortValues, covariateVars, numJP,adanced_options, delLastIntvl, outputFileName)
+  getFittedResult(filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange, allVars, cohortVars, cohortValues, covariateVars, numJP,adanced_options, delLastIntvl, outputFileName,jpsurvDataString)
   getAllData(filePath,jpsurvDataString)
   print("return from getAllData")
   return
@@ -104,7 +104,8 @@ getAllData<- function(filePath,jpsurvDataString)
   # return (jsonl)
 }
 #Creates the SEER Data and Fitted Result
-getFittedResult <- function (filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange, allVars, cohortVars, cohortValues, covariateVars, numJP, adanced_options,delLastIntvlAdv,outputFileName) {
+getFittedResult <- function (filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange, allVars, cohortVars, cohortValues, covariateVars, numJP, adanced_options,delLastIntvlAdv,outputFileName,jpsurvDataString) {
+  jpsurvData <<- fromJSON(jpsurvDataString)
   print ("creating RDS")
   print (numJP)
   file=paste(filePath, seerFilePrefix, sep="/" )
@@ -136,15 +137,18 @@ getFittedResult <- function (filePath, seerFilePrefix, yearOfDiagnosisVarName, y
   #cat("\n")
   print(outputFileName)
   outputData=list("seerdata"=seerdata, "fittedResult"=fittedResult)
+  
+  iteration=jpsurvData$plot$static$imageId
+  downloadFile=paste(filePath, paste("Full_data-", jpsurvData$tokenId, "-",iteration, ".csv", sep=""), sep="/") #CSV file to download
+  
   print ("saving RDS")
   saveRDS(outputData, outputFileName)
-  downloadFile=paste("link-", jpsurvData$tokenId,".csv", sep="")
-  # getFullDataDownload(outputData, subsetStr, downloadFile, 0) 
+  #getFullDataDownload(seerdata, fittedResult, subsetStr, downloadFile, 0)
   
   
 }
-getFullDataDownload <- function(outputData, subsetStr, downloadFile, jpInd) {
-  downloadOutput = output.overview(outputData$seerdata, outputData$fittedResult$FitList[[jpInd+1]], subsetStr);
+getFullDataDownload <- function(seerdata, fittedResult, subsetStr, downloadFile, jpInd) {
+  downloadOutput = output.overview(as.vector(outputData$seerdata), as.vector(outputData$fittedResult$FitList[[jpInd+1]]), subsetStr);
   write.csv(downloadOutput, downloadFile)
 }
 
@@ -178,7 +182,7 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString) {
   graphFile= paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",iteration,".png", sep=""), sep="/")
   downloadFile = paste(filePath, paste("data_Year-", jpsurvData$tokenId, "-",iteration, ".csv", sep=""), sep="/") #CSV file to download
   survData=plot.relsurv.year(outputData$fittedResult,intervals, NAs, cohortValues)
-  #  write.csv(survData, downloadFile) #<----need to fix this
+  for (key in names(survData)) write.table(survData[[key]], file=downloadFile, append=T)
   
   dev.off()
   results =c("RelSurYearGraph"=graphFile,"RelSurvYearData"=survData) #returns 
@@ -197,19 +201,20 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString) {
   outputData=readRDS(file)
   yearOfDiagnosisVarName = jpsurvData$calculate$static$yearOfDiagnosisVarName
   yearOfDiagnosis = jpsurvData$calculate$form$yearOfDiagnosisRange[[1]]
-  iteration=jpsurvData$plot$static$imageId
+  iteration=jpsurvData$plot$static$imageId+1
   
   downloadFile = paste(filePath, paste("data_Int-", jpsurvData$tokenId,".csv", sep=""), sep="/") #CSV file to download
-  png(filename = paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",iteration,".png", sep=""), sep="/"))
-  graphFile= paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",iteration,".png", sep=""), sep="/")
-  downloadFile = paste(filePath, paste("data_Year-", jpsurvData$tokenId, "-",iteration, ".csv", sep=""), sep="/") #CSV file to download
+  png(filename = paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",iteration,".png", sep=""), sep="/"))
+  graphFile= paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",iteration,".png", sep=""), sep="/")
+  downloadFile = paste(filePath, paste("data_Int-", jpsurvData$tokenId, "-",iteration, ".txt", sep=""), sep="/") #CSV file to download
   survData=plot.relsurv.int(outputData$fittedResult$FitList[[jpInd+1]], yearOfDiagnosisVarName, yearOfDiagnosis);
+  for (key in names(survData)) write.table(survData[[key]], file=downloadFile, append=T)
   dev.off()
   results =c("RelSurIntData"=survData,"RelSurIntGraph"=graphFile) #returns 
   
   return (results)
 }
-
+testData = list()
 # getFullDataDownloadWrapper <- function (filePath, jpsurvDataString) {
 #   #print("R: getDownloadOutputWrapper")
 #   jpsurvData = fromJSON(jpsurvDataString)
