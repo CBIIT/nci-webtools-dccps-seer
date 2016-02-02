@@ -200,7 +200,7 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString) {
   file=paste(filePath, paste("output-", jpsurvData$tokenId,".rds", sep=""), sep="/")
   outputData=readRDS(file)
   yearOfDiagnosisVarName = jpsurvData$calculate$static$yearOfDiagnosisVarName
-  yearOfDiagnosis = jpsurvData$calculate$form$yearOfDiagnosisRange[[1]]
+  yearOfDiagnosis = jpsurvData$additional$yearOfDiagnosis
   iteration=jpsurvData$plot$static$imageId
   
   downloadFile = paste(filePath, paste("data_Int-", jpsurvData$tokenId,".csv", sep=""), sep="/") #CSV file to download
