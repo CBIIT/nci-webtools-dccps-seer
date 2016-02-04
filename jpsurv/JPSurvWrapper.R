@@ -97,7 +97,7 @@ getAllData<- function(filePath,jpsurvDataString)
   JP=getJPWrapper(filePath,jpsurvDataString)
   jsonl =c(IntGraph,YearGraph,ModelEstimate,Coefficients,Trends,"ModelSelection" = ModelSelection, "JP"=JP) #returns
   exportJson <- toJSON(jsonl)
-  print (jsonl)
+  #print (jsonl)
   print("Creating results file")
   filename = paste(filePath, paste("results-", jpsurvData$tokenId, ".json", sep=""), sep="/") #CSV file to download
   write(exportJson, filename)
