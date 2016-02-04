@@ -27,9 +27,7 @@ $('#adv-options input').on('change', function() {
 	$('[data-toggle="tooltip"]').tooltip();
 
 	loadHelp();
-	$('#plot-form').hide();
-	$("#year-of-diagnosis").on('change', setCalculateData);
-	$("#recalculate").on('click', setCalculateData);
+//	$('#plot-form').hide();
 	var status = getUrlParameter('status');
 	if(status == "uploaded") {
 		$('#upload-instructions').hide();
@@ -106,15 +104,42 @@ $( "<div>" )
 });
 
 */
+
+	$('#model-selection-table').click(function(e) {
+		var id = e.target.id;
+
+		console.info("You clicked on a row.");
+		console.info(id);
+		console.dir(e);
+		var i= $(this).closest('tr').data('jp');
+		alert(i);
+		//alert("You click on a row with an id of "+id);
+
+        //var href = $(this).find("tr").attr("id");
+        //if(href) {
+        //	alert(href);
+            //window.location = href;
+        //}
+    });
+
 	$("#cohort_select").on("change", change_cohort_select);
 	$("#covariate_select").on("change", change_covariate_select);
 	$("#upload_file_submit").click(function(event) { 
 		//$('#upload-instructions').remove();
 		file_submit(event);
 	});
-	
-	
-	$("#calculate").on("click", setCalculateData);
+	$("#year-of-diagnosis").on('change', setCalculateData);
+	$("#recalculate").on('click', setCalculateData);
+
+	//
+	// Set click listeners
+	//
+	$("#calculate").on("click", function() { 
+		//Reset main calculation.  This forces a rebuild R Database
+		jpsurvData.stage2completed = 0;
+		setCalculateData();
+	});
+
 	$("#plot").on("click", setPlotData);
 	//$("#calculate").on("click", show_graph_temp);
 	$("#file_data").on("change", checkInputFiles);
@@ -229,12 +254,13 @@ function updateModel(token_it) {
 	//console.info("Triforce");
 	$("#model-selection-table > tbody").empty();
 	var jp = 0;
+	var title = "Click row to change Number of Joinpoints to "
 	$.each(ModelSelection, function( index, value ) {
-		console.log( index + ": " + value);
+//		console.log( index + ": " + value);
 		if(jp==0) {
-			row = '<tr class="active"><td>'+(jp+1)+"</td>";
+			row = '<tr id="jp_'+jp+'" class="info" data-jp="'+jp+'" title="'+title+jp.toString()+'"><td>'+(jp+1)+'</td>';
 		} else {
-			row = "<tr><td>"+(jp+1)+"</td>";
+			row = '<tr  id="jp_'+jp+'" data-jp="'+jp+'" title="'+title+jp.toString()+'"><td>'+(jp+1)+'</td>';
 		}
 		row += "<td>"+jp+"</td>";
 		row += "<td>"+value.bic+"</td>";
@@ -251,8 +277,8 @@ function updateModel(token_it) {
 	var estimates = jpsurvData.results.Estimates.split(",");
 	var std_error = jpsurvData.results.Std_Error.split(",");
 
-	console.log(typeof xvectors);
-	console.dir(xvectors);
+//	console.log(typeof xvectors);
+//	console.dir(xvectors);
 	$.each(xvectors, function( index, value ) {
 		row = "<tr><td>"+value+"</td>";
 		row += "<td>"+estimates[index]+"</td>";
@@ -263,30 +289,31 @@ function updateModel(token_it) {
 
 function updateGraphs(token_id) {
 
-	console.log("updateGraph");
+//	console.log("updateGraph");
 	//alert(token_id);
 	//Populate graph-year
+	$("#graph-year-tab").find( "img" ).show();
 	$("#graph-year-tab").find( "img" ).attr("src", "tmp/plot_Year-"+token_id+"-"+jpsurvData.plot.static.imageId+".png");
 	$("#graph-year-table > tbody").empty();
 	$("#graph-year-table > tbody").append('<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>');
 
 	//Populate time-year
+	$("#graph-time-tab").find( "img" ).show();
 	$("#graph-time-tab").find( "img" ).attr("src", "tmp/plot_Int-"+token_id+"-"+jpsurvData.plot.static.imageId+".png");
 
 	var year = jpsurvData.additional.yearOfDiagnosis;
-	console.log("RelSurIntData");
-	console.dir(jpsurvData.results.RelSurIntData);
-	console.log("Year_of_diagnosis_"+year);
+	//console.log("RelSurIntData");
+	//console.dir(jpsurvData.results.RelSurIntData);
+	//console.log("Year_of_diagnosis_"+year);
 	
-	console.dir(jpsurvData.results.RelSurIntData["Year_of_diagnosis_"+year]);
+	//console.dir(jpsurvData.results.RelSurIntData["Year_of_diagnosis_"+year]);
 	
 	var row;
 	var yod = jpsurvData.results["RelSurvYearData.Year_of_diagnosis_"+year];
-
 	$("#graph-year-table > tbody").empty();
 	$.each(yod, function( index, value ) {
 		row = "<tr><td>"+value+"</td>";
-		row += "<td>"+jpsurvData.results["RelSurvYearData.Expected_Survivial_Interval"][index]+"</td>";
+		row += "<td>"+jpsurvData.results["RelSurvYearData.Expected_Survival_Interval"][index]+"</td>";
 		row += "<td>"+jpsurvData.results["RelSurvYearData.Relative_Survival_Cum"][index]+"</td>";
 		row += "<td>"+jpsurvData.results["RelSurvYearData.pred_int"][index]+"</td>";
 		row += "<td>"+jpsurvData.results["RelSurvYearData.pred_cum"][index]+"</td></tr>/n";
@@ -430,6 +457,7 @@ function setCalculateData() {
 		if(jpsurvData.stage2completed == 1) {
 			stage3();  // This is a recalculation.
 		} else {
+
 			stage2(); // This is the initial calculation and setup.
 		}
 
@@ -502,6 +530,8 @@ function retrieveResults() {
 		jpsurvData.results = results;
 		var tokenId = jpsurvData.tokenId;
 		console.log("jpsurvData");
+		console.log(JSON.stringify(jpsurvData));
+
 		console.dir(jpsurvData);
 		updateTabs(tokenId);
 	});
@@ -526,13 +556,38 @@ function incrementImageId() {
 
 function stage2() {
 
+	$("#jpsurv-message-container").hide();
+
 	console.log("STAGE 2");
 	//Run initial calculation with setup.
-	var params = getParams();
 	incrementImageId();
+
+	console.warn("STAGE 2 ");
+
+	console.log(JSON.stringify(jpsurvData));
+	console.dir(jpsurvData);
+
+	jpsurvData.additional.yearOfDiagnosis = jpsurvData.calculate.form.yearOfDiagnosisRange[0].toString();
+	//jpsurvData.additional.yearOfDiagnosis = "1988";
+
+	//alert(JSON.stringify(jpsurvData.additional));
+
+	var params = getParams();
 	var comm_results = JSON.parse(jpsurvRest('stage2_calculate', params));
 
 	jpsurvData.stage2completed = 1;
+
+	console.log("Current year 0 ");
+	console.log(jpsurvData.calculate.form.yearOfDiagnosisRange[0]);
+
+	//$("#year-of-diagnosis").val(jpsurvData.calculate.form.yearOfDiagnosisRange[0]);
+
+	$("#year-of-diagnosis").empty();
+	for (year=jpsurvData.calculate.form.yearOfDiagnosisRange[0];year<=jpsurvData.calculate.form.yearOfDiagnosisRange[1];year++) {
+		$("#year-of-diagnosis").append("<OPTION>"+year+"</OPTION>\n");
+	}
+
+
 
 	// Get new file called results-xxxx.json
 	// populate images on tab 1.
@@ -553,11 +608,49 @@ function stage2() {
 
 function stage3() {
 		//Run initial calculation with setup.
-	console.log("STAGE 3");
+	$("#jpsurv-message-container").hide();
+	console.warn("STAGE 3");
+	//alert("stage 3");
+	console.info("HERE ARE the new values for re-calculate purposes.");
+	//alert($("#year-of-diagnosis").val());
+
+	//
+	// SET START YEAR
+	//
+	//jpsurvData.calculate.form.yearOfDiagnosisRange[0] = parseInt($("#year-of-diagnosis").val());
+	//jpsurvData.calculate.static.yearOfDiagnosisTitle = "Year of diagnosis "+$("#year-of-diagnosis").val()+"+";
+	$("#year_of_diagnosis_start").val(jpsurvData.calculate.form.yearOfDiagnosisRange[0]);
+
+	jpsurvData.additional.headerJoinPoints = 1;
+
+	console.log("INTERVALS");
+	var intervals = $("#interval-years").val();
+	//
+	// SET INTERVALS
+	//
+	jpsurvData.additional.intervals = [];
+	$.each(intervals, function( index, value ) {
+		jpsurvData.additional.intervals[index] = parseInt(value);
+	});
+
+//	jpsurvData.calculate.static.yearOfDiagnosisVarName = "Year_of_diagnosis_"+$("#year-of-diagnosis").val();
+//	jpsurvData.calculate.static.yearOfDiagnosisVarName = "Year_of_diagnosis_1975+";
+
+	//console.info("calculate.form.yearOfDiagnosisRange");
+	//console.dir(jpsurvData.calculate.form.yearOfDiagnosisRange);
+	//console.info("calculate.static.yearOfDiagnosisVarName");
+	//console.log(jpsurvData.calculate.static.yearOfDiagnosisVarName);
+
+
 	incrementImageId();
+	console.warn("STRINGIFY inputs");
+	delete jpsurvData.results;
+	console.log(JSON.stringify(jpsurvData));
 
 	var params = getParams();
 	var comm_results = JSON.parse(jpsurvRest('stage3_recalculate', params));
+
+
 
 }
 
@@ -730,7 +823,6 @@ function set_year_of_diagnosis_select() {
 	for (i=0;i<jpsurvData.calculate.static.years.length;i++) {
 		$("#year_of_diagnosis_start").append("<OPTION>"+jpsurvData.calculate.static.years[i]+"</OPTION>");
 		$("#year_of_diagnosis_end").append("<OPTION>"+jpsurvData.calculate.static.years[i]+"</OPTION>");
-		$("#year-of-diagnosis").append("<OPTION>"+jpsurvData.calculate.static.years[i]+"</OPTION>");
 	}
 	//
 	//Set last entry in year_of_diagnosis_end
