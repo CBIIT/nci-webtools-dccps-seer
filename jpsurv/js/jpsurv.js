@@ -27,6 +27,8 @@ $('#adv-options input').on('change', function() {
 	$('[data-toggle="tooltip"]').tooltip();
 
 	loadHelp();
+
+
 //	$('#plot-form').hide();
 	var status = getUrlParameter('status');
 	if(status == "uploaded") {
@@ -336,7 +338,8 @@ function setCalculateData() {
 	}
 	else{
 	*/
-		$('#calculate-instructions').hide();
+		//$('#calculate-instructions').hide();
+		$("#calculating-spinner").modal('show');
 
 		//Set static data
 		var inputAnswers;
@@ -409,7 +412,8 @@ function setCalculateData() {
 		//Append the plot intervals
 		//Old stuff below
 		//append_plot_intervals(jpsurvData.calculate.form.yearOfDiagnosisRange[1] - jpsurvData.calculate.form.yearOfDiagnosisRange[0]);
-		$("#spinner").show();
+		//$("#spinner").show();
+		$("#calculating-spinner").modal('show');
 		if(jpsurvData.stage2completed == 1) {
 			stage3();  // This is a recalculation.
 			retrieveResults();
@@ -417,10 +421,10 @@ function setCalculateData() {
 
 			stage2(); // This is the initial calculation and setup.
 			retrieveResults();
-			$("#jp_0").addClass("info");
 		}
 
-		$("#spinner").hide();
+		//$("#spinner").hide();
+		$("#calculating-spinner").modal('hide');
 		//getApcTable();
 	//}
 
@@ -1041,6 +1045,8 @@ jpsurvData={"file":
 				$('#spinner').hide();
 				$('#spinner-plotting').hide();
 				$('#apc-container').hide();
+				$("#calculating-spinner").modal('hide');
+
 
 				json = '{"status":"error"}';
 			}
