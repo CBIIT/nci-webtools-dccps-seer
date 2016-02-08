@@ -308,18 +308,34 @@ function updateTrends(token_id) {
 	return
 }
 function updateTrendGraph(trend, table_id) {
+	console.log("Trend: table_id="+table_id);
+	console.log("start.year typeof: "+typeof trend["start.year"]);
+	console.dir(trend);
+
 	var row;
 	$("#"+table_id+" > tbody").empty();
-	row = "<tr><td>"+trend["start.year"]+"</td>";
-	row += "<td>"+trend["end.year"]+"</td>";
-	row += "<td>"+trend.estimate+"</td>";
-	row += "<td>"+trend["std.error"]+"</td></tr>/n";
-	$("#"+table_id+" > tbody").append(row);
+	if(typeof trend["start.year"] == "number") {
+		row = "<tr><td>"+trend["start.year"]+"</td>";
+		row += "<td>"+trend["end.year"]+"</td>";
+		row += "<td>"+trend.estimate+"</td>";
+		row += "<td>"+trend["std.error"]+"</td></tr>/n";
+		$("#"+table_id+" > tbody").append(row);
+	} else {
+		console.log("Array length"+trend["start.year"].length);
+		$.each(trend["start.year"], function( index, value ) {
+			row = "<tr><td>"+value+"</td>";
+			row += "<td>"+trend["end.year"][index]+"</td>";
+			row += "<td>"+trend.estimate[index]+"</td>";
+			row += "<td>"+trend["std.error"][index]+"</td></tr>/n";
+			$("#"+table_id+" > tbody").append(row);
+		});
+	}
 }
 
 function updateSelections(token_id) {
 	return
 }
+
 function updateTabs(tokenId) {
 	updateModel(tokenId);
 	updateGraphs(tokenId);
