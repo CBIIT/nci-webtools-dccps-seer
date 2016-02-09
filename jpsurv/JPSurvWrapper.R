@@ -1,5 +1,6 @@
 library('rjson')
 library('JPSurv')
+library('jsonlite')
 VERBOSE=TRUE
 
 getDictionary <- function (inputFile, path, tokenId) {
@@ -75,9 +76,18 @@ getFittedResultWrapper <- function (filePath, jpsurvDataString) {
   
   outputFileName =paste(filePath, fileName, sep="/" )
   print (outputFileName)
+  ptm <- proc.time()
   getFittedResult(filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange, allVars, cohortVars, cohortValues, covariateVars, numJP,adanced_options, delLastIntvl, outputFileName,jpsurvDataString)
+  
+  print("Fitted Result Time:")
+  print(proc.time() -ptm)
+  
+  ptm <- proc.time()
   getAllData(filePath,jpsurvDataString)
+  print("Calculation time")
+  print(proc.time() -ptm)
   print("return from getAllData")
+  
   return
   # getFullDataDownloadWrapper(filePath,jpsurvDataString)
   
@@ -91,9 +101,22 @@ getAllData<- function(filePath,jpsurvDataString)
   ModelEstimate=getJointtModelWrapper(filePath,jpsurvDataString)
   ModelSelection=geALLtModelWrapper(filePath,jpsurvDataString)
   Coefficients=getcoefficientsWrapper(filePath,jpsurvDataString)
+  
+  ptm <- proc.time()
   IntGraph=getRelativeSurvivalByIntWrapper(filePath,jpsurvDataString)
+  print("Int Graph Time:")
+  print(proc.time() -ptm)
+  
+  ptm <- proc.time()
   YearGraph=getRelativeSurvivalByYearWrapper(filePath,jpsurvDataString)
+  print("Year Graph Time:")
+  print(proc.time() -ptm)
+  
+  ptm <- proc.time()
   Trends=getTrendWrapper(filePath,jpsurvDataString)
+  print("Trends Time:")
+  print(proc.time() -ptm)
+  
   JP=getJPWrapper(filePath,jpsurvDataString)
   jsonl =c(IntGraph,YearGraph,ModelEstimate,Coefficients,Trends,"ModelSelection" = ModelSelection, "JP"=JP) #returns
   exportJson <- toJSON(jsonl)
@@ -182,6 +205,7 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString) {
   graphFile= paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",iteration,".png", sep=""), sep="/")
   downloadFile = paste(filePath, paste("data_Year-", jpsurvData$tokenId, "-",iteration, ".csv", sep=""), sep="/") #CSV file to download
   survData=plot.relsurv.year(outputData$fittedResult$FitList[[jpInd+1]],intervals, NAs, cohortValues)
+  print (survData)
   for (key in names(survData)) write.table(survData[[key]], file=downloadFile, append=T)
   
   dev.off()
