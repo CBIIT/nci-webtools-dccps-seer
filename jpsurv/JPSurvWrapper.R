@@ -117,9 +117,11 @@ getAllData<- function(filePath,jpsurvDataString)
   print(proc.time() -ptm)
   
   JP=getJPWrapper(filePath,jpsurvDataString)
-  jsonl =c(IntGraph,YearGraph,ModelEstimate,Coefficients,Trends,"ModelSelection" = ModelSelection, "JP"=JP) #returns
-  exportJson <- toJSON(jsonl)
+  
+  Selected_Model=getSelectedModel(filePath,jpsurvDataString)
+  jsonl =c(IntGraph,YearGraph,ModelEstimate,Coefficients,Trends,"ModelSelection" = ModelSelection, "JP"=JP,"SelectedModel"=Selected_Model) #returns  exportJson <- toJSON(jsonl)
   #print (jsonl)
+  
   print("Creating results file")
   filename = paste(filePath, paste("results-", jpsurvData$tokenId, ".json", sep=""), sep="/") #CSV file to download
   write(exportJson, filename)
@@ -367,4 +369,13 @@ getJPWrapper<-function(filePath,jpsurvDataString)
   outputData=readRDS(file)
   JP=outputData$fittedResult$jp
   return(JP)
+}
+getSelectedModel<-function(filePath,jpsurvDataString)
+{
+  jpsurvData=fromJSON(jpsurvDataString)
+  file=paste(filePath, paste("output-", jpsurvData$tokenId,".rds", sep=""), sep="/")
+  outputData=readRDS(file)
+  selected=outputData$fittedResult$X1names[[1]]
+  point=as.integer(strsplit(selected, "_")[[1]][2])
+  return(point)
 }
