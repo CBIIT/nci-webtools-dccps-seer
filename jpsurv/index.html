@@ -107,7 +107,7 @@
                     <div id='cohort_sub_select' class="form-group jpsurv-label-container co-value-container"></div>
                   </fieldset>
                   <div style="clear:both;"></div>
-                  <div  id="popover" class="form-group jpsurv-label-container">
+                  <div  id="popover" class="form-group jpsurv-label-container" style="display:none;">
                     <label class="jpsurv-label" for= "covariate_select">Covariates:</label>
                     <select id='covariate_select' class="jpsurv-label-content" name='covariate_select' name ="selectList"></select>
                   </div>
@@ -322,14 +322,20 @@
                       </div>
                     </div>
                     <div class="table-responsive">  
-                      <table id="graph-year-table" class="table table-striped table-bordered" style="display:none;">
+                      <table id="graph-year-table" class="table table-striped table-bordered">
                         <thead>
                           <tr>
-                            <th>Year of Diagnosis</th>
-                            <th>Relative Survival 1-year Estimate</th>
-                            <th>Relative Survival 1-year Observered</th>
-                            <th>Relative Survival 4-year Estimate</th>
-                            <th>Relative Survival 4-year Observered</th>
+                            <th>Year of Diagnosis 1975</th>
+                            <th>Interval</th>
+                            <th>Died</th>
+                            <th>Alive at Start</th>
+                            <th>Lost to Followup</th>
+                            <th>Expected Survival Interval</th>
+                            <th>Relative Survival Cum</th>
+                            <th>pred int</th>
+                            <th>pred cum</th>
+                            <th>pred int se</th>
+                            <th>pred cum se</th>
                           </tr>
                         </thead>
                         <tbody>

@@ -266,16 +266,57 @@ function updateGraphs(token_id) {
 	//console.log("Year_of_diagnosis_"+year);
 	
 	//console.dir(jpsurvData.results.RelSurIntData["Year_of_diagnosis_"+year]);
-	
+	/*
+                            <th>Year of Diagnosis 1975</th>
+                            <th>Interval</th>
+                            <th>Died</th>
+                            <th>Alive at Start</th>
+                            <th>Lost to Followup</th>
+                            <th>Expected Survival Interval</th>
+                            <th>Relative Survival Cum</th>
+                            <th>pred int</th>
+                            <th>pred cum</th>
+                            <th>pred int se</th>
+                            <th>pred cum se</th>
+	*/
 	var row;
 	var yod = jpsurvData.results["RelSurvYearData."+jpsurvData.calculate.static.yearOfDiagnosisVarName];
+	console.info("About to make the table");
+	console.dir(jpsurvData.calculate.form);
+	var numvars = jpsurvData.calculate.form.cohortVars.length;
+
+	var vars = ["Interval", "Died", "Alive_at_Start", "Lost_to_Followup", "Expected_Survival_Interval", "Relative_Survival_Cum", "pred_int", "pred_cum", "pred_int_se", "pred_cum_se"];
+	vars.unshift(jpsurvData.calculate.static.yearOfDiagnosisVarName);
+	console.warn("vars");
+	console.dir(vars);
+
+	var header = [];
+	$.each(jpsurvData.calculate.form.cohortVars, function(index, value) {
+		header.push(value);
+	});
+	//header.push(yod.replace(/_/g, " "));
+
+	header.push.apply(header, vars);
+	console.warn("Header");
+	console.dir(header);
+	$("#graph-year-table > thead").empty();
+	row = "<tr>";
+	$.each(header, function( index, value ) {
+		row += "<td>"+value+"</td>";
+	});
+	row += "</tr>/n";
+	$("#graph-year-table > thead").append(row);
+
 	$("#graph-year-table > tbody").empty();
 	$.each(yod, function( index, value ) {
-		row = "<tr><td>"+value+"</td>";
-		row += "<td>"+jpsurvData.results["RelSurvYearData.Expected_Survival_Interval"][index]+"</td>";
-		row += "<td>"+jpsurvData.results["RelSurvYearData.Relative_Survival_Cum"][index]+"</td>";
-		row += "<td>"+jpsurvData.results["RelSurvYearData.pred_int"][index]+"</td>";
-		row += "<td>"+jpsurvData.results["RelSurvYearData.pred_cum"][index]+"</td></tr>/n";
+		row = "<tr>";
+		$.each(jpsurvData.calculate.form.cohortValues, function(index, value) {
+			row += "<td>"+value+"</td>";
+		});
+		$.each(vars, function( index2, value2 ) {
+			row += "<td>"+jpsurvData.results["RelSurvYearData."+value2][index]+"</td>";
+		});
+		row += "</tr>/n";
 		$("#graph-year-table > tbody").append(row);
 	});
 
@@ -298,7 +339,7 @@ function updateEstimates(token_id) {
 	row = "<tr><td>Boyesian Information Criterion (BIC)</td><td>"+jpsurvData.results.bic+"</td></tr>";
 	row += "<td>Akaike Information Criterial (AIC)</td><td>"+jpsurvData.results.aic+"</td></tr>";
 	row += "<td>Log Likelihood</td><td>"+jpsurvData.results.ll+"</td></tr>";
-	row += "<td>Convergence Status</td><td>"+jpsurvData.results.converged.toUpperCase()+"</td></tr>/n";
+	row += "<td>Converged</td><td>"+jpsurvData.results.converged.toUpperCase()+"</td></tr>/n";
 	$("#estimates-jp > tbody").append(row);
 }
 function updateTrends(token_id) {
