@@ -1,6 +1,7 @@
 var control_data;
 var cohort_covariance_variables;
 var jpsurvData = {"file":{"dictionary":"Breast.dic","data":"something.txt", "form":"form-983832.json"}, "calculate":{"form": {"yearOfDiagnosisRange":[]}, "static":{}}, "plot":{"form": {}, "static":{"imageId":0} }, "additional":{"headerJoinPoints":0,"yearOfDiagnosis":null,"intervals":[1,4]}, "tokenId":"unknown", "status":"unknown", "stage2completed":0};
+var DEBUG = false;
 
 if(getUrlParameter('tokenId')) {
 	jpsurvData.tokenId = getUrlParameter('tokenId');
@@ -85,6 +86,8 @@ $('#adv-options input').on('change', function() {
 
 	$("#cohort_select").on("change", change_cohort_select);
 	$("#covariate_select").on("change", change_covariate_select);
+	$("#precision").on("change", changePrecision);
+
 	$("#upload_file_submit").click(function(event) { 
 		//$('#upload-instructions').remove();
 		file_submit(event);
@@ -105,13 +108,18 @@ $('#adv-options input').on('change', function() {
 	//$("#calculate").on("click", show_graph_temp);
 	$("#file_data").on("change", checkInputFiles);
 	$("#file_control").on("change", checkInputFiles);
-	$("#parameters").on("change", checkPlotStatus);
+	//$("#parameters").on("change", checkPlotStatus);
 	//$("#plot").on("click", showPlot);
 	//Checking Plot parameters
 //	$("#covariate_value_select").on("change", checkPlotParameters);
 	$("#plot_intervals").on("change", checkPlotParameters);
 	$("#covariate-fieldset").on("click", "#covariate_value_select", checkPlotParameters);
 	$("#data-set").on("click", getDownloadOutput);
+
+	if(DEBUG) {
+		alert(DEBUG+"  set.  DEBUG is on");
+		$("#year_of_diagnosis_start").val("2000");
+	}
 
 });
 
@@ -131,7 +139,7 @@ function getDownloadOutput(event) {
 //	$('#data-set').attr('href', '../jpsurv/tmp/output-' +jpsurvData.tokenId+'.rds');
 //	alert("You clicked go go go");
 }
-
+/*
 function showPlot() {
 	//alert("hide plot instructions");
 	$('#plot-instructions').hide();
@@ -149,6 +157,7 @@ function checkPlotStatus() {
 	}
 
 }
+*/
 
 function checkPlotParameters() {
 	//If both files are filed out then enable the Upload Files Button
@@ -220,9 +229,9 @@ function updateModel(token_it) {
 //		console.log( index + ": " + value);
 		row = '<tr  id="jp_'+jp+'" title="'+title+jp.toString()+'"><td>'+(jp+1)+'</td>';
 		row += "<td>"+jp+"</td>";
-		row += "<td>"+value.bic+"</td>";
-		row += "<td>"+value.aic+"</td>";
-		row += "<td>"+value.ll+"</td>";
+		row += formatCell(value.bic);
+		row += formatCell(value.aic);
+		row += formatCell(value.ll);
 		row += "<td>"+value.converged+"</td></tr>/n";
 		$("#model-selection-table > tbody").append(row);
 		jp++;
@@ -240,8 +249,8 @@ function updateModel(token_it) {
 //	console.dir(xvectors);
 	$.each(xvectors, function( index, value ) {
 		row = "<tr><td>"+value+"</td>";
-		row += "<td>"+estimates[index]+"</td>";
-		row += "<td>"+std_error[index]+"</td></tr>\n";
+		row += formatCell(estimates[index]);
+		row += formatCell(std_error[index])+"</tr>\n";
 		$("#estimates-coefficients > tbody").append(row);
 	});
 }
@@ -266,19 +275,6 @@ function updateGraphs(token_id) {
 	//console.log("Year_of_diagnosis_"+year);
 	
 	//console.dir(jpsurvData.results.RelSurIntData["Year_of_diagnosis_"+year]);
-	/*
-                            <th>Year of Diagnosis 1975</th>
-                            <th>Interval</th>
-                            <th>Died</th>
-                            <th>Alive at Start</th>
-                            <th>Lost to Followup</th>
-                            <th>Expected Survival Interval</th>
-                            <th>Relative Survival Cum</th>
-                            <th>pred int</th>
-                            <th>pred cum</th>
-                            <th>pred int se</th>
-                            <th>pred cum se</th>
-	*/
 	var row;
 	var yod = jpsurvData.results["RelSurvYearData."+jpsurvData.calculate.static.yearOfDiagnosisVarName];
 	console.info("About to make the table");
@@ -294,7 +290,6 @@ function updateGraphs(token_id) {
 	$.each(jpsurvData.calculate.form.cohortVars, function(index, value) {
 		header.push(value);
 	});
-	//header.push(yod.replace(/_/g, " "));
 
 	header.push.apply(header, vars);
 	console.warn("Header");
@@ -302,7 +297,7 @@ function updateGraphs(token_id) {
 	$("#graph-year-table > thead").empty();
 	row = "<tr>";
 	$.each(header, function( index, value ) {
-		row += "<td>"+value+"</td>";
+		row += "<th>"+value.replace(/_/g, " ")+"</th>";
 	});
 	row += "</tr>/n";
 	$("#graph-year-table > thead").append(row);
@@ -311,10 +306,10 @@ function updateGraphs(token_id) {
 	$.each(yod, function( index, value ) {
 		row = "<tr>";
 		$.each(jpsurvData.calculate.form.cohortValues, function(index, value) {
-			row += "<td>"+value+"</td>";
+			row += "<td>"+value.replace(/"/g, "")+"</td>";
 		});
 		$.each(vars, function( index2, value2 ) {
-			row += "<td>"+jpsurvData.results["RelSurvYearData."+value2][index]+"</td>";
+			row += formatCell(jpsurvData.results["RelSurvYearData."+value2][index]);
 		});
 		row += "</tr>/n";
 		$("#graph-year-table > tbody").append(row);
@@ -325,9 +320,9 @@ function updateGraphs(token_id) {
 	$("#graph-time-table > tbody").empty();
 	$.each(yod, function( index, value ) {
 		row = "<tr><td>"+value+"</td>";
-		row += "<td>"+jpsurvData.results.RelSurIntData.Interval[index]+"</td>";
-		row += "<td>"+jpsurvData.results.RelSurIntData.Relative_Survival_Cum[index]+"</td>";
-		row += "<td>"+jpsurvData.results.RelSurIntData.pred_cum[index]+"</td></tr>/n";
+		row += formatCell(jpsurvData.results.RelSurIntData.Interval[index]);
+		row += formatCell(jpsurvData.results.RelSurIntData.Relative_Survival_Cum[index]);
+		row += formatCell(jpsurvData.results.RelSurIntData.pred_cum[index])+"</tr>/n";
 		$("#graph-time-table > tbody").append(row);
 	});
 
@@ -336,9 +331,10 @@ function updateEstimates(token_id) {
 
 	var row;
 	$("#estimates-jp > tbody").empty();
-	row = "<tr><td>Boyesian Information Criterion (BIC)</td><td>"+jpsurvData.results.bic+"</td></tr>";
-	row += "<td>Akaike Information Criterial (AIC)</td><td>"+jpsurvData.results.aic+"</td></tr>";
-	row += "<td>Log Likelihood</td><td>"+jpsurvData.results.ll+"</td></tr>";
+	row = "<tr>";
+	row += "<td>Boyesian Information Criterion (BIC)</td>"+formatCell(jpsurvData.results.bic)+"</tr>";
+	row += "<td>Akaike Information Criterial (AIC)</td>"+formatCell(jpsurvData.results.aic)+"</td></tr>";
+	row += "<td>Log Likelihood</td>"+formatCell(jpsurvData.results.ll)+"</tr>";
 	row += "<td>Converged</td><td>"+jpsurvData.results.converged.toUpperCase()+"</td></tr>/n";
 	$("#estimates-jp > tbody").append(row);
 }
@@ -358,19 +354,23 @@ function updateTrendGraph(trend, table_id) {
 	if(typeof trend["start.year"] == "number") {
 		row = "<tr><td>"+trend["start.year"]+"</td>";
 		row += "<td>"+trend["end.year"]+"</td>";
-		row += "<td>"+trend.estimate+"</td>";
-		row += "<td>"+trend["std.error"]+"</td></tr>/n";
+		row += formatCell(trend.estimate);
+		row += formatCell(trend["std.error"])+"</tr>/n";
 		$("#"+table_id+" > tbody").append(row);
 	} else {
 		console.log("Array length"+trend["start.year"].length);
 		$.each(trend["start.year"], function( index, value ) {
 			row = "<tr><td>"+value+"</td>";
 			row += "<td>"+trend["end.year"][index]+"</td>";
-			row += "<td>"+trend.estimate[index]+"</td>";
-			row += "<td>"+trend["std.error"][index]+"</td></tr>/n";
+			row += formatCell(trend.estimate[index]);
+			row += formatCell(trend["std.error"][index])+"</tr>/n";
 			$("#"+table_id+" > tbody").append(row);
 		});
 	}
+}
+function updateGraphLinks(token_id) {
+	$("#graph-dataset-link").attr("href", "tmp/data_Year-"+token_id+"-"+jpsurvData.plot.static.imageId+".csv");
+	$("#full-dataset-link").attr("href", "tmp/output-"+token_id+".rds");
 }
 
 function updateSelections(token_id) {
@@ -382,8 +382,57 @@ function updateTabs(tokenId) {
 	updateGraphs(tokenId);
 	updateEstimates(tokenId);
 	updateTrends(tokenId);
+	updateGraphLinks(tokenId);
 	updateSelections(tokenId);
+	//Change the precision of all the floats.
+	changePrecision();
 }
+
+function roundup(num, dec){
+	console.warn("RoundUp: "+num+", "+dec);
+    dec = dec || 0;
+    var myFloat = parseFloat(num);
+    myFloat = myFloat.toFixed(dec+1);
+    var s = myFloat.toString();
+    console.log("s before: "+s);
+    s = s.replace(/5$/, '6');
+    console.log("s after: "+s);
+    return Number((+s).toFixed(dec));
+ }
+
+function changePrecision() {
+
+	var precision = $("#precision").val();;
+	//$("#model-selection-table > tbody > tr > td[data-float]").each(function(index,element) {
+	$("td[data-float]").each(function(index,element) {
+		var number = $(element).attr("data-float");
+		var myFloat = parseFloat(number);
+		var myInt = parseInt(number);
+		if(myInt == myFloat) {
+			//Set the int part
+			//$(element).css("color", "red");
+			$(element).text(myInt);
+		} else {
+			//Set the float part
+			//$(element).css("color", "blue");
+			$(element).text(myFloat.toFixed(precision));
+			//$(element).text(roundup(myFloat, precision));
+		}
+	});
+}
+
+function formatCell(x) {
+	//If the content is a float return a cell with the attribute of data-float
+	// else return data in a table cell
+	if(isNaN(parseFloat(x))) {
+		//console.log(x+" is NaN");
+		return "<td>"+x+"</td>";
+	} else {
+		//console.log(x+" is a float");
+		return "<td data-float='"+x+"'><i>float</i></td>"; 
+	}
+}
+
 //Set Data after STAGE 2
 function setCalculateData() {
 	//Old stuff below....
