@@ -111,16 +111,11 @@ getAllData<- function(filePath,jpsurvDataString)
   print("Year Graph Time:")
   print(proc.time() -ptm)
   
-  ptm <- proc.time()
-  Trends=getTrendWrapper(filePath,jpsurvDataString)
-  print("Trends Time:")
-  print(proc.time() -ptm)
-  
   JP=getJPWrapper(filePath,jpsurvDataString)
   
   Selected_Model=getSelectedModel(filePath,jpsurvDataString)
   
-  jsonl =c(IntGraph,YearGraph,ModelEstimate,Coefficients,Trends,"ModelSelection" = ModelSelection, "JP"=JP,"SelectedModel"=Selected_Model) #returns
+  jsonl =c(IntGraph,YearGraph,ModelEstimate,Coefficients,"ModelSelection" = ModelSelection, "JP"=JP,"SelectedModel"=Selected_Model) #returns
   exportJson <- toJSON(jsonl)
   
   #print (jsonl)
@@ -129,6 +124,16 @@ getAllData<- function(filePath,jpsurvDataString)
   write(exportJson, filename)
   # return (jsonl)
 }
+getTrendsData<-function(filePath,jpsurvDataString)
+{
+  ptm <- proc.time()
+  Trends=getTrendWrapper(filePath,jpsurvDataString)
+  print("Trends Time:")
+  print(proc.time() -ptm)
+  jsonl =c(Trends) #returns
+  exportJson <- toJSON(jsonl)
+}
+
 #Creates the SEER Data and Fitted Result
 getFittedResult <- function (filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange, allVars, cohortVars, cohortValues, covariateVars, numJP, adanced_options,delLastIntvlAdv,outputFileName,jpsurvDataString) {
   jpsurvData <<- fromJSON(jpsurvDataString)
@@ -209,9 +214,10 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString) {
   downloadFile = paste(filePath, paste("data_Year-", jpsurvData$tokenId, "-",iteration, ".txt", sep=""), sep="/") #CSV file to download
   survData=plot.relsurv.year(outputData$fittedResult$FitList[[jpInd+1]],intervals, NAs, cohortValues)
   print (survData)
+
   dev.off()
-  write.table(survData, downloadFile)
   results =c("RelSurYearGraph"=graphFile,"RelSurvYearData"=survData) #returns 
+  write.table(survData, downloadFile)
   return (results)
   
   
@@ -229,15 +235,14 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString) {
   yearOfDiagnosis = jpsurvData$additional$yearOfDiagnosis
   iteration=jpsurvData$plot$static$imageId
   
-  downloadFile = paste(filePath, paste("data_Int-", jpsurvData$tokenId,".csv", sep=""), sep="/") #CSV file to download
   png(filename = paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",iteration,".png", sep=""), sep="/"))
   graphFile= paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",iteration,".png", sep=""), sep="/")
   downloadFile = paste(filePath, paste("data_Int-", jpsurvData$tokenId, "-",iteration, ".txt", sep=""), sep="/") #CSV file to download
+  
   survData=plot.relsurv.int(outputData$fittedResult$FitList[[jpInd+1]], yearOfDiagnosisVarName, yearOfDiagnosis);
+  write.table(survData, downloadFile)
   dev.off()
   results =c("RelSurIntData"=survData,"RelSurIntGraph"=graphFile) #returns 
-  write.table(survData, downloadFile)
-
   
   return (results)
 }
