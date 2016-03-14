@@ -1126,7 +1126,7 @@ jpsurvData={"file":
 			'global': false,
 			'url': url,
 			'dataType': "json",
-			'type':"POST"
+			'type':"POST",
 			'success': function (data) {
 				json = data;
 			},
