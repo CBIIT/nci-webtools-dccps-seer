@@ -173,7 +173,7 @@ def stage1_upload():
     info(return_url)
     return redirect(return_url)
 
-@app.route('/jpsurvRest/stage2_calculate', methods=['GET'])
+@app.route('/jpsurvRest/stage2_calculate', methods=['POST'])
 def stage2_calculate():
 
     print
