@@ -80,6 +80,7 @@ $('#adv-options input').on('change', function() {
 		$(this).addClass('info').siblings().removeClass('info'); 
 		jpsurvData.additional.headerJoinPoints = this.rowIndex - 1;
 		console.log("headerJoinPoints: "+jpsurvData.additional.headerJoinPoints);
+		//alert("This is working");
 	    e.stopPropagation();
 	    setCalculateData();
     });
@@ -216,10 +217,16 @@ function setUploadData() {
 	jpsurvData.file.data = getUrlParameter('file_data_filename');
 	jpsurvData.file.form = getUrlParameter('output_filename');
 	jpsurvData.status = getUrlParameter('status');
-
-
 }
+
 function updateModel(token_it) {
+	console.warn("updateModel");
+	console.dir(jpsurvData);
+	if(jpsurvData.results.SelectedModel == "NA") {
+		console.warn("jpsurvData.results.SelectedModel is NA.  Changing to 0");
+		jpsurvData.results.SelectedModel = 1;
+	}
+
 	var ModelSelection = JSON.parse(jpsurvData.results.ModelSelection);
 	//console.info("Triforce");
 	$("#model-selection-table > tbody").empty();
@@ -227,7 +234,8 @@ function updateModel(token_it) {
 	var title = "Click row to change Number of Joinpoints to "
 	$.each(ModelSelection, function( index, value ) {
 //		console.log( index + ": " + value);
-		row = '<tr  id="jp_'+jp+'" title="'+title+jp.toString()+'"><td>'+(jp+1)+'</td>';
+		row = '<tr  id="jp_'+jp+'" title="'+title+jp.toString()+'">';
+		row += '"<td class="model-number">'+(jp+1)+'</td>';
 		row += "<td>"+jp+"</td>";
 		row += formatCell(value.bic);
 		row += formatCell(value.aic);
@@ -237,7 +245,7 @@ function updateModel(token_it) {
 		jp++;
 	});
 	$("#jp_"+jpsurvData.additional.headerJoinPoints).addClass('info').siblings().removeClass('info'); 
-
+	$("#jp_"+(jpsurvData.results.SelectedModel-1)).find('td.model-number').text(jpsurvData.results.SelectedModel+" (final selected model)");
 
 	$("#estimates-coefficients > tbody").empty();
 	var row;
@@ -283,8 +291,8 @@ function updateGraphs(token_id) {
 
 	var vars = ["Interval", "Died", "Alive_at_Start", "Lost_to_Followup", "Expected_Survival_Interval", "Relative_Survival_Cum", "pred_int", "pred_cum", "pred_int_se", "pred_cum_se"];
 	vars.unshift(jpsurvData.calculate.static.yearOfDiagnosisVarName);
-	console.warn("vars");
-	console.dir(vars);
+	//console.warn("vars");
+	//console.dir(vars);
 
 	var header = [];
 	$.each(jpsurvData.calculate.form.cohortVars, function(index, value) {
@@ -292,8 +300,8 @@ function updateGraphs(token_id) {
 	});
 
 	header.push.apply(header, vars);
-	console.warn("Header");
-	console.dir(header);
+	//console.warn("Header");
+	//console.dir(header);
 	$("#graph-year-table > thead").empty();
 	row = "<tr>";
 	$.each(header, function( index, value ) {
@@ -345,9 +353,9 @@ function updateTrends(token_id) {
 	return
 }
 function updateTrendGraph(trend, table_id) {
-	console.log("Trend: table_id="+table_id);
-	console.log("start.year typeof: "+typeof trend["start.year"]);
-	console.dir(trend);
+	//console.log("Trend: table_id="+table_id);
+	//console.log("start.year typeof: "+typeof trend["start.year"]);
+	//onsole.dir(trend);
 
 	var row;
 	$("#"+table_id+" > tbody").empty();
@@ -1126,6 +1134,7 @@ jpsurvData={"file":
 			'global': false,
 			'url': url,
 			'dataType': "json",
+			'type':"POST",
 			'success': function (data) {
 				json = data;
 			},
