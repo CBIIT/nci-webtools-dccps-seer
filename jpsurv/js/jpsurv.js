@@ -14,23 +14,16 @@ if(getUrlParameter('status')) {
 }
 
 $(document).ready(function() {
-/*
-$('#myForm input').on('change', function() {
-   alert($('input[name="myRadio"]:checked', '#myForm').val()); 
-});
 
-$('#adv-options input').on('change', function() {
-   alert($('input[name=adv-delete-interval]:checked', '#adv-delete-interval').val()); 
-});
-*/
-	//console.log("jpsurvData");
-	//console.dir(jpsurvData);
+	$("#cohort-variables").on('click', ".cohort", function(e) {
+		$("."+this.classList.item(1)).attr('checked', false);
+		$(this).prop('checked', true);
+	});
+
 	$('[data-toggle="tooltip"]').tooltip();
 
 	loadHelp();
 
-
-//	$('#plot-form').hide();
 	var status = getUrlParameter('status');
 	if(status == "uploaded") {
 		$('#upload-instructions').hide();
@@ -124,7 +117,41 @@ $('#adv-options input').on('change', function() {
 
 });
 
+function addCohortVariables() {
+	console.warn("control_data");
+	console.dir(control_data);
+	var i=0;
+	var html = "";
+	$.each(cohort_covariance_variables, function(key, value) {
+		console.warn("cohort-i: cohort-"+i);
+		console.info(key+": "+value);
+		//alert("cohort"+i);
+		html = '<div class="row"><div class="col-md-12"><fieldset id="cohort-'+i+'"><legend><span class="jpsurv-label">'+key+':</span></legend></fieldset></div></div>';
+		$("#cohort-variables").append(html);
+		$.each(control_data.VarFormatSecList[key].ItemValueInDic, function(key2, value2) {
+			$("#cohort-"+i)
+				.append(
+					$('<div>').addClass('checkbox')
+						.append($('<label>')
+							.append($('<input>')
+									.attr('type', 'checkbox')
+									.attr('value', 'value2')
+									.addClass('cohort')
+									.addClass('cohort-'+i)
+								).append(value2)
+
+					)
+				);
+		});
+		$("#cohort-"+i).find('input').filter(":first").attr('checked', true);
+		i++;
+	});
+
+
+}
+
 function loadHelp() {
+
 	$("#help-tab").load("help.html");
 }
 
@@ -783,31 +810,32 @@ function load_form() {
 	  //console.dir(control_data);
 	  parse_diagnosis_years();
 	  parse_cohort_covariance_variables();
+	  addCohortVariables();
 	  build_parameter_column();
 	  // The following is for demo purpose only.
 	  //Temp change a title
 		$('#diagnosis_title')
-				.empty()
-				.append($('<div>')
-					.addClass('jpsurv-label-container')
-					.append($('<span>')
-							.append('Year of Diagnosis:')
-							.addClass('jpsurv-label')
-						)
-					.append($('<span>')
-							.append(jpsurvData.calculate.static.yearOfDiagnosisTitle)
-							.attr('title', 'Year of diagnosis label')
-							.addClass('jpsurv-label-content')
-						)
-					);
-	//}
+			.empty()
+			.append($('<div>')
+				.addClass('jpsurv-label-container')
+				.append($('<span>')
+						.append('Year of Diagnosis:')
+						.addClass('jpsurv-label')
+				)
+				.append($('<span>')
+						.append(jpsurvData.calculate.static.yearOfDiagnosisTitle)
+						.attr('title', 'Year of diagnosis label')
+						.addClass('jpsurv-label-content')
+				)
+		);
 
 	//reader.readAsText(file_control, "UTF-8");
 }
 
 function build_parameter_column() {
-
+	console.warn("build_parameter_column");
 	set_year_of_diagnosis_select();
+	console.dir(Object.keys(cohort_covariance_variables));
 	set_cohort_select(Object.keys(cohort_covariance_variables));
 	var covariate_options = Object.keys(cohort_covariance_variables);
 	covariate_options.unshift("None");
@@ -828,9 +856,8 @@ function parse_diagnosis_years() {
 	jpsurvData.calculate.static.years = control_data.VarFormatSecList[jpsurvData.calculate.static.yearOfDiagnosisTitle].ItemValueInDic;
 
 }
-
 function parse_cohort_covariance_variables() {
-	//console.log('parse_cohort_covariance_variables()');
+	console.log('parse_cohort_covariance_variables()');
 
 	// First find the variables
 	//  They are everything between the Page type and Year Of Diagnosis Label (noninclusive) with the VarName attribute
@@ -839,7 +866,7 @@ function parse_cohort_covariance_variables() {
 
 	cohort_covariance_variables = new Object();
 	for (var i=0; i< cohort_covariance_variable_names.length;i++) {
-		//console.log("cohort_covariance_variable_names[i] where i ="+i+" and value is "+cohort_covariance_variable_names[i])
+		console.log("cohort_covariance_variable_names[i] where i ="+i+" and value is "+cohort_covariance_variable_names[i])
 		var cohort_covariance_variable_values = get_cohort_covariance_variable_values(cohort_covariance_variable_names[i]);
 		cohort_covariance_variables[cohort_covariance_variable_names[i]] = cohort_covariance_variable_values;
 	}
@@ -867,9 +894,9 @@ function get_cohort_covariance_variable_names() {
   //Go through Item Value and look for "Year of diagnosis"
   //Push variable names on to a list called cohort_covariance_variable_names.
 	for (var i=0; i<names.length; i++) {
-		//console.log('names['+i+'] = '+names[i]+', values['+i+'] = '+values[i]);
+		console.log('names['+i+'] = '+names[i]+', values['+i+'] = '+values[i]);
 		//if (regex_base.test(names[i]) && values[i] == "Year of diagnosis") break;
-	        if (regex_interval.test(values[i])) break; //stops at a value with "Interval" in it
+		if (regex_interval.test(values[i])) break; //stops at a value with "Interval" in it
 		if (!regex_name.test(names[i])) continue;
 		if (values[i] == "Page type") continue; // Skip the Page type
 		if (regex_year.test(values[i])) continue; //skips "Year of diagnosis"
@@ -877,7 +904,7 @@ function get_cohort_covariance_variable_names() {
 	}
 	//cohort_covariance_variable_names.pop();
 	//alert (JSON.stringify(cohort_covariance_variable_names));
-	//console.dir(cohort_covariance_variable_names);
+	console.dir(cohort_covariance_variable_names);
 	return cohort_covariance_variable_names;
 }
 
@@ -912,6 +939,7 @@ function set_year_of_diagnosis_select() {
 }
 
 function set_cohort_select(cohort_options) {
+	console.warn("set_cohort_select");
 	var max_size = 4;
 	if (cohort_options.length < 4) max_size = cohort_options.length
 	$("#cohort_select").attr("size", max_size);
@@ -955,10 +983,13 @@ function change_cohort_select() {
 	//alert('empty covariate_sub_select');
 	$("#covariate_sub_select").empty();
 	//alert('Is it empty?');
-
+	console.warn("change_cohort_select");
 	if (all_selected != null) {
+		console.warn("all_selected is not null");
 		for (var i=0;i<all_selected.length;i++) {
+			console.warn("all_selected length");
 			for (var j=0;j<keys.length;j++) {
+				console.warn("keys length: "+keys.length);
 				if (all_selected[i] == keys[j]) 
 					add_cohort_covariance_variable_select($("#cohort_sub_select"), "cohort_value_"+i, keys[j], cohort_covariance_variables[keys[j]]);
 			}
