@@ -79,11 +79,9 @@ h2.stage-header {
    clear:both;
  }
 .jpsurv-label {
-    display: inline-block;
     font-weight: 700;
     margin-bottom: 5px;
     max-width: 100%;
-    float:left;
 }
 .jpsurv-label-content {
     margin-left:5px;
@@ -388,6 +386,8 @@ input[type="file"] {
 .form-horizontal .checkbox {
   min-height:22px;
   padding-top: 0px;
+  height: 18px;
+  min-height: 18px;
 }
 .checkbox input[type="checkbox"], .checkbox-inline input[type="checkbox"], .radio input[type="radio"], .radio-inline input[type="radio"] {
     margin-left: -20px;
@@ -402,6 +402,18 @@ input[type="file"] {
 
 #cohort-variables > div {
   padding-bottom:10px;
+}
+#cohort-display {
+  border: 1px solid #ddd;
+  padding:5px;
+  display:block;
+  max-width:650px;
+  float:left;
+  position:relative;
+  top:-5px;
+}
+.model-select-row {
+  padding-left:15px;
 }
 @media (min-width: 768px) {
     .form-inline .radio input[type="radio"], 

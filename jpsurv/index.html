@@ -100,6 +100,7 @@
                   </div>
                   <div id="cohort-variables">
                   </div>
+                  <!--
                   <div class="form-group jpsurv-label-container">
                     <label class="jpsurv-label" for="cohort_select">Cohort Variables:</label>
                     <select id='cohort_select' class="jpsurv-label-content" name='cohort_select' multiple></select>
@@ -109,6 +110,7 @@
                     <div id='cohort_sub_select' class="form-group jpsurv-label-container co-value-container"></div>
                   </fieldset>
                   <div style="clear:both;"></div>
+                  -->
                   <div  id="popover" class="form-group jpsurv-label-container" style="display:none;">
                     <label class="jpsurv-label" for= "covariate_select">Covariates:</label>
                     <select id='covariate_select' class="jpsurv-label-content" name='covariate_select' name ="selectList"></select>
@@ -221,30 +223,15 @@
         </div>
         <div class="col-md-8"id="right_panel" >
           <div id="cohort-join-points" class="box">
-            <div class="row">
-              <div class="col-md-1">
-                <b>Cohort</b>
+            <div class="row model-select-row" style="padding-bottom:15px;">
+              <div class="col-md-12">
+                <strong style="float:left;margin-right:5px;margin-bottom:5px;">Cohort</strong>&nbsp;
+                <span id="cohort-display"></span>
               </div>
-              <div class="col-md-7">
-                <span id="cohort-values" >
-                  <select disabled>
-                    <option id="header-cohort-name" >no value selected</option>
-                  </select>
-                  <select disabled>
-                    <option id="header-cohort-value" >no value selected</option>
-                  </select>
-                </span>
-              </div>
-              <div class="col-md-4" style="display:none;">
-                <div class="pull-right">
-                  <b>Number of Join Points</b>
-                  <select id="header-join-points">
-                    <option>1</option>
-                    <option>2</option>
-                    <option>3</option>
-                    <option>4</option>
-                  </select>
-                </div>
+            </div>
+            <div class="row model-select-row">
+              <div class="col-md-10">
+                <strong>Model Selection</strong>
               </div>
             </div>
             <div class="row">
@@ -264,7 +251,34 @@
                   </tbody>
                 </table>
               </div>
-          </div>
+            </div>
+            <div class="row model-select-row">
+              <div class="col-md-10" style="padding-bottom:15px;">
+                <strong>Display Options</strong>
+              </div>
+              <div class="col-md-10">
+
+                <div style="padding-bottom:15px;">
+                  <form style="padding-right:10px;">
+                    <label title="Rounded to decimal places." style="margin-left:10px;">Number of Decimal Places</label>
+                    <select name="abcselect" id="precision">
+                      <option>1</option>
+                      <option>2</option>
+                      <option>3</option>
+                      <option>4</option>
+                      <option>5</option>
+                      <option>6</option>
+                      <option>7</option>
+                      <option>8</option>
+                      <option selected>9</option>
+                    </select>
+                  </form>
+                </div>
+
+
+              </div>
+            </div>
+
           </div>
               <!-- Spinner -->
               <div class="row">
@@ -284,29 +298,6 @@
               </div>
 
           <ul id="jpsurv-tabs" class="nav nav-tabs responsive">
-              <div class="pull-right">
-                <form style="padding-right:10px;">
-                  <label title="Rounded to decimal places.">Precision</label>
-                  <select name="abcselect" id="precision">
-                    <option>3</option>
-                    <option>4</option>
-                    <option>5</option>
-                    <option>6</option>
-                    <option>7</option>
-                    <option>8</option>
-                    <option>9</option>
-                    <option>10</option>
-                    <option>11</option>
-                    <option>12</option>
-                    <option>13</option>
-                    <option>14</option>
-                    <option>15</option>
-                    <option>16</option>
-                    <option selected>17</option>
-                  </select>
-                </form>
-              </div>
-
             <li class="active"><a href="#home" data-toggle="tab">Survival Graph/Data</a></li>
             <li><a href="#estimates-tab" data-toggle="tab">Model Estimates</a></li>
             <li><a href="#trends-tab" data-toggle="tab">Trends</a></li>
@@ -316,14 +307,6 @@
           <div class="tab-content">
             <!-- Home Tab -->
             <div class="tab-pane active" id="home">
-              <div class="pull-right" style="padding-top:13px;">
-                <span>
-                <a id="graph-dataset-link" href="#" style="text-decoration: underline;">Download Graph Dataset</a>
-                </span>&nbsp;
-                <span>
-                <a id="full-dataset-link" href="#" style="text-decoration: underline;">Download Full Dataset</a>
-                </span>
-              </div>
               <!-- Sub Tabs for Home -->
               <ul class="nav nav-tabs" id="dashboard_tabs">
                 <li class="active"><a href="#graph-year-tab" data-toggle="tab">Survival vs. Year of Diagnosis</a></li>
@@ -346,6 +329,13 @@
                       </div>
                       <div class="col-md-1">
                         <input type="button" class="pull-left" class="btn btn-sm" value="Select" id="recalculate">
+                      </div>
+                      <div class="col-md-7">
+                        <span class="pull-right">
+                        <a id="graph-dataset-link" href="#" style="text-decoration: underline;">Download Graph Dataset</a>
+                        &nbsp;
+                        <a id="full-dataset-link" href="#" style="text-decoration: underline;">Download Full Dataset</a>
+                        </span>
                       </div>
                     </div>
 
