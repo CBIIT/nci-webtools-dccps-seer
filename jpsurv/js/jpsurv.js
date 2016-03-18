@@ -1,6 +1,8 @@
 var control_data;
 var cohort_covariance_variables;
 var jpsurvData = {"file":{"dictionary":"Breast.dic","data":"something.txt", "form":"form-983832.json"}, "calculate":{"form": {"yearOfDiagnosisRange":[]}, "static":{}}, "plot":{"form": {}, "static":{"imageId":0} }, "additional":{"headerJoinPoints":0,"yearOfDiagnosis":null,"intervals":[1,4]}, "tokenId":"unknown", "status":"unknown", "stage2completed":0};
+jpsurvData.file.form.cohortVars = [];
+
 var DEBUG = false;
 
 if(getUrlParameter('tokenId')) {
@@ -118,7 +120,6 @@ $(document).ready(function() {
 });
 
 function updateCohortDisplay() {
-	jpsurvData.calculate.form.cohortVars = ["Age groups", "Breast stage"];
 	jpsurvData.calculate.form.cohortValues = [];
 
 	var cohort_message = ""
@@ -126,6 +127,7 @@ function updateCohortDisplay() {
 		console.warn(index+" : "+element);
 		console.log(element.id);
 		console.log($(element).attr('data-cohort'))
+		//jpsurvData.calculate.form.cohortVars("");
 		cohort_message += $(element).attr('data-cohort');
 
 		//jpsurvData.calculate.form.cohortValues.push($(element).attr('data-cohort'));
@@ -183,9 +185,11 @@ $("#cohort-variables fieldset").each(function(index,element) {
 function addCohortVariables() {
 	//console.warn("control_data");
 	//console.dir(control_data);
+	jpsurvData.calculate.form.cohortVars = [];
 	var i=0;
 	var html = "";
 	$.each(cohort_covariance_variables, function(key, value) {
+		jpsurvData.calculate.form.cohortVars.push(key);
 		//console.warn("cohort-i: cohort-"+i);
 		//console.info(key+": "+value);
 		//alert("cohort"+i);
@@ -208,6 +212,7 @@ function addCohortVariables() {
 		$("#cohort-"+i).find('input').filter(":first").prop('checked', true);
 		i++;
 	});
+	console.dir(jpsurvData.calculate.form);
 	updateCohortDisplay();
 }
 
@@ -925,7 +930,6 @@ function parse_diagnosis_years() {
 }
 function parse_cohort_covariance_variables() {
 	console.log('parse_cohort_covariance_variables()');
-
 	// First find the variables
 	//  They are everything between the Page type and Year Of Diagnosis Label (noninclusive) with the VarName attribute
 
@@ -972,6 +976,7 @@ function get_cohort_covariance_variable_names() {
 	//cohort_covariance_variable_names.pop();
 	//alert (JSON.stringify(cohort_covariance_variable_names));
 	console.dir(cohort_covariance_variable_names);
+	jpsurvData.file.form.cohortVars = cohort_covariance_variable_names;
 	return cohort_covariance_variable_names;
 }
 
