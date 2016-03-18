@@ -98,7 +98,7 @@ def get_upload():
 #    jsondata = '{"Age groups": ["0-49","50-65s","65+"],"Breast stage": ["Localized","Regional","Distant"],"Test group": ["val1","ValTwo","AnotherValue"]}'
 #    return json.dump(jsondata)
 
-@app.route('/jpsurvRest/stage1_upload', methods=['GET'])
+@app.route('/jpsurvRest/stage1_upload', methods=['POST'])
 def stage1_upload():
     #print "Processing upload"
     debug(OKGREEN+UNDERLINE+BOLD + "****** Stage 1: UPLOAD BUTTON ***** " + ENDC)
