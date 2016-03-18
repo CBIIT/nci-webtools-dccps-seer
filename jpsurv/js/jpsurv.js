@@ -1,9 +1,8 @@
 var control_data;
 var cohort_covariance_variables;
 var jpsurvData = {"file":{"dictionary":"Breast.dic","data":"something.txt", "form":"form-983832.json"}, "calculate":{"form": {"yearOfDiagnosisRange":[]}, "static":{}}, "plot":{"form": {}, "static":{"imageId":0} }, "additional":{"headerJoinPoints":0,"yearOfDiagnosis":null,"intervals":[1,4]}, "tokenId":"unknown", "status":"unknown", "stage2completed":0};
-jpsurvData.file.form.cohortVars = [];
 
-var DEBUG = false;
+var DEBUG = true;
 
 if(getUrlParameter('tokenId')) {
 	jpsurvData.tokenId = getUrlParameter('tokenId');
@@ -114,13 +113,13 @@ $(document).ready(function() {
 	$("#data-set").on("click", getDownloadOutput);
 
 	if(DEBUG) {
-		alert(DEBUG+"  set.  DEBUG is on");
+		console.warn("%cDEBUG is on", "color:white; background-color:red");
 		$("#year_of_diagnosis_start").val("2000");
 	}
 });
 
 function updateCohortDisplay() {
-	jpsurvData.calculate.form.cohortVars = ["Age groups", "Breast stage"];
+	//jpsurvData.calculate.form.cohortVars = ["Age groups", "Breast stage"];
 	jpsurvData.calculate.form.cohortValues = [];
 
 	var cohort_message = ""
@@ -185,9 +184,12 @@ $("#cohort-variables fieldset").each(function(index,element) {
 function addCohortVariables() {
 	//console.warn("control_data");
 	//console.dir(control_data);
+	jpsurvData.calculate.form.cohortVars = [];
+
 	var i=0;
 	var html = "";
 	$.each(cohort_covariance_variables, function(key, value) {
+		jpsurvData.calculate.form.cohortVars.push(key);
 		//console.warn("cohort-i: cohort-"+i);
 		//console.info(key+": "+value);
 		//alert("cohort"+i);
