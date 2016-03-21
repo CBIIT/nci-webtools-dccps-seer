@@ -188,7 +188,7 @@ getFullDataDownload <- function(filePath,jpsurvDataString) {
   Full_Data=outputData$fittedResult$fullpredicted
   print ("FULL PREDICTED")
   print (Full_Data)
-  downloadFile = paste(filePath, paste("Full_Predicted-", jpsurvData$tokenId, "-",iteration, ".txt", sep=""), sep="/") #CSV file to download
+  downloadFile = paste(filePath, paste("Full_Predicted-", jpsurvData$tokenId, "-",iteration, ".csv", sep=""), sep="/") #CSV file to download
   write.table(Full_Data, downloadFile)
   return (downloadFile)
   
@@ -222,7 +222,7 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString) {
   fit.result=outputData$FitList[jpInd+1]
   png(filename = paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",iteration,".png", sep=""), sep="/"))
   graphFile= paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",iteration,".png", sep=""), sep="/")
-  downloadFile = paste(filePath, paste("data_Year-", jpsurvData$tokenId, "-",iteration, ".txt", sep=""), sep="/") #CSV file to download
+  downloadFile = paste(filePath, paste("data_Year-", jpsurvData$tokenId, "-",iteration, ".csv", sep=""), sep="/") #CSV file to download
   survData=plot.relsurv.year(outputData$fittedResult$FitList[[jpInd+1]],intervals, NAs, cohortValues)
   print (survData)
 
@@ -248,7 +248,7 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString) {
   
   png(filename = paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",iteration,".png", sep=""), sep="/"))
   graphFile= paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",iteration,".png", sep=""), sep="/")
-  downloadFile = paste(filePath, paste("data_Int-", jpsurvData$tokenId, "-",iteration, ".txt", sep=""), sep="/") #CSV file to download
+  downloadFile = paste(filePath, paste("data_Int-", jpsurvData$tokenId, "-",iteration, ".csv", sep=""), sep="/") #CSV file to download
   yearOfDiagnosisVarName= gsub("-","", yearOfDiagnosisVarName)
   yearOfDiagnosisVarName=sub("\\(","",yearOfDiagnosisVarName)
   yearOfDiagnosisVarName=sub("\\)","",yearOfDiagnosisVarName)
