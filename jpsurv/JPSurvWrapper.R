@@ -189,7 +189,7 @@ getFullDataDownload <- function(filePath,jpsurvDataString) {
   print ("FULL PREDICTED")
   print (Full_Data)
   downloadFile = paste(filePath, paste("Full_Predicted-", jpsurvData$tokenId, "-",iteration, ".csv", sep=""), sep="/") #CSV file to download
-  write.table(Full_Data, downloadFile)
+  write.csv(Full_Data, downloadFile)
   return (downloadFile)
   
 }
@@ -228,7 +228,7 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString) {
 
   dev.off()
   results =c("RelSurYearGraph"=graphFile,"RelSurvYearData"=survData) #returns 
-  write.table(survData, downloadFile)
+  write.csv(survData, downloadFile)
   return (results)
   
   
@@ -253,7 +253,7 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString) {
   yearOfDiagnosisVarName=sub("\\(","",yearOfDiagnosisVarName)
   yearOfDiagnosisVarName=sub("\\)","",yearOfDiagnosisVarName)
   survData=plot.relsurv.int(outputData$fittedResult$FitList[[jpInd+1]], yearOfDiagnosisVarName, yearOfDiagnosis);
-  write.table(survData, downloadFile)
+  write.csv(survData, downloadFile)
   dev.off()
   results =c("RelSurIntData"=survData,"RelSurIntGraph"=graphFile) #returns 
   
