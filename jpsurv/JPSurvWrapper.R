@@ -400,6 +400,6 @@ getSelectedModel<-function(filePath,jpsurvDataString)
   file=paste(filePath, paste("output-", jpsurvData$tokenId,".rds", sep=""), sep="/")
   outputData=readRDS(file)
   selected=outputData$fittedResult$X1names[[1]]
-  point=as.integer(strsplit(selected, "_")[[1]][2])
+  point=as.integer(strsplit(selected, "_")[[1]][2])+1
   return(point)
 }
