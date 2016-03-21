@@ -135,6 +135,9 @@ getTrendsData<-function(filePath,jpsurvDataString)
   print(proc.time() -ptm)
   jsonl =c(Trends) #returns
   exportJson <- toJSON(jsonl)
+  print("Creating  tends results file")
+  filename = paste(filePath, paste("tends_results-", jpsurvData$tokenId, ".json", sep=""), sep="/") #CSV file to download
+  write(exportJson, filename)
 }
 
 #Creates the SEER Data and Fitted Result
