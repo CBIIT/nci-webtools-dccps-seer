@@ -118,7 +118,7 @@ getAllData<- function(filePath,jpsurvDataString)
   
   Full_data=getFullDataDownload(filePath,jpsurvDataString)
   
-  jsonl =c(IntGraph,YearGraph,ModelEstimate,Coefficients,"ModelSelection" = ModelSelection, "JP"=JP,"SelectedModel"=Selected_Model,"Full_Data_Set"=Full_data) #returns
+  jsonl =c(IntGraph,YearGraph,ModelEstimate,Coefficients,"ModelSelection" = ModelSelection, "JP"=JP,"SelectedModel"=Selected_Model,"full_predicted"=Full_data) #returns
   exportJson <- toJSON(jsonl)
   
   #print (jsonl)
@@ -172,7 +172,7 @@ getFittedResult <- function (filePath, seerFilePrefix, yearOfDiagnosisVarName, y
   outputData=list("seerdata"=seerdata, "fittedResult"=fittedResult)
   
   iteration=jpsurvData$plot$static$imageId
-  downloadFile=paste(filePath, paste("Full_data-", jpsurvData$tokenId, "-",iteration, ".csv", sep=""), sep="/") #CSV file to download
+  downloadFile=paste(filePath, paste("full_predicted-", jpsurvData$tokenId, "-",iteration, ".csv", sep=""), sep="/") #CSV file to download
   
   print ("saving RDS")
   saveRDS(outputData, outputFileName)
