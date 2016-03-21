@@ -16,6 +16,21 @@ if(getUrlParameter('status')) {
 
 $(document).ready(function() {
 
+	$('#jpsurv_tabs').on('click', 'a', function(e) {
+		console.warn("You clicked a tab");
+		console.info("Check for an attribute called data-url");
+		//If data-url use that.
+		var currentTab = e.target.id.substr(0, e.target.id.search('-'));
+		//console.log(currentTab);
+		var last_url_params = $("#"+currentTab+"-tab-anchor").attr("data-url-params");
+		//console.log("last_url_params: "+last_url_params);
+		if(typeof last_url_params === "undefined") {
+			window.history.pushState({},'', "?tab="+currentTab);
+		} else {
+			window.history.pushState({},'', "?"+last_url_params);
+		}
+	});
+
 	$("#cohort-variables").on('click', ".cohort", function(e) {
 		$("."+this.classList.item(1)).attr('checked', false);
 		$(this).prop('checked', true);
@@ -469,8 +484,9 @@ function updateTrendGraph(trend, table_id) {
 	}
 }
 function updateGraphLinks(token_id) {
-	$("#graph-dataset-link").attr("href", "tmp/data_Year-"+token_id+"-"+jpsurvData.plot.static.imageId+".csv");
-	$("#full-dataset-link").attr("href", "tmp/output-"+token_id+".rds");
+	$("#graph-year-dataset-link").attr("href", "tmp/data_Year-"+token_id+"-"+jpsurvData.plot.static.imageId+".csv");
+	$("#graph-time-dataset-link").attr("href", "tmp/data_Int-"+token_id+"-"+jpsurvData.plot.static.imageId+".csv");
+	$(".full-dataset-link").attr("href", "tmp/Full_Predicted-"+token_id+"-"+jpsurvData.plot.static.imageId+".csv");
 }
 
 function updateSelections(token_id) {
@@ -481,11 +497,19 @@ function updateTabs(tokenId) {
 	updateModel(tokenId);
 	updateGraphs(tokenId);
 	updateEstimates(tokenId);
-	updateTrends(tokenId);
+	//updateTrends(tokenId);
 	updateGraphLinks(tokenId);
 	updateSelections(tokenId);
 	//Change the precision of all the floats.
 	changePrecision();
+	var trend_selected = $("#jpsurv-tabs").find("a[href='#trends-tab']").parent().hasClass("active");
+	if(trend_selected) {
+		calculateTrend(tokenId);
+	}
+}
+
+function calculateTrend(tokenId) {
+	alert("calculateTrend");
 }
 
 function roundup(num, dec){
