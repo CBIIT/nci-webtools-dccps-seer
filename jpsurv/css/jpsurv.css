@@ -267,7 +267,6 @@ input[type="file"] {
 }
 
 .advanced{
-
   color:#337ab7;
   text-decoration: underline;
   font-weight: bold;
@@ -276,6 +275,7 @@ input[type="file"] {
   padding-top:15px;
   padding-bottom:15px; 
   cursor: pointer;
+  margin-right:10px;
 }
 .left_advanced{
   width:80%;
@@ -414,6 +414,9 @@ input[type="file"] {
 }
 .model-select-row {
   padding-left:15px;
+}
+#e-mail {
+  width:250px;
 }
 @media (min-width: 768px) {
     .form-inline .radio input[type="radio"], 

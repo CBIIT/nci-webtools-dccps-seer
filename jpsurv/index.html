@@ -54,7 +54,7 @@
       <div class="row">
         <!-- Upload FORM - STAGE 1 -->
         <div id="slideoutTab">
-          <i id ="icon" class="fa fa-caret-left fa-2x" onclick="Slide_menu_Horz()" style="margin-left:31%"></i>
+          <i id ="icon" class="fa fa-caret-left fa-2x" onclick="Slide_menu_Horz()" style="margin-left:31%;visibility:hidden;"></i>
         </div>
         <div class="col-md-4" id="slideoutForm">
           <div id="slideout">
@@ -118,46 +118,28 @@
                   <div class="form-group jpsurv-label-container">
                     <label for="max_join_point_select" class="jpsurv-label">Maximum Joinpoints:</label> 
                     <select id='max_join_point_select' class="jpsurv-label-content" name='max_join_point_select'>
+                      <option>0</option>
                       <option>1</option>
                       <option>2</option>
                       <option  data-info="Three or more Join points may take more than five minutes to run.">3</option>
                       <option  data-info="Three or more Join points may take more than five minutes to run.">4</option>
+                      <option>5</option>
                     </select>
+                    <div class="form-group jpsurv-label-container">
+                      <label for="e-mail" class="jpsurv-label" title="Enter a valid e-mail">E-mail:</label> 
+                      <input id="e-mail" type="text" placeholder="Enter e-mail address" title="Maximum Joinpoints of 3 or greater require a extended computing time.  When computation is completed an e-mail will be sent with contains a link to the results.">
+                    </div>                    
+
                   </div>
-                  <div id="Advanced_toogle" class="advanced" onclick="Slide_menu_Vert('stage2b-advanced','both')">Advanced Options</div>
+
+                  <div id="Advanced_toogle" class="row advanced" onclick="Slide_menu_Vert('stage2b-advanced','both')">Advanced Options</div>
+
                 </form>
               </div>
               <!-- Advanced Options - STAGE 2b -->
               <div class="box col-md-12" div id="stage2b-advanced" style="display:none;">
                 <h2 class="stage-header" >Advanced Options</h2>
                 <hr class="stage-separator">
-
-<!--
-<form class="form-horizontal" role="form">
-    <div class="form-group">
-      <label for="inputType" class="col-md-2 control-label">What is this.  How is this going to work</label>
-      <div class="col-md-1">
-          <input type="number" class="form-control" id="inputType" placeholder="Type">
-      </div>
-    </div>
-    <div class="form-group">
-        <span class="col-md-2 control-label">Metadata</span>
-        <div class="col-md-6">
-            <div class="form-group row">
-                <label for="inputKey" class="col-md-1 control-label">Key</label>
-                <div class="col-md-2">
-                    <input type="text" class="form-control" id="inputKey" placeholder="Key">
-                </div>
-                <label for="inputValue" class="col-md-1 control-label">Value</label>
-                <div class="col-md-2">
-                    <input type="text" class="form-control" id="inputValue" placeholder="Value">
-                </div>
-            </div>
-        </div>
-    </div>
-</form>
--->
-
                 <div id="adv-options">
                   <!-- Delete Last Interval -->
                   <div class="row" style="margin-bottom:10px;">
@@ -166,7 +148,7 @@
                       <div class="pull-right" style="margin-right:12px;">
                         <form id="adv-delete-interval">
                           <div class="radio-inline">
-                            <label for="del-int-yes" style="vertical-align: middle;"><input type="radio" id="del-int-yes" value="Yes" name="adv-delete-interval" style="vertical-align: middle;">Yes</label>
+                            <label for="del-int-yes"><input type="radio" id="del-int-yes" value="Yes" name="adv-delete-interval" style="vertical-align: middle;">Yes</label>
                           </div>
                           <div class="radio-inline">
                             <label for="del-int-no"><input type="radio" id="del-int-no" value="No" name="adv-delete-interval"checked>No</label>
@@ -197,6 +179,9 @@
                     <label for="adv-year" class="pull-left">Number of Calender Year of Project:</label>
                     <input id="adv-year" type="number" class="form-control pull-right sm-input" value="10" min="0"/>
                   </div>
+                  <div class="row">
+                    <div class="pull-right advanced" onclick="Slide_menu_Vert('stage2b-advanced','both')">Hide</div> 
+                  </div>
 
                 </div>
               </div>
@@ -221,7 +206,7 @@
           </div>
           <!-- Main Menu Tabs -->
         </div>
-        <div class="col-md-8"id="right_panel" >
+        <div id="right_panel" class="col-md-8" style="display:none;">
           <div id="cohort-join-points" class="box">
             <div class="row model-select-row" style="padding-bottom:15px;">
               <div class="col-md-12">
@@ -300,7 +285,7 @@
           <ul id="jpsurv-tabs" class="nav nav-tabs responsive">
             <li class="active"><a href="#home" data-toggle="tab">Survival Graph/Data</a></li>
             <li><a href="#estimates-tab" data-toggle="tab">Model Estimates</a></li>
-            <li><a href="#trends-tab" data-toggle="tab">Trends</a></li>
+            <li><a id="trends-tab-anchor" href="#trends-tab" data-toggle="tab">Trends</a></li>
             <li><a href="#help-tab" data-toggle="tab">Help</a></li>
           </ul>
           <!-- TABS HERE -->

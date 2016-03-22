@@ -129,6 +129,7 @@ getAllData<- function(filePath,jpsurvDataString)
 }
 getTrendsData<-function(filePath,jpsurvDataString)
 {
+  jpsurvData <<- fromJSON(jpsurvDataString)
   ptm <- proc.time()
   Trends=getTrendWrapper(filePath,jpsurvDataString)
   print("Trends Time:")
@@ -136,7 +137,7 @@ getTrendsData<-function(filePath,jpsurvDataString)
   jsonl =c(Trends) #returns
   exportJson <- toJSON(jsonl)
   print("Creating  tends results file")
-  filename = paste(filePath, paste("tends_results-", jpsurvData$tokenId, ".json", sep=""), sep="/") #CSV file to download
+  filename = paste(filePath, paste("trend_results-", jpsurvData$tokenId, ".json", sep=""), sep="/") #CSV file to download
   write(exportJson, filename)
 }
 
