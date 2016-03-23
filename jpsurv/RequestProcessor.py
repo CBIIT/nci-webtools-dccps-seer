@@ -62,7 +62,7 @@ class RequestProcessor(DisconnectListener):
     data=json.loads(parameters['data'])
     jpsurvDataString=parameters['data']
     rSource = robjects.r['source']('JPSurvWrapper.R')
-    robjects.r['getFittedResultWrapper'](self.UPLOAD_DIR, jpsurvDataString)
+    robjects.r['getAllData'](parameters['filepath'], jpsurvDataString)
 
 #    rSource = robjects.r('source')
 #    rSource('./JPSurvWrapper.R')
@@ -70,7 +70,7 @@ class RequestProcessor(DisconnectListener):
    # print parameters['data']
     #http://analysistools-dev.nci.nih.gov/jpsurv/?file_control_filename=Breast_RelativeSurvival.dic&file_data_filename=Breast_RelativeSurvival.txt&output_filename=form-766756.json&status=uploaded&tokenId=766756
 
-    Link='<a href="http://analysistools-dev.nci.nih.gov/jpsurv/?file_control_filename='+data['file']['dictionary']+'&file_data_filename='+data['file']['data']+'&output_filename='+data['file']['form']+'&status=uploaded&tokenId='+data['tokenId']+'"> Here </a>' 
+    Link='<a href='+parameters['url']+data['file']['dictionary']+'&file_data_filename='+data['file']['data']+'&output_filename='+data['file']['form']+'&status=uploaded&tokenId='+data['tokenId']+'"> Here </a>' 
     print Link
     message = """
       <head>
