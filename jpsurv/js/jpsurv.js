@@ -21,8 +21,44 @@ function validateEmail() {
 	$("#calculate").prop("disabled", true);
 	return false;
 }
+function validateEmail() {
+	var id = "e-mail";
+    var errorMsg = "Please match the format requested: rs followed by 1 or more digits (ex: rs12345), no spaces permitted";;
+    var email = $("#"+id).val();
+    //var pattern = new RegExp('^' + $(this).attr('pattern') + '$');
+    var pattern = new RegExp('^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$');
+    console.log(email);
+    // check each line of text
+    var hasError = !email.match(pattern);
+    console.log("hasError: "+hasError);
+
+    if (typeof $("#"+id).setCustomValidity === 'function') {
+		console.log("setting error message: "+errorMsg);
+		$("#"+id).setCustomValidity(hasError ? errorMsg : '');
+    } else {
+        // Not supported by the browser, fallback to manual error display...
+        $("#"+id).toggleClass('error', !!hasError);
+        $("#"+id).toggleClass('ok', !hasError);
+        if (hasError) {
+            $("#"+id).attr('title', errorMsg);
+            $("#calculate").prop('disabled', true);
+        } else {
+            $("#"+id).removeAttr('title');
+        }
+    }
+    if (hasError) {
+        $("#calculate").prop('disabled', true);
+    } else {
+        $("#calculate").prop('disabled', false);
+    }
+
+    return !hasError;
+}
 
 function addEventListeners() {
+
+	$('#e-mail').keyup(validateEmail);
+
 	$("#max_join_point_select").on('change', function(e){
 		if(parseInt($("#max_join_point_select").val())>2) {
 			$("#e-mail").parent().fadeIn();
@@ -61,7 +97,7 @@ $(document).ready(function() {
 		$(this).prop('checked', true);
 	});
 
-	$('[data-toggle="tooltip"]').tooltip();
+	$('[data-toggle="tooltip"]').tooltip({container: 'body'});
 
 	loadHelp();
 
@@ -257,6 +293,7 @@ function addCohortVariables() {
 
 function loadHelp() {
 	$("#help-tab").load("help.html");
+	$("#help").load("help.html");
 }
 /*
 function getDownloadOutput(event) {
@@ -733,10 +770,12 @@ function setPlotData() {
 
 function file_submit(event) {
 	event.preventDefault();
+	$("#calculating-spinner").modal('show');
 	//set tokenId
 	jpsurvData.tokenId = parseInt(Math.random()*1000000);
 	$("#upload-form").attr('action', '/jpsurvRest/stage1_upload?tokenId='+jpsurvData.tokenId);
 	getRestServerStatus();
+	$("#calculating-spinner").modal('hide');
 
 }
 /*
@@ -825,6 +864,7 @@ function stage2() {
 	var comm_results = JSON.parse(jpsurvRest('stage2_calculate', params));
 
 	$("#right_panel").show();
+	$("#help").remove();
 	$("#icon").css('visibility', 'visible');
 
 	jpsurvData.stage2completed = 1;
@@ -1608,7 +1648,7 @@ function onChange_joints() {
             Slide_menu_Vert('email_fields','hide');
         }
     else if(joints>=3){
-    	Makepopup('max_join_point_select',"Warning",'left',$this);
+    	Makepopup('max_join_point_select',"Warning",'top',$this);
 
     }
     update_join_point_limit(joints);

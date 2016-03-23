@@ -123,11 +123,17 @@
                       <option>2</option>
                       <option  data-info="Three or more Join points may take more than five minutes to run.">3</option>
                       <option  data-info="Three or more Join points may take more than five minutes to run.">4</option>
-                      <option>5</option>
+                      <option  data-info="Three or more Join points may take more than five minutes to run.">5</option>
                     </select>
-                    <div class="form-group jpsurv-label-container">
+                    <div class="form-group jpsurv-label-container" style="display:none;">
                       <label for="e-mail" class="jpsurv-label" title="Enter a valid e-mail">E-mail:</label> 
-                      <input id="e-mail" type="text" placeholder="Enter e-mail address" title="Maximum Joinpoints of 3 or greater require a extended computing time.  When computation is completed an e-mail will be sent with contains a link to the results.">
+                      <input required id="e-mail" type="email" placeholder="Enter e-mail address" title="Enter a valid e-mail address." pattern="[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*">
+                      &nbsp;
+                      <a href="#" data-toggle="tooltip" data-placement="left" title="Maximum Joinpoints of 3 or greater requires  extended computing time.  When computation is completed an e-mail will be sent which contains a link to the results.  Please enter a valid e-mail address before submiting calculation.">
+                        <span class="cursor-pointer glyphicon glyphicon-info-sign glyphicon-blue" aria-label="Help" onclick="openHelpWindow('help.html')" href="#"></span>
+                      </a>
+
+
                     </div>                    
 
                   </div>
@@ -185,27 +191,14 @@
 
                 </div>
               </div>
-              <!-- Email form -->
-              <div id="email_fields" class="box col-md-12" style="opacity:0;height:0px;display:none">
-                <h2 class="stage-header">Type in your email address</h2>
-                <hr class="stage-separator">
-                <p >Three or more Join points may take longer than usual to be compute. Please type in your email adress to be notifed when computation is complete. </p>
-                <div class="jpsurv-button pull-left">
-                  <form id="emailForm" action="queue" method="post" style="display: block;">
-                    <fieldset style="border:0px;" >
-                      <label for="emailAddress">Email</label>
-                      <input type="email" id="emailAddress" name="emailAddress" placeholder="Your email here" required="">                    
-                      <span class="help-block"></span>
-                    </fieldset>
-                </div>
-              </div>
-              </form>
               <input type='button' id='calculate' value='Calculate' class="btn btn-primary btn-sm" style="float:right;"><input type='button' onclick="window.location.href='/jpsurv'" value="Reset"class="btn btn-warning btn-sm" title="Reset all values" style="float:right; right;  margin-right:10px">
               <div style="clear:both;"></div>
             </div>
           </div>
+          <!-- </form> -->
           <!-- Main Menu Tabs -->
         </div>
+        <div id="help" class="well col-md-8">Help</div>
         <div id="right_panel" class="col-md-8" style="display:none;">
           <div id="cohort-join-points" class="box">
             <div class="row model-select-row" style="padding-bottom:15px;">

@@ -418,6 +418,28 @@ input[type="file"] {
 #e-mail {
   width:250px;
 }
+#help {
+  background-color:#FFF;
+  height:519px;
+  overflow:auto;
+}
+
+/* Tooltip */
+div.tooltip-inner {
+    background-color: #505050;
+    color: #FFFFFF; 
+    font-size: 14px;
+    padding: 15px;
+    width:500px;
+    text-align:left;
+}
+
+input:valid, .ok {
+    color: #555;
+}
+input:invalid, .error {
+    color: red;
+}
 @media (min-width: 768px) {
     .form-inline .radio input[type="radio"], 
     .form-inline .checkbox input[type="checkbox"] {
