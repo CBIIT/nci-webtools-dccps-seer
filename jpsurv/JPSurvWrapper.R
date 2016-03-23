@@ -164,7 +164,7 @@ getFittedResult <- function (filePath, seerFilePrefix, yearOfDiagnosisVarName, y
                          subset = eval(parse(text=subsetStr)),
                          year=getCorrectFormat(yearOfDiagnosisVarName),
                          observedrelsurv="Relative_Survival_Cum",
-                         model.form = eval(parse(text=factorStr)),
+                         model.form = ~NULL,
                          op=adanced_options,
                          delLastIntvl=delLastIntvlAdv,
                          maxnum.jp=numJP);
