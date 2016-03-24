@@ -4,6 +4,18 @@ var jpsurvData = {"file":{"dictionary":"Breast.dic","data":"something.txt", "for
 
 var DEBUG = true;
 
+
+function onChange_covariate() {
+	alert("This is never called.");
+	var $this = $(this);
+	if ($("#covariate_select option:selected").text()=="None") {
+		$('#covariate_select').popover('destroy');
+	} 
+	if($("#covariate_select option:selected").text()!="None") {
+		Makepopup('covariate_select',"Warning",'left',$this);
+	}
+}
+
 if(getUrlParameter('tokenId')) {
 	jpsurvData.tokenId = getUrlParameter('tokenId');
 }
@@ -14,22 +26,29 @@ if(getUrlParameter('status')) {
 	$('#calculate-instructions').show();
 }
 
-function validateEmail() {
+function checkEmail(email) {
+	var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+	return re.test(email);
+}
+
+function validateEmail2() {
 	//
 	// TODO: Perform regex validation
 	//
 	$("#calculate").prop("disabled", true);
 	return false;
 }
+
 function validateEmail() {
 	var id = "e-mail";
-    var errorMsg = "Please match the format requested: rs followed by 1 or more digits (ex: rs12345), no spaces permitted";;
+    var errorMsg = "Please enter a valid email address.";;
     var email = $("#"+id).val();
     //var pattern = new RegExp('^' + $(this).attr('pattern') + '$');
     var pattern = new RegExp('^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$');
     console.log(email);
     // check each line of text
-    var hasError = !email.match(pattern);
+
+    var hasError = !checkEmail(email);
     console.log("hasError: "+hasError);
 
     if (typeof $("#"+id).setCustomValidity === 'function') {
@@ -78,11 +97,16 @@ function addEventListeners() {
 		}
 	});
 
-}
 
+}
+$(document).ready(function() {
+	$("#covariate_select").on("change", onChange_covariate); 
+	$("#max_join_point_select").on("change", onChange_joints); 
+});
 $(document).ready(function() {
 	addEventListeners();
-	/*
+
+/*
 	$('#jpsurv-tabs').on('click', 'a', function(e) {
 		console.warn("You clicked a tab");
 		console.info("Check for an attribute called data-url");
@@ -1602,6 +1626,62 @@ function replaceAll(find, replace, str) {
 
   	return str.replace(new RegExp(find, 'g'), replace);
 }
+
+function onChange_covariate() {
+	alert("This is never called.");
+	var $this = $(this);
+	if ($("#covariate_select option:selected").text()=="None") {
+		$('#covariate_select').popover('destroy');
+	} 
+	if($("#covariate_select option:selected").text()!="None") {
+		Makepopup('covariate_select',"Warning",'left',$this);
+	}
+}
+
+function onChange_joints() {
+	var $this = $(this);
+	var joints = parseInt($("#max_join_point_select option:selected").text());
+	if(joints>=3){
+		Makepopup('max_join_point_select',"Warning",'top',$this);
+	}
+    update_join_point_limit(joints);
+}
+
+function Makepopup(id,title,loc,$this) {
+	    var $e = $(this.target);
+		    $("#"+id).popover({
+		        trigger: 'manual',
+		        placement: loc,
+		        title: title,
+		        content: $this.children('option:selected').attr("data-info") //this
+		    }).popover('show');
+		     $('.popover-title').append('<button type="button" class="close">&times;</button>');
+		     $('.close').click(function(e){
+	                $(this).parents('.popover').remove();
+	            });
+    setTimeout(function(){
+    	$("#"+id).popover('destroy');
+	}, 4000);
+}
+
+function update_join_point_limit(limit) {
+	console.log('called update' + limit);
+
+	var options = "";
+	for (var i = 1; i <= limit; i ++) {
+		console.log(i);		
+		options += "<option>" + i + "</option>";
+	}
+
+	$("#header-join-points").html(options);
+}
+
+function round(x, round, trim) {
+	return parseFloat(x) ? parseFloat(x.toFixed(round)).toPrecision(trim) : x;
+}
+
+
+
  (function() {
   var slideToggle;
  
@@ -1617,55 +1697,6 @@ $(function(){
 });
 */
 
-$(function() {
-$("#covariate_select").on("change",onChange_covariate); 
-});
-
-$(function() {
-$("#max_join_point_select").on("change",onChange_joints); 
-});
-
-
-function onChange_covariate() {
-	var $this = $(this);
-	if ($("#covariate_select option:selected").text()=="None")
-	{
-		$('#covariate_select').popover('destroy');
-	}
-    else if($("#covariate_select option:selected").text()!="None")
-	{
-    	Makepopup('covariate_select',"Warning",'left',$this);
-    }
-}
-
-function onChange_joints() {
-	//alert("Not called");
-	var $this = $(this);
-	var joints=parseInt($("#max_join_point_select option:selected").text());
-    if (joints<=2)
-        {
-            $('#max_join_point_select').popover('destroy');
-            Slide_menu_Vert('email_fields','hide');
-        }
-    else if(joints>=3){
-    	Makepopup('max_join_point_select',"Warning",'top',$this);
-
-    }
-    update_join_point_limit(joints);
-
-}
-
-function update_join_point_limit(limit) {
-	console.log('called update' + limit);
-
-	var options = "";
-	for (var i = 1; i <= limit; i ++) {
-		console.log(i);		
-		options += "<option>" + i + "</option>";
-	}
-
-	$("#header-join-points").html(options);
-}
 //#######################################################################################################################################GENERIC FUNCTIONS#########################################################################################################################################
 
 //SLIDE OUT FUNCTIONS####################################################
@@ -1730,13 +1761,12 @@ function Slide_menu_Horz(action)
 //Vertical Sliding
 //action: both, hide, show
 function Slide_menu_Vert(Id,action){
- 	if($("#"+Id).css('display') != 'none' &&action=='both'||action=='hide')
-  	{
-    	 $("#"+Id).animate({
-    		height: "0px",
-    		opacity:0
-			}, 300);
-    	 setTimeout(function(){
+	console.log("slide_menu_vert");
+	console.log("%s :%s", Id, action);
+	if($("#"+Id).css('display') != 'none' &&action=='both'||action=='hide')
+	{
+		$("#"+Id).animate({height:"0px", opacity:0}, 300);
+    	setTimeout(function(){
     		document.getElementById(Id).style.display="none";
 		}, 299);
 
@@ -1752,27 +1782,4 @@ function Slide_menu_Vert(Id,action){
     }
 }
 
-function Makepopup(id,title,loc,$this) {
-	    var $e = $(this.target);
-		    $("#"+id).popover({
-		        trigger: 'manual',
-		        placement: loc,
-		        title: title,
-		        content: $this.children('option:selected').attr("data-info") //this
-		    }).popover('show');
-		     $('.popover-title').append('<button type="button" class="close">&times;</button>');
-		     $('.close').click(function(e){
-	                $(this).parents('.popover').remove();
-	            });
-	
-    setTimeout(function(){
-    	$("#"+id).popover('destroy');
-	}, 4000);
-
-}
-
-
-function round(x, round, trim) {
-	return parseFloat(x) ? parseFloat(x.toFixed(round)).toPrecision(trim) : x;
-}
  
