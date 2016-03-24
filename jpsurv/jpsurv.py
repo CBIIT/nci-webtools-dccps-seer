@@ -25,21 +25,6 @@ def fix_jpsurv(jpsurvDataString):
 def index():
     return render_template('index.html')
 
-def jsonp(func):
-    """Wraps JSONified output for JSONP requests."""
-    @wraps(func)
-    def decorated_function(*args, **kwargs):
-        callback = request.args.get('callback', False)
-        if callback:
-            data = str(func(*args, **kwargs).data)
-            content = str(callback) + '(' + data + ')'
-            #mimetype = 'application/javascript'
-            mimetype = 'application/json'
-            return current_app.response_class(content, mimetype=mimetype)
-        else:
-            return func(*args, **kwargs)
-    return decorated_function
-
 @app.route('/jpsurvRest/parse', methods = ['GET'])
 def parse():
     # python LDpair.py rs2720460 rs11733615 EUR 38
@@ -247,42 +232,27 @@ def stage3_recalculate():
     return current_app.response_class(out_json, mimetype=mimetype)
 
 
-@app.route('/jpsurvRest/stage4_link', methods=['GET'])
-def stage4_link():
-    debug(OKGREEN+UNDERLINE+BOLD + "****** Stage 4: LINK BUTTON ***** " + ENDC)
-    
-    #for k, v in request.args.iteritems():
-    #    print "var: %s = %s" % (k, v)
-    #name = request.get_json().get('jpsurvData', '')
-    #print name
-    jpsurvDataString = request.args.get('jpsurvData', True)
+@app.route('/jpsurvRest/stage4_trends_calculate', methods=['GET'])
+def stage4_trends_calculate():
+
+    print 'Go'
+
+    debug(OKGREEN+UNDERLINE+BOLD + "****** Stage 4: Trends BUTTON ***** " + ENDC)
+    info("Recalculating ...")
+
+    jpsurvDataString = request.args.get('jpsurvData', False)
     jpsurvDataString = fix_jpsurv(jpsurvDataString)
 
-    info(BOLD+"**** jpsurvDataString ****"+ENDC)
-    info(jpsurvDataString)
-    jpsurvData = json.loads(jpsurvDataString)
+    info(BOLD+"**** Calling getTrendsData ****"+ENDC)
+    # Next two lines execute the R Program
+    getTrendsData = robjects.globalenv['getTrendsData']
+    getTrendsData(UPLOAD_DIR, jpsurvDataString)
 
-    info(BOLD+"**** jpsurvData ****"+ENDC)
-    for key, value in jpsurvData.iteritems():
-        info("var: %s = %s" % (key, value))
-
-    #Init the R Source
-    rSource = robjects.r('source')
-    rSource('./JPSurvWrapper.R')
-
-    info(BOLD+"**** Calling getDownloadOutputWrapper ****"+ENDC)
-    getDownloadOutputWrapper = robjects.globalenv['getDownloadOutputWrapper']
-    rStrVector = getDownloadOutputWrapper(UPLOAD_DIR, jpsurvDataString)
-
-    downloadLinkFileName = "".join(tuple(rStrVector))
-    info("Download File Name:  %s" % downloadLinkFileName)
-    link = "{\"link\":\"%s\"}" % (downloadLinkFileName)
-    #return json.dumps("{\"start.year\":[1975,2001],\"end.year\":[2001,2011],\"estimcate\":[-0.0167891169889347,-0.0032678676219079]}")
-    #print json.dumps(link)
-    
+    status = '{"status":"OK"}'
     mimetype = 'application/json'
-    content = json.dumps(link)
-    return current_app.response_class(content, mimetype=mimetype)
+    out_json = json.dumps(status)
+
+    return current_app.response_class(out_json, mimetype=mimetype)
 
 
 def sendqueue(jpsurvDataString,url,timetstamp,email,filepath):
