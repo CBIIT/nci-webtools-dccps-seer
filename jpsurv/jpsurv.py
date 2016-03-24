@@ -254,14 +254,31 @@ def stage4_trends_calculate():
 
     return current_app.response_class(out_json, mimetype=mimetype)
 
+@staticmethod
+  def buildFailure(message):
+    response = jsonify(message=message, success=False)
+    response.mimetype = 'application/json'
+    response.status_code = 400
+    return response
+    
+@staticmethod
+  def buildSuccess(message):
+    response = jsonify(message=message, success=True)
+    response.mimetype = 'application/json'
+    response.status_code = 200
+    return response
 
 def sendqueue(jpsurvDataString,url,timetstamp,email,filepath):
-    CONFIG = StompConfig('tcp://ncias-d1207-v.nci.nih.gov:61613')
-    QUEUE = '/queue/jpsurv-dev'
-    client = Stomp(CONFIG)
-    client.connect()
-    client.send(QUEUE,json.dumps({'url':url,'email':email,'timeStamp':timetstamp,"filepath":filepath,"data":jpsurvDataString}))
-    client.disconnect()
+    try:
+        CONFIG = StompConfig('tcp://ncias-d1207-v.nci.nih.gov:61613')
+        QUEUE = '/queue/jpsurv-dev'
+        client = Stomp(CONFIG)
+        client.connect()
+        client.send(QUEUE,json.dumps({'url':url,'email':email,'timeStamp':timetstamp,"filepath":filepath,"data":jpsurvDataString}))
+        client.disconnect()
+        return buildSuccess("The request has been received. An email will be sent when the calculation has completed.")
+    except Exception as e:
+        return Pathway.buildFailure(str(e))
     
  
 def info(msg):
