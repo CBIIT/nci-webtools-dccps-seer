@@ -254,6 +254,26 @@ def stage4_trends_calculate():
 
     return current_app.response_class(out_json, mimetype=mimetype)
 
+@app.route('/jpsurvRest/stage5_queue', methods=['GET'])
+def queue():
+
+    debug(OKGREEN+UNDERLINE+BOLD + "****** Stage 5: Queue ***** " + ENDC)
+    info("Sending info to queue ...")
+
+    jpsurvDataString = request.args.get('jpsurvData', False)
+    jpsurvDataString = fix_jpsurv(jpsurvDataString)
+
+    info(BOLD+"**** Calling sendqueue ****"+ENDC)
+    # Next two lines execute the R Program
+    #getTrendsData = robjects.globalenv['getTrendsData']
+    #getTrendsData(UPLOAD_DIR, jpsurvDataString)
+
+    status = '{"status":"OK"}'
+    mimetype = 'application/json'
+    out_json = json.dumps(status)
+
+    return current_app.response_class(out_json, mimetype=mimetype)
+
 @staticmethod
 def buildFailure(message):
     response = jsonify(message=message, success=False)
@@ -268,13 +288,12 @@ def buildSuccess(message):
     response.status_code = 200
     return response
 
-def sendqueue(jpsurvDataString,url,timetstamp,email,filepath):
+def sendqueue(jpsurvDataString,url):
     try:
         CONFIG = StompConfig('tcp://ncias-d1207-v.nci.nih.gov:61613')
-        QUEUE = '/queue/jpsurv-dev'
         client = Stomp(CONFIG)
         client.connect()
-        client.send(QUEUE,json.dumps({'url':url,'email':email,'timeStamp':timetstamp,"filepath":filepath,"data":jpsurvDataString}))
+        client.send(QUEUE_DIR,json.dumps({'url':url,"filepath":QUEUE_DIR,"data":jpsurvDataString}))
         client.disconnect()
         return buildSuccess("The request has been received. An email will be sent when the calculation has completed.")
     except Exception as e:
@@ -294,6 +313,7 @@ def debug(msg):
 import argparse
 if __name__ == '__main__':
     UPLOAD_DIR = os.path.join(os.getcwd(), 'tmp')
+    QUEUE_DIR = os.path.join(os.getcwd(), 'queue')
 
     #COLORS TO Make logging Mover visible
     HEADER = '\033[95m'
