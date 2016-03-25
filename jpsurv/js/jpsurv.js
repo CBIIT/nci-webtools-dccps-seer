@@ -16,14 +16,6 @@ function checkEmail(email) {
 	return re.test(email);
 }
 
-function validateEmail2() {
-	//
-	// TODO: Perform regex validation
-	//
-	$("#calculate").prop("disabled", true);
-	return false;
-}
-
 function validateEmail() {
 	var id = "e-mail";
     var errorMsg = "Please enter a valid email address.";;
@@ -48,6 +40,7 @@ function validateEmail() {
             $("#calculate").prop('disabled', true);
         } else {
             $("#"+id).removeAttr('title');
+            $("#calculate").prop('disabled', false);
         }
     }
     if (hasError) {
@@ -61,10 +54,12 @@ function validateEmail() {
 
 function addEventListeners() {
 
+	var maxJP = (DEBUG ? -1 : 2);
+
 	$('#e-mail').keyup(validateEmail);
 
 	$("#max_join_point_select").on('change', function(e){
-		if(parseInt($("#max_join_point_select").val())>2) {
+		if(parseInt($("#max_join_point_select").val())>maxJP) {
 			$("#e-mail").parent().fadeIn();
 			$("#calculate").val("Submit");
 			validateEmail();
@@ -691,7 +686,11 @@ function setCalculateData() {
 		//$('#calculate-instructions').hide();
 		$("#calculating-spinner").modal('show');
 		updateCohortDisplay();
-		jpsurvData.additional.email =$("#e-mail").val();
+		jpsurvData.queue = [];
+		jpsurvData.queue.email =$("#e-mail").val();
+		jpsurvData.queue.url = window.location.href;
+		console.info("QUEUE");
+		console.dir(jpsurvData.queue);
 		//Set static data
 		var inputAnswers;
 		// = $('#parameters').serialize();
