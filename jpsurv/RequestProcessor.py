@@ -22,7 +22,6 @@ class RequestProcessor(DisconnectListener):
   URL = 'queue.remote.url'
   MAIL_HOST = 'mailfwd.nih.gov'
   MAIL_ADMIN = 'scott.goldweber@mail.nih.gov,pansu@mail.nih.gov'
-  UPLOAD_DIR = "/local/content/analysistools/public_html/apps/jpsurv/tmp"
   def composeMail(self,recipients,message,files=[]):
     print "sending message"
     if not isinstance(recipients,list):
@@ -88,7 +87,7 @@ class RequestProcessor(DisconnectListener):
           #    "\r\n\r\n - JPSurv Team\r\n(Note:  Please do not reply to this email. If you need assistance, please contact xxxx@mail.nih.gov)"+
           #    "\n\n")
     print message
-    self.composeMail(parameters['email'],message,files)
+    self.composeMail(data['email'],message,files)
     print "end"
   
   @defer.inlineCallbacks
