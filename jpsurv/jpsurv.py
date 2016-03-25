@@ -255,14 +255,14 @@ def stage4_trends_calculate():
     return current_app.response_class(out_json, mimetype=mimetype)
 
 @staticmethod
-  def buildFailure(message):
+def buildFailure(message):
     response = jsonify(message=message, success=False)
     response.mimetype = 'application/json'
     response.status_code = 400
     return response
     
 @staticmethod
-  def buildSuccess(message):
+def buildSuccess(message):
     response = jsonify(message=message, success=True)
     response.mimetype = 'application/json'
     response.status_code = 200

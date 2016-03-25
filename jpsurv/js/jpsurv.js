@@ -9,9 +9,6 @@ if(getUrlParameter('tokenId')) {
 }
 if(getUrlParameter('status')) {
 	jpsurvData.status = getUrlParameter('status');
-	//Show differenct instructions
-	$('#upload-instructions').hide();
-	$('#calculate-instructions').show();
 }
 
 function checkEmail(email) {
@@ -106,7 +103,6 @@ function addEventListeners() {
 	$("#precision").on("change", changePrecision);
 
 	$("#upload_file_submit").click(function(event) { 
-		//$('#upload-instructions').remove();
 		file_submit(event);
 	});
 	$("#year-of-diagnosis").on('change', setCalculateData);
@@ -160,7 +156,6 @@ $(document).ready(function() {
 
 	var status = getUrlParameter('status');
 	if(status == "uploaded") {
-		$('#upload-instructions').hide();
 		$('#file_control_container')
 				.empty()
 				.append($('<div>')
@@ -1421,31 +1416,6 @@ jpsurvData={"file":
 	}
 
 	return json;
-	/*
-	var jqxhr = $.ajax(url)
-	.done(function(data) {
-		json = data;
-		return json;
-	})
-	.fail(function(jqXHR, textStatus) {
-		var id = 'jpsurv';
-		console.warn("header: "
-			+ jqXHR
-			+ "\n"
-			+ "Status: "
-			+ textStatus
-			+ "\n\nThe server is temporarily unable to service your request due to maintenance downtime or capacity problems. Please try again later.");
-		//alert('Communication problem: ' + textStatus);
-		// ERROR
-		message = 'Service Unavailable: ' + textStatus + "<br>";
-		message += "The server is temporarily unable to service your request due to maintenance downtime or capacity problems. Please try again later.<br>";
-
-		showMessage(id, message, 'error');
-		$('#upload-instructions').hide();
-	});
-
-	return jqxhr
-	*/
 }
 
 function showMessage(id, message, message_type) {
@@ -1743,8 +1713,26 @@ function Slide_menu_Vert(Id,action){
     		height: "300px",
     		opacity:1
 			}, 300);
-
     }
+}
+
+function decimalPlaces(num) {
+
+	console.log(decimalPlaces);
+
+	var match = (''+num).match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
+	if (!match) { 
+		return 0;
+	}
+
+	console.dir(match);
+
+	var answer = Math.max(0,
+       // Number of digits right of decimal point.
+       (match[1] ? match[1].length : 0)
+       // Adjust for scientific notation.
+       - (match[2] ? +match[2] : 0));
+	return answer;
 }
 
  
