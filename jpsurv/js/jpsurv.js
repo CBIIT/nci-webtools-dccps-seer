@@ -2,7 +2,7 @@ var control_data;
 var cohort_covariance_variables;
 var jpsurvData = {"file":{"dictionary":"Breast.dic","data":"something.txt", "form":"form-983832.json"}, "calculate":{"form": {"yearOfDiagnosisRange":[]}, "static":{}}, "plot":{"form": {}, "static":{"imageId":0} }, "additional":{"headerJoinPoints":0,"yearOfDiagnosis":null,"intervals":[1,4]}, "tokenId":"unknown", "status":"unknown", "stage2completed":0};
 
-var DEBUG = false;
+var DEBUG = true;
 
 if(getUrlParameter('tokenId')) {
 	jpsurvData.tokenId = getUrlParameter('tokenId');
@@ -13,7 +13,9 @@ if(getUrlParameter('status')) {
 
 function checkEmail(email) {
 	var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-	return re.test(email);
+	var result = re.test(email);
+
+	return result;
 }
 
 function validateEmail() {
@@ -26,7 +28,7 @@ function validateEmail() {
     // check each line of text
 
     var hasError = !checkEmail(email);
-    //console.log("hasError: "+hasError);
+    console.log("hasError: "+hasError);
 
     if (typeof $("#"+id).setCustomValidity === 'function') {
 		//console.log("setting error message: "+errorMsg);
@@ -44,11 +46,14 @@ function validateEmail() {
         }
     }
     if (hasError) {
+    	console.log("hasError");
         $("#calculate").prop('disabled', true);
     } else {
+    	console.log("Does not hasError");
         $("#calculate").prop('disabled', false);
     }
-
+    //$("#calculate").prop('disabled', false);
+  
     return !hasError;
 }
 
@@ -686,8 +691,8 @@ function setCalculateData() {
 		//$('#calculate-instructions').hide();
 		$("#calculating-spinner").modal('show');
 		updateCohortDisplay();
-		jpsurvData.queue = [];
-		jpsurvData.queue.email =$("#e-mail").val();
+		jpsurvData.queue = {};
+		jpsurvData.queue.email = $("#e-mail").val();
 		jpsurvData.queue.url = window.location.href;
 		console.info("QUEUE");
 		console.dir(jpsurvData.queue);
@@ -760,9 +765,10 @@ function setCalculateData() {
 			return $(elem).text();
 		});
 		*/
-		//console.log("setCalculateData()");
-		//console.info("jpsurvData - (ie. input variable json");
-		//console.log(jpsurvData);
+		console.log("setCalculateData()");
+		console.info("jpsurvData - (ie. input variable json");
+		console.log(jpsurvData);
+		console.log(JSON.stringify(jpsurvData));
 
 		//Append the plot intervals
 		//Old stuff below
