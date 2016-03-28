@@ -21,34 +21,26 @@ function checkEmail(email) {
 }
 
 function validateEmail() {
+
 	var id = "e-mail";
-    var errorMsg = "Please enter a valid email address.";;
-    var email = $("#"+id).val();
-    //var pattern = new RegExp('^' + $(this).attr('pattern') + '$');
-    var pattern = new RegExp('^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$');
-    //console.log(email);
-    // check each line of text
+    var errorMsg = "Please enter a valid email address before submitting.";;
 
-    var hasError = !checkEmail(email);
-    console.log("hasError: "+hasError);
-/*
-    //if (typeof $("#"+id).setCustomValidity === 'function') {
-		//console.log("setting error message: "+errorMsg);
-		//$("#"+id).setCustomValidity(hasError ? errorMsg : '');
-    //} else {
-        // Not supported by the browser, fallback to manual error display...
-    $("#"+id).toggleClass('error', hasError);
-    $("#"+id).toggleClass('ok', !hasError);
-
-    if (!hasError) {
-        $("#"+id).removeAttr('title');
-        $("#calculate").prop('disabled', false);
-    } else {
+	if ($("#"+id).is(":invalid")) {
         $("#"+id).attr('title', errorMsg);
         $("#calculate").prop('disabled', true);
+    } else {
+        $("#"+id).removeAttr('title');
+        $("#calculate").prop('disabled', false);
     }
-  */
-    return !hasError;
+
+    //var pattern = new RegExp('^' + $(this).attr('pattern') + '$');
+
+    if (typeof $("#"+id).setCustomValidity === 'function') {
+		console.log("setting error message: "+errorMsg);
+		$("#"+id).setCustomValidity(hasError ? errorMsg : '');
+    }
+    // Not supported by the browser, fallback to manual error display...
+
 }
 
 function addEventListeners() {
@@ -128,7 +120,7 @@ function addEventListeners() {
 }
 
 function addMessages() {
-	var e_mail_msg = "Maximum Joinpoints greater than "+maxJP+" requires an extended computing time.  When computation is completed a notification will be sent to the e-mail listed below.";
+	var e_mail_msg = "Maximum Joinpoints greater than "+maxJP+" requires additional computing time.  When computation is completed a notification will be sent to the e-mail listed below.";
 	$("#e-mail-msg").text(e_mail_msg);	
 }
 
