@@ -416,7 +416,7 @@ input[type="file"] {
   padding-left:15px;
 }
 #e-mail {
-  width:250px;
+  width:200px;
 }
 #help {
   background-color:#FFF;
@@ -434,12 +434,17 @@ div.tooltip-inner {
     text-align:left;
 }
 
-input:valid, .ok {
-    color: #555;
+input:required:invalid, input:focus:invalid {
+  background-image: url(/images/invalid.png);
+  background-position: right top;
+  background-repeat: no-repeat;
 }
-input:invalid, .error {
-    color: red;
+input:required:valid {
+  background-image: url(/images/valid.png);
+  background-position: right top;
+  background-repeat: no-repeat;
 }
+
 @media (min-width: 768px) {
     .form-inline .radio input[type="radio"], 
     .form-inline .checkbox input[type="checkbox"] {

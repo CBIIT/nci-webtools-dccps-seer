@@ -3,6 +3,7 @@ var cohort_covariance_variables;
 var jpsurvData = {"file":{"dictionary":"Breast.dic","data":"something.txt", "form":"form-983832.json"}, "calculate":{"form": {"yearOfDiagnosisRange":[]}, "static":{}}, "plot":{"form": {}, "static":{"imageId":0} }, "additional":{"headerJoinPoints":0,"yearOfDiagnosis":null,"intervals":[1,4]}, "tokenId":"unknown", "status":"unknown", "stage2completed":0};
 
 var DEBUG = true;
+var maxJP = (DEBUG ? 0 : 2);
 
 if(getUrlParameter('tokenId')) {
 	jpsurvData.tokenId = getUrlParameter('tokenId');
@@ -14,6 +15,7 @@ if(getUrlParameter('status')) {
 function checkEmail(email) {
 	var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 	var result = re.test(email);
+	console.dir(result);
 
 	return result;
 }
@@ -29,47 +31,40 @@ function validateEmail() {
 
     var hasError = !checkEmail(email);
     console.log("hasError: "+hasError);
-
-    if (typeof $("#"+id).setCustomValidity === 'function') {
+/*
+    //if (typeof $("#"+id).setCustomValidity === 'function') {
 		//console.log("setting error message: "+errorMsg);
-		$("#"+id).setCustomValidity(hasError ? errorMsg : '');
-    } else {
+		//$("#"+id).setCustomValidity(hasError ? errorMsg : '');
+    //} else {
         // Not supported by the browser, fallback to manual error display...
-        $("#"+id).toggleClass('error', !!hasError);
-        $("#"+id).toggleClass('ok', !hasError);
-        if (hasError) {
-            $("#"+id).attr('title', errorMsg);
-            $("#calculate").prop('disabled', true);
-        } else {
-            $("#"+id).removeAttr('title');
-            $("#calculate").prop('disabled', false);
-        }
-    }
-    if (hasError) {
-    	console.log("hasError");
-        $("#calculate").prop('disabled', true);
-    } else {
-    	console.log("Does not hasError");
+    $("#"+id).toggleClass('error', hasError);
+    $("#"+id).toggleClass('ok', !hasError);
+
+    if (!hasError) {
+        $("#"+id).removeAttr('title');
         $("#calculate").prop('disabled', false);
+    } else {
+        $("#"+id).attr('title', errorMsg);
+        $("#calculate").prop('disabled', true);
     }
-    //$("#calculate").prop('disabled', false);
-  
+  */
     return !hasError;
 }
 
 function addEventListeners() {
 
-	var maxJP = (DEBUG ? -1 : 2);
-
 	$('#e-mail').keyup(validateEmail);
 
 	$("#max_join_point_select").on('change', function(e){
+		console.log("%s:%s",maxJP, $("#max_join_point_select").val());
 		if(parseInt($("#max_join_point_select").val())>maxJP) {
-			$("#e-mail").parent().fadeIn();
+			console.log("fadeIn()");
+			$(".e-mail-grp").fadeIn();
 			$("#calculate").val("Submit");
 			validateEmail();
 		} else {
-			$("#e-mail").parent().fadeOut();
+			console.log("fadeOut()");
+			$(".e-mail-grp").fadeOut();
 			$("#calculate").val("Calculate");
 			$("#calculate").prop("disabled", false);
 		}
@@ -84,8 +79,8 @@ function addEventListeners() {
 	
 	$("#icon").on('click', slideToggle);
 
-	$("#covariate_select").on("change", onChange_covariate); 
-	$("#max_join_point_select").on("change", onChange_joints); 
+	//$("#covariate_select").on("change", onChange_covariate); 
+	//$("#max_join_point_select").on("change", onChange_joints); 
 	//Select Joinpoint
 	$(document).on('click', '#model-selection-table tbody tr', function(e) {
 		e.stopPropagation();
@@ -132,9 +127,14 @@ function addEventListeners() {
 
 }
 
+function addMessages() {
+	var e_mail_msg = "Maximum Joinpoints greater than "+maxJP+" requires an extended computing time.  When computation is completed a notification will be sent to the e-mail listed below.";
+	$("#e-mail-msg").text(e_mail_msg);	
+}
+
 $(document).ready(function() {
 	addEventListeners();
-
+	addMessages();
 /*
 	$('#jpsurv-tabs').on('click', 'a', function(e) {
 		console.warn("You clicked a tab");
@@ -693,7 +693,8 @@ function setCalculateData() {
 		updateCohortDisplay();
 		jpsurvData.queue = {};
 		jpsurvData.queue.email = $("#e-mail").val();
-		jpsurvData.queue.url = window.location.href;
+		//jpsurvData.queue.url = '"'+window.location.href.toString()+'"';
+		jpsurvData.queue.url = 'yahoo.com';
 		console.info("QUEUE");
 		console.dir(jpsurvData.queue);
 		//Set static data
@@ -770,10 +771,7 @@ function setCalculateData() {
 		console.log(jpsurvData);
 		console.log(JSON.stringify(jpsurvData));
 
-		//Append the plot intervals
-		//Old stuff below
 		//append_plot_intervals(jpsurvData.calculate.form.yearOfDiagnosisRange[1] - jpsurvData.calculate.form.yearOfDiagnosisRange[0]);
-		//$("#spinner").show();
 		$("#calculating-spinner").modal('show');
 		if(jpsurvData.stage2completed == 1) {
 			stage3();  // This is a recalculation.
@@ -783,10 +781,7 @@ function setCalculateData() {
 			retrieveResults();
 		}
 
-		//$("#spinner").hide();
 		$("#calculating-spinner").modal('hide');
-		//getApcTable();
-	//}
 
 }
 
@@ -806,11 +801,9 @@ function setPlotData() {
 function file_submit(event) {
 	event.preventDefault();
 	//set tokenId
-	$("#calculating-spinner").modal('show');
 	jpsurvData.tokenId = parseInt(Math.random()*1000000);
 	$("#upload-form").attr('action', '/jpsurvRest/stage1_upload?tokenId='+jpsurvData.tokenId);
 	getRestServerStatus();
-	$("#calculating-spinner").modal('hide');
 
 }
 /*
@@ -893,6 +886,8 @@ function stage2() {
 	//alert(JSON.stringify(jpsurvData.additional));
 
 	var params = getParams();
+	console.log("getParams()");
+	console.log(params);
 	var comm_results = JSON.parse(jpsurvRest('stage2_calculate', params));
 
 	$("#right_panel").show();
@@ -1475,9 +1470,10 @@ function getRestServerStatus() {
 
 // Assign handlers immediately after making the request,
 // and remember the jqXHR object for this request
-	var jqxhr = $.ajax( url )
-	.done(function() {
+	var jqxhr = $.ajax( url ).done(function() {
+		$("#calculating-spinner").modal('show');
 		$("#upload-form").submit();
+		$("#calculating-spinner").modal('hide');
 	})
 	.fail(function(jqXHR, textStatus) {
 		var id = 'jpsurv';
@@ -1491,9 +1487,7 @@ function getRestServerStatus() {
 		// ERROR
 		message = 'Service Unavailable: ' + textStatus + "<br>";
 		message += "The server is temporarily unable to service your request due to maintenance downtime or capacity problems. Please try again later.<br>";
-
 		showMessage(id, message, 'error');
-		$('#upload-instructions').hide();
 	});
 }
 
@@ -1600,55 +1594,6 @@ function replaceAll(find, replace, str) {
   	return str.replace(new RegExp(find, 'g'), replace);
 }
 
-function onChange_covariate() {
-	alert("This is never called.");
-	var $this = $(this);
-	if ($("#covariate_select option:selected").text()=="None") {
-		$('#covariate_select').popover('destroy');
-	} 
-	if($("#covariate_select option:selected").text()!="None") {
-		Makepopup('covariate_select',"Warning",'left',$this);
-	}
-}
-
-function onChange_joints() {
-	var $this = $(this);
-	var joints = parseInt($("#max_join_point_select option:selected").text());
-	if(joints>=3){
-		Makepopup('max_join_point_select',"Warning",'top',$this);
-	}
-    update_join_point_limit(joints);
-}
-
-function Makepopup(id,title,loc,$this) {
-	    var $e = $(this.target);
-		    $("#"+id).popover({
-		        trigger: 'manual',
-		        placement: loc,
-		        title: title,
-		        content: $this.children('option:selected').attr("data-info") //this
-		    }).popover('show');
-		     $('.popover-title').append('<button type="button" class="close">&times;</button>');
-		     $('.close').click(function(e){
-	                $(this).parents('.popover').remove();
-	            });
-    setTimeout(function(){
-    	$("#"+id).popover('destroy');
-	}, 4000);
-}
-
-function update_join_point_limit(limit) {
-	//console.log('called update' + limit);
-
-	var options = "";
-	for (var i = 1; i <= limit; i ++) {
-		//console.log(i);		
-		options += "<option>" + i + "</option>";
-	}
-
-	$("#header-join-points").html(options);
-}
-
 function round(x, round, trim) {
 	return parseFloat(x) ? parseFloat(x.toFixed(round)).toPrecision(trim) : x;
 }
@@ -1695,7 +1640,7 @@ function Slide_menu_Horz(action) {
 		}, 20);
 
     	 $("#right_panel").animate({
-    		width: '66.666666%'
+    		width: '66.66%'
 			}, 10);
 	}
 }

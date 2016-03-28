@@ -121,19 +121,17 @@
                       <option>0</option>
                       <option>1</option>
                       <option>2</option>
-                      <option  data-info="Three or more Join points may take more than five minutes to run.">3</option>
-                      <option  data-info="Three or more Join points may take more than five minutes to run.">4</option>
-                      <option  data-info="Three or more Join points may take more than five minutes to run.">5</option>
+                      <option>3</option>
+                      <option>4</option>
+                      <option>5</option>
                     </select>
-                    <div class="form-group jpsurv-label-container" style="display:none;">
+                    <div class="row">
+                      <div id="e-mail-msg" class="e-mail-grp" style="padding:5px 15px;display:none;">
+                      </div>
+                    </div>
+                    <div class="form-group e-mail-grp" style="display:none;">
                       <label for="e-mail" class="jpsurv-label" title="Enter a valid e-mail">E-mail:</label> 
-                      <input required id="e-mail" type="email" placeholder="Enter e-mail address" title="Enter a valid e-mail address." pattern="[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*">
-                      &nbsp;
-                      <a href="#" data-toggle="tooltip" data-placement="left" title="Maximum Joinpoints of 3 or greater requires  extended computing time.  When computation is completed an e-mail will be sent which contains a link to the results.  Please enter a valid e-mail address before submiting calculation.">
-                        <span class="cursor-pointer glyphicon glyphicon-info-sign glyphicon-blue" aria-label="Help" onclick="openHelpWindow('help.html')" href="#"></span>
-                      </a>
-
-
+                      <input required id="e-mail" type="email" placeholder="Enter e-mail address" title="Enter a valid e-mail address.">
                     </div>                    
 
                   </div>
