@@ -1,29 +1,30 @@
 import ConfigParser
 
-class PropertyUtil:
-  cp = ConfigParser.SafeConfigParser()
-  cp.optionxform=str
-  cp.read(r"config.ini")
-  properties = {}
+class PropertyUtil(dict):
+  TRUTHY = ['true','True','1']
 
-  for section in cp.sections():
-    for option in cp.options(section):
-      properties[option]=cp.get(section,option)
-  print properties
-  @staticmethod
-  def getAttribute(att):
-    return PropertyUtil.properties[att]
+  def __init__(self, filename):
+    cp = ConfigParser.SafeConfigParser()
+    cp.optionxform=str
+    cp.read(filename)
 
-  def getAsBoolean(self, path):
-    return self.properties[path] in PropertyUtil.TRUTHY
-
-  def getAsInt(self, path):
-    return int(self.properties[path])
-
-  def getAsFloat(self, path):
-    return float(self.properties[path])
+    for section in cp.sections():
+      for option in cp.options(section):
+        self[section.replace('/','.')+'.'+option]=cp.get(section,option)
 
   def getAsString(self, path):
-    return self.properties[path]
+    return self[path]
+
+  def getAsBoolean(self, path):
+    return self[path] in PropertyUtil.TRUTHY
+
+  def getAsInt(self, path):
+    return int(self[path])
+
+  def getAsFloat(self, path):
+    return float(self[path])
+
+  def getAttribute(att):
+    return PropertyUtil.properties[att]
 
 
