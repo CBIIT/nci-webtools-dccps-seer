@@ -4,6 +4,7 @@ import os
 import rpy2.robjects as robjects
 import smtplib
 import time
+import logging
 
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
@@ -17,11 +18,12 @@ from stompest.config import StompConfig
 from stompest.protocol import StompSpec
 
 class RequestProcessor(DisconnectListener):
-  CONFIG = 'queue.remote.config'
-  NAME = 'queue.remote.name'
-  URL = 'queue.remote.url'
+  CONFIG = 'queue.config'
+  NAME = 'queue.name'
+  URL = 'queue.url'
   MAIL_HOST = 'mailfwd.nih.gov'
   MAIL_ADMIN = 'scott.goldweber@mail.nih.gov,pansu@mail.nih.gov'
+
   def composeMail(self,recipients,message,files=[]):
     print "sending message"
     if not isinstance(recipients,list):
@@ -55,21 +57,25 @@ class RequestProcessor(DisconnectListener):
 
  # @This is teh consume code which will listen to Queue server.
   def consume(self, client, frame):
+    print "In consume"
     files=[]
+
     parameters = json.loads(frame.body)
-    print "printing file:"
     data=json.loads(parameters['data'])
     jpsurvDataString=parameters['data']
+    print jpsurvDataString
+    print "creating message"
     rSource = robjects.r['source']('JPSurvWrapper.R')
+    robjects.r['getFittedResultWrapper'](parameters['filepath'], jpsurvDataString)
     robjects.r['getAllData'](parameters['filepath'], jpsurvDataString)
 
-#    rSource = robjects.r('source')
 #    rSource('./JPSurvWrapper.R')
 #    getFittedResultWrapper = robjects.globalenv['getFittedResultWrapper']
    # print parameters['data']
     #http://analysistools-dev.nci.nih.gov/jpsurv/?file_control_filename=Breast_RelativeSurvival.dic&file_data_filename=Breast_RelativeSurvival.txt&output_filename=form-766756.json&status=uploaded&tokenId=766756
 
-    Link='<a href='+parameters['url']+data['file']['dictionary']+'&file_data_filename='+data['file']['data']+'&output_filename='+data['file']['form']+'&status=uploaded&tokenId='+data['tokenId']+'"> Here </a>' 
+    Link='<a href='+data['queue']['url']+'> Here </a>' 
+    print parameters['timestamp']
     print Link
     message = """
       <head>
@@ -77,17 +83,18 @@ class RequestProcessor(DisconnectListener):
         <title>html title</title>
       </head>
       <body>
-        <p>"Dear User"<br/> "We have analyzed your data created on """+parameters['timeStamp']+""" using JPSurv."<br />
-        "You can view your results: """+Link+"""<br />
-         "This link will expire two weeks from today."<br /><br /><br />
-         "- JPSurv Team"<br />
-         "(Note:  Please do not reply to this email. If you need assistance, please contact xxxx@mail.nih.gov)"
+        <p>Dear User<br/> We have analyzed your data created on """+parameters['timestamp']+""" using JPSurv.<br />
+        You can view your results: """+Link+"""<br />
+         This link will expire two weeks from today."<br /><br /><br />
+         - JPSurv Team<br />
+         (Note:  Please do not reply to this email. If you need assistance, please contact pansu@mail.nih.gov)
       </body>
       """
           #    "\r\n\r\n - JPSurv Team\r\n(Note:  Please do not reply to this email. If you need assistance, please contact xxxx@mail.nih.gov)"+
           #    "\n\n")
     print message
-    self.composeMail(data['email'],message,files)
+    print "sending"
+    self.composeMail(data['queue']['email'],message,files)
     print "end"
   
   @defer.inlineCallbacks
@@ -109,18 +116,19 @@ class RequestProcessor(DisconnectListener):
     print 'In clean up ...'
   
   def onConnectionLost(self, connect, reason):
+    print "in onConnectionLost"
     self.run()
 
  # @read from property file to set up parameters for the queue.
-  def __init__(self, config=None):
+  def __init__(self):
+    config = PropertyUtil(r"config.ini")
      # Initialize Connections to ActiveMQ
-    self.QUEUE=PropertyUtil.getAttribute('queue.remote.name')
-    self.ERROR_QUEUE=PropertyUtil.getAttribute('queue.remote.error.name')
-    if config is None:
-      config = StompConfig(PropertyUtil.getAttribute('queue.remote.url')) 
-      self.config = config
+    self.QUEUE=config.getAsString(RequestProcessor.NAME)
+    self.ERROR_QUEUE=config.getAsString('queue.error.name')
+    config = StompConfig(config.getAsString(RequestProcessor.URL)) 
+    self.config = config
 
 if __name__ == '__main__':
-  
+  logging.basicConfig(level=logging.INFO)
   RequestProcessor().run()
   reactor.run()
