@@ -11,6 +11,7 @@ import unicodedata
 from stompest.config import StompConfig
 from stompest.sync import Stomp
 from PropertyUtil import PropertyUtil
+import time
 
 app = Flask(__name__, static_folder='', static_url_path='/')
 
@@ -304,17 +305,18 @@ def queue():
 #    return response
 
 def sendqueue(tokenId):
-    try:
-        timestr = time.strftime("%Y-%m-%d")
-        QUEUE = jpsurvConfig.getAsString(QUEUE_NAME)
-        QUEUE_CONFIG=StompConfig(jpsurvConfig.getAsString(QUEUE_URL)) 
-        client = Stomp(QUEUE_CONFIG)
-        client.connect()
-        client.send(QUEUE,json.dumps({"filepath":UPLOAD_DIR,"token":token,"timestamp":timestr}))
-        client.disconnect()
+    #try:
+    timestr = time.strftime("%Y-%m-%d")
+    QUEUE = jpsurvConfig.getAsString(QUEUE_NAME)
+    QUEUE_CONFIG=StompConfig(jpsurvConfig.getAsString(QUEUE_URL)) 
+    client = Stomp(QUEUE_CONFIG)
+    client.connect()
+    client.send(QUEUE,json.dumps({"filepath":UPLOAD_DIR,"token":tokenId,"timestamp":timestr}))
+    client.disconnect()
 #    return buildSuccess("The request has been received. An email will be sent when the calculation has completed.")
-    except Exception as e:
-       return buildFailure(str(e))
+    #except Exception as e:
+    #   return buildFailure(str(e))
+    return
  
 def info(msg):
     d={'clientip': request.remote_addr}
