@@ -92,8 +92,8 @@ def stage1_upload():
     tokenId = request.args.get('tokenId', False)
     info((BOLD + "****** Stage 1: tokenId = %s" + ENDC) % (tokenId))
 
-    #for k, v in request.args.iteritems():
-    #    print "var: %s = %s" % (k, v)
+    for k, v in request.args.iteritems():
+        print "var: %s = %s" % (k, v)
 
     file = request.files['file_control']
     if file and file.filename:
@@ -259,13 +259,28 @@ def stage4_trends_calculate():
 @app.route('/jpsurvRest/stage5_queue', methods=['GET'])
 def queue():
 
-    debug(OKGREEN+UNDERLINE+BOLD + "****** Stage 5: Queue ***** " + ENDC)
-    info("Sending info to queue ...")
-
+    tokenId = request.args.get('tokenId', False)
     jpsurvDataString = request.args.get('jpsurvData', False)
     jpsurvDataString = fix_jpsurv(jpsurvDataString)
 
+    for k, v in request.args.iteritems():
+        print "var: %s = %s" % (k, v)
+
+    output_filename = "input-%s.json" % tokenId
+    r_output_file = os.path.join(UPLOAD_DIR, output_filename)
+ 
+    #PRINT FILE_CONTROL
+    #file_control = os.path.join(UPLOAD_DIR, file_control_filename)
+    #fo = open(file_control, "r+")
+    #str = fo.read(250)
+    #fo.close()
+
+    debug(OKGREEN+UNDERLINE+BOLD + "****** Stage 5: Queue ***** " + ENDC)
+    info("Sending info to queue ...")
+
+
     info(BOLD+"**** Calling sendqueue ****"+ENDC)
+    sendqueue("506827");
     # Next two lines execute the R Program
     #getTrendsData = robjects.globalenv['getTrendsData']
     #getTrendsData(UPLOAD_DIR, jpsurvDataString)

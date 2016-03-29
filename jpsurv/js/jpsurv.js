@@ -50,7 +50,7 @@ function validateEmail() {
 
 function addEventListeners() {
 
-	$('#e-mail').keyup(validateEmail);
+	$('#e-mail').on('keyup', validateEmail);
 
 	$("#max_join_point_select").on('change', function(e){
 		console.log("%s:%s",maxJP, $("#max_join_point_select").val());
@@ -69,7 +69,7 @@ function addEventListeners() {
 	$("#trends-tab-anchor").click(function(e) {
 		//console.warn("You clicked on trends-tab-anchor");
 		//Need to figure out this variable...
-		if(jpsurvData.stage2completed == 1 && jpsurvData.recentTrends == 0) {
+		if(jpsurvData.stage2completed && jpsurvData.recentTrends == 0) {
 			calculateTrend(jpsurvData.tokenId);
 		}
 	});
@@ -99,14 +99,12 @@ function addEventListeners() {
 	});
 	$("#year-of-diagnosis").on('change', setCalculateData);
 	$("#recalculate").on('click', setCalculateData);
-
-
 	//
 	// Set click listeners
 	//
 	$("#calculate").on("click", function() { 
 		//Reset main calculation.  This forces a rebuild R Database
-		jpsurvData.stage2completed = 0;
+		jpsurvData.stage2completed = false;
 		setCalculateData();
 	});
 
@@ -776,14 +774,21 @@ function setCalculateData() {
 
 		//append_plot_intervals(jpsurvData.calculate.form.yearOfDiagnosisRange[1] - jpsurvData.calculate.form.yearOfDiagnosisRange[0]);
 		$("#calculating-spinner").modal('show');
-		if(jpsurvData.stage2completed == 1) {
-			stage3();  // This is a recalculation.
-			retrieveResults();
+		if(parseInt($("#max_join_point_select").val())>maxJP) {
+			//Send to queue
+			//Show a dialog on the fly that calculation is being performed.
+			var params = getParams();
+			var comm_results = JSON.parse(jpsurvRest('stage5_queue', params));
+			alert("Your calculation is being performed.  You will receive an e-mail when completed.");
 		} else {
-			stage2(); // This is the initial calculation and setup.
-			retrieveResults();
+			if(jpsurvData.stage2completed) {
+				stage3();  // This is a recalculation.
+				retrieveResults();
+			} else {
+				stage2(); // This is the initial calculation and setup.
+				retrieveResults();
+			}
 		}
-
 		$("#calculating-spinner").modal('hide');
 
 }
@@ -844,12 +849,12 @@ function retrieveResults() {
 		//console.log("jpsurvData");
 		//console.log(JSON.stringify(jpsurvData));
 		//console.dir(jpsurvData);
-		if(jpsurvData.stage2completed == 0) {
+		if(!jpsurvData.stage2completed) {
 			createModelSelection();
 		}
 		updateTabs(tokenId);
 		//Change stage2completed HERE.  After retrieving file.
-		jpsurvData.stage2completed = 1;
+		jpsurvData.stage2completed = true;
 	});
 
 }
