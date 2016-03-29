@@ -305,11 +305,12 @@ def queue():
 
 def sendqueue(tokenId):
     try:
+        timestr = time.strftime("%Y-%m-%d")
         QUEUE = jpsurvConfig.getAsString(QUEUE_NAME)
         QUEUE_CONFIG=StompConfig(jpsurvConfig.getAsString(QUEUE_URL)) 
         client = Stomp(QUEUE_CONFIG)
         client.connect()
-        client.send(QUEUE,json.dumps({"filepath":UPLOAD_DIR,"token":tokenId,"timestamp":"2015-06-25"}))
+        client.send(QUEUE,json.dumps({"filepath":UPLOAD_DIR,"token":token,"timestamp":timestr}))
         client.disconnect()
 #    return buildSuccess("The request has been received. An email will be sent when the calculation has completed.")
     except Exception as e:
