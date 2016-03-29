@@ -22,7 +22,7 @@ class RequestProcessor(DisconnectListener):
   NAME = 'queue.name'
   URL = 'queue.url'
   MAIL_HOST = 'mailfwd.nih.gov'
-  MAIL_ADMIN = 'scott.goldweber@mail.nih.gov,pansu@mail.nih.gov'
+  MAIL_ADMIN = 'pansu@mail.nih.gov'
 
   def composeMail(self,recipients,message,files=[]):
     print "sending message"
@@ -61,13 +61,24 @@ class RequestProcessor(DisconnectListener):
     files=[]
 
     parameters = json.loads(frame.body)
-    data=json.loads(parameters['data'])
-    jpsurvDataString=parameters['data']
-    print jpsurvDataString
-    print "creating message"
+    print parameters
+    token=parameters['token']
+    filepath=parameters['filepath']
+    timestamp=['timestamp']
+
+    print token
+    fname=filepath+"/input_"+token+".txt"
+    print fname
+    with open(fname) as content_file:
+      jpsurvDataString = content_file.read()
+
+    data=json.loads(jpsurvDataString)
+
     rSource = robjects.r['source']('JPSurvWrapper.R')
     robjects.r['getFittedResultWrapper'](parameters['filepath'], jpsurvDataString)
     robjects.r['getAllData'](parameters['filepath'], jpsurvDataString)
+    print "Calculating"
+    print "making messge"
 
 #    rSource('./JPSurvWrapper.R')
 #    getFittedResultWrapper = robjects.globalenv['getFittedResultWrapper']
@@ -85,7 +96,7 @@ class RequestProcessor(DisconnectListener):
       <body>
         <p>Dear User<br/> We have analyzed your data created on """+parameters['timestamp']+""" using JPSurv.<br />
         You can view your results: """+Link+"""<br />
-         This link will expire two weeks from today."<br /><br /><br />
+         This link will expire two weeks from today.<br /><br /><br />
          - JPSurv Team<br />
          (Note:  Please do not reply to this email. If you need assistance, please contact pansu@mail.nih.gov)
       </body>
