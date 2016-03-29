@@ -196,7 +196,16 @@
           <!-- </form> -->
           <!-- Main Menu Tabs -->
         </div>
-        <div id="help" class="well col-md-8"></div>
+        <div id="help" class="well col-md-8">
+          <div class="row">
+            <div class="col-sm-7 col-sm-offset-2" id="jpsurv-help-message-container" style="display:none1;">
+              <div class="panel panel-danger">
+                <div class="panel-heading">Error</div>
+                <div class="panel-body" id="jpsurv-message-content"></div>
+              </div>
+            </div>
+          </div>
+        </div>
         <div id="right_panel" class="col-md-8" style="display:none;">
           <div id="cohort-join-points" class="box">
             <div class="row model-select-row" style="padding-bottom:15px;">
@@ -521,14 +530,12 @@
 <div id="calculating-spinner" class="modal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
   <div class="modal-dialog modal-sm">
     <div class="modal-content">
-
       <div class="modal-header">
          <h2 class="modal-title" id="myModalLabel">Calculating</h2>
       </div>
       <div class="modal-body">
          <i class="fa fa-spinner fa-spin fa-4x" style="margin-left:100px;">&nbsp;</i>
       </div>
-
     </div>
   </div>
 </div>

@@ -1,3 +1,8 @@
+var jpsurv_version = "1.0";
+
+var restService = {protocol:'http',hostname:document.location.hostname,fqn:"nci.nih.gov",route : "jpsurvRest"}
+var restServerUrl = restService.protocol + "://" + restService.hostname + "/"+ restService.route;
+
 var control_data;
 var cohort_covariance_variables;
 var jpsurvData = {"file":{"dictionary":"Breast.dic","data":"something.txt", "form":"form-983832.json"}, "calculate":{"form": {"yearOfDiagnosisRange":[]}, "static":{}}, "plot":{"form": {}, "static":{"imageId":0} }, "additional":{"headerJoinPoints":0,"yearOfDiagnosis":null,"intervals":[1,4]}, "tokenId":"unknown", "status":"unknown", "stage2completed":0};
@@ -116,12 +121,19 @@ function addEventListeners() {
 	$("#plot_intervals").on("change", checkPlotParameters);
 	$("#covariate-fieldset").on("click", "#covariate_value_select", checkPlotParameters);
 	//$("#data-set").on("click", getDownloadOutput);
+	$( "#upload-form" ).on("submit", function( event ) {
 
+		//event.preventDefault();
+		console.log("submitting files");
+
+	});
 }
 
 function addMessages() {
-	var e_mail_msg = "Maximum Joinpoints greater than "+maxJP+" requires additional computing time.  When computation is completed a notification will be sent to the e-mail listed below.";
-	$("#e-mail-msg").text(e_mail_msg);	
+	var e_mail_msg = "Maximum Joinpoints greater than "+maxJP+" requires additional computing time (approx. 3~5 minutes).  When computation is completed a notification will be sent to the e-mail listed below.";
+	$("#e-mail-msg").text(e_mail_msg);
+
+	$("#jpsurv-help-message-container").hide();
 }
 
 $(document).ready(function() {
@@ -182,7 +194,7 @@ $(document).ready(function() {
 		//console.log(file_control_output	);
 		//var file_data_output = load_ajax(getUrlParameter('file_data_filename'));
 		setUploadData();
-		//console.log(jpsurvData.file.form);
+		console.log(jpsurvData.file.form);
 		var output_file = load_ajax("form-" + jpsurvData.tokenId + ".json");
 		control_data = output_file;
 		load_form();
@@ -295,7 +307,7 @@ function addCohortVariables() {
 
 function loadHelp() {
 	$("#help-tab").load("help.html");
-	$("#help").load("help.html");
+	$("#help").append($("<div>").load("help.html"));
 }
 /*
 function getDownloadOutput(event) {
@@ -400,7 +412,6 @@ function setupModel() {
 		jpsurvData.results.SelectedModel, 
 		jpsurvData.additional.headerJoinPoints,
 		jpsurvData.stage2completed);
-
 	jpsurvData.additional.headerJoinPoints = jpsurvData.results.SelectedModel-1;
 
 }
@@ -791,7 +802,8 @@ function setPlotData() {
 }
 
 function file_submit(event) {
-	event.preventDefault();
+	//alert("file_submit");
+	//event.preventDefault();
 	//set tokenId
 	jpsurvData.tokenId = parseInt(Math.random()*1000000);
 	$("#upload-form").attr('action', '/jpsurvRest/stage1_upload?tokenId='+jpsurvData.tokenId);
@@ -1389,9 +1401,6 @@ jpsurvData={"file":
 					message_type = 'error';
 				}
 				showMessage(id, message, message_type);
-				$('#spinner').hide();
-				$('#spinner-plotting').hide();
-				$('#apc-container').hide();
 				$("#calculating-spinner").modal('hide');
 
 
@@ -1422,13 +1431,16 @@ function showMessage(id, message, message_type) {
 	</div>
 </div>
 */
+
 	//
 	//	Display either a warning an error.
 	//
-	//alert("Show Message");
+	alert("Show Message");
+
 	var css_class = "";
 	var header = "";
 	var container_id = id+"-message-container";
+	console.log(container_id);
 
 	if(message_type.toUpperCase() == 'ERROR') {
 		css_class = 'panel-danger';
@@ -1455,42 +1467,12 @@ function showMessage(id, message, message_type) {
 		);
 }
 
-function getRestServerStatus() {
-
-	var url = '/jpsurvRest/status';
-	//console.log("getRestServerStatus");
-
-// Assign handlers immediately after making the request,
-// and remember the jqXHR object for this request
-	var jqxhr = $.ajax( url ).done(function() {
-		$("#calculating-spinner").modal('show');
-		$("#upload-form").submit();
-		$("#calculating-spinner").modal('hide');
-	})
-	.fail(function(jqXHR, textStatus) {
-		var id = 'jpsurv';
-		console.warn("header: "
-			+ jqXHR
-			+ "\n"
-			+ "Status: "
-			+ textStatus
-			+ "\n\nThe server is temporarily unable to service your request due to maintenance downtime or capacity problems. Please try again later.");
-		//alert('Communication problem: ' + textStatus);
-		// ERROR
-		message = 'Service Unavailable: ' + textStatus + "<br>";
-		message += "The server is temporarily unable to service your request due to maintenance downtime or capacity problems. Please try again later.<br>";
-		showMessage(id, message, 'error');
-	});
-}
-
 function load_ajax(filename) {
-
-	//console.log(filename);
-
+	console.log(filename);
 	var json = (function () {
 		var json = null;
 		var url = '/jpsurv/tmp/'+filename;
-	    $.ajax({
+		$.ajax({
 		      'async': false,
 		      'global': false,
 		      'url': url,
@@ -1677,4 +1659,159 @@ function decimalPlaces(num) {
 	return answer;
 }
 
- 
+function displayCommFail(id, jqXHR, textStatus) {
+	console.log(id);
+	console.log(textStatus);
+	console.dir(jqXHR);
+
+	console.warn("CommFail\n"+"Status: "+textStatus);
+	var message = jqXHR.responseText;
+	message += "<p>code: "+jqXHR.status+" - "+textStatus+"</p>";
+	$('#' + id + '-message').show();
+	$('#' + id + '-message-content').empty().append(message);
+	$('#' + id + '-progress').hide();
+	$('#' + id+ '-results-container').hide();
+	//hide loading icon
+	$('#'+id+"-loading").hide();
+
+}
+
+function displayError(id, data) {
+	// Display error or warning if available.
+	console.dir(data);
+
+	var error = false;
+	if (data.traceback) {
+		console.warn("traceback");
+		console.warn(data.traceback);
+	}
+	if (data.warning) {
+		$('#' + id + '-message-warning').show();
+		$('#' + id + '-message-warning-content').empty().append(data.warning);
+		//hide error
+		$('#' + id + '-message').hide();
+	}
+
+	if (data.error) {
+		// ERROR
+		$('#' + id + '-message').show();
+		$('#' + id + '-message-content').empty().append(data.error);
+		//hide warning
+		$('#' + id + '-message-warning').hide();
+
+		//matrix specific
+		$('#'+id+"-download-links").hide();
+
+		$('#'+id+"-results-container").hide();
+
+		error = true;
+	}
+	return error;
+}
+
+function getRestServerStatus() {
+
+	var id = "jpsurv-help";
+
+	console.log("getRestServerStatus");
+
+	//$("#upload-form").submit();
+	//return;
+
+// Assign handlers immediately after making the request,
+// and remember the jqXHR object for this request
+/*
+	var jqxhr = $.ajax( url ).done(function() {
+		$("#calculating-spinner").modal('show');
+		$("#upload-form").submit();
+		$("#calculating-spinner").modal('hide');
+	})
+	.fail(function(jqXHR, textStatus) {
+		console.warn("header: "
+			+ jqXHR
+			+ "\n"
+			+ "Status: "
+			+ textStatus
+			+ "\n\nThe server is temporarily unable to service your request due to maintenance downtime or capacity problems. Please try again later.");
+		//alert('Communication problem: ' + textStatus);
+		// ERROR
+		message = 'Service Unavailable: ' + textStatus + "<br>";
+		message += "The server is temporarily unable to service your request due to maintenance downtime or capacity problems. Please try again later.<br>";
+		showMessage(id, message, 'error');
+	});
+*/
+
+
+
+	var url = restServerUrl + "/status";
+	var ajaxRequest = $.ajax({
+		url : url,
+		contentType : 'application/json' // JSON
+	});
+	ajaxRequest.success(function(data) {
+		//data is returned as a string representation of JSON instead of JSON obj
+		console.log("ajaxRequetst.success");
+		console.dir(data);
+		$("#"+id+"-message-container").hide();
+		if (displayError(id, data) == false) {
+			$("#calculating-spinner").modal('show');
+			alert("Submitting... Page should reload with new data");
+			$("#upload-form").submit();
+		}
+	});
+	ajaxRequest.fail(function(jqXHR, textStatus) {
+		console.log("ajaxRequetst.fail");
+		console.dir(jqXHR);
+		console.log(textStatus);
+		displayCommFail(id, jqXHR, textStatus);
+	});
+	ajaxRequest.always(function() {
+		$("#calculating-spinner").modal('hide');
+	});
+}
+
+function updateSNPclip() {
+	var id = "snpclip";
+
+	var $btn = $('#' + id).button('loading');
+	var snps = DOMPurify.sanitize($('#' + id + '-file-snp-numbers').val());
+	var population = getPopulationCodes(id+'-population-codes');
+
+	var ldInputs = {
+		snps : snps,
+		pop : population.join("+"),
+		r2_threshold: $("#"+id+"_r2_threshold").val(),
+		maf_threshold: $("#"+id+"_maf_threshold").val(),
+		reference : getTokenId()
+	};
+
+	var url = restServerUrl + "/snpclip";
+	var ajaxRequest = $.ajax({
+		type : 'POST',
+		url : url,
+		data : JSON.stringify(ldInputs),
+		contentType : 'application/json' // JSON
+	});
+	ajaxRequest.success(function(data) {
+		//data is returned as a string representation of JSON instead of JSON obj
+		var jsonObj=data;
+		if (displayError(id, jsonObj) == false) {
+			$('#' + id + '-results-container').show();
+			$('#' + id + '-links-container').show();
+			$('#'+id+"-loading").hide();
+			initClip(data);
+		}
+	});
+	ajaxRequest.fail(function(jqXHR, textStatus) {
+		displayCommFail(id, jqXHR, textStatus);
+	});
+	ajaxRequest.always(function() {
+		$btn.button('reset');
+	});
+
+	hideLoadingIcon(ajaxRequest, id);
+}
+
+function getTokenId() {
+	return Math.floor(Math.random() * (99999 - 10000 + 1));
+}
