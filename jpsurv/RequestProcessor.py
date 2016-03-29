@@ -67,7 +67,7 @@ class RequestProcessor(DisconnectListener):
     timestamp=['timestamp']
 
     print token
-    fname=filepath+"/input_"+token+".txt"
+    fname=filepath+"/input_"+token+".json"
     print fname
     with open(fname) as content_file:
       jpsurvDataString = content_file.read()
