@@ -32,7 +32,7 @@ def sendqueue(jpsurvDataString):
         QUEUE_CONFIG=StompConfig(jpsurvConfig.getAsString(QUEUE_URL)) 
         client = Stomp(QUEUE_CONFIG)
         client.connect()
-        client.send(QUEUE,jpsurvDataString)
+        client.send(QUEUE,json.dumps({"filepath":UPLOAD_DIR,"data":jpsurvDataString,"timestamp":"2015-06-25"}))       
         client.disconnect()
 #    return buildSuccess("The request has been received. An email will be sent when the calculation has completed.")
     except Exception as e:
