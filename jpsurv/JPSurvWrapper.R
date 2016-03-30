@@ -228,6 +228,7 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString) {
   downloadFile = paste(filePath, paste("data_Year-", jpsurvData$tokenId, "-",iteration, ".csv", sep=""), sep="/") #CSV file to download
   survData=plot.relsurv.year(outputData$fittedResult$FitList[[jpInd+1]],intervals, NAs, cohortValues)
   dev.off()
+  results =c("RelSurYearGraph"=graphFile,"RelSurvYearData"=survData) #returns 
   cohorts=jpsurvData$calculate$form$cohortVars
 
   for (i in 1:length(cohorts))
@@ -237,7 +238,6 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString) {
     survData[cohorts[[i]]] <- value
   }  
 
-  results =c("RelSurYearGraph"=graphFile,"RelSurvYearData"=survData) #returns 
   write.csv(survData, downloadFile)
   return (results)
   
@@ -262,11 +262,9 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString) {
   yearOfDiagnosisVarName=getCorrectFormat(yearOfDiagnosisVarName)
   survData=plot.relsurv.int(outputData$fittedResult$FitList[[jpInd+1]], yearOfDiagnosisVarName, yearOfDiagnosis);
   #survData=plot.relsurv.int(outputData$fittedResult$FitList[[jpInd+1]], "Year_of_diagnosis_7507_individual", 1975);
-  print (yearOfDiagnosisVarName)
-  print (survData)
-  
-  write.csv(survData, downloadFile)
+  print (yearOfDiagnosisVarName)  
   dev.off()
+  results =c("RelSurIntData"=survData,"RelSurIntGraph"=graphFile) #returns 
   cohorts=jpsurvData$calculate$form$cohortVars
   
   for (i in 1:length(cohorts))
@@ -275,8 +273,8 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString) {
     value=noquote(value)
     survData[cohorts[[i]]] <- value
   }  
-  results =c("RelSurIntData"=survData,"RelSurIntGraph"=graphFile) #returns 
-  
+  print (survData)
+  write.csv(survData, downloadFile)
   return (results)
 }
 testData = list()
