@@ -78,7 +78,7 @@ class RequestProcessor(DisconnectListener):
     robjects.r['getFittedResultWrapper'](parameters['filepath'], jpsurvDataString)
     robjects.r['getAllData'](parameters['filepath'], jpsurvDataString)
     print "Calculating"
-    print "making messge"
+    print "making message"
 
 #    rSource('./JPSurvWrapper.R')
 #    getFittedResultWrapper = robjects.globalenv['getFittedResultWrapper']

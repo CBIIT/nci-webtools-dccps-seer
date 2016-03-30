@@ -242,11 +242,15 @@ def stage4_trends_calculate():
 
     debug(OKGREEN+UNDERLINE+BOLD + "****** Stage 4: Trends BUTTON ***** " + ENDC)
     info("Recalculating ...")
+    info(BOLD+"**** Calling getTrendsData ****"+ENDC)
 
     jpsurvDataString = request.args.get('jpsurvData', False)
     jpsurvDataString = fix_jpsurv(jpsurvDataString)
 
-    info(BOLD+"**** Calling getTrendsData ****"+ENDC)
+    #Init the R Source
+    rSource = robjects.r('source')
+    rSource('./JPSurvWrapper.R')
+
     # Next two lines execute the R Program
     getTrendsData = robjects.globalenv['getTrendsData']
     getTrendsData(UPLOAD_DIR, jpsurvDataString)

@@ -549,6 +549,7 @@ function updateEstimates(token_id) {
 	row += "<td>Log Likelihood</td>"+formatCell(jpsurvData.results.ll)+"</tr>";
 	row += "<td>Converged</td><td>"+jpsurvData.results.converged.toUpperCase()+"</td></tr>/n";
 	$("#estimates-jp > tbody").append(row);
+	$("#yod-range").text(jpsurvData.calculate.form.yearOfDiagnosisRange[0]+" to "+jpsurvData.calculate.form.yearOfDiagnosisRange[1]);
 }
 function updateTrend(token_id) {
 	updateTrendGraph(JSON.parse(jpsurvData.results.CS_AAPC), "trend-apc");
@@ -693,11 +694,12 @@ function setCalculateData() {
 		$("#calculating-spinner").modal('show');
 		updateCohortDisplay();
 		jpsurvData.queue = {};
-		jpsurvData.queue.email = $("#e-mail").val();
+		jpsurvData.queue.email = (DEBUG ? "chris.kneisler@nih.gov" : $("#e-mail").val());
 		//jpsurvData.queue.url = '"'+window.location.href.toString()+'"';
 		jpsurvData.queue.url = 'yahoo.com';
 		console.info("QUEUE");
 		console.dir(jpsurvData.queue);
+
 		//Set static data
 		var inputAnswers;
 		// = $('#parameters').serialize();
@@ -767,9 +769,9 @@ function setCalculateData() {
 			return $(elem).text();
 		});
 		*/
-		console.log("setCalculateData()");
+		console.warn("setCalculateData()");
 		console.info("jpsurvData - (ie. input variable json");
-		console.log(jpsurvData);
+		console.dir(jpsurvData);
 		console.log(JSON.stringify(jpsurvData));
 
 		//append_plot_intervals(jpsurvData.calculate.form.yearOfDiagnosisRange[1] - jpsurvData.calculate.form.yearOfDiagnosisRange[0]);
@@ -777,9 +779,11 @@ function setCalculateData() {
 		if(parseInt($("#max_join_point_select").val())>maxJP) {
 			//Send to queue
 			//Show a dialog on the fly that calculation is being performed.
+
 			var params = getParams();
+
 			var comm_results = JSON.parse(jpsurvRest('stage5_queue', params));
-			alert("Your calculation is being performed.  You will receive an e-mail when completed.");
+			alert("Your submission has been queued.  You will receive an e-mail when calculation is completed.");
 		} else {
 			if(jpsurvData.stage2completed) {
 				stage3();  // This is a recalculation.
@@ -1017,7 +1021,7 @@ function jpTrim(str, len) {
 }
 
 function load_form() {
-	//console.log('load_form()');
+	console.log('load_form()');
 	//Removing File Reader, because file is on server
 	//
 	//var file_control = document.getElementById('file_control').files[0];
@@ -1025,33 +1029,32 @@ function load_form() {
 
 		//reader.onload = function(e) {
    //console.log("This may not be JSON!!!!");
-	  //console.dir(text);
-	  //alert(JSON.stringify(text));
-	  //control_data = JSON.parse(text);
-	  //console.log("control data");
-	  //console.dir(control_data);
-	  parse_diagnosis_years();
-	  parse_cohort_covariance_variables();
-	  addCohortVariables();
-	  build_parameter_column();
-	  // The following is for demo purpose only.
-	  //Temp change a title
-		$('#diagnosis_title')
-			.empty()
-			.append($('<div>')
-				.addClass('jpsurv-label-container')
-				.append($('<span>')
-						.append('Year of Diagnosis:')
-						.addClass('jpsurv-label')
-				)
-				.append($('<span>')
-						.append(jpsurvData.calculate.static.yearOfDiagnosisTitle)
-						.attr('title', 'Year of diagnosis label')
-						.addClass('jpsurv-label-content')
-				)
-		);
+	//console.dir(text);
+	//alert(JSON.stringify(text));
+	//control_data = JSON.parse(text);
+	console.log("control data");
+	console.dir(control_data);
+	parse_diagnosis_years();
+	parse_cohort_covariance_variables();
+	addCohortVariables();
+	build_parameter_column();
+	setIntervalYears();
 
-	//reader.readAsText(file_control, "UTF-8");
+	$('#diagnosis_title')
+		.empty()
+		.append($('<div>')
+			.addClass('jpsurv-label-container')
+			.append($('<span>')
+					.append('Year of Diagnosis:')
+					.addClass('jpsurv-label')
+			)
+			.append($('<span>')
+					.append(jpsurvData.calculate.static.yearOfDiagnosisTitle)
+					.attr('title', 'Year of diagnosis label')
+					.addClass('jpsurv-label-content')
+			)
+	);
+
 }
 
 function build_parameter_column() {
@@ -1093,7 +1096,35 @@ function parse_cohort_covariance_variables() {
 	}
 }
 
+function setIntervalYears() {
+	//var intervals = getNumberOfIntervals();
+	$("#interval-years").empty();
+	for (var i = 1; i <= getNumberOfIntervals(); i++) {
+		if(i == 1 || i == 4) {
+			$("#interval-years").append($("<option>").attr("selected", "selected").text(i));
+		} else {
+			$("#interval-years").append($("<option>").text(i));
+		}
+	}
+
+}
+function getNumberOfIntervals() {
+
+	console.log("getNumberOfIntervals()");
+	var intervals = -1;
+	var options = control_data.SessionOptionInfo.ItemNameInDic;
+	$.each(control_data.SessionOptionInfo.ItemNameInDic, function(key, value) {
+		console.log("%s : %s", key, value);
+		if(value =="NumberOfIntervals") {
+			intervals = parseInt(control_data.SessionOptionInfo.ItemValueInDic[key]);
+		}
+	});
+
+	return intervals;
+}
+
 function get_cohort_covariance_variable_names() {
+	getNumberOfIntervals();
 	var cohort_covariance_variable_names = [];
 
 	//var names = control_data.VarAllInfo.ItemNameInDic;
@@ -1115,7 +1146,7 @@ function get_cohort_covariance_variable_names() {
   //Go through Item Value and look for "Year of diagnosis"
   //Push variable names on to a list called cohort_covariance_variable_names.
 	for (var i=0; i<names.length; i++) {
-		//console.log('names['+i+'] = '+names[i]+', values['+i+'] = '+values[i]);
+		console.log('names['+i+'] = '+names[i]+', values['+i+'] = '+values[i]);
 		//if (regex_base.test(names[i]) && values[i] == "Year of diagnosis") break;
 		if (regex_interval.test(values[i])) break; //stops at a value with "Interval" in it
 		if (!regex_name.test(names[i])) continue;
@@ -1440,7 +1471,7 @@ function showMessage(id, message, message_type) {
 	//
 	//	Display either a warning an error.
 	//
-	alert("Show Message");
+	console.log("Show Message");
 
 	var css_class = "";
 	var header = "";
@@ -1745,8 +1776,6 @@ function getRestServerStatus() {
 		showMessage(id, message, 'error');
 	});
 */
-
-
 
 	var url = restServerUrl + "/status";
 	var ajaxRequest = $.ajax({

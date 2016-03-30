@@ -355,12 +355,14 @@ input[type="file"] {
 .form-inline {
   padding-bottom: 10px;
 }
+/*
 #stage2b-advanced {
   display: block;
   height: 250px;
   opacity: 1;
   overflow-y: hidden;
 }
+*/
 #graph-year-table, #graph-time-table {
   /*
   height: 400px;
@@ -416,7 +418,8 @@ input[type="file"] {
   padding-left:15px;
 }
 #e-mail {
-  width:200px;
+  width:250px;
+
 }
 #help {
   background-color:#FFF;
@@ -433,17 +436,31 @@ div.tooltip-inner {
     width:500px;
     text-align:left;
 }
-
+/*
 input:required:invalid, input:focus:invalid {
-  background-image: url(/images/invalid.png);
   background-position: right top;
   background-repeat: no-repeat;
 }
-input:required:valid {
-  background-image: url(/images/valid.png);
+input:required:valid, input:focus:valid {
   background-position: right top;
   background-repeat: no-repeat;
 }
+*/
+/*
+input:invalid:after{
+  content: "\e013";
+  font-family:"Glyphicons Halflings";
+}
+input:valid:after{
+  content: "\e017";
+  font-family:"Glyphicons Halflings";
+}
+input:invalid > i.arrow:after {
+  content: "\e014";
+  color:red;
+  font-family:"Glyphicons Halflings";
+}
+*/
 
 @media (min-width: 768px) {
     .form-inline .radio input[type="radio"], 
