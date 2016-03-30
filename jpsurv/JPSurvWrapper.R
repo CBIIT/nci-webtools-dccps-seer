@@ -129,7 +129,6 @@ getAllData<- function(filePath,jpsurvDataString)
 }
 getTrendsData<-function(filePath,jpsurvDataString)
 {
-  jpsurvData <<- fromJSON(jpsurvDataString)
   ptm <- proc.time()
   Trends=getTrendWrapper(filePath,jpsurvDataString)
   print("Trends Time:")
@@ -137,7 +136,7 @@ getTrendsData<-function(filePath,jpsurvDataString)
   jsonl =c(Trends) #returns
   exportJson <- toJSON(jsonl)
   print("Creating  tends results file")
-  filename = paste(filePath, paste("trend_results-", jpsurvData$tokenId, ".json", sep=""), sep="/") #CSV file to download
+  filename = paste(filePath, paste("tend_results-", jpsurvData$tokenId, ".json", sep=""), sep="/") #CSV file to download
   write(exportJson, filename)
 }
 
@@ -160,6 +159,7 @@ getFittedResult <- function (filePath, seerFilePrefix, yearOfDiagnosisVarName, y
   
   factorStr=getFactorStr(covariateVars)
   assign("factorStr", factorStr, envir= .GlobalEnv)
+  print(factorStr)
   fittedResult=joinpoint(seerdata,
                          subset = eval(parse(text=subsetStr)),
                          year=getCorrectFormat(yearOfDiagnosisVarName),
@@ -191,7 +191,6 @@ getFullDataDownload <- function(filePath,jpsurvDataString) {
   outputData=readRDS(file)
   Full_Data=outputData$fittedResult$fullpredicted
   print ("FULL PREDICTED")
-  print (Full_Data)
   downloadFile = paste(filePath, paste("Full_Predicted-", jpsurvData$tokenId, "-",iteration, ".csv", sep=""), sep="/") #CSV file to download
   write.csv(Full_Data, downloadFile)
   return (downloadFile)
@@ -228,9 +227,16 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString) {
   graphFile= paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",iteration,".png", sep=""), sep="/")
   downloadFile = paste(filePath, paste("data_Year-", jpsurvData$tokenId, "-",iteration, ".csv", sep=""), sep="/") #CSV file to download
   survData=plot.relsurv.year(outputData$fittedResult$FitList[[jpInd+1]],intervals, NAs, cohortValues)
-  print (survData)
-
   dev.off()
+  cohorts=jpsurvData$calculate$form$cohortVars
+
+  for (i in 1:length(cohorts))
+  {
+    value=gsub("\"",'',jpsurvData$calculate$form$cohortValues[[i]])
+    value=noquote(value)
+    survData[cohorts[[i]]] <- value
+  }  
+
   results =c("RelSurYearGraph"=graphFile,"RelSurvYearData"=survData) #returns 
   write.csv(survData, downloadFile)
   return (results)
@@ -253,49 +259,27 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString) {
   png(filename = paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",iteration,".png", sep=""), sep="/"))
   graphFile= paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",iteration,".png", sep=""), sep="/")
   downloadFile = paste(filePath, paste("data_Int-", jpsurvData$tokenId, "-",iteration, ".csv", sep=""), sep="/") #CSV file to download
-  yearOfDiagnosisVarName= gsub("-","", yearOfDiagnosisVarName)
-  yearOfDiagnosisVarName=sub("\\(","",yearOfDiagnosisVarName)
-  yearOfDiagnosisVarName=sub("\\)","",yearOfDiagnosisVarName)
+  yearOfDiagnosisVarName=getCorrectFormat(yearOfDiagnosisVarName)
   survData=plot.relsurv.int(outputData$fittedResult$FitList[[jpInd+1]], yearOfDiagnosisVarName, yearOfDiagnosis);
+  #survData=plot.relsurv.int(outputData$fittedResult$FitList[[jpInd+1]], "Year_of_diagnosis_7507_individual", 1975);
+  print (yearOfDiagnosisVarName)
+  print (survData)
+  
   write.csv(survData, downloadFile)
   dev.off()
+  cohorts=jpsurvData$calculate$form$cohortVars
+  
+  for (i in 1:length(cohorts))
+  {
+    value=gsub("\"",'',jpsurvData$calculate$form$cohortValues[[i]])
+    value=noquote(value)
+    survData[cohorts[[i]]] <- value
+  }  
   results =c("RelSurIntData"=survData,"RelSurIntGraph"=graphFile) #returns 
   
   return (results)
 }
 testData = list()
-# getFullDataDownloadWrapper <- function (filePath, jpsurvDataString) {
-#   #print("R: getDownloadOutputWrapper")
-#   jpsurvData = fromJSON(jpsurvDataString)
-#   #print(jpsurvData)
-# 
-#   #seerFilePrefix = jpsurvData$calculate$static$seerFilePrefix
-#   yearOfDiagnosisVarName = jpsurvData$calculate$static$yearOfDiagnosisVarName
-#   yearOfDiagnosisRange = jpsurvData$calculate$form$yearOfDiagnosisRange
-#   #allVars=jpsurvData$calculate$static$allVars
-#   cohortVars=jpsurvData$calculate$form$cohortVars
-#   cohortValues=jpsurvData$calculate$form$cohortValues
-#   #covariateVars=jpsurvData$calculate$form$covariateVars
-#   #maxJP=jpsurvData$calculate$form$joinPoints
-#   subsetStr=getSubsetStr(yearOfDiagnosisVarName, yearOfDiagnosisRange, cohortVars, cohortValues)
-#   assign("subsetStr", subsetStr, envir = .GlobalEnv)
-# 
-#   fileName = paste('link', jpsurvData$tokenId, sep="-" )
-#   fileName = paste(fileName, "rds", sep="." )
-#  
-#   #outputFileName = fileName
-# 
-#   fileName = paste('link', jpsurvData$tokenId, sep="-" )
-#   fileName = paste(fileName, "rds", sep="." )
-#   outputFileName =paste(filePath, fileName, sep="/" )
-# 
-#   outFile=paste(filePath, paste("output-", jpsurvData$tokenId,".rds", sep=""), sep="/")
-#   downloadFile=paste("link-", jpsurvData$tokenId,".csv", sep="")
-# 
-#   downloadFile=paste(filePath, paste(filePath, downloadFile, sep="/" ), sep="/")
-# 
-#   return (downloadFile)
-# }
 
 
 #Gets the coefficients table in the Model Estimates tab
