@@ -128,7 +128,7 @@ function addEventListeners() {
 }
 
 function addMessages() {
-	var e_mail_msg = "Maximum Joinpoints greater than "+maxJP+" requires additional computing time (approx. 3~5 minutes).  When computation is completed a notification will be sent to the e-mail listed below.";
+	var e_mail_msg = "Maximum Joinpoints greater than "+maxJP+" requires additional computing time.  When computation is completed a notification will be sent to the e-mail listed below.";
 	$("#e-mail-msg").text(e_mail_msg);
 
 	$("#jpsurv-help-message-container").hide();
@@ -728,6 +728,16 @@ function setCalculateData() {
 		}
 		//append_plot_intervals(jpsurvData.calculate.form.yearOfDiagnosisRange[1] - jpsurvData.calculate.form.yearOfDiagnosisRange[0]);
 }
+function validateYearRange() {
+	//max(Year) >= min(Year) + op$numfromstart + (nJP - 1) * intervalSize 
+	if(jpsurvData.calculate.form.yearOfDiagnosisRange[1]<=jpsurvData.calculate.form.yearOfDiagnosisRange[0]) {
+		alert("The Year of Diagnosis Range is invalid.  The end year can not be equal to or less then start year.");
+		return false;
+	} else {
+		return true;
+	}
+}
+
 function validateMaxYear() {
 	//max(Year) >= min(Year) + op$numfromstart + (nJP - 1) * intervalSize 
 	return true;	
@@ -736,7 +746,7 @@ function validateMaxYear() {
 function validateVariables() {
 	console.warn("validateVariables()");
 	console.dir(jpsurvData);
-	if(validateMaxYear() === true) {
+	if(validateMaxYear() && validateYearRange()) {
 		return true;
 	} else {
 		return false;
@@ -849,6 +859,7 @@ function incrementImageId() {
 function stage2() {
 
 	$("#jpsurv-message-container").hide();
+	setIntervalYears();
 
 	//console.log("STAGE 2");
 	jpsurvData.recentTrends = 0;
@@ -1005,7 +1016,6 @@ function load_form() {
 	addCohortVariables();
 	addSessionVariables();
 	build_parameter_column();
-	setIntervalYears();
 
 	$('#diagnosis_title')
 		.empty()
@@ -1073,6 +1083,10 @@ function setIntervalYears() {
 	// Initially select years 1 and 4
 	//
 	var intervals = getNumberOfIntervals();
+	var range = jpsurvData.calculate.form.yearOfDiagnosisRange[1] - jpsurvData.calculate.form.yearOfDiagnosisRange[0];
+	intervals = (range < intervals ? range : intervals);
+	console.warn("setIntervalYears");
+
 	$("#interval-years").empty();
 	for (var i = 1; i <= intervals; i++) {
 		if(i == 1 || i == 4) {
