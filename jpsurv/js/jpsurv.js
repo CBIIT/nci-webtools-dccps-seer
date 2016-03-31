@@ -125,6 +125,12 @@ function addEventListeners() {
 		console.log("submitting files");
 
 	});
+
+	$("#cohort-variables").on('click', ".cohort", function(e) {
+		$("."+this.classList.item(1)).attr('checked', false);
+		$(this).prop('checked', true);
+	});
+
 }
 
 function addMessages() {
@@ -134,27 +140,7 @@ function addMessages() {
 	$("#jpsurv-help-message-container").hide();
 }
 
-$(document).ready(function() {
-	addEventListeners();
-	addMessages();
-/*
-	$('#jpsurv-tabs').on('click', 'a', function(e) {
-		console.warn("You clicked a tab");
-		console.info("Check for an attribute called data-url");
-		//If data-url use that.
-		var currentTab = e.target.id.substr(0, e.target.id.search('-'));
-		alert(currentTab);
-		if("")
-	});
-*/
-	$("#cohort-variables").on('click', ".cohort", function(e) {
-		$("."+this.classList.item(1)).attr('checked', false);
-		$(this).prop('checked', true);
-	});
-
-	$('[data-toggle="tooltip"]').tooltip({container: 'body'});
-
-	loadHelp();
+function oldway() {
 
 	var status = getUrlParameter('status');
 	if(status == "uploaded") {
@@ -196,10 +182,15 @@ $(document).ready(function() {
 		var output_file = load_ajax("form-" + jpsurvData.tokenId + ".json");
 		control_data = output_file;
 		load_form();
-	} else {
-		$("table").hide();
 	}
+}
 
+$(document).ready(function() {
+	loadHelp();
+	addEventListeners();
+	addMessages();
+	$('[data-toggle="tooltip"]').tooltip({container: 'body'});
+	oldway();
 	if(DEBUG) {
 		console.warn("%cDEBUG is on", "color:white; background-color:red");
 		$("#year_of_diagnosis_start").val("2000");
@@ -390,8 +381,8 @@ function checkInputFiles() {
 
 // set Data after STAGE 1
 function setUploadData() {
-	//console.log("setUploadData() - after STAGE 1");
-	//console.dir(jpsurvData);
+	console.log("setUploadData() - after STAGE 1");
+	console.dir(jpsurvData);
 	//Set Stage 1 upload data to jpsurvData
 	//Set file data
 	jpsurvData.file.dictionary = getUrlParameter('file_control_filename');
