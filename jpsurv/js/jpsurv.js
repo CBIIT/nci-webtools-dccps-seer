@@ -1037,6 +1037,7 @@ function load_form() {
 	parse_diagnosis_years();
 	parse_cohort_covariance_variables();
 	addCohortVariables();
+	addSessionVariables();
 	build_parameter_column();
 	setIntervalYears();
 
@@ -1055,6 +1056,11 @@ function load_form() {
 			)
 	);
 
+}
+
+function addSessionVariables() {
+	jpsurvData.additional.statistic = getSessionValue("Statistic");
+	console.dir(jpsurvData);
 }
 
 function build_parameter_column() {
@@ -1097,9 +1103,12 @@ function parse_cohort_covariance_variables() {
 }
 
 function setIntervalYears() {
-	//var intervals = getNumberOfIntervals();
+	//
+	// Initially select years 1 and 4
+	//
+	var intervals = getNumberOfIntervals();
 	$("#interval-years").empty();
-	for (var i = 1; i <= getNumberOfIntervals(); i++) {
+	for (var i = 1; i <= intervals; i++) {
 		if(i == 1 || i == 4) {
 			$("#interval-years").append($("<option>").attr("selected", "selected").text(i));
 		} else {
@@ -1108,23 +1117,28 @@ function setIntervalYears() {
 	}
 
 }
-function getNumberOfIntervals() {
 
-	console.log("getNumberOfIntervals()");
-	var intervals = -1;
+function getNumberOfIntervals() {
+	return parseInt(getSessionValue("NumberOfIntervals"));
+}
+
+function getSessionValue(var_name) {
+
+	console.log("getSessionValue()");
+	var session_value = "-1";
 	var options = control_data.SessionOptionInfo.ItemNameInDic;
 	$.each(control_data.SessionOptionInfo.ItemNameInDic, function(key, value) {
-		console.log("%s : %s", key, value);
-		if(value =="NumberOfIntervals") {
-			intervals = parseInt(control_data.SessionOptionInfo.ItemValueInDic[key]);
+		if(value == var_name) {
+			session_value = control_data.SessionOptionInfo.ItemValueInDic[key];
 		}
 	});
+	console.log(session_value);
 
-	return intervals;
+	return session_value;
 }
 
 function get_cohort_covariance_variable_names() {
-	getNumberOfIntervals();
+	//getNumberOfIntervals();
 	var cohort_covariance_variable_names = [];
 
 	//var names = control_data.VarAllInfo.ItemNameInDic;
@@ -1146,7 +1160,7 @@ function get_cohort_covariance_variable_names() {
   //Go through Item Value and look for "Year of diagnosis"
   //Push variable names on to a list called cohort_covariance_variable_names.
 	for (var i=0; i<names.length; i++) {
-		console.log('names['+i+'] = '+names[i]+', values['+i+'] = '+values[i]);
+		//console.log('names['+i+'] = '+names[i]+', values['+i+'] = '+values[i]);
 		//if (regex_base.test(names[i]) && values[i] == "Year of diagnosis") break;
 		if (regex_interval.test(values[i])) break; //stops at a value with "Interval" in it
 		if (!regex_name.test(names[i])) continue;
