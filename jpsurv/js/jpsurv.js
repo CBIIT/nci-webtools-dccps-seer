@@ -144,52 +144,73 @@ function oldway() {
 
 	var status = getUrlParameter('status');
 	if(status == "uploaded") {
-		$('#file_control_container')
-				.empty()
-				.append($('<div>')
-					.addClass('jpsurv-label-container')
-					.append($('<span>')
-							.append('Dictionary File:')
-							.addClass('jpsurv-label')
-						)
-					.append($('<span>')
-							.append(getUrlParameter('file_control_filename'))
-							.attr('title', getUrlParameter('file_control_filename'))
-							.addClass('jpsurv-label-content')
-						)
-					);
-		$('#file_data_container')
-				.empty()
-				.append($('<div>')
-					.addClass('jpsurv-label-container')
-					.append($('<span>')
-							.append('Data File:')
-							.addClass('jpsurv-label')
-						)
-//					.append(jpTrim(getUrlParameter('file_data_filename'), 30))
-					.append($('<span>')
-							.append(getUrlParameter('file_data_filename'))
-							.attr('title', getUrlParameter('file_data_filename'))
-							.addClass('jpsurv-label-content')
-						)
-					);
 
-		$('#upload_file_submit_container').remove();
-		//console.log(file_control_output	);
-		//var file_data_output = load_ajax(getUrlParameter('file_data_filename'));
 		setUploadData();
 		console.log(jpsurvData.file.form);
 		var output_file = load_ajax("form-" + jpsurvData.tokenId + ".json");
 		control_data = output_file;
 		load_form();
+
+		$('#file_control_container')
+			.empty()
+			.append($('<div>')
+				.addClass('jpsurv-label-container')
+				.append($('<span>')
+					.append('Dictionary File:')
+					.addClass('jpsurv-label')
+				)
+				.append($('<span>')
+					.append(getUrlParameter('file_control_filename'))
+					.attr('title', getUrlParameter('file_control_filename'))
+					.addClass('jpsurv-label-content')
+				)
+			);
+		$('#file_data_container')
+			.empty()
+			.append($('<div>')
+				.addClass('jpsurv-label-container')
+				.append($('<span>')
+					.append('Data File:')
+					.addClass('jpsurv-label')
+				)
+	//					.append(jpTrim(getUrlParameter('file_data_filename'), 30))
+				.append($('<span>')
+					.append(getUrlParameter('file_data_filename'))
+					.attr('title', getUrlParameter('file_data_filename'))
+					.addClass('jpsurv-label-content')
+				)
+			);
+		$('#data_type_container')
+			.empty()
+			.append($('<div>')
+				.addClass('jpsurv-label-container')
+				.append($('<span>')
+					.append('Data Type:')
+					.addClass('jpsurv-label')
+				)
+	//					.append(jpTrim(getUrlParameter('file_data_filename'), 30))
+				.append($('<span>')
+					.append(jpsurvData.additional.statistic)
+					.attr('title', "Type of data is "+jpsurvData.additional.statistic)
+					.addClass('jpsurv-label-content')
+				)
+			);
+
+		$('#upload_file_submit_container').remove();
+		//console.log(file_control_output	);
+		//var file_data_output = load_ajax(getUrlParameter('file_data_filename'));
 	}
+}
+
+function addTools() {
+	$('[data-toggle="tooltip"]').tooltip({container: 'body'});
 }
 
 $(document).ready(function() {
 	loadHelp();
 	addEventListeners();
 	addMessages();
-	$('[data-toggle="tooltip"]').tooltip({container: 'body'});
+	addTools();
 	oldway();
 	if(DEBUG) {
 		console.warn("%cDEBUG is on", "color:white; background-color:red");
