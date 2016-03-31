@@ -130,14 +130,13 @@ getAllData<- function(filePath,jpsurvDataString)
 getTrendsData<-function(filePath,jpsurvDataString)
 {
   ptm <- proc.time()
-  jpsurvData <<- fromJSON(jpsurvDataString)
   Trends=getTrendWrapper(filePath,jpsurvDataString)
   print("Trends Time:")
   print(proc.time() -ptm)
   jsonl =c(Trends) #returns
   exportJson <- toJSON(jsonl)
-  print("Creating  trends results file")
-  filename = paste(filePath, paste("trend_results-", jpsurvData$tokenId, ".json", sep=""), sep="/") #CSV file to download
+  print("Creating  tends results file")
+  filename = paste(filePath, paste("tend_results-", jpsurvData$tokenId, ".json", sep=""), sep="/") #CSV file to download
   write(exportJson, filename)
 }
 
@@ -161,10 +160,22 @@ getFittedResult <- function (filePath, seerFilePrefix, yearOfDiagnosisVarName, y
   factorStr=getFactorStr(covariateVars)
   assign("factorStr", factorStr, envir= .GlobalEnv)
   print(factorStr)
+  statistic=jpsurvData$additional$statistic
+  
+  if (statistic=="Relative Survival")
+  {
+    statistic="Relative_Survival_Cum"
+  } 
+  
+  if(statistic=="Cause-Specific Survival")
+  {
+    statistic="CauseSpecific_Survival_Cum"
+  }
+    
   fittedResult=joinpoint(seerdata,
                          subset = eval(parse(text=subsetStr)),
                          year=getCorrectFormat(yearOfDiagnosisVarName),
-                         observedrelsurv="Relative_Survival_Cum",
+                         observedrelsurv=statistic,
                          model.form = ~NULL,
                          op=adanced_options,
                          delLastIntvl=delLastIntvlAdv,
@@ -229,7 +240,6 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString) {
   downloadFile = paste(filePath, paste("data_Year-", jpsurvData$tokenId, "-",iteration, ".csv", sep=""), sep="/") #CSV file to download
   survData=plot.relsurv.year(outputData$fittedResult$FitList[[jpInd+1]],intervals, NAs, cohortValues)
   dev.off()
-  results =c("RelSurYearGraph"=graphFile,"RelSurvYearData"=survData) #returns 
   cohorts=jpsurvData$calculate$form$cohortVars
 
   for (i in 1:length(cohorts))
@@ -239,6 +249,7 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString) {
     survData[cohorts[[i]]] <- value
   }  
 
+  results =c("RelSurYearGraph"=graphFile,"RelSurvYearData"=survData) #returns 
   write.csv(survData, downloadFile)
   return (results)
   
@@ -260,12 +271,11 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString) {
   png(filename = paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",iteration,".png", sep=""), sep="/"))
   graphFile= paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",iteration,".png", sep=""), sep="/")
   downloadFile = paste(filePath, paste("data_Int-", jpsurvData$tokenId, "-",iteration, ".csv", sep=""), sep="/") #CSV file to download
-  yearOfDiagnosisVarName=getCorrectFormat(yearOfDiagnosisVarName)
+ # yearOfDiagnosisVarName=getCorrectFormat(yearOfDiagnosisVarName)
   survData=plot.relsurv.int(outputData$fittedResult$FitList[[jpInd+1]], yearOfDiagnosisVarName, yearOfDiagnosis);
   #survData=plot.relsurv.int(outputData$fittedResult$FitList[[jpInd+1]], "Year_of_diagnosis_7507_individual", 1975);
-  print (yearOfDiagnosisVarName)  
+  print (yearOfDiagnosisVarName)
   dev.off()
-  results =c("RelSurIntData"=survData,"RelSurIntGraph"=graphFile) #returns 
   cohorts=jpsurvData$calculate$form$cohortVars
   
   for (i in 1:length(cohorts))
@@ -274,11 +284,11 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString) {
     value=noquote(value)
     survData[cohorts[[i]]] <- value
   }  
-  print (survData)
+  results =c("RelSurIntData"=survData,"RelSurIntGraph"=graphFile) #returns 
   write.csv(survData, downloadFile)
+  
   return (results)
 }
-testData = list()
 
 
 #Gets the coefficients table in the Model Estimates tab
