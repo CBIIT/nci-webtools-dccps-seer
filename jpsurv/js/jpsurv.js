@@ -679,19 +679,8 @@ function formatCell(x) {
 	}
 }
 
-//Set Data after STAGE 2
 function setCalculateData() {
-	//Old stuff below....
-	/*
-	var joints=parseInt($("#max_join_point_select option:selected").text());
-	if(joints>=3)
-	{
-		Slide_menu_Vert('email_fields','show')
-	}
-	else{
-	*/
 		//$('#calculate-instructions').hide();
-		$("#calculating-spinner").modal('show');
 		updateCohortDisplay();
 		jpsurvData.queue = {};
 		jpsurvData.queue.email = (DEBUG ? "chris.kneisler@nih.gov" : $("#e-mail").val());
@@ -702,41 +691,16 @@ function setCalculateData() {
 
 		//Set static data
 		var inputAnswers;
-		// = $('#parameters').serialize();
-	  //var yearOfDiagnosisVarName="Year_of_diagnosis_1975";  //HARD CODED...Why?
-	  //Remove + from title
 		var yearOfDiagnosisVarName = jpsurvData.calculate.static.yearOfDiagnosisTitle.replace('+', '');
 		yearOfDiagnosisVarName = yearOfDiagnosisVarName.replace(new RegExp(" ", 'g'), "_");
 
-	  //Remove spaces and replace with underscore
+		//Remove spaces and replace with underscore
 		jpsurvData.calculate.static.yearOfDiagnosisVarName = yearOfDiagnosisVarName;
 		jpsurvData.calculate.static.seerFilePrefix = jpsurvData.file.dictionary.substring(0, jpsurvData.file.dictionary.indexOf("."));
 
 		jpsurvData.calculate.static.allVars = get_cohort_covariance_variable_names();
 		jpsurvData.calculate.static.allVars.push(yearOfDiagnosisVarName);
-		//dynamic form data
-		// cohort
-		/*
-		jpsurvData.calculate.form.cohortVars = $.map($("#cohort_select option:selected"), function(elem){
-			return $(elem).text();
-		});
-		*/
-		/*
-		jpsurvData.calculate.form.cohortValues = [];
-
-		$.each(jpsurvData.calculate.form.cohortVars, function( index, value ) {
-			jpsurvData.calculate.form.cohortValues.push('"'+$('#cohort_value_'+index+'_select').val()+'"');
-		});
-		*/
-		// covariate
-		/*
-		jpsurvData.calculate.form.covariateVars = $('#covariate_select').val();
-		if(jpsurvData.calculate.form.covariateVars == "None") {
-			jpsurvData.calculate.form.covariateVars = "";
-		}
-		*/
 		jpsurvData.calculate.form.covariateVars = "";
-		// range
 		jpsurvData.calculate.form.yearOfDiagnosisRange = [parseInt($('#year_of_diagnosis_start').val()), parseInt($('#year_of_diagnosis_end').val())];
 		jpsurvData.calculate.form.maxjoinPoints = parseInt($('#max_join_point_select').val()),
 
@@ -744,56 +708,58 @@ function setCalculateData() {
 		// Get Advanced Options
 		//
 		jpsurvData.calculate.static.advanced = {};
-
 		jpsurvData.calculate.static.advanced.advDeleteInterval = (($("input[name='adv-delete-interval']:checked").val() == "Yes") ? "T" : "F");
 		jpsurvData.calculate.static.advanced.advBetween = $("#adv-between").val();
 		jpsurvData.calculate.static.advanced.advFirst = $("#adv-first").val();
 		jpsurvData.calculate.static.advanced.advLast = $("#adv-last").val();
 		jpsurvData.calculate.static.advanced.advYear = $("#adv-year").val();
 
-		//
-		// Get Additional Variables
-		//
-		/*
-		for (i=jpsurvData.calculate.form.yearOfDiagnosisRange[0];i<jpsurvData.calculate.form.yearOfDiagnosisRange[1]-jpsurvData.calculate.form.yearOfDiagnosisRange[0];i++) {
-			$("#year-of-diagnosis").append("<OPTION>"+i+"</OPTION>");
-		}
-		*/
-
-		//jpsurvData.additional = {};
-
-		//jpsurvData.additional.headerJoinPoints = parseInt($("#header-join-points").val());
 		jpsurvData.additional.yearOfDiagnosis = parseInt($("#year-of-diagnosis").val());
-		/*
-		jpsurvData.additional.intervals = $.map($("#interval-years:selected"), function(elem){
-			return $(elem).text();
-		});
-		*/
+
 		console.warn("setCalculateData()");
 		console.info("jpsurvData - (ie. input variable json");
 		console.dir(jpsurvData);
 		console.log(JSON.stringify(jpsurvData));
-
-		//append_plot_intervals(jpsurvData.calculate.form.yearOfDiagnosisRange[1] - jpsurvData.calculate.form.yearOfDiagnosisRange[0]);
-		$("#calculating-spinner").modal('show');
-		if(parseInt($("#max_join_point_select").val())>maxJP) {
-			//Send to queue
-			//Show a dialog on the fly that calculation is being performed.
-
-			var params = getParams();
-
-			var comm_results = JSON.parse(jpsurvRest('stage5_queue', params));
-			alert("Your submission has been queued.  You will receive an e-mail when calculation is completed.");
+		if(validateVariables()) {
+			console.log("Calculating");
+			calculate();
 		} else {
-			if(jpsurvData.stage2completed) {
-				stage3();  // This is a recalculation.
-				retrieveResults();
-			} else {
-				stage2(); // This is the initial calculation and setup.
-				retrieveResults();
-			}
+			console.log("Not Calculating");
 		}
-		$("#calculating-spinner").modal('hide');
+		//append_plot_intervals(jpsurvData.calculate.form.yearOfDiagnosisRange[1] - jpsurvData.calculate.form.yearOfDiagnosisRange[0]);
+}
+function validateMaxYear() {
+	//max(Year) >= min(Year) + op$numfromstart + (nJP - 1) * intervalSize 
+	return true;	
+}
+
+function validateVariables() {
+	console.warn("validateVariables()");
+	console.dir(jpsurvData);
+	if(validateMaxYear() === true) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+function calculate() {
+
+	$("#calculating-spinner").modal('show');
+	if(parseInt($("#max_join_point_select").val())>maxJP) {
+		var params = getParams();
+		var comm_results = JSON.parse(jpsurvRest('stage5_queue', params));
+		alert("Your submission has been queued.  You will receive an e-mail when calculation is completed.");
+	} else {
+		if(jpsurvData.stage2completed) {
+			stage3();  // This is a recalculation.
+			retrieveResults();
+		} else {
+			stage2(); // This is the initial calculation and setup.
+			retrieveResults();
+		}
+	}
+	$("#calculating-spinner").modal('hide');
 
 }
 
@@ -1060,7 +1026,6 @@ function load_form() {
 
 function addSessionVariables() {
 	jpsurvData.additional.statistic = getSessionValue("Statistic");
-	console.dir(jpsurvData);
 }
 
 function build_parameter_column() {
@@ -1072,6 +1037,7 @@ function build_parameter_column() {
 	covariate_options.unshift("None");
 	set_covariate_select(covariate_options);
 	$("#stage2-calculate").fadeIn();
+
 }
 
 function parse_diagnosis_years() {
@@ -1124,7 +1090,7 @@ function getNumberOfIntervals() {
 
 function getSessionValue(var_name) {
 
-	console.log("getSessionValue()");
+	//console.log("getSessionValue()");
 	var session_value = "-1";
 	var options = control_data.SessionOptionInfo.ItemNameInDic;
 	$.each(control_data.SessionOptionInfo.ItemNameInDic, function(key, value) {
@@ -1132,7 +1098,7 @@ function getSessionValue(var_name) {
 			session_value = control_data.SessionOptionInfo.ItemValueInDic[key];
 		}
 	});
-	console.log(session_value);
+	//console.log(session_value);
 
 	return session_value;
 }
