@@ -240,15 +240,21 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString) {
   downloadFile = paste(filePath, paste("data_Year-", jpsurvData$tokenId, "-",iteration, ".csv", sep=""), sep="/") #CSV file to download
   survData=plot.relsurv.year(outputData$fittedResult$FitList[[jpInd+1]],intervals, NAs, cohortValues)
   dev.off()
-  cohorts=jpsurvData$calculate$form$cohortVars
   results =c("RelSurYearGraph"=graphFile,"RelSurvYearData"=survData) #returns 
-  for (i in 1:length(cohorts))
+  cohorts=jpsurvData$calculate$form$cohortVars
+
+  for (i in length(cohorts):1)
   {
     value=gsub("\"",'',jpsurvData$calculate$form$cohortValues[[i]])
     value=noquote(value)
     survData[cohorts[[i]]] <- value
+    
+    col_idx <- grep(cohorts[[i]], names(survData))
+    survData <- survData[, c(col_idx, (1:ncol(survData))[-col_idx])]
+    names(survData)
   }  
 
+  print(survData)
   write.csv(survData, downloadFile)
   return (results)
   
@@ -270,20 +276,27 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString) {
   png(filename = paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",iteration,".png", sep=""), sep="/"))
   graphFile= paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",iteration,".png", sep=""), sep="/")
   downloadFile = paste(filePath, paste("data_Int-", jpsurvData$tokenId, "-",iteration, ".csv", sep=""), sep="/") #CSV file to download
- # yearOfDiagnosisVarName=getCorrectFormat(yearOfDiagnosisVarName)
+  yearOfDiagnosisVarName=getCorrectFormat(yearOfDiagnosisVarName)
   survData=plot.relsurv.int(outputData$fittedResult$FitList[[jpInd+1]], yearOfDiagnosisVarName, yearOfDiagnosis);
   #survData=plot.relsurv.int(outputData$fittedResult$FitList[[jpInd+1]], "Year_of_diagnosis_7507_individual", 1975);
-  results =c("RelSurIntData"=survData,"RelSurIntGraph"=graphFile) #returns 
   print (yearOfDiagnosisVarName)
   dev.off()
+  results =c("RelSurIntData"=survData,"RelSurIntGraph"=graphFile) #returns 
   cohorts=jpsurvData$calculate$form$cohortVars
-  
-  for (i in 1:length(cohorts))
+  survData=survData[[1]]
+  print(survData)
+  for (i in length(cohorts):1)
   {
     value=gsub("\"",'',jpsurvData$calculate$form$cohortValues[[i]])
     value=noquote(value)
     survData[cohorts[[i]]] <- value
+    
+    col_idx <- grep(cohorts[[i]], names(survData))
+    survData <- survData[, c(col_idx, (1:ncol(survData))[-col_idx])]
+    names(survData)
   }  
+  
+  print(survData)
   write.csv(survData, downloadFile)
   
   return (results)
