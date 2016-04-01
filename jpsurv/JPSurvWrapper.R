@@ -202,12 +202,26 @@ getFullDataDownload <- function(filePath,jpsurvDataString) {
   file=paste(filePath, paste("output-", jpsurvData$tokenId,".rds", sep=""), sep="/")
   outputData=readRDS(file)
   Full_Data=outputData$fittedResult$fullpredicted
+  
+  cohorts=jpsurvData$calculate$form$cohortVars
+  
+  for (i in length(cohorts):1)
+  {
+    value=gsub("\"",'',jpsurvData$calculate$form$cohortValues[[i]])
+    value=noquote(value)
+    Full_Data[cohorts[[i]]] <- value
+    
+    col_idx <- grep(cohorts[[i]], names(Full_Data))
+    Full_Data <- Full_Data[, c(col_idx, (1:ncol(Full_Data))[-col_idx])]
+    names(Full_Data)
+  }  
   print ("FULL PREDICTED")
   downloadFile = paste(filePath, paste("Full_Predicted-", jpsurvData$tokenId, "-",iteration, ".csv", sep=""), sep="/") #CSV file to download
   write.csv(Full_Data, downloadFile)
   return (downloadFile)
   
 }
+
 
 #Graphs the Survival vs year graph and saves a csv file of the data
 getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString) {
