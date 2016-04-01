@@ -214,7 +214,7 @@ $(document).ready(function() {
 	oldway();
 	if(DEBUG) {
 		console.warn("%cDEBUG is on", "color:white; background-color:red");
-		$("#year_of_diagnosis_start").val("2000");
+	//	$("#year_of_diagnosis_start").val("2000");
 	}
 });
 
