@@ -8,7 +8,7 @@ var cohort_covariance_variables;
 var jpsurvData = {"file":{"dictionary":"Breast.dic","data":"something.txt", "form":"form-983832.json"}, "calculate":{"form": {"yearOfDiagnosisRange":[]}, "static":{}}, "plot":{"form": {}, "static":{"imageId":0} }, "additional":{"headerJoinPoints":0,"yearOfDiagnosis":null,"intervals":[1,4]}, "tokenId":"unknown", "status":"unknown", "stage2completed":0};
 
 var DEBUG = true;
-var maxJP = (DEBUG ? 2 : 5);
+var maxJP = (DEBUG ? 0 : 2);
 
 if(getUrlParameter('tokenId')) {
 	jpsurvData.tokenId = getUrlParameter('tokenId');
@@ -214,7 +214,7 @@ $(document).ready(function() {
 	oldway();
 	if(DEBUG) {
 		console.warn("%cDEBUG is on", "color:white; background-color:red");
-	//	$("#year_of_diagnosis_start").val("2000");
+		$("#year_of_diagnosis_start").val("2000");
 	}
 });
 
@@ -481,8 +481,8 @@ function createModelSelection() {
 
 function updateGraphs(token_id) {
 
-	//console.log("updateGraph");
-	//console.dir(jpsurvData);
+	console.log("updateGraph");
+	console.dir(jpsurvData);
 
 	//Populate graph-year
 	$("#graph-year-tab").find( "img" ).show();
@@ -494,30 +494,48 @@ function updateGraphs(token_id) {
 	$("#graph-time-tab").find( "img" ).show();
 	$("#graph-time-tab").find( "img" ).attr("src", "tmp/plot_Int-"+token_id+"-"+jpsurvData.plot.static.imageId+".png");
 
-	//console.log("RelSurIntData");
-	//console.dir(jpsurvData.results.RelSurIntData);
-	//console.log("Year_of_diagnosis_"+year);
+	console.log("RelSurIntData");
+	console.dir(jpsurvData.results.RelSurIntData);
+	console.log("Year_of_diagnosis_"+year);
 	
-	//console.dir(jpsurvData.results.RelSurIntData["Year_of_diagnosis_"+year]);
+	console.dir(jpsurvData.results.RelSurIntData["Year_of_diagnosis_"+year]);
 	var row;
 	var yod = jpsurvData.results["RelSurvYearData."+jpsurvData.calculate.static.yearOfDiagnosisVarName];
-	//console.info("About to make the table");
-	//console.dir(jpsurvData.calculate.form);
+	console.info("About to make the table");
+	console.dir(jpsurvData.calculate.form);
 	var numvars = jpsurvData.calculate.form.cohortVars.length;
 
-	var vars = ["Interval", "Died", "Alive_at_Start", "Lost_to_Followup", "Expected_Survival_Interval", "Relative_Survival_Cum", "pred_int", "pred_cum", "pred_int_se", "pred_cum_se"];
-	vars.unshift(jpsurvData.calculate.static.yearOfDiagnosisVarName);
+	//var vars = ["Interval", "Died", "Alive_at_Start", "Lost_to_Followup", "Expected_Survival_Interval", "Relative_Survival_Cum", "pred_int", "pred_cum", "pred_int_se", "pred_cum_se"];
+
+	//vars.unshift(jpsurvData.calculate.static.yearOfDiagnosisVarName);
+
+
 	//console.warn("vars");
 	//console.dir(vars);
 
 	var header = [];
 	$.each(jpsurvData.calculate.form.cohortVars, function(index, value) {
+		console.log("HEADER: adding value "+value);
 		header.push(value);
 	});
 
-	header.push.apply(header, vars);
-	//console.warn("Header");
-	//console.dir(header);
+	var newVars = [];
+	var tableVar = "RelSurvYearData.";
+	$.each(jpsurvData.results, function(index, value) {
+		console.warn(index);
+		console.log(index.search(tableVar));
+		if(index.search(tableVar) == 0) {
+			console.log("Got one: "+index.substr(tableVar.length));
+			newVars.push(index.substr(tableVar.length));
+		}
+	});
+
+	//header.push.apply(header, vars);
+	header.push.apply(header, newVars);
+	//Put all the keys  on the header
+
+	console.warn("Header");
+	console.dir(header);
 	$("#graph-year-table > thead").empty();
 	row = "<tr>";
 	$.each(header, function( index, value ) {
@@ -532,8 +550,8 @@ function updateGraphs(token_id) {
 		$.each(jpsurvData.calculate.form.cohortValues, function(index, value) {
 			row += "<td>"+value.replace(/"/g, "")+"</td>";
 		});
-		$.each(vars, function( index2, value2 ) {
-			row += formatCell(jpsurvData.results["RelSurvYearData."+value2][index]);
+		$.each(newVars, function( index, value ) {
+			row += formatCell(jpsurvData.results["RelSurvYearData."+value][index]);
 		});
 		row += "</tr>/n";
 		$("#graph-year-table > tbody").append(row);
@@ -561,13 +579,16 @@ function updateEstimates(token_id) {
 	row += "<td>Log Likelihood</td>"+formatCell(jpsurvData.results.ll)+"</tr>";
 	row += "<td>Converged</td><td>"+jpsurvData.results.converged.toUpperCase()+"</td></tr>/n";
 	$("#estimates-jp > tbody").append(row);
+	//What was this
 	$("#yod-range").text(jpsurvData.calculate.form.yearOfDiagnosisRange[0]+" to "+jpsurvData.calculate.form.yearOfDiagnosisRange[1]);
 }
+
 function updateTrend(token_id) {
 	updateTrendGraph(JSON.parse(jpsurvData.results.CS_AAPC), "trend-apc");
 	updateTrendGraph(JSON.parse(jpsurvData.results.CS_AAAC), "trend-aac");
 	updateTrendGraph(JSON.parse(jpsurvData.results.HAZ_APC), "trend-dap");
 }
+
 function updateTrendGraph(trend, table_id) {
 	//console.log("Trend: table_id="+table_id);
 	//console.log("start.year typeof: "+typeof trend["start.year"]);
@@ -695,10 +716,9 @@ function setCalculateData() {
 		//$('#calculate-instructions').hide();
 		updateCohortDisplay();
 		jpsurvData.queue = {};
-	//	jpsurvData.queue.email = (DEBUG ? "chris.kneisler@nih.gov" : $("#e-mail").val());
-		jpsurvData.queue.email = $("#e-mail").val();
-		//jpsurvData.queue.url = '"'+window.location.href.toString()+'"';
-		jpsurvData.queue.url = 'yahoo.com';
+		jpsurvData.queue.email = (DEBUG ? "chris.kneisler@nih.gov" : $("#e-mail").val());
+		jpsurvData.queue.url = '"'+encodeURIComponent(window.location.href.toString())+'"';
+		//jpsurvData.queue.url = 'yahoo.com';
 		console.info("QUEUE");
 		console.dir(jpsurvData.queue);
 
