@@ -130,13 +130,14 @@ getAllData<- function(filePath,jpsurvDataString)
 getTrendsData<-function(filePath,jpsurvDataString)
 {
   ptm <- proc.time()
+  jpsurvData <<- fromJSON(jpsurvDataString)
   Trends=getTrendWrapper(filePath,jpsurvDataString)
   print("Trends Time:")
   print(proc.time() -ptm)
   jsonl =c(Trends) #returns
   exportJson <- toJSON(jsonl)
-  print("Creating  tends results file")
-  filename = paste(filePath, paste("tend_results-", jpsurvData$tokenId, ".json", sep=""), sep="/") #CSV file to download
+  print("Creating  trends results file")
+  filename = paste(filePath, paste("trend_results-", jpsurvData$tokenId, ".json", sep=""), sep="/") #CSV file to download
   write(exportJson, filename)
 }
 
@@ -315,21 +316,21 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString) {
   dev.off()
   results =c("RelSurIntData"=survData,"RelSurIntGraph"=graphFile) #returns 
   cohorts=jpsurvData$calculate$form$cohortVars
-  survData=survData[[1]]
+  survData_alt=survData[[1]]
   print(survData)
   for (i in length(cohorts):1)
   {
     value=gsub("\"",'',jpsurvData$calculate$form$cohortValues[[i]])
     value=noquote(value)
-    survData[cohorts[[i]]] <- value
+    survData_alt[cohorts[[i]]] <- value
     
-    col_idx <- grep(cohorts[[i]], names(survData))
-    survData <- survData[, c(col_idx, (1:ncol(survData))[-col_idx])]
-    names(survData)
+    col_idx <- grep(cohorts[[i]], names(survData_alt))
+    survData_alt <- survData_alt[, c(col_idx, (1:ncol(survData_alt))[-col_idx])]
+    names(survData_alt)
   }  
   
-  print(survData)
-  write.csv(survData, downloadFile)
+  print(survData_alt)
+  write.csv(survData_alt, downloadFile)
   
   return (results)
 }
