@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="JPSURV" default="replace" basedir=".">
+      <target name="replace" depends="host_exist,admin_exist, debug_exist, port_exist, root_exist, out_exist, url_exist, name_exist, error_exist">
+         <replace file="config.ini" token="@host@" value="${host}"/>
+         <replace file="config.ini" token="@admin@" value="${admin}"/>
+         <replace file="config.ini" token="@debug@" value="${debug}"/>
+         <replace file="config.ini" token="@port@" value="${port}"/>
+         <replace file="config.ini" token="@root@" value="${root}"/>
+         <replace file="config.ini" token="@out@" value="${out}"/>
+         <replace file="config.ini" token="@url@" value="${url}"/>
+         <replace file="config.ini" token="@name@" value="${name}"/>
+         <replace file="config.ini" token="@error@" value="${error}"/>
+      </target>
+      <target name="host_exist" unless="host">
+        <fail> Host value is not set, stop</fail>
+      </target>	
+       <target name="admin_exist" unless="admin">
+        <fail> Admin value is not set, stop</fail>
+      </target>	     
+      <target name="debug_exist" unless="debug">
+        <fail> debug value is not set, stop</fail>
+      </target>	
+      <target name="port_exist" unless="port">
+              <fail> Port value is not set, stop</fail>
+      </target>	
+      <target name="root_exist" unless="root">
+              <fail> Root Folder value is not set, stop</fail>
+      </target>	
+      <target name="out_exist" unless="out">
+              <fail> Output Folder value is not set, stop</fail>
+      </target>	
+      <target name="url_exist" unless="url">
+              <fail> Queue URL value is not set, stop</fail>
+      </target>	
+      <target name="name_exist" unless="name">
+              <fail> Queue Name value is not set, stop</fail>
+      </target>	
+      <target name="error_exist" unless="error">
+              <fail> Queue Error value is not set, stop</fail>
+      </target>	      
+</project>
