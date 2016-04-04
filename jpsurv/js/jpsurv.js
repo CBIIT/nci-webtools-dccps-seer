@@ -717,7 +717,7 @@ function setCalculateData() {
 		updateCohortDisplay();
 		jpsurvData.queue = {};
 		jpsurvData.queue.email = (DEBUG ? "chris.kneisler@nih.gov" : $("#e-mail").val());
-		jpsurvData.queue.url = '"'+encodeURIComponent(window.location.href.toString())+'"';
+		jpsurvData.queue.url = encodeURIComponent(window.location.href.toString());
 		//jpsurvData.queue.url = 'yahoo.com';
 		console.info("QUEUE");
 		console.dir(jpsurvData.queue);

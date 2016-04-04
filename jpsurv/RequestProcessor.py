@@ -5,6 +5,7 @@ import rpy2.robjects as robjects
 import smtplib
 import time
 import logging
+import urllib
 
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
@@ -73,7 +74,7 @@ class RequestProcessor(DisconnectListener):
       jpsurvDataString = content_file.read()
 
     data=json.loads(jpsurvDataString)
-
+    print data
     rSource = robjects.r['source']('JPSurvWrapper.R')
     robjects.r['getFittedResultWrapper'](parameters['filepath'], jpsurvDataString)
     robjects.r['getAllData'](parameters['filepath'], jpsurvDataString)
@@ -84,9 +85,10 @@ class RequestProcessor(DisconnectListener):
 #    getFittedResultWrapper = robjects.globalenv['getFittedResultWrapper']
    # print parameters['data']
     #http://analysistools-dev.nci.nih.gov/jpsurv/?file_control_filename=Breast_RelativeSurvival.dic&file_data_filename=Breast_RelativeSurvival.txt&output_filename=form-766756.json&status=uploaded&tokenId=766756
-
-    Link='<a href='+data['queue']['url']+'> Here </a>' 
+    #print data(['queue']['url'])
+    Link='<a href='+urllib.unquote(data['queue']['url'])+'> Here </a>' 
     print parameters['timestamp']
+    print "Here is the Link to the past:"
     print Link
     message = """
       <head>
