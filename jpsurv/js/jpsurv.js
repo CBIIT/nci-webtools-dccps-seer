@@ -469,38 +469,36 @@ function updateGraphs(token_id) {
 	$("#graph-time-tab").find( "img" ).show();
 	$("#graph-time-tab").find( "img" ).attr("src", "tmp/plot_Int-"+token_id+"-"+jpsurvData.plot.static.imageId+".png");
 
-	console.warn("RelSurIntData");
-	console.dir(jpsurvData.results.RelSurIntData);
+	//console.warn("RelSurIntData");
+	//console.dir(jpsurvData.results.RelSurIntData);
 	//console.log("Year_of_diagnosis_"+year);
 	
 	//console.dir(jpsurvData.results.RelSurIntData["Year_of_diagnosis_"+year]);
 	var row;
 	var yod = jpsurvData.results["RelSurvYearData."+jpsurvData.calculate.static.yearOfDiagnosisVarName];
-	console.info("About to make the table");
-	console.dir(jpsurvData.calculate.form);
+	//console.info("About to make the table");
+	//console.dir(jpsurvData.calculate.form);
 	var numvars = jpsurvData.calculate.form.cohortVars.length;
 
 	//var vars = ["Interval", "Died", "Alive_at_Start", "Lost_to_Followup", "Expected_Survival_Interval", "Relative_Survival_Cum", "pred_int", "pred_cum", "pred_int_se", "pred_cum_se"];
 
 	//vars.unshift(jpsurvData.calculate.static.yearOfDiagnosisVarName);
-
-
 	//console.warn("vars");
 	//console.dir(vars);
 
 	var header = [];
 	$.each(jpsurvData.calculate.form.cohortVars, function(index, value) {
-		console.log("HEADER: adding value "+value);
+		//console.log("HEADER: adding value "+value);
 		header.push(value);
 	});
 
 	var newVars = [];
 	var tableVar = "RelSurvYearData.";
 	$.each(jpsurvData.results, function(index, value) {
-		console.warn(index);
-		console.log(index.search(tableVar));
+		//console.warn(index);
+		//console.log(index.search(tableVar));
 		if(index.search(tableVar) == 0) {
-			console.log("Got one: "+index.substr(tableVar.length));
+			//console.log("Got one: "+index.substr(tableVar.length));
 			newVars.push(index.substr(tableVar.length));
 		}
 	});
@@ -509,8 +507,8 @@ function updateGraphs(token_id) {
 	header.push.apply(header, newVars);
 	//Put all the keys  on the header
 
-	console.warn("Header");
-	console.dir(header);
+	//console.warn("Header");
+	//console.dir(header);
 	$("#graph-year-table > thead").empty();
 	row = "<tr>";
 	$.each(header, function( index, value ) {
@@ -1087,17 +1085,39 @@ function parse_cohort_covariance_variables() {
 }
 
 function setIntervalYears() {
+
+/*
+The following intervals will be default based on the following conditions:
+
+Year of Diagnosis range >=10: 5,10
+Year of Diagnosis range >=5: 5
+Year of Diagnosis range <5: 1
+
+*/
 	//
 	// Initially select years 1 and 4
 	//
+
+	//console.warn("setIntervalYears");
+
 	var intervals = getNumberOfIntervals();
-	var range = jpsurvData.calculate.form.yearOfDiagnosisRange[1] - jpsurvData.calculate.form.yearOfDiagnosisRange[0];
-	intervals = (range < intervals ? range : intervals);
-	console.warn("setIntervalYears");
+	var selectedRange = jpsurvData.calculate.form.yearOfDiagnosisRange[1] - jpsurvData.calculate.form.yearOfDiagnosisRange[0];
+	intervals = (selectedRange < intervals ? selectedRange : intervals);
+	//console.log(intervals+" : "+selectedRange);
+	var years = [];
+	//Set the ranges based on interval length
+	if(intervals >= 10) {
+		years = [5, 10];
+	} else if (intervals >= 5) {
+		years = [5];
+	} else if (intervals < 5) {
+		years = [1];
+	} 
+	//console.dir(years);
 
 	$("#interval-years").empty();
 	for (var i = 1; i <= intervals; i++) {
-		if(i == 1 || i == 4) {
+		if($.inArray(i, years) >= 0) {
 			$("#interval-years").append($("<option>").attr("selected", "selected").text(i));
 		} else {
 			$("#interval-years").append($("<option>").text(i));
