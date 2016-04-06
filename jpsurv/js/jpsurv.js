@@ -1842,5 +1842,7 @@ function updateSNPclip() {
 }
 
 function renewTokenId() {
-	return Math.random()*1000000;
+	var tokenId = Math.floor(Math.random() * (999999 - 100000 + 1));
+
+	return tokenId.toString();
 }
