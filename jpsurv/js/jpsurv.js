@@ -836,6 +836,12 @@ function retrieveResults() {
 		if(!jpsurvData.stage2completed) {
 			createModelSelection();
 		}
+		if(certifyResults() == false){
+			console.warn("Results are corrupt.");
+		} else {
+			console.warn("Results are certified.");
+
+		}
 		updateTabs(jpsurvData.tokenId);
 		//Change stage2completed HERE.  After retrieving file.
 		jpsurvData.stage2completed = true;
@@ -1798,6 +1804,21 @@ function getRestServerStatus() {
 	ajaxRequest.always(function() {
 		$("#calculating-spinner").modal('hide');
 	});
+}
+
+function certifyResults() {
+	$.each(jpsurvData.results.RelSurIntData, function(index, value) {
+		console.log(index+" : "+value);
+		console.log(index.substring(0,1));
+		if(index.substring(0,1) == "X" ) {
+			console.log("jpsurvData.results.RelSurIntData look corrupt:");
+			console.dir(jpsurvData.results.RelSurIntData);
+			alert("RelSurIntData is corrupt:\n"+JSON.stringify(jpsurvData.results.RelSurIntData));
+			return false;
+		}
+	});
+
+	return true;
 }
 
 function renewTokenId() {
