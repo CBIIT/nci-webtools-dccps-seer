@@ -22,8 +22,8 @@ class RequestProcessor(DisconnectListener):
   CONFIG = 'queue.config'
   NAME = 'queue.name'
   URL = 'queue.url'
-  MAIL_HOST = 'mailfwd.nih.gov'
-  MAIL_ADMIN = 'pansu@mail.nih.gov'
+  MAIL_HOST = 'queue.host'
+  MAIL_ADMIN = 'queue.admin'
 
   def composeMail(self,recipients,message,files=[]):
     print "sending message"
