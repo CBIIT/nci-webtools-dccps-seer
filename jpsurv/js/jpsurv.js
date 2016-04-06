@@ -698,7 +698,8 @@ function setCalculateData() {
 		//$('#calculate-instructions').hide();
 		updateCohortDisplay();
 		jpsurvData.queue = {};
-		jpsurvData.queue.email = (DEBUG ? "chris.kneisler@nih.gov" : $("#e-mail").val());
+		//jpsurvData.queue.email = (DEBUG ? "chris.kneisler@nih.gov" : $("#e-mail").val());
+		jpsurvData.queue.email = $("#e-mail").val();
 		jpsurvData.queue.url = encodeURIComponent(window.location.href.toString()+"&request=true");
 		//jpsurvData.queue.url = 'yahoo.com';
 		console.info("QUEUE");
@@ -778,7 +779,7 @@ function calculate() {
 		if(parseInt($("#max_join_point_select").val())>maxJP) {
 			//Always get a new tokenId and always set imageId to 1
 			//That way each time the create a separate calculation
-			jpsurvData.tokenId = renewTokenId();
+			//jpsurvData.tokenId = renewTokenId();
 			jpsurvData.plot.static.imageId = 1;
 			var params = getParams();
 			var comm_results = JSON.parse(jpsurvRest('stage5_queue', params));
@@ -1797,48 +1798,6 @@ function getRestServerStatus() {
 	ajaxRequest.always(function() {
 		$("#calculating-spinner").modal('hide');
 	});
-}
-
-function updateSNPclip() {
-	var id = "snpclip";
-
-	var $btn = $('#' + id).button('loading');
-	var snps = DOMPurify.sanitize($('#' + id + '-file-snp-numbers').val());
-	var population = getPopulationCodes(id+'-population-codes');
-
-	var ldInputs = {
-		snps : snps,
-		pop : population.join("+"),
-		r2_threshold: $("#"+id+"_r2_threshold").val(),
-		maf_threshold: $("#"+id+"_maf_threshold").val(),
-		reference : renewTokenId()
-	};
-
-	var url = restServerUrl + "/snpclip";
-	var ajaxRequest = $.ajax({
-		type : 'POST',
-		url : url,
-		data : JSON.stringify(ldInputs),
-		contentType : 'application/json' // JSON
-	});
-	ajaxRequest.success(function(data) {
-		//data is returned as a string representation of JSON instead of JSON obj
-		var jsonObj=data;
-		if (displayError(id, jsonObj) == false) {
-			$('#' + id + '-results-container').show();
-			$('#' + id + '-links-container').show();
-			$('#'+id+"-loading").hide();
-			initClip(data);
-		}
-	});
-	ajaxRequest.fail(function(jqXHR, textStatus) {
-		displayCommFail(id, jqXHR, textStatus);
-	});
-	ajaxRequest.always(function() {
-		$btn.button('reset');
-	});
-
-	hideLoadingIcon(ajaxRequest, id);
 }
 
 function renewTokenId() {
