@@ -261,7 +261,6 @@ $(document).ready(function() {
 		$("#year_of_diagnosis_start").val("2000");
 	}
 	oldway();
-
 });
 
 function updateCohortDisplay() {
@@ -1843,5 +1842,5 @@ function updateSNPclip() {
 }
 
 function renewTokenId() {
-	return parseInt(Math.random()*1000000);
+	return Math.random()*1000000;
 }
