@@ -22,10 +22,9 @@ class RequestProcessor(DisconnectListener):
   CONFIG = 'queue.config'
   NAME = 'queue.name'
   URL = 'queue.url'
-  MAIL_HOST = 'queue.host'
-  MAIL_ADMIN = 'queue.admin'
 
   def composeMail(self,recipients,message,files=[]):
+    config = PropertyUtil(r"config.ini")
     print "sending message"
     if not isinstance(recipients,list):
       recipients = [recipients]
@@ -34,6 +33,7 @@ class RequestProcessor(DisconnectListener):
     packet['From'] = "JPSurv Analysis Tool <do.not.reply@nih.gov>"
     packet['To'] = ", ".join(recipients)
     print recipients
+    print message
     packet.attach(MIMEText(message,'html'))
     for file in files:
       with open(file,"rb") as openfile:
@@ -42,7 +42,9 @@ class RequestProcessor(DisconnectListener):
           Content_Disposition='attachment; filename="%s"' % os.path.basename(file),
           Name=os.path.basename(file)
         ))
-    smtp = smtplib.SMTP(RequestProcessor.MAIL_HOST)
+    MAIL_HOST=config.getAsString('mail.host')
+    print MAIL_HOST
+    smtp = smtplib.SMTP(MAIL_HOST)
     smtp.sendmail("do.not.reply@nih.gov",recipients,packet.as_string())
 
   def testQueue(self):
@@ -105,7 +107,6 @@ class RequestProcessor(DisconnectListener):
       """
           #    "\r\n\r\n - JPSurv Team\r\n(Note:  Please do not reply to this email. If you need assistance, please contact xxxx@mail.nih.gov)"+
           #    "\n\n")
-    print message
     print "sending"
     self.composeMail(data['queue']['email'],message,files)
     print "end"
