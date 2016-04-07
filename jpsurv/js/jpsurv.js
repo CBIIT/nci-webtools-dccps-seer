@@ -145,6 +145,7 @@ function oldway() {
 	if(status == "uploaded") {
 
 		setUploadData();
+
 		console.log(jpsurvData.file.form);
 		control_data = load_ajax("form-" + jpsurvData.tokenId + ".json");
 		load_form();
@@ -207,6 +208,7 @@ function oldway() {
 function preLoadValues() {
 
 	var inputData = load_ajax("input_" + jpsurvData.tokenId + ".json");
+	
 	console.warn("inputData");
 	console.dir(inputData);
 
@@ -229,7 +231,7 @@ function preLoadValues() {
 	$("#e-mail").val(inputData.queue.email);
 
 	//Advanced section
-	if(inputData.calculate.static.advanced.advDeleteInterval = "T") {
+	if(inputData.calculate.static.advanced.advDeleteInterval == "T") {
 		$("#del-int-yes").attr('checked', true);
 	} else {
 		$("#del-int-no").attr('checked', true);
@@ -242,6 +244,8 @@ function preLoadValues() {
 
 	//Set jpsurvData and update everything....
 	jpsurvData = inputData;
+	setIntervalsDefault();
+	getIntervals();
 	stage2("no calculate"); // This is the initial calculation and setup.
 	retrieveResults();
 
@@ -256,11 +260,12 @@ $(document).ready(function() {
 	addEventListeners();
 	addMessages();
 	addTools();
+	oldway();
 	if(DEBUG) {
 		console.warn("%cDEBUG is on", "color:white; background-color:red");
-		$("#year_of_diagnosis_start").val("2000");
+		$("#year_of_diagnosis_start").val("1975");
+		$("#year_of_diagnosis_end").val("1985");
 	}
-	oldway();
 });
 
 function updateCohortDisplay() {
@@ -778,7 +783,9 @@ function calculate() {
 			//Always get a new tokenId and always set imageId to 1
 			//That way each time the create a separate calculation
 			//jpsurvData.tokenId = renewTokenId();
-			jpsurvData.plot.static.imageId = 1;
+			jpsurvData.plot.static.imageId = 100;
+			setIntervalsDefault();
+			getIntervals();
 			var params = getParams();
 			var comm_results = JSON.parse(jpsurvRest('stage5_queue', params));
 			alert("Your submission has been queued.  You will receive an e-mail when calculation is completed.");
@@ -870,7 +877,8 @@ function stage2(action) {
 
 	$("#jpsurv-message-container").hide();
 	jpsurvData.recentTrends = 0;
-	setIntervalYears();
+	setIntervalsDefault();
+	getIntervals();
 	//console.log(JSON.stringify(jpsurvData));
 	//console.dir(jpsurvData);
 	jpsurvData.additional.yearOfDiagnosis = jpsurvData.calculate.form.yearOfDiagnosisRange[0].toString();
@@ -884,7 +892,7 @@ function stage2(action) {
 	var comm_results;
 	if(action == "calculate") {
 		//Run initial calculation with setup.
-		incrementImageId();
+		//incrementImageId();
 		comm_results = JSON.parse(jpsurvRest('stage2_calculate', params));
 	}
 
@@ -938,16 +946,6 @@ function stage3() {
 
 	//jpsurvData.additional.headerJoinPoints = 1;
 
-	console.log("INTERVALS");
-	var intervals = $("#interval-years").val();
-	//
-	// SET INTERVALS
-	//
-	jpsurvData.additional.intervals = [];
-	$.each(intervals, function( index, value ) {
-		jpsurvData.additional.intervals[index] = parseInt(value);
-	});
-
 //	jpsurvData.calculate.static.yearOfDiagnosisVarName = "Year_of_diagnosis_"+$("#year-of-diagnosis").val();
 //	jpsurvData.calculate.static.yearOfDiagnosisVarName = "Year_of_diagnosis_1975+";
 
@@ -956,7 +954,7 @@ function stage3() {
 	//console.info("calculate.static.yearOfDiagnosisVarName");
 	//console.log(jpsurvData.calculate.static.yearOfDiagnosisVarName);
 
-
+	getIntervals();
 	incrementImageId();
 	//console.warn("STRINGIFY inputs");
 	delete jpsurvData.results;
@@ -964,6 +962,19 @@ function stage3() {
 
 	var params = getParams();
 	var comm_results = JSON.parse(jpsurvRest('stage3_recalculate', params));
+}
+
+function getIntervals() {
+	//
+	// SET INTERVALS
+	//
+	console.log("INTERVALS");
+	var intervals = $("#interval-years").val();
+	jpsurvData.additional.intervals = [];
+	$.each(intervals, function( index, value ) {
+		jpsurvData.additional.intervals[index] = parseInt(value);
+	});
+
 }
 
 function getApcTable() {
@@ -1084,21 +1095,13 @@ function parse_cohort_covariance_variables() {
 	}
 }
 
-function setIntervalYears() {
+function setIntervalsDefault() {
 
-/*
-The following intervals will be default based on the following conditions:
-
-Year of Diagnosis range >=10: 5,10
-Year of Diagnosis range >=5: 5
-Year of Diagnosis range <5: 1
-
-*/
 	//
 	// Initially select years 1 and 4
 	//
 
-	//console.warn("setIntervalYears");
+	//console.warn("setIntervalsDefault");
 
 	var intervals = getNumberOfIntervals();
 	var selectedRange = jpsurvData.calculate.form.yearOfDiagnosisRange[1] - jpsurvData.calculate.form.yearOfDiagnosisRange[0];
