@@ -100,7 +100,7 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE)
   print("calculating jointpoint")
   jpsurvData <<- fromJSON(jpsurvDataString)
   print("Creating json")
-  ModelEstimate=getJointtModelWrapper(filePath,jpsurvDataString)
+  ModelEstimate=getJointtModelWrapper(filePath,jpsurvDataString,first_calc)
   ModelSelection=geALLtModelWrapper(filePath,jpsurvDataString)
   Coefficients=getcoefficientsWrapper(filePath,jpsurvDataString)
   
@@ -227,7 +227,7 @@ getFullDataDownload <- function(filePath,jpsurvDataString) {
 }
 
 #Graphs the Survival vs year graph and saves a csv file of the data
-getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first) {
+getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_calc) {
   
   jpsurvData=fromJSON(jpsurvDataString)
   statistic=jpsurvData$additional$statistic
@@ -242,7 +242,7 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first) {
   }
   
   jpInd=jpsurvData$additional$headerJoinPoints
-  if(first==TRUE && jpInd!=0)
+  if(first_calc==TRUE && jpInd!=0)
   {
     jpInd=getSelectedModel(filePath,jpsurvDataString)-1
   }
@@ -294,8 +294,7 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first) {
   
 }
 #Graphs the Survival vs Time graph and saves a csv file of the data
-getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString,first) {
-  print (first)
+getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString,first_calc) {
   jpsurvData=fromJSON(jpsurvDataString)
   # jpind=jpsurvData$calculate$form$jpInd #<-----new
   statistic=jpsurvData$additional$statistic
@@ -312,7 +311,7 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString,first) {
   
   jpInd=jpsurvData$additional$headerJoinPoints
   print(jpInd)
-  if(first==TRUE && jpInd!=0)
+  if(first_calc==TRUE && jpInd!=0)
   {
     jpInd=getSelectedModel(filePath,jpsurvDataString)-1
   }
@@ -398,10 +397,15 @@ geALLtModelWrapper <- function (filePath,jpsurvDataString) {
 }
 
 #gets all the model selection info for all joint points
-getJointtModelWrapper <- function (filePath,jpsurvDataString) {
+getJointtModelWrapper <- function (filePath,jpsurvDataString,first_calc) {
   jpsurvData=fromJSON(jpsurvDataString)
   fileName=paste("output-", jpsurvData$tokenId,".rds", sep="")
+  
   jpInd=jpsurvData$additional$headerJoinPoints
+  if(first_calc==TRUE && jpInd!=0)
+  {
+    jpInd=getSelectedModel(filePath,jpsurvDataString)-1
+  }
   # jpind=jpsurvData$calculate$form$jpInd #<-----new
   file=paste(filePath, fileName, sep="/" )
   outputData=readRDS(file)
