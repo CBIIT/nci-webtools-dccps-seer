@@ -78,12 +78,14 @@ getFittedResultWrapper <- function (filePath, jpsurvDataString) {
   ptm <- proc.time()
   getFittedResult(filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange, allVars, cohortVars, cohortValues, covariateVars, numJP,adanced_options, delLastIntvl, outputFileName,jpsurvDataString)
   
+  
+  model=getSelectedModel(filePath,jpsurvDataString)-1
   print("Fitted Result Time:")
   
   print(proc.time() -ptm)
   
   ptm <- proc.time()
-  getAllData(filePath,jpsurvDataString)
+  getAllData(filePath,jpsurvDataString,TRUE)
   print("Calculation time")
   print(proc.time() -ptm)
   print("return from getAllData")
@@ -92,7 +94,7 @@ getFittedResultWrapper <- function (filePath, jpsurvDataString) {
   # getFullDataDownloadWrapper(filePath,jpsurvDataString)
   
 }
-getAllData<- function(filePath,jpsurvDataString)
+getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE)
 {
   
   print("calculating jointpoint")
@@ -103,12 +105,12 @@ getAllData<- function(filePath,jpsurvDataString)
   Coefficients=getcoefficientsWrapper(filePath,jpsurvDataString)
   
   ptm <- proc.time()
-  IntGraph=getRelativeSurvivalByIntWrapper(filePath,jpsurvDataString)
+  IntGraph=getRelativeSurvivalByIntWrapper(filePath,jpsurvDataString,first_calc)
   print("Int Graph Time:")
   print(proc.time() -ptm)
   
   ptm <- proc.time()
-  YearGraph=getRelativeSurvivalByYearWrapper(filePath,jpsurvDataString)
+  YearGraph=getRelativeSurvivalByYearWrapper(filePath,jpsurvDataString,first_calc)
   print("Year Graph Time:")
   print(proc.time() -ptm)
   
@@ -225,7 +227,7 @@ getFullDataDownload <- function(filePath,jpsurvDataString) {
 }
 
 #Graphs the Survival vs year graph and saves a csv file of the data
-getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString) {
+getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first) {
   
   jpsurvData=fromJSON(jpsurvDataString)
   statistic=jpsurvData$additional$statistic
@@ -238,6 +240,12 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString) {
   {
     statistic="CS"
   }
+  
+  jpInd=jpsurvData$additional$headerJoinPoints
+  if(first==TRUE && jpInd!=0)
+  {
+    jpInd=getSelectedModel(filePath,jpsurvDataString)-1
+  }
   file=paste(filePath, paste("output-", jpsurvData$tokenId,".rds", sep=""), sep="/")
   outputData=readRDS(file)
   intervals=c()
@@ -247,7 +255,6 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString) {
   }
   #  intervals = jpsurvData$plot$form$intervals #<-----new
   # jpind=jpsurvData$calculate$form$jpInd #<-----new
-  jpInd=jpsurvData$additional$headerJoinPoints
   cohortValues = c()
   NAs=c()
   for(i in 1:length(jpsurvData$cohortValues)) 
@@ -287,10 +294,9 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString) {
   
 }
 #Graphs the Survival vs Time graph and saves a csv file of the data
-getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString) {
-  
+getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString,first) {
+  print (first)
   jpsurvData=fromJSON(jpsurvDataString)
-  jpInd=jpsurvData$additional$headerJoinPoints
   # jpind=jpsurvData$calculate$form$jpInd #<-----new
   statistic=jpsurvData$additional$statistic
   
@@ -302,6 +308,13 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString) {
   if(statistic=="Cause-Specific Survival")
   {
     statistic="CS"
+  }
+  
+  jpInd=jpsurvData$additional$headerJoinPoints
+  print(jpInd)
+  if(first==TRUE && jpInd!=0)
+  {
+    jpInd=getSelectedModel(filePath,jpsurvDataString)-1
   }
   file=paste(filePath, paste("output-", jpsurvData$tokenId,".rds", sep=""), sep="/")
   outputData=readRDS(file)
