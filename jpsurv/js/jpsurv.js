@@ -7,7 +7,7 @@ var control_data;
 var cohort_covariance_variables;
 var jpsurvData = {"file":{"dictionary":"Breast.dic","data":"something.txt", "form":"form-983832.json"}, "calculate":{"form": {"yearOfDiagnosisRange":[]}, "static":{}}, "plot":{"form": {}, "static":{"imageId":0} }, "additional":{"headerJoinPoints":0,"yearOfDiagnosis":null,"intervals":[1,4]}, "tokenId":"unknown", "status":"unknown", "stage2completed":0};
 
-var DEBUG = false;
+var DEBUG = true;
 var maxJP = (DEBUG ? 0 : 2);
 
 if(getUrlParameter('tokenId')) {
@@ -558,7 +558,7 @@ function updateEstimates(token_id) {
 	row += "<td>Boyesian Information Criterion (BIC)</td>"+formatCell(jpsurvData.results.bic)+"</tr>";
 	row += "<td>Akaike Information Criterial (AIC)</td>"+formatCell(jpsurvData.results.aic)+"</td></tr>";
 	row += "<td>Log Likelihood</td>"+formatCell(jpsurvData.results.ll)+"</tr>";
-	row += "<td>Converged</td><td>"+jpsurvData.results.converged.toUpperCase()+"</td></tr>/n";
+	row += "<td>Converged</td><td>"+(jpsurvData.results.converged.toUpperCase() == "TRUE" ? "Yes" :"No")+"</td></tr>/n";
 	$("#estimates-jp > tbody").append(row);
 	//What was this
 	$("#yod-range").text(jpsurvData.calculate.form.yearOfDiagnosisRange[0]+" to "+jpsurvData.calculate.form.yearOfDiagnosisRange[1]);
@@ -784,7 +784,7 @@ function validateRule1() {
 		+ ((parseInt(jpsurvData.calculate.form.maxjoinPoints)-1)
 			* parseInt(jpsurvData.calculate.static.advanced.advBetween))
 		+ parseInt(jpsurvData.calculate.static.advanced.advLast)) {
-		alert("true");
+		return true;
 	} else {
 		alert(sprintf("Unable to perform calculation because the following equation is not true."
 				+ "\n\nmaxYear >= minYear + advFirst + ((maxjoinPoints-1) * advBetween+1) + advLast"
