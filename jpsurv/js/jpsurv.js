@@ -7,7 +7,7 @@ var control_data;
 var cohort_covariance_variables;
 var jpsurvData = {"file":{"dictionary":"Breast.dic","data":"something.txt", "form":"form-983832.json"}, "calculate":{"form": {"yearOfDiagnosisRange":[]}, "static":{}}, "plot":{"form": {}, "static":{"imageId":0} }, "additional":{"headerJoinPoints":0,"yearOfDiagnosis":null,"intervals":[1,4]}, "tokenId":"unknown", "status":"unknown", "stage2completed":0};
 
-var DEBUG = true;
+var DEBUG = false;
 var maxJP = (DEBUG ? 0 : 2);
 
 if(getUrlParameter('tokenId')) {
@@ -105,7 +105,7 @@ function addEventListeners() {
 	$("#calculate").on("click", function() { 
 		//Reset main calculation.  This forces a rebuild R Database
 		jpsurvData.stage2completed = false;
-		setCalculateData();
+		setCalculateData("default");
 	});
 
 	//$("#calculate").on("click", show_graph_temp);
@@ -634,7 +634,6 @@ function calculateTrend(tokenId) {
 	var comm_results = JSON.parse(jpsurvRest('stage4_trends_calculate', params));
 	$("#calculating-spinner").modal('hide');
 
-	//console.warn("calcuateTrend called");
 	//console.dir(comm_results);
 	var trendData = load_ajax("trend_results-" + jpsurvData.tokenId + ".json");
 	jpsurvData.results.CS_AAPC = trendData.CS_AAPC;
@@ -697,14 +696,18 @@ function formatCell(x) {
 	}
 }
 
-function setCalculateData() {
-		//$('#calculate-instructions').hide();
+function setCalculateData(type) {
+ 		type = type || 0;
+ 		if(type == "default") {
+ 			//alert("reset to default");
+ 		}
+
 		updateCohortDisplay();
+
 		jpsurvData.queue = {};
 		//jpsurvData.queue.email = (DEBUG ? "chris.kneisler@nih.gov" : $("#e-mail").val());
 		jpsurvData.queue.email = $("#e-mail").val();
 		jpsurvData.queue.url = encodeURIComponent(window.location.href.toString()+"&request=true");
-		//jpsurvData.queue.url = 'yahoo.com';
 		console.info("QUEUE");
 		console.dir(jpsurvData.queue);
 
@@ -757,6 +760,47 @@ function validateYearRange() {
 	}
 }
 
+function validateRule1() {
+	/*
+		Rule 1:
+		max(Year) >= min(Year) + advFirst + ((maxjoinPoints-1) * advBetween+1) + advLast
+	*/
+	var minYear = jpsurvData.calculate.form.yearOfDiagnosisRange[0];
+	var maxYear = jpsurvData.calculate.form.yearOfDiagnosisRange[1];
+	var rightside = minYear 
+		+ parseInt(jpsurvData.calculate.static.advanced.advFirst)
+		+ ((parseInt(jpsurvData.calculate.form.maxjoinPoints)-1)
+			* parseInt(jpsurvData.calculate.static.advanced.advBetween))
+		+ parseInt(jpsurvData.calculate.static.advanced.advLast);
+	console.log("maxYear=%d", maxYear);
+	console.log("minYear=%d", minYear);
+	console.log("rightside=%d", rightside);
+	console.log("%d : %d : %d : %d", jpsurvData.calculate.static.advanced.advFirst
+			, jpsurvData.calculate.form.maxjoinPoints
+			, jpsurvData.calculate.static.advanced.advBetween
+			, jpsurvData.calculate.static.advanced.advLast);
+	if(maxYear >= minYear 
+		+ parseInt(jpsurvData.calculate.static.advanced.advFirst)
+		+ ((parseInt(jpsurvData.calculate.form.maxjoinPoints)-1)
+			* parseInt(jpsurvData.calculate.static.advanced.advBetween))
+		+ parseInt(jpsurvData.calculate.static.advanced.advLast)) {
+		alert("true");
+	} else {
+		alert(sprintf("Unable to perform calculation because the following equation is not true."
+				+ "\n\nmaxYear >= minYear + advFirst + ((maxjoinPoints-1) * advBetween+1) + advLast"
+				+ "\n\nmaxYear = %d\nminYear = %d\nadvFirst = %d\nmaxjoinPoints = %d\nadvBetween = %d\nadvLast = %d\n"
+				+ "\n\nAdjust variables to satisfy the equation and try again."
+				, maxYear
+				, minYear
+				, jpsurvData.calculate.static.advanced.advFirst
+				, jpsurvData.calculate.form.maxjoinPoints
+				, jpsurvData.calculate.static.advanced.advBetween
+				, jpsurvData.calculate.static.advanced.advLast));
+	}
+
+	return false;
+}
+
 function validateMaxYear() {
 	//max(Year) >= min(Year) + op$numfromstart + (nJP - 1) * intervalSize 
 	return true;	
@@ -765,7 +809,7 @@ function validateMaxYear() {
 function validateVariables() {
 	console.warn("validateVariables()");
 	console.dir(jpsurvData);
-	if(validateMaxYear() && validateYearRange()) {
+	if(validateMaxYear() && validateYearRange() && validateRule1()) {
 		return true;
 	} else {
 		return false;
@@ -780,6 +824,7 @@ function calculate() {
 		retrieveResults();
 	} else {
 		if(parseInt($("#max_join_point_select").val())>maxJP) {
+			// SEND TO QUEUE
 			//Always get a new tokenId and always set imageId to 1
 			//That way each time the create a separate calculation
 			//jpsurvData.tokenId = renewTokenId();
@@ -1849,3 +1894,30 @@ function renewTokenId() {
 
 	return tokenId.toString();
 }
+
+function sprintf() {
+    var args = arguments,
+    string = args[0],
+    i = 1;
+    return string.replace(/%((%)|s|d)/g, function (m) {
+        // m is the matched format, e.g. %s, %d
+        var val = null;
+        if (m[2]) {
+            val = m[2];
+        } else {
+            val = args[i];
+            // A switch statement so that the formatter can be extended. Default is %s
+            switch (m) {
+                case '%d':
+                    val = parseFloat(val);
+                    if (isNaN(val)) {
+                        val = 0;
+                    }
+                    break;
+            }
+            i++;
+        }
+        return val;
+    });
+}
+
