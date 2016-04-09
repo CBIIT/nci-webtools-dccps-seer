@@ -505,8 +505,6 @@ function updateGraphs(token_id) {
 	});
 	header.push.apply(header, newVars);
 	//Put all the keys  on the header
-	console.warn("Header");
-	console.dir(header);
 	//Create the header
 	$("#graph-year-table > thead").empty();
 	row = "<tr>";
@@ -517,9 +515,13 @@ function updateGraphs(token_id) {
 	$("#graph-year-table > thead").append(row);
 
 	//Add the body of Year table
-	var yod = jpsurvData.results["RelSurvYearData."+jpsurvData.calculate.static.yearOfDiagnosisVarName];
+	var yodVarName = jpsurvData.calculate.static.yearOfDiagnosisVarName.replace(/\(|\)|-/g, "");
+
+	var yod = jpsurvData.results["RelSurvYearData."+yodVarName];
 	console.warn("yod");
-	console.dir(yod);
+	console.log("yes");
+	console.log(yod);
+	console.log("no");
 
 	$("#graph-year-table > tbody").empty();
 	$.each(yod, function( index, value ) {
@@ -537,7 +539,7 @@ function updateGraphs(token_id) {
 	//
 	//Add the Time Table
 	//
-	yod = jpsurvData.results.RelSurIntData[jpsurvData.calculate.static.yearOfDiagnosisVarName];
+	yod = jpsurvData.results.RelSurIntData[yodVarName];
 	header = [];
 	$.each(jpsurvData.calculate.form.cohortVars, function(index, value) {
 		header.push(value);
