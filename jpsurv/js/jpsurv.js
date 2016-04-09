@@ -17,6 +17,19 @@ if(getUrlParameter('status')) {
 	jpsurvData.status = getUrlParameter('status');
 }
 
+$(document).ready(function() {
+	loadHelp();
+	addEventListeners();
+	addMessages();
+	addTools();
+	addInputSection();
+	if(DEBUG) {
+		console.warn("%cDEBUG is on", "color:white; background-color:red");
+		$("#year_of_diagnosis_start").val("1975");
+		$("#year_of_diagnosis_end").val("1985");
+	}
+});
+
 function checkEmail(email) {
 	var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 	var result = re.test(email);
@@ -139,7 +152,7 @@ function addMessages() {
 	$("#jpsurv-help-message-container").hide();
 }
 
-function oldway() {
+function addInputSection() {
 
 	var status = getUrlParameter('status');
 	if(status == "uploaded") {
@@ -148,6 +161,7 @@ function oldway() {
 
 		//console.log(jpsurvData.file.form);
 		control_data = load_ajax("form-" + jpsurvData.tokenId + ".json");
+		console.dir(control_data);
 		load_form();
 
 		$('#file_control_container')
@@ -254,19 +268,6 @@ function preLoadValues() {
 function addTools() {
 	$('[data-toggle="tooltip"]').tooltip({container: 'body'});
 }
-
-$(document).ready(function() {
-	loadHelp();
-	addEventListeners();
-	addMessages();
-	addTools();
-	oldway();
-	if(DEBUG) {
-		console.warn("%cDEBUG is on", "color:white; background-color:red");
-		$("#year_of_diagnosis_start").val("1975");
-		$("#year_of_diagnosis_end").val("1985");
-	}
-});
 
 function updateCohortDisplay() {
 	//jpsurvData.calculate.form.cohortVars = ["Age groups", "Breast stage"];
@@ -432,7 +433,7 @@ function createModelSelection() {
 		row += formatCell(value.bic);
 		row += formatCell(value.aic);
 		row += formatCell(value.ll);
-		row += "<td>"+value.converged+"</td></tr>/n";
+		row += "<td>"+(value.converged ? "Yes" :"No")+"</td></tr>/n";
 		$("#model-selection-table > tbody").append(row);
 		jp++;
 	});
@@ -563,7 +564,7 @@ function updateGraphs(token_id) {
 		});
 		row += "<td>"+value+"</td>";
 		row += formatCell(jpsurvData.results.RelSurIntData.Interval[index]);
-		row += formatCell(jpsurvData.results.RelSurIntData.Relative_Survival_Cum[index]);
+		row += formatCell(jpsurvData.results.RelSurIntData[jpsurvData.additional.DataTypeVariable][index]);
 		row += formatCell(jpsurvData.results.RelSurIntData.pred_cum[index])+"</tr>/n";
 		$("#graph-time-table > tbody").append(row);
 	});
@@ -762,6 +763,13 @@ function setCalculateData(type) {
 		jpsurvData.calculate.static.advanced.advYear = $("#adv-year").val();
 
 		jpsurvData.additional.yearOfDiagnosis = parseInt($("#year-of-diagnosis").val());
+		jpsurvData.additional.DataTypeVariable = "Relative_Survival_Cum"; 
+		if(jpsurvData.additional.statistic == "Relative Survival") {
+			jpsurvData.additional.DataTypeVariable = "Relative_Survival_Cum"; 
+		}
+		if(jpsurvData.additional.statistic == "Cause-Specific Survival") {
+			jpsurvData.additional.DataTypeVariable = "CauseSpecific_Survival_Cum"; 
+		}
 
 		//console.warn("setCalculateData()");
 		//console.info("jpsurvData - (ie. input variable json");
@@ -1125,7 +1133,8 @@ function load_form() {
 }
 
 function addSessionVariables() {
-	jpsurvData.additional.statistic = getSessionValue("Statistic");
+	console.log("What is this?");
+	jpsurvData.additional.statistic = getSessionOptionInfo("Statistic");
 }
 
 function build_parameter_column() {
@@ -1203,12 +1212,12 @@ function setIntervalsDefault() {
 }
 
 function getNumberOfIntervals() {
-	return parseInt(getSessionValue("NumberOfIntervals"));
+	return parseInt(getSessionOptionInfo("NumberOfIntervals"));
 }
 
-function getSessionValue(var_name) {
+function getSessionOptionInfo(var_name) {
 
-	//console.log("getSessionValue()");
+	//console.log("getSessionOptionInfo()");
 	var session_value = "-1";
 	var options = control_data.SessionOptionInfo.ItemNameInDic;
 	$.each(control_data.SessionOptionInfo.ItemNameInDic, function(key, value) {
