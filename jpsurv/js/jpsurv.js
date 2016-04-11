@@ -777,7 +777,8 @@ function setCalculateData(type) {
 		//console.log(JSON.stringify(jpsurvData));
 		if(validateVariables()) {
 			console.log("Calculating");
-			calculate();
+			$("#calculating-spinner").modal("show");
+			setTimeout(calculate, 1000);
 		} else {
 			console.log("Not Calculating");
 		}
