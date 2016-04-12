@@ -22,7 +22,7 @@ getSubsetStr <- function (yearOfDiagnosisVarName, yearOfDiagnosisRange, cohortVa
   
   subsetStr=paste(paste(cohortVars, cohortValues, sep="=="), collapse='&')
   subsetStr=paste(subsetStr, yearStr, sep='&')
-  
+  print (subsetStr)
   
   return (subsetStr)
   
@@ -62,11 +62,11 @@ getFittedResultWrapper <- function (filePath, jpsurvDataString) {
   covariateVars=jpsurvData$calculate$form$covariateVars
   numJP=jpsurvData$calculate$form$maxjoinPoints
   
-  numbetwn=jpsurvData$calculate$static$advanced$advBetween
-  numfromstart=jpsurvData$calculate$static$advanced$advFirst
-  numtoend=jpsurvData$calculate$static$advanced$advLast
+  numbetwn=as.integer(jpsurvData$calculate$static$advanced$advBetween)
+  numfromstart=as.integer(jpsurvData$calculate$static$advanced$advFirst)
+  numtoend=as.integer(jpsurvData$calculate$static$advanced$advLast)
   
-  adanced_options=list(numbetwn,numfromstart,numtoend)
+  advanced_options=list("numbetwn"=numbetwn,"numfromstart"=numfromstart,"numtoend"=numtoend)
   delLastIntvl=as.logical(jpsurvData$calculate$static$advanced$advDeleteInterval)
   
   
@@ -76,7 +76,7 @@ getFittedResultWrapper <- function (filePath, jpsurvDataString) {
   outputFileName =paste(filePath, fileName, sep="/" )
   print (outputFileName)
   ptm <- proc.time()
-  getFittedResult(filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange, allVars, cohortVars, cohortValues, covariateVars, numJP,adanced_options, delLastIntvl, outputFileName,jpsurvDataString)
+  getFittedResult(filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange, allVars, cohortVars, cohortValues, covariateVars, numJP,advanced_options, delLastIntvl, outputFileName,jpsurvDataString)
   
   
   model=getSelectedModel(filePath,jpsurvDataString)-1
@@ -144,7 +144,7 @@ getTrendsData<-function(filePath,jpsurvDataString)
 }
 
 #Creates the SEER Data and Fitted Result
-getFittedResult <- function (filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange, allVars, cohortVars, cohortValues, covariateVars, numJP, adanced_options,delLastIntvlAdv,outputFileName,jpsurvDataString) {
+getFittedResult <- function (filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange, allVars, cohortVars, cohortValues, covariateVars, numJP, advanced_options,delLastIntvlAdv,outputFileName,jpsurvDataString) {
   jpsurvData <<- fromJSON(jpsurvDataString)
   print ("creating RDS")
   print (numJP)
@@ -180,7 +180,7 @@ getFittedResult <- function (filePath, seerFilePrefix, yearOfDiagnosisVarName, y
                          year=getCorrectFormat(yearOfDiagnosisVarName),
                          observedrelsurv=statistic,
                          model.form = ~NULL,
-                         op=adanced_options,
+                         op=advanced_options,
                          delLastIntvl=delLastIntvlAdv,
                          maxnum.jp=numJP);
   #save seerdata and fit.result as RData
