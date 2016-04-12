@@ -659,7 +659,7 @@ function calculateTrend(tokenId) {
 	var params = getParams();
 
 	//
-	$("#calculating-spinner").modal('show');
+	//$("#calculating-spinner").modal('show');
 	var comm_results = JSON.parse(jpsurvRest('stage4_trends_calculate', params));
 	$("#calculating-spinner").modal('hide');
 
@@ -900,7 +900,7 @@ function validateVariables() {
 
 function calculate() {
 
-	$("#calculating-spinner").modal('show');
+	//$("#calculating-spinner").modal('show');
 	if(jpsurvData.stage2completed) {
 		stage3();  // This is a recalculation.
 		retrieveResults();
@@ -1941,8 +1941,8 @@ function getRestServerStatus() {
 		//console.dir(data);
 		$("#"+id+"-message-container").hide();
 		if (displayError(id, data) == false) {
-			$("#calculating-spinner").modal('show');
-			alert("Submitting... Page should reload with new data");
+			//$("#calculating-spinner").modal('show');
+			//alert("Submitting... Page should reload with new data");
 			$("#upload-form").submit();
 		}
 	});
