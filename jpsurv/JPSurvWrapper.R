@@ -244,7 +244,12 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_ca
   jpInd=jpsurvData$additional$headerJoinPoints
   if(first_calc==TRUE || jpInd!=0)
   {
-    jpInd=getSelectedModel(filePath,jpsurvDataString)-1
+    jpInd=0
+    if(is.na(getSelectedModel(filePath,jpsurvDataString))==FALSE)
+    {
+      jpInd=getSelectedModel(filePath,jpsurvDataString)-1
+    }
+    
   }
   file=paste(filePath, paste("output-", jpsurvData$tokenId,".rds", sep=""), sep="/")
   outputData=readRDS(file)
@@ -314,7 +319,12 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString,first_cal
   print(jpInd)
   if(first_calc==TRUE || jpInd!=0)
   {
-    jpInd=getSelectedModel(filePath,jpsurvDataString)-1
+    jpInd=0
+    if(is.na(getSelectedModel(filePath,jpsurvDataString))==FALSE)
+    {
+      jpInd=getSelectedModel(filePath,jpsurvDataString)-1
+    }
+    
   }
   file=paste(filePath, paste("output-", jpsurvData$tokenId,".rds", sep=""), sep="/")
   outputData=readRDS(file)
@@ -358,7 +368,12 @@ getcoefficientsWrapper <- function (filePath,jpsurvDataString,first_calc) {
   jpInd=jpsurvData$additional$headerJoinPoints
   if(first_calc==TRUE || jpInd!=0)
   {
-    jpInd=getSelectedModel(filePath,jpsurvDataString)-1
+    jpInd=0
+    if(is.na(getSelectedModel(filePath,jpsurvDataString))==FALSE)
+    {
+      jpInd=getSelectedModel(filePath,jpsurvDataString)-1
+    }
+    
   }
   file=paste(filePath, fileName, sep="/" )
   outputData=readRDS(file)
@@ -408,7 +423,12 @@ getJointtModelWrapper <- function (filePath,jpsurvDataString,first_calc) {
   jpInd=jpsurvData$additional$headerJoinPoints
   if(first_calc==TRUE || jpInd!=0)
   {
-    jpInd=getSelectedModel(filePath,jpsurvDataString)-1
+    jpInd=0
+    if(is.na(getSelectedModel(filePath,jpsurvDataString))==FALSE)
+    {
+      jpInd=getSelectedModel(filePath,jpsurvDataString)-1
+    }
+    
   }
   # jpind=jpsurvData$calculate$form$jpInd #<-----new
   file=paste(filePath, fileName, sep="/" )
