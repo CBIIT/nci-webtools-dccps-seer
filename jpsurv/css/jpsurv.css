@@ -446,21 +446,13 @@ input:required:valid, input:focus:valid {
   background-repeat: no-repeat;
 }
 */
-/*
-input:invalid:after{
-  content: "\e013";
-  font-family:"Glyphicons Halflings";
+
+.jpsurv-title {
+  font-size:34px;
+  margin-right:10px;
+  position:relative;
+  float:right;
 }
-input:valid:after{
-  content: "\e017";
-  font-family:"Glyphicons Halflings";
-}
-input:invalid > i.arrow:after {
-  content: "\e014";
-  color:red;
-  font-family:"Glyphicons Halflings";
-}
-*/
 
 @media (min-width: 768px) {
     .form-inline .radio input[type="radio"], 

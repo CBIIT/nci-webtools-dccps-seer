@@ -368,7 +368,7 @@ function addCohortVariables() {
 
 function loadHelp() {
 	$("#help-tab").load("help.html");
-	$("#help").append($("<div>").load("help.html"));
+	$("#help").append($("<div>").load("description.html"));
 }
 
 function checkInputFiles() {
@@ -659,7 +659,7 @@ function calculateTrend(tokenId) {
 	var params = getParams();
 
 	//
-	//$("#calculating-spinner").modal('show');
+	$("#calculating-spinner").modal('show');
 	var comm_results = JSON.parse(jpsurvRest('stage4_trends_calculate', params));
 	$("#calculating-spinner").modal('hide');
 
