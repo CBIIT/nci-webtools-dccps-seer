@@ -242,7 +242,7 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_ca
   }
   
   jpInd=jpsurvData$additional$headerJoinPoints
-  if(first_calc==TRUE || jpInd!=0)
+  if(first_calc==TRUE)
   {
     jpInd=0
     if(is.na(getSelectedModel(filePath,jpsurvDataString))==FALSE)
@@ -317,7 +317,7 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString,first_cal
   
   jpInd=jpsurvData$additional$headerJoinPoints
   print(jpInd)
-  if(first_calc==TRUE || jpInd!=0)
+  if(first_calc==TRUE)
   {
     jpInd=0
     if(is.na(getSelectedModel(filePath,jpsurvDataString))==FALSE)
@@ -366,7 +366,7 @@ getcoefficientsWrapper <- function (filePath,jpsurvDataString,first_calc) {
   jpsurvData=fromJSON(jpsurvDataString)
   fileName=paste("output-", jpsurvData$tokenId,".rds", sep="")
   jpInd=jpsurvData$additional$headerJoinPoints
-  if(first_calc==TRUE || jpInd!=0)
+  if(first_calc==TRUE)
   {
     jpInd=0
     if(is.na(getSelectedModel(filePath,jpsurvDataString))==FALSE)
@@ -421,7 +421,7 @@ getJointtModelWrapper <- function (filePath,jpsurvDataString,first_calc) {
   fileName=paste("output-", jpsurvData$tokenId,".rds", sep="")
   
   jpInd=jpsurvData$additional$headerJoinPoints
-  if(first_calc==TRUE || jpInd!=0)
+  if(first_calc==TRUE)
   {
     jpInd=0
     if(is.na(getSelectedModel(filePath,jpsurvDataString))==FALSE)
