@@ -452,6 +452,7 @@ input:required:valid, input:focus:valid {
   margin-right:10px;
   position:relative;
   float:right;
+  color:#666;
 }
 
 @media (min-width: 768px) {
