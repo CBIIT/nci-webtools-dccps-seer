@@ -783,15 +783,15 @@ function okAlert(message) {
 function validateRule1() {
 	/*
 		Rule 1:
-		max(Year) >= min(Year) + advFirst + ((maxjoinPoints-1) * advBetween+1) + advLast
-		2000 >= 1990 + 10+(-1*advBetween+1) +10
+		max(Year) >= min(Year) + advFirst + ((maxjoinPoints-1) * (advBetween+1)) + advLast
+		max(Year) >= min(Year) + op$numfromstart + ((nJP-1) * (op$numbetwn+1)) + op$numtoend;
 	*/
 	var minYear = jpsurvData.calculate.form.yearOfDiagnosisRange[0];
 	var maxYear = jpsurvData.calculate.form.yearOfDiagnosisRange[1];
 	var rightside = minYear 
 		+ parseInt(jpsurvData.calculate.static.advanced.advFirst)
 		+ ((parseInt(jpsurvData.calculate.form.maxjoinPoints)-1)
-			* parseInt(jpsurvData.calculate.static.advanced.advBetween))
+			* (parseInt(jpsurvData.calculate.static.advanced.advBetween)+1))
 		+ parseInt(jpsurvData.calculate.static.advanced.advLast);
 	//console.log("maxYear=%d", maxYear);
 	//console.log("minYear=%d", minYear);
@@ -806,12 +806,12 @@ function validateRule1() {
 	if(maxYear >= minYear 
 		+ parseInt(jpsurvData.calculate.static.advanced.advFirst)
 		+ ((parseInt(jpsurvData.calculate.form.maxjoinPoints)-1)
-			* parseInt(jpsurvData.calculate.static.advanced.advBetween))
+			* (parseInt(jpsurvData.calculate.static.advanced.advBetween)+1))
 		+ parseInt(jpsurvData.calculate.static.advanced.advLast)) {
 		return true;
 	} else {
 		okAlert(sprintf("<p>Unable to perform calculation because the following equation is not true."
-				+ "<br><br>maxYear >= minYear + advFirst + ((maxjoinPoints-1) * advBetween+1) + advLast"
+				+ "<br><br>maxYear >= minYear + advFirst + ((maxjoinPoints-1) * (advBetween+1)) + advLast"
 				+ "<br><br>maxYear = %d<br>minYear = %d<br>advFirst = %d<br>maxjoinPoints = %d<br>advBetween = %d<br>advLast = %d<br>"
 				+ "<br><br>Adjust variables to satisfy the equation and try again."
 				, maxYear
