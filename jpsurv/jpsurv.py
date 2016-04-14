@@ -28,6 +28,12 @@ def fix_jpsurv(jpsurvDataString):
 def index():
     return render_template('index.html')
 
+@app.route('/jpsurvRest/debug', methods = ['GET'])
+def test():
+    raise
+
+
+
 @app.route('/jpsurvRest/parse', methods = ['GET'])
 def parse():
     # python LDpair.py rs2720460 rs11733615 EUR 38
@@ -347,6 +353,8 @@ if __name__ == '__main__':
     jpsurvConfig = PropertyUtil(r"config.ini")
     UPLOAD_DIR = os.path.join(os.getcwd(), 'tmp')
 
+    print 'JPSurv is starting...'
+
     #COLORS TO Make logging Mover visible
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -369,7 +377,7 @@ if __name__ == '__main__':
     parser.add_argument("-p", dest="port_number", type=int, required=True, help="REST Sever port number")
     parser.add_argument('--version', action='version', version='%(prog)s 2.0')
     parser.add_argument('--verbose', dest="verbose", default=False, help='Turn on verbose logging', action='store_true')
-    parser.add_argument('--debug', dest="debug", default=False, help='Turn on debug logging', action='store_true')
+    parser.add_argument('--debug', help='Turn on debug logging', action='store_true',default=False)
 
     args = parser.parse_args()
     port_num = int(args.port_number)
@@ -383,27 +391,17 @@ if __name__ == '__main__':
     #DEBUG      10
     #NOTSET     0
 
+
     #debug(BOLD+UPLOAD_DIR+ENDC)
     FORMAT = '%(asctime)-15s %(clientip)s %(message)s'
     logging.basicConfig(format=FORMAT)
-    d = {'clientip': 'localhost'}
+    d = {'clientip': 'localhost'} 
     logger = logging.getLogger('RESTserver')
-    
-    app.debug = True
-    if args.verbose == False and args.debug == False:
-        app.debug = False
-        print "setLevel: NOSET"
-        logger.setLevel(logging.NOTSET)
-    elif args.verbose == True:
-        print "setLevel: INFO"
-        logger.setLevel(logging.INFO)
-    elif args.debug == True:
-        print "setLevel: DEBUG"
-        logger.setLevel(logging.DEBUG)
+    #debugger = args.debug == 'True'
+    debugger = args.debug
 
-    logger.warning('app.debug: %s' % app.debug, extra=d)
     logger.warning('Log warning works.', extra=d)
     logger.info('Temp Directory: %s', BOLD+UPLOAD_DIR+ENDC, extra=d)
     jpsurvDataString='{"file":{"dictionary":"Breast_RelativeSurvival.dic","data":"Breast_RelativeSurvival.txt","form":"form-506827.json"},"calculate":{"form":{"yearOfDiagnosisRange":[2000,2011],"cohortVars":["Age groups","Breast stage"],"cohortValues":["\"00-49\"","\"Localized\""],"covariateVars":"","maxjoinPoints":0},"static":{"yearOfDiagnosisTitle":"Year of diagnosis 1975+","years":["1975","1976","1977","1978","1979","1980","1981","1982","1983","1984","1985","1986","1987","1988","1989","1990","1991","1992","1993","1994","1995","1996","1997","1998","1999","2000","2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011"],"yearOfDiagnosisVarName":"Year_of_diagnosis_1975","seerFilePrefix":"Breast_RelativeSurvival","allVars":["Age groups","Breast stage","Year_of_diagnosis_1975"],"advanced":{"advDeleteInterval":"F","advBetween":"2","advFirst":"3","advLast":"4","advYear":"10"}}},"plot":{"form":{},"static":{"imageId":0}},"additional":{"headerJoinPoints":0,"yearOfDiagnosis":null,"intervals":[1,4]},"tokenId":"506827","status":"uploaded","stage2completed":0,"queue":{"email":"scott.goldweber@nih.com","url":"http://analysistools-sandbox.nci.nih.gov/jpsurv/?file_control_filename=Breast_RelativeSurvival.dic&file_data_filename=Breast_RelativeSurvival.txt&output_filename=form-506827.json&status=uploaded&tokenId=506827"}}'
 #    sendqueue(jpsurvDataString)
-    app.run(host='0.0.0.0', port=port_num, debug = app.debug)
+    app.run(host='0.0.0.0', port=port_num, debug = debugger,use_evalex = False)
