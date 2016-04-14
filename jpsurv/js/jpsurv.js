@@ -768,9 +768,7 @@ function setCalculateData(type) {
 function validateYearRange() {
 	//max(Year) >= min(Year) + op$numfromstart + (nJP - 1) * intervalSize 
 	if(jpsurvData.calculate.form.yearOfDiagnosisRange[1]<=jpsurvData.calculate.form.yearOfDiagnosisRange[0]) {
-
-		okAlert("The Year of Diagnosis Range is invalid.  The end year can not be equal to or less then start year.");
-
+		okAlert("The Year of Diagnosis Range is invalid.<br><br>The start year can not be greater then or equal to end year.");
 		return false;
 	} else {
 		return true;
@@ -778,13 +776,15 @@ function validateYearRange() {
 }
 
 function okAlert(message) {
-	alert(message);
+	$("#ok-alert").find(".modal-body").empty().html(message);
+	$("#ok-alert").modal('show');
 }
 
 function validateRule1() {
 	/*
 		Rule 1:
 		max(Year) >= min(Year) + advFirst + ((maxjoinPoints-1) * advBetween+1) + advLast
+		2000 >= 1990 + 10+(-1*advBetween+1) +10
 	*/
 	var minYear = jpsurvData.calculate.form.yearOfDiagnosisRange[0];
 	var maxYear = jpsurvData.calculate.form.yearOfDiagnosisRange[1];
@@ -810,10 +810,10 @@ function validateRule1() {
 		+ parseInt(jpsurvData.calculate.static.advanced.advLast)) {
 		return true;
 	} else {
-		alert(sprintf("Unable to perform calculation because the following equation is not true."
-				+ "\n\nmaxYear >= minYear + advFirst + ((maxjoinPoints-1) * advBetween+1) + advLast"
-				+ "\n\nmaxYear = %d\nminYear = %d\nadvFirst = %d\nmaxjoinPoints = %d\nadvBetween = %d\nadvLast = %d\n"
-				+ "\n\nAdjust variables to satisfy the equation and try again."
+		okAlert(sprintf("<p>Unable to perform calculation because the following equation is not true."
+				+ "<br><br>maxYear >= minYear + advFirst + ((maxjoinPoints-1) * advBetween+1) + advLast"
+				+ "<br><br>maxYear = %d<br>minYear = %d<br>advFirst = %d<br>maxjoinPoints = %d<br>advBetween = %d<br>advLast = %d<br>"
+				+ "<br><br>Adjust variables to satisfy the equation and try again."
 				, maxYear
 				, minYear
 				, jpsurvData.calculate.static.advanced.advFirst
@@ -823,62 +823,12 @@ function validateRule1() {
 	}
 
 	return false;
-}
-
-function validateRule2() {
-	/*
-		Rule 2:
-		maxYear >= minYear + advBetween + (maxjoinPoint - 1) * intervalSize
-	*/
-	return true;
-	var minYear = jpsurvData.calculate.form.yearOfDiagnosisRange[0];
-	var maxYear = jpsurvData.calculate.form.yearOfDiagnosisRange[1];
-	var rightside = minYear 
-		+ parseInt(jpsurvData.calculate.static.advanced.advFirst)
-		+ ((parseInt(jpsurvData.calculate.form.maxjoinPoints)-1)
-			* parseInt(jpsurvData.calculate.static.advanced.advBetween))
-		+ parseInt(jpsurvData.calculate.static.advanced.advLast);
-	//console.log("maxYear=%d", maxYear);
-	//console.log("minYear=%d", minYear);
-	//console.log("rightside=%d", rightside);
-	
-	/*
-		console.log("%d : %d : %d : %d", jpsurvData.calculate.static.advanced.advFirst
-			, jpsurvData.calculate.form.maxjoinPoints
-			, jpsurvData.calculate.static.advanced.advBetween
-			, jpsurvData.calculate.static.advanced.advLast);
-	*/
-	if(maxYear >= minYear 
-		+ parseInt(jpsurvData.calculate.static.advanced.advFirst)
-		+ ((parseInt(jpsurvData.calculate.form.maxjoinPoints)-1)
-			* parseInt(jpsurvData.calculate.static.advanced.advBetween))
-		+ parseInt(jpsurvData.calculate.static.advanced.advLast)) {
-		return true;
-	} else {
-		alert(sprintf("Unable to perform calculation because the following equation is not true."
-				+ "\n\nmaxYear >= minYear + advFirst + ((maxjoinPoints-1) * advBetween+1) + advLast"
-				+ "\n\nmaxYear = %d\nminYear = %d\nadvFirst = %d\nmaxjoinPoints = %d\nadvBetween = %d\nadvLast = %d\n"
-				+ "\n\nAdjust variables to satisfy the equation and try again."
-				, maxYear
-				, minYear
-				, jpsurvData.calculate.static.advanced.advFirst
-				, jpsurvData.calculate.form.maxjoinPoints
-				, jpsurvData.calculate.static.advanced.advBetween
-				, jpsurvData.calculate.static.advanced.advLast));
-	}
-
-	return false;
-}
-
-function validateMaxYear() {
-	//max(Year) >= min(Year) + op$numfromstart + (nJP - 1) * intervalSize 
-	return true;	
 }
 
 function validateVariables() {
 	//console.warn("validateVariables()");
 	//console.dir(jpsurvData);
-	if(validateMaxYear() && validateYearRange() && validateRule1() && validateRule2()) {
+	if(validateYearRange() && validateRule1()) {
 		return true;
 	} else {
 		return false;
