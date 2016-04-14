@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="JPSURV" default="replace" basedir=".">
-      <target name="replace" depends="host_exist,admin_exist, debug_exist, port_exist, root_exist, out_exist, url_exist, name_exist, error_exist">
+      <target name="replace" depends="host_exist,admin_exist, port_exist, root_exist, out_exist, url_exist, name_exist, error_exist">
          <replace file="config.ini" token="@host@" value="${host}"/>
          <replace file="config.ini" token="@admin@" value="${admin}"/>
          <replace file="config.ini" token="@debug@" value="${debug}"/>
@@ -17,9 +17,6 @@
        <target name="admin_exist" unless="admin">
         <fail> Admin value is not set, stop</fail>
       </target>	     
-      <target name="debug_exist" unless="debug">
-        <fail> debug value is not set, stop</fail>
-      </target>	
       <target name="port_exist" unless="port">
               <fail> Port value is not set, stop</fail>
       </target>	
