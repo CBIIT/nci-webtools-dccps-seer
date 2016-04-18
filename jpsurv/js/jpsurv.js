@@ -768,14 +768,15 @@ function setCalculateData(type) {
 function validateYearRange() {
 	//max(Year) >= min(Year) + op$numfromstart + (nJP - 1) * intervalSize 
 	if(jpsurvData.calculate.form.yearOfDiagnosisRange[1]<=jpsurvData.calculate.form.yearOfDiagnosisRange[0]) {
-		okAlert("The Year of Diagnosis Range is invalid.<br><br>The start year can not be greater then or equal to end year.");
+		okAlert("The Year of Diagnosis Range is invalid.<br><br>The start year can not be greater then or equal to end year.", "Rule Validation");
 		return false;
 	} else {
 		return true;
 	}
 }
 
-function okAlert(message) {
+function okAlert(message, title) {
+	$("#ok-alert").find(".modal-title").empty().html(title);
 	$("#ok-alert").find(".modal-body").empty().html(message);
 	$("#ok-alert").modal('show');
 }
@@ -819,7 +820,7 @@ function validateRule1() {
 				, jpsurvData.calculate.static.advanced.advFirst
 				, jpsurvData.calculate.form.maxjoinPoints
 				, jpsurvData.calculate.static.advanced.advBetween
-				, jpsurvData.calculate.static.advanced.advLast));
+				, jpsurvData.calculate.static.advanced.advLast), "Rule Validation");
 	}
 
 	return false;
@@ -955,7 +956,7 @@ function stage2(action) {
 	var comm_results;
 	if(action == "calculate") {
 		//Run initial calculation with setup.
-		//incrementImageId();
+		jpsurvData.plot.static.imageId = 0;
 		comm_results = JSON.parse(jpsurvRest('stage2_calculate', params));
 	}
 
@@ -1868,6 +1869,7 @@ function getRestServerStatus() {
 	var url = restServerUrl + "/status";
 	var ajaxRequest = $.ajax({
 		url : url,
+		async :false,
 		contentType : 'application/json' // JSON
 	});
 	ajaxRequest.success(function(data) {
@@ -1888,7 +1890,7 @@ function getRestServerStatus() {
 		displayCommFail(id, jqXHR, textStatus);
 	});
 	ajaxRequest.always(function() {
-		$("#calculating-spinner").modal('hide');
+		//$("#calculating-spinner").modal('hide');
 	});
 }
 
@@ -1899,7 +1901,8 @@ function certifyResults() {
 		if(index.substring(0,1) == "X" ) {
 			console.log("jpsurvData.results.RelSurIntData look corrupt:");
 			console.dir(jpsurvData.results.RelSurIntData);
-			alert("RelSurIntData is corrupt:\n"+JSON.stringify(jpsurvData.results.RelSurIntData));
+			$("#right_panel").hide();
+			okAlert("RelSurIntData is corrupt:<br><br>"+JSON.stringify(jpsurvData.results.RelSurIntData), "Corrupt Data");
 			return false;
 		}
 	});
