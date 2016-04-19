@@ -5,7 +5,7 @@ var restServerUrl = restService.protocol + "://" + restService.hostname + "/"+ r
 
 var control_data;
 var cohort_covariance_variables;
-var jpsurvData = {"file":{"dictionary":"Breast.dic","data":"something.txt", "form":"form-983832.json"}, "calculate":{"form": {"yearOfDiagnosisRange":[]}, "static":{}}, "plot":{"form": {}, "static":{"imageId":-1} }, "additional":{"headerJoinPoints":0,"yearOfDiagnosis":null,"intervals":[1,4]}, "tokenId":"unknown", "status":"unknown", "stage2completed":0};
+var jpsurvData = {"file":{"dictionary":"Breast.dic","data":"something.txt", "form":"form-983832.json"}, "calculate":{"form": {"yearOfDiagnosisRange":[]}, "static":{}}, "plot":{"form": {}, "static":{"imageId":0} }, "additional":{"headerJoinPoints":0,"yearOfDiagnosis":null,"intervals":[1,4]}, "tokenId":"unknown", "status":"unknown", "stage2completed":0};
 
 var DEBUG = false;
 var maxJP = (DEBUG ? 0 : 2);
@@ -13,7 +13,6 @@ var maxJP = (DEBUG ? 0 : 2);
 if(getUrlParameter('tokenId')) {
 	jpsurvData.tokenId = getUrlParameter('tokenId');
 }
-
 if(getUrlParameter('status')) {
 	jpsurvData.status = getUrlParameter('status');
 }
@@ -713,6 +712,7 @@ function setCalculateData(type) {
 		updateCohortDisplay();
 
 		jpsurvData.queue = {};
+		//jpsurvData.queue.email = (DEBUG ? "chris.kneisler@nih.gov" : $("#e-mail").val());
 		jpsurvData.queue.email = $("#e-mail").val();
 		jpsurvData.queue.url = encodeURIComponent(window.location.href.toString()+"&request=true");
 		//console.info("QUEUE");
@@ -839,7 +839,6 @@ function validateVariables() {
 function calculate() {
 
 	//$("#calculating-spinner").modal('show');
-	incrementImageId();
 	if(jpsurvData.stage2completed) {
 		stage3();  // This is a recalculation.
 		retrieveResults();
@@ -854,8 +853,7 @@ function calculate() {
 			getIntervals();
 			var params = getParams();
 			var comm_results = JSON.parse(jpsurvRest('stage5_queue', params));
-			$("#calculating-spinner").modal('hide');
-			okAlert("Your submission has been queued.  You will receive an e-mail when calculation is completed.", "Calculation in Queue");
+			alert("Your submission has been queued.  You will receive an e-mail when calculation is completed.");
 		} else {
 			stage2("calculate"); // This is the initial calculation and setup.
 			retrieveResults();
@@ -951,14 +949,16 @@ function stage2(action) {
 	//jpsurvData.additional.yearOfDiagnosis = "1988";
 	//alert(JSON.stringify(jpsurvData.additional));
 
-	var params = getParams();
+	//var params = getParams();
 	//console.log("getParams()");
 	//console.log(params);
 
 	var comm_results;
 	if(action == "calculate") {
 		//Run initial calculation with setup.
-		//jpsurvData.plot.static.imageId = 0;
+		id=Math.floor((Math.random() * 100) + 1);
+		jpsurvData.plot.static.imageId = id;
+		var params = getParams();
 		comm_results = JSON.parse(jpsurvRest('stage2_calculate', params));
 	}
 
@@ -1021,7 +1021,7 @@ function stage3() {
 	//console.log(jpsurvData.calculate.static.yearOfDiagnosisVarName);
 
 	getIntervals();
-	//incrementImageId();
+	incrementImageId();
 	//console.warn("STRINGIFY inputs");
 	delete jpsurvData.results;
 	//console.log(JSON.stringify(jpsurvData));
