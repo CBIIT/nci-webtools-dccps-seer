@@ -114,7 +114,7 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE)
   print("Year Graph Time:")
   print(proc.time() -ptm)
   
-  JP=getJPWrapper(filePath,jpsurvDataString)
+  JP=getJPWrapper(filePath,jpsurvDataString,first_calc)
   
   Selected_Model=getSelectedModel(filePath,jpsurvDataString)
   
