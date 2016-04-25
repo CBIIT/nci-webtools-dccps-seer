@@ -62,8 +62,15 @@ function validateEmail() {
 }
 
 function addEventListeners() {
+	$('#e-mail').on('keydown', function(e) {
+		if (e.which == 13) {
+			e.preventDefault();
+		}
+		validateEmail();
+	});
 
-	$('#e-mail').on('keyup', validateEmail);
+	//$('#e-mail').on('keyup', validateEmail);
+	//$('#e-mail').on('keydown', pressedDown);
 
 	$("#max_join_point_select").on('change', function(e){
 		//console.log("%s:%s",maxJP, $("#max_join_point_select").val());

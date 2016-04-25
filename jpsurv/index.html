@@ -147,7 +147,7 @@
                     </div>
                     <div class="form-group e-mail-grp" style="display:none;">
                       <label for="e-mail" class="jpsurv-label" title="Enter a valid e-mail">E-mail:</label> 
-                      <input class="arrow" required id="e-mail" type="email" placeholder="Enter e-mail address" title="Enter a valid e-mail address.">
+                      <input class="arrow" tabindex="0" required id="e-mail" type="email" placeholder="Enter e-mail address" title="Enter a valid e-mail address.">
 <!--
 <i class="arrow"></i>
 -->
@@ -208,7 +208,8 @@
 
                 </div>
               </div>
-              <input type='button' id='calculate' value='Calculate' class="btn btn-primary btn-sm" style="float:right;"><input type='button' onclick="window.location.href='/jpsurv'" value="Reset"class="btn btn-warning btn-sm" title="Reset all values" style="float:right; right;  margin-right:10px">
+              <input type='button' tabindex="1" id='calculate' value='Calculate' class="btn btn-primary btn-sm pull-right">
+              <input type='button' tabindex="2" onclick="window.location.href='/jpsurv'" value="Reset" class="btn btn-warning btn-sm pull-right" title="Reset all values" style="margin-right:10px;">
               <div style="clear:both;"></div>
             </div>
           </div>
