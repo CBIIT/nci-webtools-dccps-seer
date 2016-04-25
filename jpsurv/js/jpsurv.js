@@ -780,6 +780,10 @@ function validateRule1() {
 		max(Year) >= min(Year) + advFirst + ((maxjoinPoints-1) * (advBetween+1)) + advLast
 		max(Year) >= min(Year) + op$numfromstart + ((nJP-1) * (op$numbetwn+1)) + op$numtoend;
 	*/
+	//Skip this test is maxjoinPoint is zero.
+	if(jpsurvData.calculate.form.maxjoinPoints == 0) {
+		return true;
+	}
 	var minYear = jpsurvData.calculate.form.yearOfDiagnosisRange[0];
 	var maxYear = jpsurvData.calculate.form.yearOfDiagnosisRange[1];
 	var rightside = minYear 
