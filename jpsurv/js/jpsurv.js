@@ -1047,6 +1047,7 @@ function getIntervals() {
 
 }
 
+/*
 function getApcTable() {
 
 
@@ -1063,7 +1064,7 @@ function getApcTable() {
 		$("#apc-container").fadeIn();
 	}
 }
-
+*/
 function append_plot_intervals(max_interval) {
 	$("#plot_intervals").empty();
 	for(var i=1; i<=max_interval; i++) {
@@ -1693,7 +1694,9 @@ function setUrlParameter(sParam, value) {
 	console.log("Here is your new url");
 	console.dir(sURLVariables);
 	console.log("Put this back on the url");
-	window.history.push('"'+$('#cohort_value_'+index+'_select)");
+
+	//window.history.push('"'+$('#cohort_value_'+index+'_select)")));
+
 /*
 	for (var i = 0; i < sURLVariables.length; i++) {
 		var sParameterName = sURLVariables[i].split('=');
