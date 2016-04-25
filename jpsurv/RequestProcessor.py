@@ -101,7 +101,7 @@ class RequestProcessor(DisconnectListener):
         You can view your results: """+Link+"""<br />
          This link will expire two weeks from today.<br /><br /><br />
          - JPSurv Team<br />
-         (Note:  Please do not reply to this email. If you need assistance, please contact pansu@mail.nih.gov)
+         (Note:  Please do not reply to this email. If you need assistance, please contact NCIJPSurvlAdmin@mail.nih.gov)
       </body>
       """
           #    "\r\n\r\n - JPSurv Team\r\n(Note:  Please do not reply to this email. If you need assistance, please contact xxxx@mail.nih.gov)"+
