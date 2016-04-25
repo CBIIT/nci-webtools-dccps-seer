@@ -22,7 +22,6 @@ $(document).ready(function() {
 	loadHelp();
 	addEventListeners();
 	addMessages();
-	addTools();
 	addInputSection();
 	if(DEBUG) {
 		console.warn("%cDEBUG is on", "color:white; background-color:red");
@@ -262,10 +261,6 @@ function preLoadValues() {
 	stage2("no calculate"); // This is the initial calculation and setup.
 	retrieveResults();
 
-}
-
-function addTools() {
-	$('[data-toggle="tooltip"]').tooltip({container: 'body'});
 }
 
 function updateCohortDisplay() {
