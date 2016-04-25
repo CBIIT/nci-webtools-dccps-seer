@@ -7,7 +7,7 @@ var control_data;
 var cohort_covariance_variables;
 var jpsurvData = {"file":{"dictionary":"Breast.dic","data":"something.txt", "form":"form-983832.json"}, "calculate":{"form": {"yearOfDiagnosisRange":[]}, "static":{}}, "plot":{"form": {}, "static":{"imageId":-1} }, "additional":{"headerJoinPoints":0,"yearOfDiagnosis":null,"intervals":[1,4]}, "tokenId":"unknown", "status":"unknown", "stage2completed":0};
 
-var DEBUG = false;
+var DEBUG = true;
 var maxJP = (DEBUG ? 0 : 2);
 
 if(getUrlParameter('tokenId')) {
@@ -160,7 +160,7 @@ function addInputSection() {
 	if(status == "uploaded") {
 
 		setUploadData();
-		control_data = load_ajax("form-" + jpsurvData.tokenId + ".json");
+		control_data = load_ajax(jpsurvData.file.form);
 		load_form();
 
 		$('#file_control_container')
@@ -221,9 +221,9 @@ function addInputSection() {
 function preLoadValues() {
 
 	var inputData = load_ajax("input_" + jpsurvData.tokenId + ".json");
-	
-	//console.warn("inputData");
-	//console.dir(inputData);
+
+	console.warn("inputData");
+	console.dir(inputData);
 
 	//Form section
 	$("#year_of_diagnosis_start").val(inputData.calculate.form.yearOfDiagnosisRange[0]);
@@ -649,28 +649,26 @@ function updateTabs(tokenId) {
 	}
 }
 
+
 function calculateTrend(tokenId) {
 
-
-	//console.log("calculateTrend");
+	console.log("calculateTrend");
 	var params = getParams();
-	var comm_results = JSON.parse(jpsurvRest('stage4_trends_calculate', params));
-	$("#calculating-spinner").modal('hide');
+	jpsurvRest2('stage4_trends_calculate', params, "calculateTrendCallback");
+	
+}
 
+function calculateTrendCallback() {
+	console.log("Got here...");
 	//console.dir(comm_results);
 	var trendData = load_ajax("trend_results-" + jpsurvData.tokenId + ".json");
 	jpsurvData.results.CS_AAPC = trendData.CS_AAPC;
 	jpsurvData.results.CS_AAAC = trendData.CS_AAAC;
 	jpsurvData.results.HAZ_APC = trendData.HAZ_APC;
-	updateTrend(tokenId);
+	updateTrend(jpsurvData.tokenId);
 	changePrecision();
 	jpsurvData.recentTrends = 1;
 
-	//  Check precision.
-
-	//console.dir(trendData);
-	//console.log("RESULTS: ");
-	//console.dir(jpsurvData.results);
 }
 
 function changePrecision() {
@@ -849,12 +847,14 @@ function calculate() {
 			//Always get a new tokenId and always set imageId to 1
 			//That way each time the create a separate calculation
 			//jpsurvData.tokenId = renewTokenId();
+			jpsurvData.tokenId = renewTokenId();
+
 			jpsurvData.plot.static.imageId = 100;
 			setIntervalsDefault();
 			getIntervals();
 			var params = getParams();
-			var comm_results = JSON.parse(jpsurvRest('stage5_queue', params));
 			$("#calculating-spinner").modal('hide');
+			var comm_results = JSON.parse(jpsurvRest('stage5_queue', params));
 			okAlert("Your submission has been queued.  You will receive an e-mail when calculation is completed.", "Calculation in Queue");
 		} else {
 			stage2("calculate"); // This is the initial calculation and setup.
@@ -921,7 +921,9 @@ function retrieveResults() {
 }
 
 function getParams() {
-	//console.warn("getParams -  when is the vars set?");
+	console.warn("getParams -  when is the vars set?");
+	console.dir(jpsurvData);
+
 	jpsurvData.results = {};
 	var params = 'jpsurvData='+JSON.stringify(jpsurvData);
 	params = replaceAll('None', '', params);
@@ -1466,11 +1468,56 @@ function build_output_format_column() {
 	$("#output_format").fadeIn();
 }
 
+function jpsurvRest2(action, params, callback) {
+	console.log('jpsurvRest2');
+	console.info(params);
+	var url = '/jpsurvRest/'+action+'?'+encodeURI(params);
+	var ajaxRequest = $.ajax({
+		type : 'GET',
+		url : url,
+		contentType : 'application/json' // JSON
+	});
 
+	ajaxRequest.success(function(data) {
+		console.log("Success");
+		window[callback]();
+	});
+	ajaxRequest.fail(function(jqXHR, textStatus) {
+		displayCommFail("jpsurv", jqXHR, textStatus);
+	});
+	ajaxRequest.done(function(msg) {
+		$("#calculating-spinner").modal('hide');
+	});
+
+}
+
+function displayCommFail(id, jqXHR, textStatus) {
+	console.log(textStatus);
+	console.dir(jqXHR);
+	console.warn("CommFail\n"+"Status: "+textStatus);
+	//$("#calculating-spinner").modal('hide');
+
+	var message;
+	var errorThrown = "";
+	console.warn("header: " + jqXHR
+	+ "\ntextStatus: " + textStatus
+	+ "\nerrorThrown: " + errorThrown);
+	//alert('Communication problem: ' + textStatus);
+	// ERROR
+	if(jqXHR.status == 500) {
+		message = 'Internal Server Error: ' + textStatus + "<br>";
+		message += jqXHR.responseText;
+		message_type = 'warning';
+	} else {
+		message = jqXHR.statusText+" ("+ textStatus + ")";
+		message += "The server is temporarily unable to service your request due to maintenance downtime or capacity problems. Please try again later.<br>";
+		message_type = 'error';
+	}
+	showMessage(id, message, message_type);
+
+}
 function jpsurvRest(action, params) {
-	//console.log('jpsurvRest');
-	//console.info(params);
-	//console.log(params);
+
 	/*
 	if(params.search("\+")>0){
 		alert("Plus was found");
@@ -1619,16 +1666,44 @@ function load_ajax(filename) {
 }
 
 function getUrlParameter(sParam) {
-    var sPageURL = window.location.search.substring(1);
-    var sURLVariables = sPageURL.split('&');
-    for (var i = 0; i < sURLVariables.length; i++)
-    {
-        var sParameterName = sURLVariables[i].split('=');
-        if (sParameterName[0] == sParam)
-        {
-            return sParameterName[1];
-        }
-    }
+	var sPageURL = window.location.search.substring(1);
+	var sURLVariables = sPageURL.split('&');
+
+	for (var i = 0; i < sURLVariables.length; i++) {
+		var sParameterName = sURLVariables[i].split('=');
+		if (sParameterName[0] == sParam)
+		{
+			return sParameterName[1];
+		}
+	}
+}
+
+function setUrlParameter(sParam, value) {
+	var sPageURL = window.location.search.substring(1);
+	console.log(sPageURL);
+
+	var sURLVariables = sPageURL.split('&');
+	console.dir(sURLVariables);
+	$.each(sURLVariables, function(key, content) {
+		var sParameterName = sURLVariables[i].split('=');
+		if (sParameterName[0] == sParam) {
+			sURLVariables[key] = sParameterName[0]+"="+value;
+		}
+	});
+	console.log("Here is your new url");
+	console.dir(sURLVariables);
+	console.log("Put this back on the url");
+	window.history.push('"'+$('#cohort_value_'+index+'_select)");
+/*
+	for (var i = 0; i < sURLVariables.length; i++) {
+		var sParameterName = sURLVariables[i].split('=');
+		if (sParameterName[0] == sParam)
+		{
+			return sParameterName[1];
+		}
+	}
+*/
+
 }
 
 function inspect(object) {
