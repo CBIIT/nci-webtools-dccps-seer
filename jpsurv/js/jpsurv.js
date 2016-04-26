@@ -132,18 +132,10 @@ function addEventListeners() {
 	//$("#calculate").on("click", show_graph_temp);
 	$("#file_data").on("change", checkInputFiles);
 	$("#file_control").on("change", checkInputFiles);
-	//$("#parameters").on("change", checkPlotStatus);
-	//$("#plot").on("click", showPlot);
-	//Checking Plot parameters
-//	$("#covariate_value_select").on("change", checkPlotParameters);
-//	$("#plot_intervals").on("change", checkPlotParameters);
-//	$("#covariate-fieldset").on("click", "#covariate_value_select", checkPlotParameters);
-	//$("#data-set").on("click", getDownloadOutput);
-	$( "#upload-form" ).on("submit", function( event ) {
 
+	$( "#upload-form" ).on("submit", function( event ) {
 		//event.preventDefault();
 		//console.log("submitting files");
-
 	});
 
 	$("#cohort-variables").on('click', ".cohort", function(e) {
@@ -263,6 +255,7 @@ function preLoadValues() {
 
 	//Set jpsurvData and update everything....
 	jpsurvData = inputData;
+	
 	setIntervalsDefault();
 	getIntervals();
 	stage2("no calculate"); // This is the initial calculation and setup.
@@ -844,18 +837,23 @@ function calculate() {
 
 	//$("#calculating-spinner").modal('show');
 	incrementImageId();
+	//Next tokenID
+
 	if(jpsurvData.stage2completed) {
+		incrementImageId();
 		stage3();  // This is a recalculation.
 		retrieveResults();
 	} else {
+
+		jpsurvData.tokenId = renewTokenId();
+		incrementImageId();
+
 		if(parseInt($("#max_join_point_select").val())>maxJP) {
 			// SEND TO QUEUE
 			//Always get a new tokenId and always set imageId to 1
 			//That way each time the create a separate calculation
 			//jpsurvData.tokenId = renewTokenId();
-			jpsurvData.tokenId = renewTokenId();
 
-			jpsurvData.plot.static.imageId = 100;
 			setIntervalsDefault();
 			getIntervals();
 			var params = getParams();
@@ -939,6 +937,7 @@ function getParams() {
 }
 
 function incrementImageId() {
+
 	//console.log("incrementImageId:"+jpsurvData.plot.static.imageId);
 	jpsurvData.plot.static.imageId++;
 	//console.log("incrementImageId (new value):"+jpsurvData.plot.static.imageId);
@@ -965,9 +964,9 @@ function stage2(action) {
 
 	var comm_results;
 	if(action == "calculate") {
-		id=Math.floor((Math.random() * 100) + 1);
+		//id=Math.floor((Math.random() * 100) + 1);
 		//Run initial calculation with setup.
-		jpsurvData.plot.static.imageId = id;
+		//jpsurvData.plot.static.imageId = id;
 		var params = getParams();
 		comm_results = JSON.parse(jpsurvRest('stage2_calculate', params));
 	}
@@ -1031,7 +1030,6 @@ function stage3() {
 	//console.log(jpsurvData.calculate.static.yearOfDiagnosisVarName);
 
 	getIntervals();
-	//incrementImageId();
 	//console.warn("STRINGIFY inputs");
 	delete jpsurvData.results;
 	//console.log(JSON.stringify(jpsurvData));
@@ -1696,11 +1694,14 @@ function setUrlParameter(sParam, value) {
 		if (sParameterName[0] == sParam) {
 			sURLVariables[key] = sParameterName[0]+"="+value;
 		}
+		console.log(sURLVariables[i]);
 	});
+
 	console.log("Here is your new url");
 	console.dir(sURLVariables);
 	console.log("Put this back on the url");
 
+//window.history.pushState({},'', "?tab="+currentTab);
 	//window.history.push('"'+$('#cohort_value_'+index+'_select)")));
 
 /*
@@ -1999,7 +2000,9 @@ function certifyResults() {
 }
 
 function renewTokenId() {
+
 	var tokenId = Math.floor(Math.random() * (999999 - 100000 + 1));
+	jpsurvData.plot.static.imageId = -1;
 
 	return tokenId.toString();
 }
