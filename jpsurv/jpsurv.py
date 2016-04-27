@@ -163,7 +163,7 @@ def stage1_upload():
     #print "json string >> "+str(jsondata[0]);
     status = "uploaded"
 
-    return_url = "%s/jpsurv?file_control_filename=%s&file_data_filename=%s&output_filename=%s&status=%s&tokenId=%s" % (request.url_root, file_control_filename, file_data_filename, output_filename, status, tokenId)
+    return_url = "%s/jpsurv?request=false&file_control_filename=%s&file_data_filename=%s&output_filename=%s&status=%s&tokenId=%s" % (request.url_root, file_control_filename, file_data_filename, output_filename, status, tokenId)
     info(return_url)
     return redirect(return_url)
 
@@ -185,7 +185,7 @@ def stage2_calculate():
     debug(OKBLUE+"The jpsurv STRING::::::"+ENDC)
     debug(jpsurvDataString)
     jpsurvData = json.loads(jpsurvDataString)
-    #info(BOLD+"**** jpsurvData ****"+ENDC)
+    info(BOLD+"**** jpsurvData ****"+ENDC)
     for key, value in jpsurvData.iteritems():
         info("var: %s = %s" % (key, value))
         print("var: %s = %s" % (key, value))
@@ -195,10 +195,15 @@ def stage2_calculate():
     rSource('./JPSurvWrapper.R')
 
     info(BOLD+"**** Calling getFittedResultsWrapper ****"+ENDC)
-    # Next two lines execute the R Program
     getFittedResultWrapper = robjects.globalenv['getFittedResultWrapper']
     getFittedResultWrapper(UPLOAD_DIR, jpsurvDataString)
-    
+    # Next two lines execute the R Program
+    #try:
+    #    getFittedResultWrapper = robjects.globalenv['getFittedResultWrapper']
+    #    getFittedResultWrapper(UPLOAD_DIR, jpsurvDataString)
+    #except:
+    #    return sendTraceback()
+
     status = '{"status":"OK"}'
     mimetype = 'application/json'
     out_json = json.dumps(status)

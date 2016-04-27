@@ -7,7 +7,7 @@ var control_data;
 var cohort_covariance_variables;
 var jpsurvData = {"file":{"dictionary":"Breast.dic","data":"something.txt", "form":"form-983832.json"}, "calculate":{"form": {"yearOfDiagnosisRange":[]}, "static":{}}, "plot":{"form": {}, "static":{"imageId":-1} }, "additional":{"headerJoinPoints":0,"yearOfDiagnosis":null,"intervals":[1,4]}, "tokenId":"unknown", "status":"unknown", "stage2completed":0};
 
-var DEBUG = true;
+var DEBUG = false;
 var maxJP = (DEBUG ? 0 : 2);
 
 if(getUrlParameter('tokenId')) {
@@ -68,7 +68,14 @@ function addEventListeners() {
 		}
 		validateEmail();
 	});
-
+	/*
+	$('#e-mail').on('change', function(e) {
+		if (e.which == 13) {
+			//e.preventDefault();
+		}
+		validateEmail();
+	});
+	*/
 	//$('#e-mail').on('keyup', validateEmail);
 	//$('#e-mail').on('keydown', pressedDown);
 
@@ -113,7 +120,7 @@ function addEventListeners() {
 
 	$("#cohort_select").on("change", change_cohort_select);
 	$("#covariate_select").on("change", change_covariate_select);
-	$("#precision").on("change", changePrecision);
+	$("#precision").on("change", userChangePrecision);
 
 	$("#upload_file_submit").click(function(event) { 
 		file_submit(event);
@@ -145,6 +152,10 @@ function addEventListeners() {
 
 }
 
+function userChangePrecision() {
+	setCookie("precision", $("#precision").val(), 14);
+	changePrecision();
+}
 function addMessages() {
 	var e_mail_msg = "Maximum Joinpoints greater than "+maxJP+" requires additional computing time.  When computation is completed a notification will be sent to the e-mail entered below.";
 	$("#e-mail-msg").text(e_mail_msg);
@@ -156,7 +167,7 @@ function addInputSection() {
 
 	var status = getUrlParameter('status');
 	if(status == "uploaded") {
-
+		$("#upload_file_submit").remove();
 		setUploadData();
 		control_data = load_ajax(jpsurvData.file.form);
 		load_form();
@@ -210,14 +221,29 @@ function addInputSection() {
 		//console.log(file_control_output	);
 		//var file_data_output = load_ajax(getUrlParameter('file_data_filename'));
 	}
-	if(getUrlParameter('request') == "true") {
-		//console.log("preLoadValues");
+	if(getUrlParameter('request') == "true" && checkInputFile()) {
 		preLoadValues();
 	}
 }
 
+function checkInputFile() {
+	var results = $.ajax({
+		url:'/jpsurv/tmp/input_' + jpsurvData.tokenId + '.json',
+		type:'HEAD',
+		async: false
+	});
+	var found = results.status == 200;
+	if(found == false) {
+		okAlert("Opps. It looks like the time to view your results has expired.  Please submit another calculation.", "JPSurv Time Expired")
+	}
+	return found;
+}
+
 function preLoadValues() {
 
+	//
+	//Check to see if input file exists.
+	//
 	var inputData = load_ajax("input_" + jpsurvData.tokenId + ".json");
 
 	console.warn("inputData");
@@ -385,7 +411,9 @@ function setUploadData() {
 	jpsurvData.file.dictionary = getUrlParameter('file_control_filename');
 	jpsurvData.file.data = getUrlParameter('file_data_filename');
 	jpsurvData.file.form = getUrlParameter('output_filename');
+	//jpsurvData.file.formId = getUrlParameter('output_filename').substr(5, 6);
 	jpsurvData.status = getUrlParameter('status');
+
 }
 
 function setupModel() {
@@ -492,10 +520,7 @@ function updateGraphs(token_id) {
 	});
 	//Add the other variables to the header
 	$.each(jpsurvData.results, function(index, value) {
-		//console.warn(index);
-		//console.log(index.search(tableVar));
 		if(index.search(tableVar) == 0) {
-			//console.log("Got one: "+index.substr(tableVar.length));
 			newVars.push(index.substr(tableVar.length));
 		}
 	});
@@ -668,7 +693,7 @@ function calculateTrendCallback() {
 
 function changePrecision() {
 
-	var precision = $("#precision").val();;
+	var precision = $("#precision").val();
 	$("td[data-float]").each(function(index,element) {
 		var number = $(element).attr("data-float");
 		var myFloat = parseFloat(number);
@@ -679,8 +704,6 @@ function changePrecision() {
 		} else {
 			//Set the float part
 			$(element).text(myFloat.toFixed(precision));
-			//$(element).text(myFloat.toPrecision(precision));
-			//$(element).text(roundup(myFloat, precision));
 		}
 	});
 }
@@ -836,7 +859,7 @@ function validateVariables() {
 function calculate() {
 
 	//$("#calculating-spinner").modal('show');
-	incrementImageId();
+	//incrementImageId();
 	//Next tokenID
 
 	if(jpsurvData.stage2completed) {
@@ -845,21 +868,25 @@ function calculate() {
 		retrieveResults();
 	} else {
 
-		jpsurvData.tokenId = renewTokenId();
+		jpsurvData.tokenId = renewTokenId(true);
+
 		incrementImageId();
 
 		if(parseInt($("#max_join_point_select").val())>maxJP) {
 			// SEND TO QUEUE
-			//Always get a new tokenId and always set imageId to 1
-			//That way each time the create a separate calculation
-			//jpsurvData.tokenId = renewTokenId();
-
 			setIntervalsDefault();
 			getIntervals();
+			setUrlParameter("request", "true");
+			jpsurvData.queue.url = encodeURIComponent(window.location.href.toString());
+
 			var params = getParams();
-			$("#calculating-spinner").modal('hide');
+			$("#right_panel").hide();
+			$("#help").show();
+			$("#icon").css('visibility', 'hidden');
 			var comm_results = JSON.parse(jpsurvRest('stage5_queue', params));
+			$("#calculating-spinner").modal('hide');
 			okAlert("Your submission has been queued.  You will receive an e-mail when calculation is completed.", "Calculation in Queue");
+
 		} else {
 			stage2("calculate"); // This is the initial calculation and setup.
 			retrieveResults();
@@ -870,9 +897,7 @@ function calculate() {
 }
 
 function file_submit(event) {
-	//event.preventDefault();
-	//set tokenId
-	jpsurvData.tokenId = renewTokenId();
+	jpsurvData.tokenId = renewTokenId(false);
 	$("#upload-form").attr('action', '/jpsurvRest/stage1_upload?tokenId='+jpsurvData.tokenId);
 	getRestServerStatus();
 }
@@ -906,19 +931,13 @@ function retrieveResults() {
 	$.get('tmp/results-'+jpsurvData.tokenId+'.json', function (results) {
 
 		jpsurvData.results = results;
-		//console.log("jpsurvData");
-		//console.log(JSON.stringify(jpsurvData));
-		//console.dir(jpsurvData);
 		if(!jpsurvData.stage2completed) {
 			createModelSelection();
 		}
 		if(certifyResults() == false){
 			console.warn("Results are corrupt.");
-		} else {
-			//console.warn("Results are certified.");
 		}
 		updateTabs(jpsurvData.tokenId);
-		//Change stage2completed HERE.  After retrieving file.
 		jpsurvData.stage2completed = true;
 	});
 
@@ -952,37 +971,25 @@ function stage2(action) {
 	jpsurvData.recentTrends = 0;
 	setIntervalsDefault();
 	getIntervals();
-	//console.log(JSON.stringify(jpsurvData));
-	//console.dir(jpsurvData);
 	jpsurvData.additional.yearOfDiagnosis = jpsurvData.calculate.form.yearOfDiagnosisRange[0].toString();
-	//jpsurvData.additional.yearOfDiagnosis = "1988";
-	//alert(JSON.stringify(jpsurvData.additional));
-
-	//var params = getParams();
-	//console.log("getParams()");
-	//console.log(params);
-
 	var comm_results;
 	if(action == "calculate") {
-		//id=Math.floor((Math.random() * 100) + 1);
-		//Run initial calculation with setup.
-		//jpsurvData.plot.static.imageId = id;
 		var params = getParams();
 		comm_results = JSON.parse(jpsurvRest('stage2_calculate', params));
 	}
 
 	$("#right_panel").show();
-	$("#help").remove();
+	$("#help").hide();
 	$("#icon").css('visibility', 'visible');
-
-	//console.log("Current year 0 ");
-	//console.log(jpsurvData.calculate.form.yearOfDiagnosisRange[0]);
-
-	//$("#year-of-diagnosis").val(jpsurvData.calculate.form.yearOfDiagnosisRange[0]);
 
 	$("#year-of-diagnosis").empty();
 	for (year=jpsurvData.calculate.form.yearOfDiagnosisRange[0];year<=jpsurvData.calculate.form.yearOfDiagnosisRange[1];year++) {
 		$("#year-of-diagnosis").append("<OPTION>"+year+"</OPTION>\n");
+	}
+	//Set precision if cookie is available
+	var precision = getCookie("precision");
+	if(parseInt(precision) > 0) {
+		$('#precision>option:eq('+(parseInt(precision)-1)+')').prop('selected', true);
 	}
 
 	// Get new file called results-xxxx.json
@@ -1482,7 +1489,6 @@ function jpsurvRest2(action, params, callback) {
 		url : url,
 		contentType : 'application/json' // JSON
 	});
-
 	ajaxRequest.success(function(data) {
 		console.log("Success");
 		window[callback]();
@@ -1565,6 +1571,7 @@ jpsurvData={"file":
 			},
 			'error' : function(jqXHR, textStatus, errorThrown) {
 				//alert(errorThrown);
+				console.dir(jqXHR);
 				console.log(errorThrown);
 				var id = 'jpsurv';
 				console.warn("header: " + jqXHR
@@ -1576,6 +1583,7 @@ jpsurvData={"file":
 					message = 'Internal Server Error: ' + textStatus + "<br>";
 					message += "A variable value such as 'None' may have caused an internal error during calculation.<br>";
 					message_type = 'warning';
+					//message = "I got a friend like you.";
 				} else {
 					message = 'Service Unavailable: ' + textStatus + "<br>";
 					message += "The server is temporarily unable to service your request due to maintenance downtime or capacity problems. Please try again later.<br>";
@@ -1663,6 +1671,13 @@ function load_ajax(filename) {
 		      },
 			 'fail'	: function(jqXHR, textStatus) {
 			 	alert('Fail on load_ajax');
+			 },
+			 'error' : function(jqXHR, textStatus) {
+			 	console.dir(jqXHR);
+			 	console.warn('Error on load_ajax');
+			 	console.log(jqXHR.status);
+			 	console.log(jqXHR.statusText);
+			 	console.log(textStatus);
 			 }
 		    });
 		    return json;
@@ -1683,38 +1698,6 @@ function getUrlParameter(sParam) {
 	}
 }
 
-function setUrlParameter(sParam, value) {
-	var sPageURL = window.location.search.substring(1);
-	console.log(sPageURL);
-
-	var sURLVariables = sPageURL.split('&');
-	console.dir(sURLVariables);
-	$.each(sURLVariables, function(key, content) {
-		var sParameterName = sURLVariables[i].split('=');
-		if (sParameterName[0] == sParam) {
-			sURLVariables[key] = sParameterName[0]+"="+value;
-		}
-		console.log(sURLVariables[i]);
-	});
-
-	console.log("Here is your new url");
-	console.dir(sURLVariables);
-	console.log("Put this back on the url");
-
-//window.history.pushState({},'', "?tab="+currentTab);
-	//window.history.push('"'+$('#cohort_value_'+index+'_select)")));
-
-/*
-	for (var i = 0; i < sURLVariables.length; i++) {
-		var sParameterName = sURLVariables[i].split('=');
-		if (sParameterName[0] == sParam)
-		{
-			return sParameterName[1];
-		}
-	}
-*/
-
-}
 
 function inspect(object) {
 	console.log(typeof object);
@@ -1780,10 +1763,6 @@ function replaceAll(find, replace, str) {
 	//console.log(typeof(str));
 
   	return str.replace(new RegExp(find, 'g'), replace);
-}
-
-function round(x, round, trim) {
-	return parseFloat(x) ? parseFloat(x.toFixed(round)).toPrecision(trim) : x;
 }
 
 function openHelpWindow(pageURL) {
@@ -1999,12 +1978,57 @@ function certifyResults() {
 	return true;
 }
 
-function renewTokenId() {
+function renewTokenId(refresh_url) {
 
 	var tokenId = Math.floor(Math.random() * (999999 - 100000 + 1));
+	//var tokenId = 620060;
 	jpsurvData.plot.static.imageId = -1;
+	//alert(tokenId);
+	console.warn(tokenId);
+	if(refresh_url == true) {
+		setUrlParameter("tokenId", tokenId.toString());
+		setUrlParameter("request", "false");
+	}
 
 	return tokenId.toString();
+}
+
+function setUrlParameter(sParam, value) {
+	var sPageURL = window.location.search.substring(1);
+	console.log(sPageURL);
+	console.log("So you want to change %s to %s", sParam, value);
+
+	var sURLVariables = sPageURL.split('&');
+	console.dir(sURLVariables);
+	$.each(sURLVariables, function(key, content) {
+		var sParameterName = content.split('=');
+		console.dir(sParameterName);
+		if (sParameterName[0] == sParam) {
+			sURLVariables[key] = sParameterName[0]+"="+value;
+		}
+		console.log(sURLVariables[key]);
+	});
+
+	console.log("Here is your new url");
+	console.dir(sURLVariables);
+	console.log("Put this back on the url");
+	console.log("Will this work: "+sURLVariables.join("&"))
+	//alert(sURLVariables.join("&"));
+    window.history.pushState({},'', "?"+sURLVariables.join("&"));
+
+	console.log(window.location.search.substring(1));
+	//window.history.push('"'+$('#cohort_value_'+index+'_select)")));
+
+/*
+	for (var i = 0; i < sURLVariables.length; i++) {
+		var sParameterName = sURLVariables[i].split('=');
+		if (sParameterName[0] == sParam)
+		{
+			return sParameterName[1];
+		}
+	}
+*/
+
 }
 
 function sprintf() {
@@ -2033,3 +2057,24 @@ function sprintf() {
     });
 }
 
+function setCookie(cname, cvalue, exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    var expires = "expires="+ d.toUTCString();
+    document.cookie = cname + "=" + cvalue + "; " + expires;
+} 
+
+function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for(var i = 0; i <ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length,c.length);
+        }
+    }
+    return "";
+} 
