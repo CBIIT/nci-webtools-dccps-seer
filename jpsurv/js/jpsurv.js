@@ -666,6 +666,15 @@ function updateTabs(tokenId) {
 	}
 }
 
+function calculateAllData() {
+	jpsurvRest2('stage2_calculate', "calculateAllDataCallback");
+}
+
+function calculateAllDataCallback() {
+	console.log("calculateAllDataCallback..");
+	retrieveResults();
+}
+
 function calculateFittedResults() {
 	jpsurvRest2('stage2_calculate', "calculateFittedResultsCallback");
 }
@@ -794,6 +803,7 @@ function setCalculateData(type) {
 		}
 		//append_plot_intervals(jpsurvData.calculate.form.yearOfDiagnosisRange[1] - jpsurvData.calculate.form.yearOfDiagnosisRange[0]);
 }
+
 function validateYearRange() {
 	//max(Year) >= min(Year) + op$numfromstart + (nJP - 1) * intervalSize 
 	if(jpsurvData.calculate.form.yearOfDiagnosisRange[1]<=jpsurvData.calculate.form.yearOfDiagnosisRange[0]) {
@@ -878,7 +888,6 @@ function calculate() {
 	if(jpsurvData.stage2completed) {
 		incrementImageId();
 		stage3();  // This is a recalculation.
-		retrieveResults();
 	} else {
 		jpsurvData.tokenId = renewTokenId(true);
 		incrementImageId();
@@ -1009,35 +1018,11 @@ function stage3() {
 	$("#jpsurv-message-container").hide();
 	jpsurvData.recentTrends = 0;
 
-	//console.warn("STAGE 3");
-	//alert("stage 3");
-	//console.info("HERE ARE the new values for re-calculate purposes.");
-	//alert($("#year-of-diagnosis").val());
-
-	//
-	// SET START YEAR
-	//
-	//jpsurvData.calculate.form.yearOfDiagnosisRange[0] = parseInt($("#year-of-diagnosis").val());
-	//jpsurvData.calculate.static.yearOfDiagnosisTitle = "Year of diagnosis "+$("#year-of-diagnosis").val()+"+";
 	$("#year_of_diagnosis_start").val(jpsurvData.calculate.form.yearOfDiagnosisRange[0]);
-
-	//jpsurvData.additional.headerJoinPoints = 1;
-
-//	jpsurvData.calculate.static.yearOfDiagnosisVarName = "Year_of_diagnosis_"+$("#year-of-diagnosis").val();
-//	jpsurvData.calculate.static.yearOfDiagnosisVarName = "Year_of_diagnosis_1975+";
-
-	//console.info("calculate.form.yearOfDiagnosisRange");
-	//console.dir(jpsurvData.calculate.form.yearOfDiagnosisRange);
-	//console.info("calculate.static.yearOfDiagnosisVarName");
-	//console.log(jpsurvData.calculate.static.yearOfDiagnosisVarName);
-
 	getIntervals();
-	//console.warn("STRINGIFY inputs");
 	delete jpsurvData.results;
-	//console.log(JSON.stringify(jpsurvData));
 
-	var params = getParams();
-	var comm_results = JSON.parse(jpsurvRest('stage3_recalculate', params));
+	calculateAllData();
 }
 
 function getIntervals() {
@@ -1493,6 +1478,7 @@ function jpsurvRest2(action, callback) {
 		window[callback]();
 	});
 	ajaxRequest.error(function(jqXHR, textStatus) {
+		$("#calculating-spinner").modal('hide');
 		displayCommFail("jpsurv", jqXHR, textStatus);
 	});
 	ajaxRequest.done(function(msg) {
@@ -1506,7 +1492,7 @@ function displayCommFail(id, jqXHR, textStatus) {
 	console.dir(jqXHR);
 	console.warn("CommFail\n"+"Status: "+textStatus);
 	//$("#calculating-spinner").modal('hide');
-
+	//alert("Comm Fail");
 	var message;
 	var errorThrown = "";
 	console.warn("header: " + jqXHR
@@ -1517,10 +1503,12 @@ function displayCommFail(id, jqXHR, textStatus) {
 	if(jqXHR.status == 500) {
 		message = 'Internal Server Error: ' + textStatus + "<br>";
 		message += jqXHR.responseText;
+		message += "<br>code("+jqXHR.status+")";
 		message_type = 'warning';
 	} else {
-		message = jqXHR.statusText+" ("+ textStatus + ")";
+		message = jqXHR.statusText+" ("+ textStatus + ")<br><br>";
 		message += "The server is temporarily unable to service your request due to maintenance downtime or capacity problems. Please try again later.<br>";
+		message += "<br>code("+jqXHR.status+")";
 		message_type = 'error';
 	}
 	showMessage(id, message, message_type);
@@ -1587,12 +1575,16 @@ function showMessage(id, message, message_type) {
 	//
 	//	Display either a warning an error.
 	//
-	//console.log("Show Message");
+	$("#right_panel").show();
+	$("#help").hide();
+	$("#icon").css('visibility', 'visible');
+
+	console.log("Show Message");
 
 	var css_class = "";
 	var header = "";
 	var container_id = id+"-message-container";
-	//console.log(container_id);
+	console.log(container_id);
 
 	if(message_type.toUpperCase() == 'ERROR') {
 		css_class = 'panel-danger';
@@ -1814,7 +1806,9 @@ function decimalPlaces(num) {
 	return answer;
 }
 
+/*
 function displayCommFail(id, jqXHR, textStatus) {
+	//alert("Comm Fail");
 	console.log(id);
 	console.log(textStatus);
 	console.dir(jqXHR);
@@ -1827,10 +1821,11 @@ function displayCommFail(id, jqXHR, textStatus) {
 	$('#' + id + '-progress').hide();
 	$('#' + id+ '-results-container').hide();
 	//hide loading icon
-	$('#'+id+"-loading").hide();
+
+	showMessage(id, message, message_type);
 
 }
-
+*/
 function displayError(id, data) {
 	// Display error or warning if available.
 	console.dir(data);
