@@ -96,7 +96,7 @@ function addEventListeners() {
 	$("#trends-tab-anchor").click(function(e) {
 		//console.warn("You clicked on trends-tab-anchor");
 		//Need to figure out this variable...
-		if(jpsurvData.stage2completed && jpsurvData.recentTrends == 0) {
+	if(jpsurvData.stage2completed && jpsurvData.recentTrends == 0) {
 			calculateTrend();
 		}
 	});
@@ -242,6 +242,7 @@ function preLoadValues() {
 	//
 	//Check to see if input file exists.
 	//
+
 	var inputData = load_ajax("input_" + jpsurvData.tokenId + ".json");
 
 	console.warn("inputData");
@@ -993,6 +994,8 @@ function stage2(action) {
 	jpsurvData.additional.yearOfDiagnosis = jpsurvData.calculate.form.yearOfDiagnosisRange[0].toString();
 	if(action == "calculate") {
 		calculateFittedResults()
+	} else {
+		calculateFittedResultsCallback();
 	}
 
 
