@@ -899,6 +899,7 @@ function calculate() {
 			getIntervals();
 			setUrlParameter("request", "true");
 			jpsurvData.queue.url = encodeURIComponent(window.location.href.toString());
+			jpsurvData.additional.yearOfDiagnosis = jpsurvData.calculate.form.yearOfDiagnosisRange[0].toString();
 
 			var params = getParams();
 			$("#right_panel").hide();
@@ -1020,7 +1021,6 @@ function stage3() {
 		//Run initial calculation with setup.
 	$("#jpsurv-message-container").hide();
 	jpsurvData.recentTrends = 0;
-
 	$("#year_of_diagnosis_start").val(jpsurvData.calculate.form.yearOfDiagnosisRange[0]);
 	getIntervals();
 	delete jpsurvData.results;
