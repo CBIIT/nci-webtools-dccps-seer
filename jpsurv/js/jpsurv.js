@@ -668,7 +668,7 @@ function updateTabs(tokenId) {
 }
 
 function calculateAllData() {
-	jpsurvRest2('stage2_calculate', "calculateAllDataCallback");
+	jpsurvRest2('stage3_recalculate', "calculateAllDataCallback");
 }
 
 function calculateAllDataCallback() {
