@@ -107,7 +107,7 @@ class RequestProcessor(DisconnectListener):
     footer = """
           <div>
             <p>
-              (Note:  Please do not reply to this email. If you need assistance, please contact NCIJPSurvlAdmin@mail.nih.gov)
+              (Note:  Please do not reply to this email. If you need assistance, please contact NCIJPSurvWebAdmin@mail.nih.gov)
             </p>
           </div>
 
