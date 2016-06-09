@@ -597,7 +597,7 @@ function updateEstimates(token_id) {
 	var row;
 	$("#estimates-jp > tbody").empty();
 	row = "<tr>";
-	row += "<td>Boyesian Information Criterion (BIC)</td>"+formatCell(jpsurvData.results.bic)+"</tr>";
+	row += "<td>Bayesian Information Criterion (BIC)</td>"+formatCell(jpsurvData.results.bic)+"</tr>";
 	row += "<td>Akaike Information Criterial (AIC)</td>"+formatCell(jpsurvData.results.aic)+"</td></tr>";
 	row += "<td>Log Likelihood</td>"+formatCell(jpsurvData.results.ll)+"</tr>";
 	row += "<td>Converged</td><td>"+(jpsurvData.results.converged.toUpperCase() == "TRUE" ? "Yes" :"No")+"</td></tr>/n";
