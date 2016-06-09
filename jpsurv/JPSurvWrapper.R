@@ -65,6 +65,7 @@ getFittedResultWrapper <- function (filePath, jpsurvDataString) {
   numbetwn=as.integer(jpsurvData$calculate$static$advanced$advBetween)
   numfromstart=as.integer(jpsurvData$calculate$static$advanced$advFirst)
   numtoend=as.integer(jpsurvData$calculate$static$advanced$advLast)
+  projyear=as.integer(jpsurvData$calculate$static$advanced$advLast)
   
   advanced_options=list("numbetwn"=numbetwn,"numfromstart"=numfromstart,"numtoend"=numtoend)
   delLastIntvl=as.logical(jpsurvData$calculate$static$advanced$advDeleteInterval)
@@ -76,7 +77,7 @@ getFittedResultWrapper <- function (filePath, jpsurvDataString) {
   outputFileName =paste(filePath, fileName, sep="/" )
   print (outputFileName)
   ptm <- proc.time()
-  getFittedResult(filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange, allVars, cohortVars, cohortValues, covariateVars, numJP,advanced_options, delLastIntvl, outputFileName,jpsurvDataString)
+  getFittedResult(filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange, allVars, cohortVars, cohortValues, covariateVars, numJP,advanced_options, delLastIntvl, outputFileName,jpsurvDataString,projyear)
   
   
   model=getSelectedModel(filePath,jpsurvDataString)-1
@@ -144,7 +145,7 @@ getTrendsData<-function(filePath,jpsurvDataString)
 }
 
 #Creates the SEER Data and Fitted Result
-getFittedResult <- function (filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange, allVars, cohortVars, cohortValues, covariateVars, numJP, advanced_options,delLastIntvlAdv,outputFileName,jpsurvDataString) {
+getFittedResult <- function (filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange, allVars, cohortVars, cohortValues, covariateVars, numJP, advanced_options,delLastIntvlAdv,outputFileName,jpsurvDataString,projyear) {
   jpsurvData <<- fromJSON(jpsurvDataString)
   print ("creating RDS")
   print (numJP)
@@ -182,7 +183,8 @@ getFittedResult <- function (filePath, seerFilePrefix, yearOfDiagnosisVarName, y
                          model.form = ~NULL,
                          op=advanced_options,
                          delLastIntvl=delLastIntvlAdv,
-                         maxnum.jp=numJP);
+                         maxnum.jp=numJP,
+                         proj.year.num=projyear);
   #save seerdata and fit.result as RData
   cat("***outputFileName")
   cat(outputFileName)
