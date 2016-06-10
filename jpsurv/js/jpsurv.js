@@ -764,8 +764,8 @@ function setCalculateData(type) {
 
 		//Remove spaces and replace with underscore
 		jpsurvData.calculate.static.yearOfDiagnosisVarName = yearOfDiagnosisVarName;
-		jpsurvData.calculate.static.seerFilePrefix = jpsurvData.file.dictionary.substring(0, jpsurvData.file.dictionary.indexOf("."));
-
+		//jpsurvData.calculate.static.seerFilePrefix = jpsurvData.file.dictionary.substring(0, jpsurvData.file.dictionary.indexOf("."));
+		jpsurvData.calculate.static.seerFilePrefix =jpsurvData.file.dictionary.replace(/.\w*$/, "");
 		jpsurvData.calculate.static.allVars = get_cohort_covariance_variable_names();
 		jpsurvData.calculate.static.allVars.push(yearOfDiagnosisVarName);
 		jpsurvData.calculate.form.covariateVars = "";
