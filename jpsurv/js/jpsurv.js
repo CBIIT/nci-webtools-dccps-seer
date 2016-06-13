@@ -893,7 +893,7 @@ function calculate() {
 		jpsurvData.tokenId = renewTokenId(true);
 		incrementImageId();
 
-		if(parseInt($("#max_join_point_select").val())>maxJP) {
+		if(parseInt($("#max_join_point_select").val())>maxJP && validateVariables()) {
 			// SEND TO QUEUE
 			setIntervalsDefault();
 			getIntervals();
@@ -909,7 +909,11 @@ function calculate() {
 			$("#calculating-spinner").modal('hide');
 			okAlert("Your submission has been queued.  You will receive an e-mail when calculation is completed.", "Calculation in Queue");
 
-		} else {
+		} 
+		else if(parseInt($("#max_join_point_select").val())>maxJP && !validateVariables()){
+			console.log("Not Calculating - validateVariables did not pass");
+		}
+		else {
 			stage2("calculate"); // This is the initial calculation and setup.
 		}
 	}
