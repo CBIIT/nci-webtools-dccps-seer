@@ -489,7 +489,7 @@ getJPWrapper<-function(filePath,jpsurvDataString,first_calc)
 # JP=paste(JP_List[[1]],collapse=" ")
 
    JP_List=outputData$fittedResult$FitList[[jpInd+1]]$jp
-   JP=paste(JP_List[[1]],collapse=" ")
+   JP=paste(JP_List,collapse=" ")
 
   return(JP)
 }
