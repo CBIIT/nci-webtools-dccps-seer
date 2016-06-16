@@ -80,7 +80,7 @@ getFittedResultWrapper <- function (filePath, jpsurvDataString) {
   getFittedResult(filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange, allVars, cohortVars, cohortValues, covariateVars, numJP,advanced_options, delLastIntvl, outputFileName,jpsurvDataString,projyear)
   
   
-  model=getSelectedModel(filePath,jpsurvDataString)-1
+  #model=getSelectedModel(filePath,jpsurvDataString)-1
   print("Fitted Result Time:")
   
   print(proc.time() -ptm)
@@ -246,12 +246,7 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_ca
   jpInd=jpsurvData$additional$headerJoinPoints
   if(first_calc==TRUE)
   {
-    jpInd=0
-    if(is.na(getSelectedModel(filePath,jpsurvDataString))==FALSE)
-    {
       jpInd=getSelectedModel(filePath,jpsurvDataString)-1
-    }
-    
   }
   file=paste(filePath, paste("output-", jpsurvData$tokenId,".rds", sep=""), sep="/")
   outputData=readRDS(file)
@@ -321,12 +316,7 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString,first_cal
   print(jpInd)
   if(first_calc==TRUE)
   {
-    jpInd=0
-    if(is.na(getSelectedModel(filePath,jpsurvDataString))==FALSE)
-    {
       jpInd=getSelectedModel(filePath,jpsurvDataString)-1
-    }
-    
   }
   file=paste(filePath, paste("output-", jpsurvData$tokenId,".rds", sep=""), sep="/")
   outputData=readRDS(file)
@@ -370,12 +360,7 @@ getcoefficientsWrapper <- function (filePath,jpsurvDataString,first_calc) {
   jpInd=jpsurvData$additional$headerJoinPoints
   if(first_calc==TRUE)
   {
-    jpInd=0
-    if(is.na(getSelectedModel(filePath,jpsurvDataString))==FALSE)
-    {
       jpInd=getSelectedModel(filePath,jpsurvDataString)-1
-    }
-    
   }
   file=paste(filePath, fileName, sep="/" )
   outputData=readRDS(file)
@@ -425,12 +410,7 @@ getJointtModelWrapper <- function (filePath,jpsurvDataString,first_calc) {
   jpInd=jpsurvData$additional$headerJoinPoints
   if(first_calc==TRUE)
   {
-    jpInd=0
-    if(is.na(getSelectedModel(filePath,jpsurvDataString))==FALSE)
-    {
       jpInd=getSelectedModel(filePath,jpsurvDataString)-1
-    }
-    
   }
   # jpind=jpsurvData$calculate$form$jpInd #<-----new
   file=paste(filePath, fileName, sep="/" )
@@ -478,12 +458,7 @@ getJPWrapper<-function(filePath,jpsurvDataString,first_calc)
   jpInd=jpsurvData$additional$headerJoinPoints
   if(first_calc==TRUE)
   {
-    jpInd=0
-    if(is.na(getSelectedModel(filePath,jpsurvDataString))==FALSE)
-    {
       jpInd=getSelectedModel(filePath,jpsurvDataString)-1
-    }
-    
   }
 #  JP_List=outputData$fittedResult$FitList[[jpInd+1]]$apc[1]
 # JP=paste(JP_List[[1]],collapse=" ")
@@ -499,7 +474,12 @@ getSelectedModel<-function(filePath,jpsurvDataString)
   jpsurvData=fromJSON(jpsurvDataString)
   file=paste(filePath, paste("output-", jpsurvData$tokenId,".rds", sep=""), sep="/")
   outputData=readRDS(file)
-  selected=outputData$fittedResult$X1names[[1]]
-  point=as.integer(strsplit(selected, "_")[[1]][2])+1
-  return(point)
+  jpInd=jpsurvData$additional$headerJoinPoints
+
+#  selected=outputData$fittedResult$X1names[[1]]
+#  point=as.integer(strsplit(selected, "_")[[1]][2])+1
+  model=length(outputData$fittedResult$jp)+1
+  print ("SELECTED MODEL")
+  print (model)
+  return(model)
 }
