@@ -65,7 +65,7 @@ getFittedResultWrapper <- function (filePath, jpsurvDataString) {
   numbetwn=as.integer(jpsurvData$calculate$static$advanced$advBetween)
   numfromstart=as.integer(jpsurvData$calculate$static$advanced$advFirst)
   numtoend=as.integer(jpsurvData$calculate$static$advanced$advLast)
-  projyear=as.integer(jpsurvData$calculate$static$advanced$advLast)
+  projyear=as.integer(jpsurvData$calculate$static$advanced$advYear)
   
   advanced_options=list("numbetwn"=numbetwn,"numfromstart"=numfromstart,"numtoend"=numtoend)
   delLastIntvl=as.logical(jpsurvData$calculate$static$advanced$advDeleteInterval)
