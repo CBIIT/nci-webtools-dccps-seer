@@ -5,6 +5,8 @@ var restServerUrl = restService.protocol + "://" + restService.hostname + "/"+ r
 
 var control_data;
 var cohort_covariance_variables;
+var advfields = ['adv-between','adv-first','adv-last','adv-year'];
+
 var jpsurvData = {"file":{"dictionary":"Breast.dic","data":"something.txt", "form":"form-983832.json"}, "calculate":{"form": {"yearOfDiagnosisRange":[]}, "static":{}}, "plot":{"form": {}, "static":{"imageId":-1} }, "additional":{"headerJoinPoints":0,"yearOfDiagnosis":null,"intervals":[1,4]}, "tokenId":"unknown", "status":"unknown", "stage2completed":0};
 
 var DEBUG = false;
@@ -28,7 +30,26 @@ $(document).ready(function() {
 		$("#year_of_diagnosis_start").val("1975");
 		$("#year_of_diagnosis_end").val("1985");
 	}
+
+	advfields.forEach(function(id) {
+		$('#' + id).keyup(function() {
+			checkInput(id);
+		})
+	})
+
 });
+
+function checkInput(id) {
+	var element = $('#' + id);
+	var min=element.attr('min');
+	console.log(min)
+
+	if(element.val()<min){	
+			element.val(min);
+	}
+
+}
+
 
 function checkEmail(email) {
 	var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
