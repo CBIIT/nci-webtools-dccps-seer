@@ -174,31 +174,30 @@
                           <div class="radio-inline">
                             <label for="del-int-no"><input type="radio" id="del-int-no" value="No" name="adv-delete-interval"checked>No</label>
                           </div>
-                        </form>
                       </div>
                   
                   </div>
                   <!-- Skipped Observations between (adv-between)-->
                   <div class="row form-inline">
-                    <label for="adv-between" class="pull-left">Number of Skipped Observations Between Joinpoints Exclusive:</label>
-                    <input id="adv-between" type="number" class="form-control pull-right sm-input" value="2" min="2"/>
+                    <label for="adv-between" class="pull-left">Minimum Number of Years between Joinpoints (Excluding Joinpoints):  </label>
+                    <input id="adv-between" type="number" class="form-control pull-right sm-input" value="2" min="2" required/>
                   </div>
 
                   <!-- Skipped Obervations from First (adv-first) -->
                   <div class="row form-inline">
-                    <label for="adv-first" class="pull-left">Number of Skipped Observations From First to Joinpoints Exclusive:</label>
-                    <input id="adv-first" type="number" class="form-control pull-right sm-input" value="3" min="2"/>
+                    <label for="adv-first" class="pull-left">Minimum Number of Years before First Joinpoint (Excluding Joinpoint):  </label>
+                    <input id="adv-first" type="number" class="form-control pull-right sm-input" value="3" min="2" required/>
                   </div>
 
                   <!-- Skipped Obervations to Last (adv-last) -->
                   <div class="row form-inline">
-                    <label for="adv-last" class="pull-left">Number of Skipped Observations From Joinpoints to Last Exclusive:</label>
+                    <label for="adv-last" class="pull-left">Minimum Number of Years after Last Joinpoint (Excluding Joinpoint):  </label>
                     <input id="adv-last" type="number" class="form-control pull-right sm-input" value="5" min="2"/>
                   </div>
                   <!-- Number of Calendar Year of Project (adv-year) -->
                   <div class="row form-inline">
-                    <label for="adv-year" class="pull-left">Number of Calender Year of Projection:</label>
-                    <input id="adv-year" type="number" class="form-control pull-right sm-input" value="5" min="0"/>
+                    <label for="adv-year" class="pull-left">Number of Calendar Years of Projected Survival:</label>
+                    <input id="adv-year" type="number" class="form-control pull-right sm-input" value="5" min="0" required/>
                   </div>
                   <div class="row">
                     <div class="pull-right advanced" onclick="Slide_menu_Vert('stage2b-advanced','both')">Hide</div> 
@@ -208,6 +207,7 @@
               </div>
               <input type='button' tabindex="1" id='calculate' value='Calculate' class="btn btn-primary btn-sm pull-right">
               <input type='button' tabindex="2" onclick="window.location.href='/jpsurv'" value="Reset" class="btn btn-warning btn-sm pull-right" title="Reset all values" style="margin-right:10px;">
+              
               <div style="clear:both;"></div>
             </div>
           </div>
@@ -444,7 +444,7 @@
             <!-- Trends Tab -->
             <div id="trends-tab" class="tab-pane fade">
               <h2>Trend Measures</h2>
-              <h3>Survival Average Annual Percentage Change</h3>
+              <h3>Average Annual Relative Change in Survival</h3>
               <div class="table-responsive">  
                 <table id="trend-apc" class="table table-striped table-bordered table-condensed">
                   <thead>
@@ -460,7 +460,7 @@
                 </table>
               </div>
 
-              <h3>Survival Average Annual Absolute Change</h3>
+              <h3>Annual Relative Change in Hazard</h3>
               <div class="table-responsive">  
                 <table id="trend-aac" class="table table-striped table-bordered table-condensed">
                   <thead>
