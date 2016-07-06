@@ -42,9 +42,8 @@ $(document).ready(function() {
 function checkInput(id) {
 	var element = $('#' + id);
 	var min=element.attr('min');
-	console.log(min)
 
-	if(element.val()<min){	
+	if(parseInt(element.val())<parseInt(min)){	
 			element.val(min);
 	}
 
