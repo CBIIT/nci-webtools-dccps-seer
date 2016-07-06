@@ -13,11 +13,9 @@
   <a name="top" id="top"></a>
 
   <center>
-    <a href="#Read">[ Reading the data ]</a>&nbsp; <a href=
-    "#Specify">[ Specifying the run ]</a>&nbsp; <a href=
-    "#Outputs">[ Outputs ]</a>&nbsp; <a href="#Join">[ Join point
-    survival model ]</a>&nbsp; <a href="#Trend">[ Trend survival
-    measures ]</a>
+    <a href="#Input">[ Input Data File ]</a>&nbsp; <a href=
+    "#Model">[ Data and Model Specifications ]</a>&nbsp; <a href=
+    "#Outputs">[ Output ]</a>&nbsp;
   </center>
 
   <table width="80%" align="center" border="0">
@@ -28,7 +26,7 @@
         </center>
 
         <center>
-          <h3>Join Point Model for Relative Survival</h3>
+          <h3>Joinpoint Model for Survival (Relative and Cause-Specific)</h3>
         </center>
       </td>
     </tr>
@@ -45,121 +43,65 @@
 
     <tr>
       <td>
-        <p>The JPSurv software has been developed to analyze trends
-        in survival with respect to year at diagnosis. Survival
-        data includes two temporal dimensions that are important to
-        account for: the calendar year at diagnosis and the time
-        since diagnosis. The JPSurv fits a <b>Joinpoint
-        survival</b> model to the hazard of cancer death by year at
-        diagnosis and assumes a common baseline hazard by time
-        since diagnosis. In other words, the probabilities of dying
-        at different time interval, e.g., 1 to 2 years, 2 to 3
-        years, and 4 to 5 years since diagnosis are proportional
-        and share the same join points. The software uses
-        discrete-time survival data, i.e. survival data grouped by
-        years since diagnosis in the life table format. The
-        software accommodates both relative survival and
-        cause-specific survival. (Need to check this).</p>
+        <p>The JPSurv software has been developed to analyze trends in survival with respect to year of diagnosis. Survival data includes two temporal dimensions that are important to consider:  the calendar year of diagnosis and the time since diagnosis. The JPSurv software fits a joinpoint survival model allowing the hazard of cancer death to include joinpoints in the trend for year of diagnosis and assuming a proportional hazards model and a common baseline hazard with respect to time since diagnosis. The software uses discrete-time survival data, i.e. survival data grouped by years since diagnosis in the life table format. The software accommodates both relative survival and cause-specific survival. </p>
 
-        <p>The JPSurv tool is useful to estimate when and how much
-        survival changed over time and to predict survival into the
-        future for simulation studies and scenario analyses.</p>
+
       </td>
     </tr>
 
     <tr>
       <td>
-        There are two versions of the JPSurv software available:
-        this web tool and an R package. Visit the following
-        sections to learn more about the APC web tool:
+        This Beta version of the JPSurv software can only run one joinpoint survival model at a time. Multiple runs will be implemented in the next version. The next sections will describe the input data file, the JPSurv control options for data and model specification, and the JPSurv output produced. 
+      </td>
+    </tr>
+    
+    <tr>
+      <td>
+        <a name="Input" id="Input"></a>
+
+        <h3><b>Input  Data File</b><a href="#top"><font size=
+        "2">&nbsp;[Top]</font></a></h3>
+
 
         <ul>
-          <li>Reading the data - Learn about the input data and how
-          to enter the data.</li>
+          <p>JPSurv reads grouped relative survival or cause-specific survival data generated from SEER*Stat.</p>
 
-          <li>Specifying the run- learn about the control options
-          and how to specify your run.</li>
-
-          <li>Outputs - Find out what outputs are produced.</li>
-
-          <li>Example - Enter any of these sample datasets to see
-          the tool in action.</li>
-
-          <li>Saving your results - Find out how to save raw output
-          as an Excel Workbook, R Workspace, or text file.</li>
-
-          <li>FAQ - Find out answers to some common questions about
-          the JPSurv tool.</li>
+          <p>The data requires at a minimum the following variables: calendar year of diagnosis, survival time interval, number at risk at beginning of interval, number of deaths, and number of cases lost to follow-up, and interval expected survival in the case of relative survival. The data may also include other covariates of interest such as cancer site, sex, stage, etc. </p>
+          Tips for creating the survival data in SEER*Stat.
+          <ul>
+              <li>Year at diagnosis needs to be included as a covariate.</li>
+              <li>Make sure the Display/Standard Life option in the Parameters Tab is checked. JPSurv does not read the Summary Table format.</li>
+              <li>In order to reflect trends in calendar years, 12 months per interval needs to be specified.</li>
+              <li>Export Data.</li>
+          </ul>
         </ul>
+
+
+
       </td>
     </tr>
 
     <tr>
       <td>
-        <a name="Read" id="Read"></a>
+        <a name="Model" id="Model"></a>
 
-        <h3><b>Reading the data</b><a href="#top"><font size=
+        <h3>Data and Model Specifications<a href="#top"><font size=
         "2">&nbsp;[Top]</font></a></h3>
-
-        <p>The JPSurv requires grouped survival data. The data
-        requires at a minimum the following variables: calendar
-        year at diagnosis, survival time interval, number at risk
-        at beginning of interval, number of deaths, number of cases
-        lost to follow-up, and interval expected survival in the
-        case of relative survival. The data may also include other
-        covariates of interest such as cancer site, sex, stage
-        etc...</p>
-
-        <p><b>To input data from a SEER*Stat dictionary
-        file:</b></p>
-
-        <ol>
-          <li>Create a cause-specific survival or relative survival
-          matrix from SEER*Stat. <b><u>Make sure the Standard Life
-          in the Parameters Tab is checked</u></b> (JPsurv does not
-          read the Summary Table format). In order to reflect
-          survival in years since diagnosis, 12 months per interval
-          needs to be specified. After generating the survival
-          matrix, use the Export as text file option in the
-          <b>Matrix</b> main menu option in SEER*Stat.</li>
-
-          <li>In JPsurv go to the Import SEER*Stat matrix
-          select......</li>
-        </ol>
-      </td>
-    </tr>
-
-    <tr>
-      <td>
-        <p><b>To input data from csv file: "under
-        construction"-</b> Dani and Dennis in version 2 of the
-        package we would like to have this implemented. Could you
-        provide an estimate of how long this would take? I have
-        already received requests from users that don't have data
-        in SEER*STAT.</p>
-      </td>
-    </tr>
-
-    <tr>
-      <td>
-        <a name="Specify" id="Specify"></a>
-
-        <h3>Specifying the run<a href="#top"><font size=
-        "2">&nbsp;[Top]</font></a></h3>
-
-        <p>JPsurv uses a xxx algorithm to find the year/s at which
-        significant changes in the hazard of death occurred
-        (joinpoint years) and the number of Joinpoints. The user
-        needs to specify the maximum number of joinpoints allowed
-        (3 or more Joinpoints may take more than 5 minutes to
-        run).</p>
-
         <ul>
-          <li>Select calendar year (independent variable)</li>
+          <li><b>Year of Diagnosis Range:</b>  Specify the number of years that is going to be used to fit the JPSurv model. For example, the data may include diagnosis years from 1975 through 2011, but the user is interested in trends in the last 10 years, e.g. 2002-2011.</li></br>
 
-          <li>Variables (cohort vs by variables)</li>
+          <li><b>Cohort Selection:</b>  The current version of JPSurv runs one model at a time, thus the user can only specify 1 value for each of the input variables, e.g. cancer site, sex, stage, etc. A future version will allow users to select multiple variables and fit multiple models.</li></br>
 
-          <li>Maximum number of joinpoints</li>
+          <li><b>Maximum Number of Joinpoints:</b>  The user can specify the maximum number of joinpoints to be tested. Depending on the number of calendar years and joinpoints the calculation may be slow. Thus for 3 or more joinpoints the calculations are done in a server and an email is sent with a link for the user to retrieve results.</li></br>
+          <li><b>Advanced Options:</b></li>
+          <ul>
+            <li><b>Delete Last Interval:</b>  Last interval can be deleted in case there is data instability in the last follow-up interval.</li>
+            <li><b>Minimum Number of Years between Joinpoints (Excluding Joinpoints):</b>  If x is selected joinpoints will be at least x years apart. Default value is 2.</li>
+            <li><b>Minimum Number of Years before First Joinpoint (Excluding Joinpoint):</b>  If x is selected the first joinpoint can be located at the (x+1)th or later calendar year. Default value is 3.</li>
+            <li><b>Minimum Number of Years after Last Joinpoint (Excluding Joinpoint):</b>  If x is selected the last joinpoint can be located at the (x+1)th or more calendar years prior to last calendar year. Default value is 5.</li>
+            <li><b>Number of Calendar Years of Projected Survival:</b>  Specifies the calculation of projected survival up to x years from the last calendar year. Default value is 5.</li>
+          </ul>
+
         </ul>
       </td>
     </tr>
@@ -168,174 +110,27 @@
       <td>
         <a name="Outputs" id="Outputs"></a>
 
-        <h3>Outputs<a href="#top"><font size=
+        <h3>Output<a href="#top"><font size=
         "2">&nbsp;[Top]</font></a></h3>
-
-        <p>JPsurv outputs the number and location of join points,
-        diagnostics of the model fit for each number of joints
-        tested and summary measures of the trends in the hazard
-        and/or cumulative survival for each segment between join
-        points. The trend measures are summarized in the Trend
-        Measures Table below. For the exact formulas refer to the
-        paper.</p>
-
-        <p>Trend Measure Table</p>
-
-        <table width="100%" align="center" border="1">
-          <tr>
-            <th width="20%">Trends</th>
-
-            <th width="15%">Scale</th>
-
-            <th width="20%">Measure Name</th>
-
-            <th width="10%">Symbol</th>
-
-            <th width="35%">Example<sup>*</sup></th>
-          </tr>
-
-          <tr>
-            <td>Average Annual <b>Percent</b> Change(A_APC)</td>
-
-            <td>Cumulative Survival</td>
-
-            <td><u><b>C</b></u>umulative <u><b>S</b></u>urvival
-            <u><b>A</b></u>verage <u><b>A</b></u>nnual
-            <u><b>P</b></u>ercentage <u><b>C</b></u>hange</td>
-
-            <td>CS_A_APC</td>
-
-            <td>~{100*[CS(y+1)-CS(y)]/CS}</td>
-          </tr>
-
-          <tr>
-            <td>Average Annual <b>Absolute</b> Change(A_AAC)</td>
-
-            <td>Cumulative Survival</td>
-
-            <td><u><b>C</b></u>umulative <u><b>S</b></u>urvival
-            <u><b>A</b></u>verage
-            <u><b>A</b></u>nnual-<u><b>A</b></u>bsolute
-            <u><b>C</b></u>hange</td>
-
-            <td>CS_A_AAC</td>
-
-            <td>~[CS(y+1)-CS(y)]</td>
-          </tr>
-
-          <tr>
-            <td>Annual <b>Percent</b> Change(APC)</td>
-
-            <td>Hazard of Death (cancer)</td>
-
-            <td><u><b>Haz</b></u>ard of Cancer Death
-            <u><b>A</b></u>nnual <u><b>P</b></u>ercent
-            <u><b>C</b></u>hange</td>
-
-            <td>HAZ_APC</td>
-
-            <td>~{100*[haz(y+1)-haz(y)]/haz(y)}</td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-
-    <tr>
-      <td>
-        <h3>Outputs</h3>
-
-        <p>The material below will go in a paper</p><a name="Join"
-        id="Join"></a>
-
-        <h3>Join point survival model<a href="#top"><font size=
-        "2">&nbsp;[Top]</font></a></h3>
-
-        <p>Let <i>T</i> denote survival time, i.e., the time from
-        diagnosis to event (death or censoring), <i>X</i> denote
-        the calendar year of diagnosis, and <i>Z</i> denote a
-        vector of covariates such as sex, race, etc. Under the
-        proportional hazards assumption, the hazard function at
-        years after cancer diagnosis for a person who is diagnosed
-        with cancer at calendar year is given by</p>
-
-        <center>
-          <img src="images/formular1.jpg" style=
-          "width:220px;height:28px;">
-        </center>where is the baseline hazard and
-
-        <center>
-          <img src="images/formular2.jpg" style=
-          "width:250px;height:50px;">
-        </center>represents the trend of survival with respect to
-        calendar time, where <i>&tau; =
-        (&tau;<sub>1</sub>,...,&tau;<sub>&Kappa;</sub>)</i> are the
-        joinpoints, i.e. calendar times at which changes in
-        survival occurred, <i>&beta;</i> and <i>&delta; =
-        (&delta;<sub>1</sub>,...,&delta;<sub>K</sub>)</i> slope
-        parameters, and <i>&gamma; =
-        (&gamma;<sub>1</sub>,...,&gamma;<sub>2</sub>)</i> are the
-        parameters for the covariates. The survival model as
-        specified above is called a <i>&Kappa;</i>-joinpoint
-        survival models (Zelterman et al., 1994; Luo et al., 1997).
-        There are a total of K + 1 segments with slope coefficient
-        <i>&beta;<sub>1</sub> = &beta;</i> and <img src=
-        "images/formular3.jpg" style="width:100px;height:30px;">,
-        <i>k</i> = 2,..., <i>K</i> + 1. For simplicity, we omit the
-        covariate z hereafter. <a name="Trend" id="Trend"></a>
-
-        <h3>Trend survival measures<a href="#top"><font size=
-        "2">&nbsp;[Top]</font></a></h3>
-
-        <p>There are 5 types of trends survival measures: two
-        measures of trends at the hazard of death scale and 3
-        measures on the cumulative survival scale. For in the kth
-        segment we can define:</p>
-
-        <ol>
-          <li>
-            <b><i>Annual percentage change of hazard of
-            death</i></b>
-
-            <center>
-              <img src="images/formular4.jpg" style=
-              "width:200px;height:50px;">
-            </center>and 100[exp(<i>&Beta;<sub>k</sub></i>) - 1]%
-            represents the percentage of change in the annual
-            hazard of death in the kth segment.
-          </li>
-
-          <li style="list-style: none"><br></li>
-
-          <li>
-            <b><i>Average Annual percentage changes of cumulative
-            relative survival</i></b>
-
-            <center>
-              <img src="images/formular5.jpg" style=
-              "width:370px;height:65px;">
-            </center>since this measures depends on calendar year
-            <i>x</i> within segment <i>k</i>, we take the average
-            for all the years within segment k to summarize the
-            trend. This measure represents the average percentage
-            of change in cumulative survival in the kth segment.
-          </li>
-
-          <li style="list-style: none"><br></li>
-
-          <li>
-            <b><i>Average Annual Absolute changes of cumulative
-            relative survival</i></b>
-
-            <center>
-              <img src="images/formular6.jpg" style=
-              "width:440px;height:85px;">
-            </center>since this measures depends on calendar year
-            within segment , we take the average for all the years
-            within segment k to summarize the trend. This measure
-            represents the average <u><b>absolute</b></u> of change
-            in cumulative survival in the kth segment.
-          </li>
-        </ol>
+        <ul>
+          <p><b>Model Selection:</b>  Criteria for assessing goodness of fit for each joinpoint model considered. JPSurv uses the  minimum Bayesian Information Crierion (BIC) to select a K-Joinpoint model where K is between 0 and the maximum number of joinpoints. The Akaike Information crierion (AIC) is also provided and tends to pick models with a higher number of joinpoints.</p>
+          <p><b>Survival Graph/Data:</b>Displays, for each Joinpoint model fit, the predicted and observed cumulative survival by the following.</p>
+          <ol>
+            <li><b>Year of Diagnosis:</b>  The user can select 1 or more values of interval time since diagnosis, e.g. 5-year or 10-year cumulative survival. The default is 5-year cumulative survival.
+            </li>
+            <li>
+              <b>Interval Time since Diagnosis:</b>  The user can select one calendar year, e.g. 2000, and show modeled vs. observed survival by years since diagnosis. 
+            </li>
+          </ol>
+            <p><b>Model Estimates:</b>  Displays the number and location of joinpoints, the parameter estimates, and standard errors. </p>
+            <p><b>Trend:</b>  Displays 3 summary measures of the trend for each segment between joinpoints: </p>
+            <ol>
+              <li>Average Annual Relative Change in Survival: Change in survival from a given year at diagnosis to the next year <b>relative</b> to the given year.</li>
+              <li>Average Annual Absolute Change in Survival: Absolute change in survival is the difference between survival in the next year minus survival in the given year</li>
+              <li>Annual Relative Change in Hazard: Change in the hazard of cancer death from a given year at diagnosis to the next year <b>relative</b> to the given year.</li>
+            </ol>
+            <p>In a segment between 2 joinpoints, trend measures 1 and 2 depend on calendar year and the average over calendar years is reported. They also depend on the time since diagnosis and the user can select it. Measure 3 is independent of both calendar year and time since diagnosis.</p>
+        </ul>
       </td>
     </tr>
   </table>
