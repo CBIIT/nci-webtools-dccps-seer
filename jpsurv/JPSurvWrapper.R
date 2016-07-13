@@ -334,21 +334,26 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString,first_cal
   dev.off()
   results =c("RelSurIntData"=survData,"RelSurIntGraph"=graphFile) #returns 
   cohorts=jpsurvData$calculate$form$cohortVars
+ # 
+ if(!is.integer(nrow(survData))){
   survData=survData[[1]]
- for (i in length(cohorts):1)
-  {
-    value=gsub("\"",'',jpsurvData$calculate$form$cohortValues[[i]])
-    value=noquote(value)
-    survData[cohorts[[i]]] <- value
-    
-    #col_idx <- grep(cohorts[[i]], names(survData))
-    col_idx=ncol(survData)
-    survData <- survData[, c(col_idx, (1:ncol(survData))[-col_idx])]
-    names(survData)
-  }  
+   for (i in length(cohorts):1)
+    {
+      value=gsub("\"",'',jpsurvData$calculate$form$cohortValues[[i]])
+      value=noquote(value)
+      survData[cohorts[[i]]] <- value
+      
+      #col_idx <- grep(cohorts[[i]], names(survData))
+      col_idx=ncol(survData)
+      survData <- survData[, c(col_idx, (1:ncol(survData))[-col_idx])]
+      names(survData)
+    } 
+  }
+  else{
+    survData<-rbind("","","","")
+  } 
   print(survData)
-  write.csv(survData, downloadFile, row.names=FALSE)
-  
+  write.csv(survData, downloadFile, row.names=FALSE)  
   return (results)
 }
 
