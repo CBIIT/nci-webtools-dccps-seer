@@ -579,37 +579,40 @@ function updateGraphs(token_id) {
 	//
 	//Add the Time Table
 	//
-	yod = jpsurvData.results.RelSurIntData[yodVarName];
-	header = [];
-	$.each(jpsurvData.calculate.form.cohortVars, function(index, value) {
-		header.push(value);
-	});
-	//console.dir(jpsurvData);
-	//console.log("graph-time-table: RelSurIntData");
-	//console.dir(jpsurvData.results.RelSurIntData);
-	var timeHeader = ["Year of Diagnosis", "Interval", "Cumulative Relative Survival", "Predicted Cumulative Relative Survival"];
-	header.push.apply(header, timeHeader);
-	//Create the header
-	$("#graph-time-table > thead").empty();
-	row = "<tr>";
-	$.each(header, function( index, value ) {
-		row += "<th>"+value.replace(/_/g, " ")+"</th>";
-	});
-	row += "</tr>/n";
-	$("#graph-time-table > thead").append(row);
-
-	$("#graph-time-table > tbody").empty();
-	$.each(yod, function( index, value ) {
-		row = "<tr>";
-		$.each(jpsurvData.calculate.form.cohortValues, function(index2, value2) {
-			row += "<td>"+value2.replace(/"/g, "")+"</td>";
+	if(jpsurvData.results.RelSurIntData!=undefined){
+		yod = jpsurvData.results.RelSurIntData[yodVarName];
+		header = [];
+		$.each(jpsurvData.calculate.form.cohortVars, function(index, value) {
+			header.push(value);
 		});
-		row += "<td>"+value+"</td>";
-		row += formatCell(jpsurvData.results.RelSurIntData.Interval[index]);
-		row += formatCell(jpsurvData.results.RelSurIntData[jpsurvData.additional.DataTypeVariable][index]);
-		row += formatCell(jpsurvData.results.RelSurIntData.pred_cum[index])+"</tr>/n";
-		$("#graph-time-table > tbody").append(row);
-	});
+		//console.dir(jpsurvData);
+		//console.log("graph-time-table: RelSurIntData");
+		//console.dir(jpsurvData.results.RelSurIntData);
+		var timeHeader = ["Year of Diagnosis", "Interval", "Cumulative Relative Survival", "Predicted Cumulative Relative Survival"];
+		header.push.apply(header, timeHeader);
+		//Create the header
+		$("#graph-time-table > thead").empty();
+		row = "<tr>";
+		$.each(header, function( index, value ) {
+			row += "<th>"+value.replace(/_/g, " ")+"</th>";
+		});
+		row += "</tr>/n";
+		$("#graph-time-table > thead").append(row);
+
+		$("#graph-time-table > tbody").empty();
+		$.each(yod, function( index, value ) {
+			row = "<tr>";
+			$.each(jpsurvData.calculate.form.cohortValues, function(index2, value2) {
+				row += "<td>"+value2.replace(/"/g, "")+"</td>";
+			});
+			row += "<td>"+value+"</td>";
+			row += formatCell(jpsurvData.results.RelSurIntData.Interval[index]);
+			row += formatCell(jpsurvData.results.RelSurIntData[jpsurvData.additional.DataTypeVariable][index]);
+			row += formatCell(jpsurvData.results.RelSurIntData.pred_cum[index])+"</tr>/n";
+			$("#graph-time-table > tbody").append(row);
+		
+		});
+	}
 }
 
 function updateEstimates(token_id) {
@@ -1947,18 +1950,19 @@ function getRestServerStatus() {
 }
 
 function certifyResults() {
-	$.each(jpsurvData.results.RelSurIntData, function(index, value) {
-		//console.log(index+" : "+value);
-		//console.log(index.substring(0,1));
-		if(index.substring(0,1) == "X" ) {
-			console.log("jpsurvData.results.RelSurIntData look corrupt:");
-			console.dir(jpsurvData.results.RelSurIntData);
-			$("#right_panel").hide();
-			okAlert("RelSurIntData is corrupt:<br><br>"+JSON.stringify(jpsurvData.results.RelSurIntData), "Corrupt Data");
-			return false;
-		}
-	});
-
+	if(jpsurvData.results.RelSurIntData!=undefined){
+		$.each(jpsurvData.results.RelSurIntData, function(index, value) {
+			//console.log(index+" : "+value);
+			//console.log(index.substring(0,1));
+			if(index.substring(0,1) == "X" ) {
+				console.log("jpsurvData.results.RelSurIntData look corrupt:");
+				console.dir(jpsurvData.results.RelSurIntData);
+				$("#right_panel").hide();
+				okAlert("RelSurIntData is corrupt:<br><br>"+JSON.stringify(jpsurvData.results.RelSurIntData), "Corrupt Data");
+				return false;
+			}
+		});
+	}
 	return true;
 }
 
