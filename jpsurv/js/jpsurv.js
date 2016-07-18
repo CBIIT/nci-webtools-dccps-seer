@@ -613,6 +613,13 @@ function updateGraphs(token_id) {
 		
 		});
 	}
+	else{
+		//row = "<tr>";
+		//row += "<td>"+"-"+"</td>"+"-"+"</td>"+"-"+"</td>"+"-"+"</td>"+"</tr>/n";
+		//$("#graph-time-table > tbody").append(row);
+			$("#graph-time-table > tbody").empty();
+
+	}
 }
 
 function updateEstimates(token_id) {
