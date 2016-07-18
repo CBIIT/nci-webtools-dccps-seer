@@ -97,8 +97,8 @@
           <ul>
             <li><b>Delete Last Interval:</b>  Last interval can be deleted in case there is data instability in the last follow-up interval.</li>
             <li><b>Minimum Number of Years between Joinpoints (Excluding Joinpoints):</b>  If x is selected joinpoints will be at least x years apart. Default value is 2.</li>
-            <li><b>Minimum Number of Years before First Joinpoint (Excluding Joinpoint):</b>  If x is selected the first joinpoint can be located at the (x+1)th or later calendar year. Default value is 3.</li>
-            <li><b>Minimum Number of Years after Last Joinpoint (Excluding Joinpoint):</b>  If x is selected the last joinpoint can be located at the (x+1)th or more calendar years prior to last calendar year. Default value is 5.</li>
+            <li><b>Minimum Number of Years before First Joinpoint (Excluding Joinpoint):</b>  If x is selected the first joinpoint can be located at the (x+1)<sup>th</sup> or later calendar year. Default value is 3.</li>
+            <li><b>Minimum Number of Years after Last Joinpoint (Excluding Joinpoint):</b>  If x is selected the last joinpoint can be located at the (x+1)<sup>th</sup> or more calendar years prior to last calendar year. Default value is 5.</li>
             <li><b>Number of Calendar Years of Projected Survival:</b>  Specifies the calculation of projected survival up to x years from the last calendar year. Default value is 5.</li>
           </ul>
 
@@ -113,7 +113,7 @@
         <h3>Output<a href="#top"><font size=
         "2">&nbsp;[Top]</font></a></h3>
         <ul>
-          <p><b>Model Selection:</b>  Criteria for assessing goodness of fit for each joinpoint model considered. JPSurv uses the  minimum Bayesian Information Crierion (BIC) to select a K-Joinpoint model where K is between 0 and the maximum number of joinpoints. The Akaike Information crierion (AIC) is also provided and tends to pick models with a higher number of joinpoints.</p>
+          <p><b>Model Selection:</b>  Criteria for assessing goodness of fit for each joinpoint model considered. JPSurv uses the minimum Bayesian Information Criterion (BIC) to select a K-joinpoint model where K is between 0 and the maximum number of joinpoints. The Akaike Information Criterion (AIC) is also provided and tends to pick models with a higher number of joinpoints.</p>
           <p><b>Survival Graph/Data:</b>Displays, for each Joinpoint model fit, the predicted and observed cumulative survival by the following.</p>
           <ol>
             <li><b>Year of Diagnosis:</b>  The user can select 1 or more values of interval time since diagnosis, e.g. 5-year or 10-year cumulative survival. The default is 5-year cumulative survival.
@@ -125,11 +125,11 @@
             <p><b>Model Estimates:</b>  Displays the number and location of joinpoints, the parameter estimates, and standard errors. </p>
             <p><b>Trend:</b>  Displays 3 summary measures of the trend for each segment between joinpoints: </p>
             <ol>
-              <li>Average Annual Relative Change in Survival: Change in survival from a given year at diagnosis to the next year <b>relative</b> to the given year.</li>
-              <li>Average Annual Absolute Change in Survival: Absolute change in survival is the difference between survival in the next year minus survival in the given year</li>
-              <li>Annual Relative Change in Hazard: Change in the hazard of cancer death from a given year at diagnosis to the next year <b>relative</b> to the given year.</li>
+              <li>Absolute Change in Survival: The difference between survival in the next year minus survival in the given year</li>
+              <li>Relative Change in Survival: Change in survival from a given year at diagnosis to the next year <b>relative</b> to the given year.</li>
+              <li>Relative Change in Hazard: Change in the hazard of cancer death from a given year at diagnosis to the next year <b>relative</b> to the given year.</li>
             </ol>
-            <p>In a segment between 2 joinpoints, trend measures 1 and 2 depend on calendar year and the average over calendar years is reported. They also depend on the time since diagnosis and the user can select it. Measure 3 is independent of both calendar year and time since diagnosis.</p>
+            <p>In a segment between 2 joinpoints, trend measures 1 and 2 depend on calendar year, and the average over calendar years is reported. Both of these trend measures also depend on the time since diagnosis as selected by the user. Measure 3 is independent of both calendar year and time since diagnosis.</p>
         </ul>
       </td>
     </tr>
