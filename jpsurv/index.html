@@ -38,41 +38,41 @@
           title="National Cancer Institute: Division of Cancer Control and Population Sciences">
         </a>
         <hr>
-        <div id="banner">
-          <a href="http://seer.cancer.gov" target="SEER">
-          <img src="seer_logo.png"
-            alt="Surveillance, Epidemiology, and End Results Program Logo"
-            title="Surveillance, Epidemiology, and End Results Program Logo">
-          <span id="title">Surveillance, Epidemiology, and End Results Program</span>
-          <span class="jpsurv-title"><img src="./images/1_a_red.jpg"</img></span>
-
-          <br>
-          <span id="subtitle">Turning Cancer Data Into Discovery</span>
-          </a>
+  <div id="header" role="banner">
+        <div id="ribbon" class="clearfix">
+          <div class="wrapper">
+              <h1><a href="/" title="Return to SRP Home">Surveillance Research Program</a></h1>
+            </div>
         </div>
+    </div>
       </div>
     </div>
     <!-- CONTENTS Section -->
     <div class="container">
+
       <div class="row">
+
         <!-- Upload FORM - STAGE 1 -->
         <div id="slideoutTab">
+
           <i id ="icon" class="fa fa-caret-left fa-2x" onclick="Slide_menu_Horz()" style="margin-left:31%;visibility:hidden;"></i>
         </div>
         <div class="col-md-4" id="slideoutForm">
+          <span class="jpsurv-title col-md-6" ><img src="./images/1_a_red.jpg" style="height:60%;width:60%"></img></span>
+          <h2 class=" col-md-6">
+          <span class="pull-right">
+                        <i class="cursor-pointer glyphicon glyphicon-info-sign glyphicon-blue" aria-label="Help" onclick="openHelpWindow('help.html')"></i>
+                      <a href="#">
+                        <span style="font-size:small;"  onclick="openHelpWindow('help.html');">Help</span>
+                      </a>
+         </span>
+       </h2>
           <div id="slideout">
             <div class="well">
               <!-- Upload FORM - STAGE 1 -->
               <div class="box col-md-12" style="overflow:hidden">
                 <form id="upload-form" class="form-horizontal" role="form" method="post" enctype="multipart/form-data" action="/jpsurvRest/stage1_upload">
-                  <h2 class="stage-header">Input Data
-                    <span class="pull-right">
-                        <i class="cursor-pointer glyphicon glyphicon-info-sign glyphicon-blue" aria-label="Help" onclick="openHelpWindow('help.html')"></i>
-                      <a href="#">
-                        <span style="font-size:small;"  onclick="openHelpWindow('help.html');">Help</span>
-                      </a>
-                    </span>
-                  </h2>
+                  
                   <hr class="stage-separator">
                   <div id="file_control_container" class= "form-group"> <label for='file_control'>Data Dictionary File:</label> 
                     <a style='font-size:small' href='SEER9_Survival_6CancerSitesByStage_1975_2007.dic' download='SEER9_Survival_6CancerSitesByStage_1975_2007.dic'>(example dictionary)</a> 
