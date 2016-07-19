@@ -1,5 +1,5 @@
 table {
-	border-collapse:collapse;
+  border-collapse:collapse;
 }
 .stage {
   font-weight:bold;
@@ -8,59 +8,59 @@ table {
   font-family:Helvetica;
 }
 .upload-pane{
-	width: 250px;
-	height:auto;
+  width: 250px;
+  height:auto;
 }
 
 .parameters-pane{
-	width: 250px;
-	min-height:400px;
-	height:auto;
-	padding:5px;
+  width: 250px;
+  min-height:400px;
+  height:auto;
+  padding:5px;
 }
 .output-pane{
-	vertical-align:top;
-	width:auto;
-	min-width:300px;
-	min-height:400px;
-	height:auto;
+  vertical-align:top;
+  width:auto;
+  min-width:300px;
+  min-height:400px;
+  height:auto;
 }
 h2 {
-	font-size:large;
-	font-weight:bold;
+  font-size:large;
+  font-weight:bold;
 }
 h3 {
-	font-size:normal;
+  font-size:normal;
 }
 
 h2.stage-header {
-	font-weight:bold;
-	font-style:normal;
-	font-size:large;
-	padding:0px;
-	margin-top:-15px;
+  font-weight:bold;
+  font-style:normal;
+  font-size:large;
+  padding:0px;
+  margin-top:-15px;
 }
 
 .sub_select {
 }
 
 .table_title {
-	padding:0px;
-	margin:0px;
+  padding:0px;
+  margin:0px;
 }
 
 #banners {
-		margin-top:15px;
-		height:110px;
+    margin-top:15px;
+    height:110px;
 }
 
 .jumbotron {
-	background-color: white;
+  background-color: white;
 }
 
 .well {
-	padding: 10px;
-	overflow: auto;
+  padding: 10px;
+  overflow: auto;
 }
 
 .form-horizontal .control-label {
@@ -132,24 +132,24 @@ legend.jpsurv-legend {
 body {
     color: #444;
     font-family: arial;
-	line-height: 1.1;
-	font-size: 12px;
-	font-family: Arial,Helvetica,sans-serif;
+  line-height: 1.1;
+  font-size: 12px;
+  font-family: Arial,Helvetica,sans-serif;
   margin-bottom:0px;
   width:auto;
 }
 
 .jumbotron p {
-		font-size: 14px;
+    font-size: 14px;
 }
 
 hr.stage-separator{
-	margin-top:-10px;
+  margin-top:-10px;
 }
 
 .plot-container {
-	padding:200px 25px;
-	margin-left:40px;
+  padding:200px 25px;
+  margin-left:40px;
 }
 
 .tab-content {
@@ -448,11 +448,10 @@ input:required:valid, input:focus:valid {
 */
 
 .jpsurv-title {
-  font-size:34px;
-  margin-right:10px;
-  position:relative;
-  float:right;
-  color:#666;
+  float: left;
+  padding-bottom: 10px;
+  padding-top: 10px;
+  padding-left:10px;
 }
 
 @media (min-width: 768px) {
@@ -461,4 +460,31 @@ input:required:valid, input:focus:valid {
         float: left;
         margin-right: 5px;
     }
+}
+#ribbon h1 a {
+    color: #fff;
+    font-size: 26px;
+    text-decoration: none;
+    display: inline-block;
+    padding: 9px 0;
+    line-height: 1;
+    margin-right: 140px;
+    border-bottom: 5px solid transparent;
+    border-top: 5px solid transparent;
+    transition: .3s all linear;
+    text-shadow: none;
+}
+
+#ribbon h1 {
+    font-family: "Lucida Sans Unicode", "Lucida Sans", Verdana, sans-serif;
+    padding: 0;
+    margin: 0;
+    letter-spacing: .015em;
+    font-weight: normal;
+    background: url("https://surveillance.cancer.gov/images/dccps_logo.png") right -5px no-repeat;
+}
+#ribbon {
+    color: #fff;
+    background: #010080;
+    padding: 0 24px;
 }
