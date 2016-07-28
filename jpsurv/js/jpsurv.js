@@ -246,7 +246,7 @@ function addInputSection() {
 
 function checkInputFile() {
 	var results = $.ajax({
-		url:'/jpsurv/tmp/input_' + jpsurvData.tokenId + '.json',
+		url:'/tmp/input_' + jpsurvData.tokenId + '.json',
 		type:'HEAD',
 		async: false
 	});
@@ -975,7 +975,7 @@ function get_plot() {
 	//console.dir(plot_json);
 
 	$("#spinner-plotting").hide();
-	$("#plot-image").attr('src', '../jpsurv/tmp/plot-'+jpsurvData.tokenId+'.png');
+	$("#plot-image").attr('src', '../tmp/plot-'+jpsurvData.tokenId+'.png');
 	$("#plot-container").fadeIn();
 
 }
@@ -1652,7 +1652,7 @@ function load_ajax(filename) {
 	//console.log(filename);
 	var json = (function () {
 		var json = null;
-		var url = '/jpsurv/tmp/'+filename;
+		var url = '/tmp/'+filename;
 		$.ajax({
 		      'async': false,
 		      'global': false,
