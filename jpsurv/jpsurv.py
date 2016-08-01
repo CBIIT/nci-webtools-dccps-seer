@@ -31,13 +31,13 @@ def fix_jpsurv(jpsurvDataString):
 def index():
     return render_template('index.html')
 
-@app.route('/jpsurvRest/debug', methods = ['GET'])
+@app.route('/jpsurv/debug', methods = ['GET'])
 def test():
     raise
 
 
 
-@app.route('/jpsurvRest/parse', methods = ['GET'])
+@app.route('/jpsurv/parse', methods = ['GET'])
 def parse():
     # python LDpair.py rs2720460 rs11733615 EUR 38
     mimetype = 'application/json'
@@ -59,7 +59,7 @@ def parse():
 
     return current_app.response_class(out_json, mimetype=mimetype)
 
-@app.route('/jpsurvRest/status', methods = ['GET'])
+@app.route('/jpsurv/status', methods = ['GET'])
 def status():
     # python LDpair.py rs2720460 rs11733615 EUR 38
     #debug(OKGREEN+"Calling status::::::"+ENDC)
@@ -72,13 +72,13 @@ def status():
 
     return current_app.response_class(out_json, mimetype=mimetype)
 
-@app.route('/jpsurvRest/get_form', methods = ['GET'])
+@app.route('/jpsurv/get_form', methods = ['GET'])
 def get_upload():
     # python LDpair.py rs2720460 rs11733615 EUR 38
     mimetype = 'application/json'
 
     print
-    print 'Execute jpsurvRest/get_form1'
+    print 'Execute jpsurv/get_form1'
     print 'Gathering Variables from url'
     print
     #out_json = json.dumps(["foo", {"bar":["baz", null, 1.0, 2]}])
@@ -90,12 +90,12 @@ def get_upload():
 
     return current_app.response_class(out_json, mimetype=mimetype)
 
-#@app.route('/jpsurvRest/loadform', methods = ['GET'])
+#@app.route('/jpsurv/loadform', methods = ['GET'])
 #def load():
 #    jsondata = '{"Age groups": ["0-49","50-65s","65+"],"Breast stage": ["Localized","Regional","Distant"],"Test group": ["val1","ValTwo","AnotherValue"]}'
 #    return json.dump(jsondata)
 
-@app.route('/jpsurvRest/stage1_upload', methods=['POST'])
+@app.route('/jpsurv/stage1_upload', methods=['POST'])
 def stage1_upload():
     print "Processing upload"
     #print(OKGREEN+UNDERLINE+BOLD + "****** Stage 1: UPLOAD BUTTON ***** " + ENDC)
@@ -172,11 +172,11 @@ def stage1_upload():
     #info(return_url)
     return redirect(return_url)
 
-@app.route('/jpsurvRest/stage2_calculate', methods=['GET'])
+@app.route('/jpsurv/stage2_calculate', methods=['GET'])
 def stage2_calculate():
 
     print
-    print 'Execute jpsurvRest/stage2_calculate'
+    print 'Execute jpsurv/stage2_calculate'
     print 'Yes, yes, yes...'
     print
 
@@ -211,7 +211,7 @@ def stage2_calculate():
     return current_app.response_class(out_json, mimetype=mimetype)
 
 
-@app.route('/jpsurvRest/stage3_recalculate', methods=['GET'])
+@app.route('/jpsurv/stage3_recalculate', methods=['GET'])
 def stage3_recalculate():
 
     print 'Go'
@@ -247,7 +247,7 @@ def stage3_recalculate():
     return current_app.response_class(out_json, mimetype=mimetype)
 
 
-@app.route('/jpsurvRest/stage4_trends_calculate', methods=['GET'])
+@app.route('/jpsurv/stage4_trends_calculate', methods=['GET'])
 def stage4_trends_calculate():
 
     print 'Go'
@@ -273,7 +273,7 @@ def stage4_trends_calculate():
 
     return current_app.response_class(out_json, mimetype=mimetype)
 
-@app.route('/jpsurvRest/stage5_queue', methods=['GET'])
+@app.route('/jpsurv/stage5_queue', methods=['GET'])
 def queue():
 
     #debug(OKGREEN+UNDERLINE+BOLD + "****** Stage 5: Queue ***** " + ENDC)
