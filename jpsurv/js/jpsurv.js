@@ -1,6 +1,6 @@
 var jpsurv_version = "1.0";
 
-var restService = {protocol:'http',hostname:document.location.hostname,fqn:"nci.nih.gov",route : "jpsurvRest"}
+var restService = {protocol:'http',hostname:document.location.hostname,fqn:"nci.nih.gov",route : "jpsurv"}
 var restServerUrl = restService.protocol + "://" + restService.hostname + "/"+ restService.route;
 
 var control_data;
@@ -953,7 +953,7 @@ function calculate() {
 
 function file_submit(event) {
 	jpsurvData.tokenId = renewTokenId(false);
-	$("#upload-form").attr('action', '/stage1_upload?tokenId='+jpsurvData.tokenId);
+	$("#upload-form").attr('action', '/jpsurv/stage1_upload?tokenId='+jpsurvData.tokenId);
 	getRestServerStatus();
 }
 /*
@@ -1503,7 +1503,7 @@ function jpsurvRest2(action, callback) {
 	$("#calculating-spinner").modal('show');
 	console.log('jpsurvRest2');
 	console.info(params);
-	var url = '/'+action+'?'+encodeURI(params);
+	var url = '/jpsurv/'+action+'?'+encodeURI(params);
 	var ajaxRequest = $.ajax({
 		type : 'GET',
 		url : url,
@@ -1555,9 +1555,9 @@ function jpsurvRest(action, params) {
 
 	var json = (function () {
 		var json = null;
-		//var url = '/'+action+'?'+params+'&jpsurvData='+JSON.stringify(jpsurvData);
+		//var url = '/jpsurvRest/'+action+'?'+params+'&jpsurvData='+JSON.stringify(jpsurvData);
 
-		var url = '/'+action+'?'+encodeURI(params);
+		var url = '/jpsurv/'+action+'?'+encodeURI(params);
 		//console.warn("jpsurvRest url=");
 		//console.log(url);
 
