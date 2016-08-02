@@ -14,30 +14,62 @@ from PropertyUtil import PropertyUtil
 import time
 
 app = Flask(__name__, static_folder='', static_url_path='/')
-UPLOAD_DIR = ''
-d = ''
+
+QUEUE_NAME = 'queue.name'
+QUEUE_URL = 'queue.url'
+jpsurvConfig = PropertyUtil(r"config.ini")
+UPLOAD_DIR = os.path.join(os.getcwd(), 'tmp')
+
+print 'JPSurv is starting...'
+
+#COLORS TO Make logging Mover visible
+HEADER = '\033[95m'
+OKBLUE = '\033[94m'
+OKGREEN = '\033[92m'
+WARNING = '\033[93m'
+FAIL = '\033[91m'
+BOLD = '\033[1m'
+UNDERLINE = '\033[4m'
+ENDC = '\033[0m'
+
+#Logging Levels
+#Level   Numeric value
+#CRITICAL   50
+#ERROR      40
+#WARNING    30
+#INFO       20
+#DEBUG      10
+#NOTSET     0
+
+FORMAT = '%(asctime)-15s %(message)s'
+logging.basicConfig(format=FORMAT)
+d = {'clientip': 'localhost'} 
+logger = logging.getLogger('RESTserver')
+
+logger.warning('Log warning works.', extra=d)
+logger.info('Temp Directory: %s', BOLD+UPLOAD_DIR+ENDC, extra=d)
+
 
 def fix_jpsurv(jpsurvDataString):
     #Replace {plus} with +
-    print ("in fix_jpsurv method")
     jpsurvDataString = jpsurvDataString.decode("utf-8").replace("{plus}", "+").encode("utf-8")
     #Replace \"\" with \"null\"
     #jpsurvDataString = jpsurvDataString.decode("utf-8").replace('\\"\\"', 'null').encode("utf-8")
     #jpsurvDataString = jpsurvDataString.decode("utf-8").replace('\\"\\"', '\\"NULL\\"').encode("utf-8")
-    #print BOLD+"New:::"+ENDC
+    print BOLD+"New:::"+ENDC
     print jpsurvDataString
 
     return jpsurvDataString
 def index():
     return render_template('index.html')
 
-@app.route('/jpsurv/debug', methods = ['GET'])
+@app.route('/jpsurvRest/debug', methods = ['GET'])
 def test():
     raise
 
 
 
-@app.route('/jpsurv/parse', methods = ['GET'])
+@app.route('/jpsurvRest/parse', methods = ['GET'])
 def parse():
     # python LDpair.py rs2720460 rs11733615 EUR 38
     mimetype = 'application/json'
@@ -48,37 +80,37 @@ def parse():
 
     jpsurvDataString = request.args.get('jpsurvData', False)
     jpsurvDataString = fix_jpsurv(jpsurvDataString)
-    #info(BOLD+"**** jpsurvDataString ****"+ENDC)
+    info(BOLD+"**** jpsurvDataString ****"+ENDC)
     print type(jpsurvDataString)
-    #info(jpsurvDataString)
-    #debug(OKGREEN+"The jpsurv STRING::::::"+ENDC)
-    #debug(jpsurvDataString)
+    info(jpsurvDataString)
+    debug(OKGREEN+"The jpsurv STRING::::::"+ENDC)
+    debug(jpsurvDataString)
     jpsurvData = json.loads(jpsurvDataString)
     print type(jpsurvData)
     out_json = json.dumps(jpsurvData)
 
     return current_app.response_class(out_json, mimetype=mimetype)
 
-@app.route('/jpsurv/status', methods = ['GET'])
+@app.route('/jpsurvRest/status', methods = ['GET'])
 def status():
     # python LDpair.py rs2720460 rs11733615 EUR 38
-    #debug(OKGREEN+"Calling status::::::"+ENDC)
+    debug(OKGREEN+"Calling status::::::"+ENDC)
     
     mimetype = 'application/json'
-    #debug("")
-    #debug('Execute jpsurvRest/status status:OK')
+    debug("")
+    debug('Execute jpsurvRest/status status:OK')
     status = [{"status":"OK"}]
     out_json = json.dumps(status)
 
     return current_app.response_class(out_json, mimetype=mimetype)
 
-@app.route('/jpsurv/get_form', methods = ['GET'])
+@app.route('/jpsurvRest/get_form', methods = ['GET'])
 def get_upload():
     # python LDpair.py rs2720460 rs11733615 EUR 38
     mimetype = 'application/json'
 
     print
-    print 'Execute jpsurv/get_form1'
+    print 'Execute jpsurvRest/get_form1'
     print 'Gathering Variables from url'
     print
     #out_json = json.dumps(["foo", {"bar":["baz", null, 1.0, 2]}])
@@ -90,38 +122,38 @@ def get_upload():
 
     return current_app.response_class(out_json, mimetype=mimetype)
 
-#@app.route('/jpsurv/loadform', methods = ['GET'])
+#@app.route('/jpsurvRest/loadform', methods = ['GET'])
 #def load():
 #    jsondata = '{"Age groups": ["0-49","50-65s","65+"],"Breast stage": ["Localized","Regional","Distant"],"Test group": ["val1","ValTwo","AnotherValue"]}'
 #    return json.dump(jsondata)
 
-@app.route('/jpsurv/stage1_upload', methods=['POST'])
+@app.route('/jpsurvRest/stage1_upload', methods=['POST'])
 def stage1_upload():
-    print "Processing upload"
-    #print(OKGREEN+UNDERLINE+BOLD + "****** Stage 1: UPLOAD BUTTON ***** " + ENDC)
+    #print "Processing upload"
+    debug(OKGREEN+UNDERLINE+BOLD + "****** Stage 1: UPLOAD BUTTON ***** " + ENDC)
     tokenId = request.args.get('tokenId', False)
-    #print((BOLD + "****** Stage 1: tokenId = %s" + ENDC) % (tokenId))
-    print(tokenId)
+    info((BOLD + "****** Stage 1: tokenId = %s" + ENDC) % (tokenId))
+
     for k, v in request.args.iteritems():
-        print("var: %s = %s" % (k, v))
+        print "var: %s = %s" % (k, v)
 
     file = request.files['file_control']
     if file and file.filename:
         filename = secure_filename(file.filename)
         file.save(os.path.join(UPLOAD_DIR, filename))
         file_control_filename = filename
-        print("Saving file_control: %s" % file_control_filename)
+        info("Saving file_control: %s" % file_control_filename)
     file = request.files['file_data']
     if file and file.filename:
         filename = secure_filename(file.filename)
         file.save(os.path.join(UPLOAD_DIR, filename))
         file_data_filename = filename
-        print("Saving file_data: %s" % file_data_filename)
+        info("Saving file_data: %s" % file_data_filename)
 
     if(request.files['file_control'] == ''):
-        print("file_control not assigned")
+        info("file_control not assigned")
     if(request.files['file_data'] == ''):
-        print("file_data not assigned")
+        info("file_data not assigned")
 
     #Now that the files are on the server RUN the RCode
     rSource = robjects.r('source')
@@ -139,13 +171,11 @@ def stage1_upload():
     fo.close()
 
     #Init the R Source
-    print("initial r source")
     rSource = robjects.r('source')
     rSource('./JPSurvWrapper.R')
 
     # Next two lines execute the R Program
     getDictionary = robjects.globalenv['getDictionary']
-    print (getDictionary)
     rStrVector = getDictionary(file_control_filename, UPLOAD_DIR, tokenId)
     #Convert R StrVecter to tuple to str
 
@@ -155,47 +185,51 @@ def stage1_upload():
     #print output_filename
     #PRINT output_file
     r_output_file = os.path.join(UPLOAD_DIR, output_filename)
-    print "R output_file"
+    #print "R output_file"
     fo = open(r_output_file, "r+")
     str = fo.read(500)
     #print BOLD+"Read String is : ", str
     #print ENDC
     fo.close()
 
-    print "CLOSE FILE %s" % output_filename
+    #print "CLOSE FILE %s" % output_filename
     #print OKGREEN +"************ END HERE EXIT ********" + ENDC
 
     #print "json string >> "+str(jsondata[0]);
     status = "uploaded"
 
-    return_url = "%s/?request=false&file_control_filename=%s&file_data_filename=%s&output_filename=%s&status=%s&tokenId=%s" % (request.url_root, file_control_filename, file_data_filename, output_filename, status, tokenId)
-    #info(return_url)
+    return_url = "%s/jpsurv?request=false&file_control_filename=%s&file_data_filename=%s&output_filename=%s&status=%s&tokenId=%s" % (request.url_root, file_control_filename, file_data_filename, output_filename, status, tokenId)
+    info(return_url)
     return redirect(return_url)
 
-@app.route('/jpsurv/stage2_calculate', methods=['GET'])
+@app.route('/jpsurvRest/stage2_calculate', methods=['GET'])
 def stage2_calculate():
 
     print
-    print 'Execute jpsurv/stage2_calculate'
+    print 'Execute jpsurvRest/stage2_calculate'
     print 'Yes, yes, yes...'
     print
 
-    #debug(OKGREEN+UNDERLINE+BOLD + "****** Stage 2: CALCULATE BUTTON ***** " + ENDC)
+    debug(OKGREEN+UNDERLINE+BOLD + "****** Stage 2: CALCULATE BUTTON ***** " + ENDC)
 
     jpsurvDataString = request.args.get('jpsurvData', False)
     jpsurvDataString = fix_jpsurv(jpsurvDataString)
     
+    info(BOLD+"**** jpsurvDataString ****"+ENDC)
+    info(jpsurvDataString)
+    debug(OKBLUE+"The jpsurv STRING::::::"+ENDC)
+    debug(jpsurvDataString)
     jpsurvData = json.loads(jpsurvDataString)
-    #info(BOLD+"**** jpsurvData ****"+ENDC)
+    info(BOLD+"**** jpsurvData ****"+ENDC)
     for key, value in jpsurvData.iteritems():
-       # info("var: %s = %s" % (key, value))
+        info("var: %s = %s" % (key, value))
         print("var: %s = %s" % (key, value))
     
     #Init the R Source
     rSource = robjects.r('source')
     rSource('./JPSurvWrapper.R')
 
-    #info(BOLD+"**** Calling getFittedResultsWrapper ****"+ENDC)
+    info(BOLD+"**** Calling getFittedResultsWrapper ****"+ENDC)
     getFittedResultWrapper = robjects.globalenv['getFittedResultWrapper']
     getFittedResultWrapper(UPLOAD_DIR, jpsurvDataString)
     # Next two lines execute the R Program
@@ -211,32 +245,32 @@ def stage2_calculate():
     return current_app.response_class(out_json, mimetype=mimetype)
 
 
-@app.route('/jpsurv/stage3_recalculate', methods=['GET'])
+@app.route('/jpsurvRest/stage3_recalculate', methods=['GET'])
 def stage3_recalculate():
 
     print 'Go'
 
-    #debug(OKGREEN+UNDERLINE+BOLD + "****** Stage 3: PLOT BUTTON ***** " + ENDC)
-    #info("Recalculating ...")
+    debug(OKGREEN+UNDERLINE+BOLD + "****** Stage 3: PLOT BUTTON ***** " + ENDC)
+    info("Recalculating ...")
 
     jpsurvDataString = request.args.get('jpsurvData', False)
     jpsurvDataString = fix_jpsurv(jpsurvDataString)
     
-    #info(BOLD+"**** jpsurvDataString ****"+ENDC)
-    #info(jpsurvDataString)
-    #debug(OKBLUE+"The jpsurv STRING::::::"+ENDC)
-    #debug(jpsurvDataString)
+    info(BOLD+"**** jpsurvDataString ****"+ENDC)
+    info(jpsurvDataString)
+    debug(OKBLUE+"The jpsurv STRING::::::"+ENDC)
+    debug(jpsurvDataString)
     jpsurvData = json.loads(jpsurvDataString)
     #info(BOLD+"**** jpsurvData ****"+ENDC)
     for key, value in jpsurvData.iteritems():
-        #info("var: %s = %s" % (key, value))
+        info("var: %s = %s" % (key, value))
         print("var: %s = %s" % (key, value))
     
     #Init the R Source
     rSource = robjects.r('source')
     rSource('./JPSurvWrapper.R')
 
-    #info(BOLD+"**** Calling getAllData ****"+ENDC)
+    info(BOLD+"**** Calling getAllData ****"+ENDC)
     # Next two lines execute the R Program
     getAllData = robjects.globalenv['getAllData']
     getAllData(UPLOAD_DIR, jpsurvDataString)
@@ -247,14 +281,14 @@ def stage3_recalculate():
     return current_app.response_class(out_json, mimetype=mimetype)
 
 
-@app.route('/jpsurv/stage4_trends_calculate', methods=['GET'])
+@app.route('/jpsurvRest/stage4_trends_calculate', methods=['GET'])
 def stage4_trends_calculate():
 
     print 'Go'
 
-    #debug(OKGREEN+UNDERLINE+BOLD + "****** Stage 4: Trends BUTTON ***** " + ENDC)
-    #info("Recalculating ...")
-    #info(BOLD+"**** Calling getTrendsData ****"+ENDC)
+    debug(OKGREEN+UNDERLINE+BOLD + "****** Stage 4: Trends BUTTON ***** " + ENDC)
+    info("Recalculating ...")
+    info(BOLD+"**** Calling getTrendsData ****"+ENDC)
 
     jpsurvDataString = request.args.get('jpsurvData', False)
     jpsurvDataString = fix_jpsurv(jpsurvDataString)
@@ -273,13 +307,13 @@ def stage4_trends_calculate():
 
     return current_app.response_class(out_json, mimetype=mimetype)
 
-@app.route('/jpsurv/stage5_queue', methods=['GET'])
+@app.route('/jpsurvRest/stage5_queue', methods=['GET'])
 def queue():
 
-    #debug(OKGREEN+UNDERLINE+BOLD + "****** Stage 5: Queue ***** " + ENDC)
-    #info("Sending info to queue ...")
+    debug(OKGREEN+UNDERLINE+BOLD + "****** Stage 5: Queue ***** " + ENDC)
+    info("Sending info to queue ...")
 
-    #info(BOLD+"**** Calling sendqueue ****"+ENDC)
+    info(BOLD+"**** Calling sendqueue ****"+ENDC)
     jpsurvDataString = request.args.get('jpsurvData', False)
     jpsurvDataString = fix_jpsurv(jpsurvDataString)
     jpsurv_json = json.loads(jpsurvDataString)
@@ -343,80 +377,8 @@ def sendqueue(tokenId):
     return
  
 def info(msg):
-    global d	 
-    d={'clientip': request.remote_addr}
-    logger.info('%s', msg, extra=d)
+    logger.info('%s', msg)
 
 
 def debug(msg):
-    global d	
-    d={'clientip': request.remote_addr}
-    logger.debug('%s', msg, extra=d)
-
-
-import argparse
-def main():
-    global UPLOAD_DIR
-    global d
-    global logger
-
-    QUEUE_NAME = 'queue.name'
-    QUEUE_URL = 'queue.url'
-    jpsurvConfig = PropertyUtil(r"config.ini")
-    UPLOAD_DIR = os.path.join(os.getcwd(), 'tmp')
-    print (UPLOAD_DIR)
-    print 'JPSurv is starting...'
-
-    #COLORS TO Make logging Mover visible
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
-    ENDC = '\033[0m'
-
-#    parser = argparse.ArgumentParser(
-#        prog='Python Flask REST Sever',
-#        formatter_class=argparse.RawDescriptionHelpFormatter,
-#        description=textwrap.dedent('''\
-#         Analysis Tools Flask REST Sever
-#         --------------------------------
-#             Each Analysis ToolREST Server has a unique Port Number
-#             Enter a unique port number when starting Flask REST Server
-#        '''))
-#    parser.add_argument("-p", dest="port_number", type=int, required=True, help="REST Sever port number")
-#    parser.add_argument('--version', action='version', version='%(prog)s 2.0')
-#    parser.add_argument('--verbose', dest="verbose", default=False, help='Turn on verbose logging', action='store_true')
-#    parser.add_argument('--debug', help='Turn on debug logging', action='store_true',default=False)
-
-#    args = parser.parse_args()
-#    port_num = int(args.port_number)
-
-    #Logging Levels
-    #Level   Numeric value
-    #CRITICAL   50
-    #ERROR      40
-    #WARNING    30
-    #INFO       20
-    #DEBUG      10
-    #NOTSET     0
-
-
-    #debug(BOLD+UPLOAD_DIR+ENDC)
-    FORMAT = '%(asctime)-15s %(clientip)s %(message)s'
-    logging.basicConfig(format=FORMAT)
-    d = {'clientip': 'localhost'} 
-    logger = logging.getLogger('RESTserver')
-    #debugger = args.debug == 'True'
-#    debugger = args.debug
-
-    logger.warning('Log warning works.', extra=d)
-    logger.info('Temp Directory: %s', BOLD+UPLOAD_DIR+ENDC, extra=d)
-#    jpsurvDataString='{"file":{"dictionary":"Breast_RelativeSurvival.dic","data":"Breast_RelativeSurvival.txt","form":"form-506827.json"},"calculate":{"form":{"yearOfDiagnosisRange":[2000,2011],"cohortVars":["Age groups","Breast stage"],"cohortValues":["\"00-49\"","\"Localized\""],"covariateVars":"","maxjoinPoints":0},"static":{"yearOfDiagnosisTitle":"Year of diagnosis 1975+","years":["1975","1976","1977","1978","1979","1980","1981","1982","1983","1984","1985","1986","1987","1988","1989","1990","1991","1992","1993","1994","1995","1996","1997","1998","1999","2000","2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011"],"yearOfDiagnosisVarName":"Year_of_diagnosis_1975","seerFilePrefix":"Breast_RelativeSurvival","allVars":["Age groups","Breast stage","Year_of_diagnosis_1975"],"advanced":{"advDeleteInterval":"F","advBetween":"2","advFirst":"3","advLast":"4","advYear":"10"}}},"plot":{"form":{},"static":{"imageId":0}},"additional":{"headerJoinPoints":0,"yearOfDiagnosis":null,"intervals":[1,4]},"tokenId":"506827","status":"uploaded","stage2completed":0,"queue":{"email":"scott.goldweber@nih.com","url":"http://analysistools-sandbox.nci.nih.gov/jpsurv/?file_control_filename=Breast_RelativeSurvival.dic&file_data_filename=Breast_RelativeSurvival.txt&output_filename=form-506827.json&status=uploaded&tokenId=506827"}}'
-#    sendqueue(jpsurvDataString)
-#    app.run(host='0.0.0.0', port=port_num, debug = debugger,use_evalex = False)
-
-
-main()
+    logger.debug('%s', msg)
