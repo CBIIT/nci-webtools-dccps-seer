@@ -199,8 +199,8 @@ function addInputSection() {
 					.addClass('jpsurv-label')
 				)
 				.append($('<span>')
-					.append(getUrlParameter('file_control_filename'))
-					.attr('title', getUrlParameter('file_control_filename'))
+					.append(getUrlParameter('file_control_filename',true))
+					.attr('title', getUrlParameter('file_control_filename',true))
 					.addClass('jpsurv-label-content')
 				)
 			);
@@ -214,8 +214,8 @@ function addInputSection() {
 				)
 	//					.append(jpTrim(getUrlParameter('file_data_filename'), 30))
 				.append($('<span>')
-					.append(getUrlParameter('file_data_filename'))
-					.attr('title', getUrlParameter('file_data_filename'))
+					.append(getUrlParameter('file_data_filename',true))
+					.attr('title', getUrlParameter('file_data_filename',true))
 					.addClass('jpsurv-label-content')
 				)
 			);
@@ -1677,7 +1677,7 @@ function load_ajax(filename) {
 	return json;
 }
 
-function getUrlParameter(sParam) {
+function getUrlParameter(sParam,abbr) {
 	var sPageURL = window.location.search.substring(1);
 	var sURLVariables = sPageURL.split('&');
 
@@ -1685,7 +1685,15 @@ function getUrlParameter(sParam) {
 		var sParameterName = sURLVariables[i].split('=');
 		if (sParameterName[0] == sParam)
 		{
-			return sParameterName[1];
+			if(abbr==true&&sParameterName[1].length>30){
+				start=sParameterName[1].substring(0,14);
+				end=sParameterName[1].substring(sParameterName[1].length-15);
+				name=start+"..."+end;
+				return name;
+			}
+			else{
+				return sParameterName[1];
+			}
 		}
 	}
 }
