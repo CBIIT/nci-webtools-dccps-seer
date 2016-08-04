@@ -105,7 +105,7 @@ getFittedResultWrapper <- function (filePath, jpsurvDataString) {
 
 }
   ptm <- proc.time()
-  getAllData(filePath,jpsurvDataString,TRUE,1,runs)
+  getAllData(filePath,jpsurvDataString,TRUE,runs)
   print("Calculation time")
   print(proc.time() -ptm)
   print("return from getAllData")
@@ -113,12 +113,17 @@ getFittedResultWrapper <- function (filePath, jpsurvDataString) {
   # getFullDataDownloadWrapper(filePath,jpsurvDataString)
   
 }
-getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,com,runs="NONE")
+getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,runs="NONE")
 {
-  
+
   print("calculating jointpoint")
   jpsurvData <<- fromJSON(jpsurvDataString)
   print("Creating json")
+
+  com=as.integer(jpsurvData$run)
+  print("RUN NUMBER:")
+  print(com)
+
   ModelEstimate=getJointtModelWrapper(filePath,jpsurvDataString,first_calc,com)
   ModelSelection=geALLtModelWrapper(filePath,jpsurvDataString,com)
   Coefficients=getcoefficientsWrapper(filePath,jpsurvDataString,first_calc,com)
@@ -269,7 +274,7 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_ca
   }
   
   jpInd=jpsurvData$additional$headerJoinPoints
-  if(first_calc==TRUE)
+  if(first_calc==TRUE||is.null(jpInd))
   {
     jpInd=getSelectedModel(filePath,jpsurvDataString,com)-1
   }
@@ -304,6 +309,7 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_ca
   for (i in length(cohorts):1)
   {
     value=gsub("\"",'',jpsurvData$calculate$form$cohortValues[[i]])
+    print(value)
     value=noquote(value)
     survData[cohorts[[i]]] <- value
     
@@ -339,7 +345,7 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString,first_cal
   
   jpInd=jpsurvData$additional$headerJoinPoints
   print(jpInd)
-  if(first_calc==TRUE)
+  if(first_calc==TRUE||is.null(jpInd))
   {
     jpInd=getSelectedModel(filePath,jpsurvDataString,com)-1
   }
@@ -388,7 +394,7 @@ getcoefficientsWrapper <- function (filePath,jpsurvDataString,first_calc,com) {
   jpsurvData=fromJSON(jpsurvDataString)
   fileName=paste("output-", jpsurvData$tokenId,"-",com,".rds", sep="")
   jpInd=jpsurvData$additional$headerJoinPoints
-  if(first_calc==TRUE)
+  if(first_calc==TRUE||is.null(jpInd))
   {
     jpInd=getSelectedModel(filePath,jpsurvDataString,com)-1
   }
@@ -438,7 +444,8 @@ getJointtModelWrapper <- function (filePath,jpsurvDataString,first_calc,com) {
   fileName=paste("output-", jpsurvData$tokenId,"-",com,".rds", sep="")
   
   jpInd=jpsurvData$additional$headerJoinPoints
-  if(first_calc==TRUE)
+
+  if(first_calc==TRUE||is.null(jpInd))
   {
     jpInd=getSelectedModel(filePath,jpsurvDataString,com)-1
   }
@@ -486,7 +493,7 @@ getJPWrapper<-function(filePath,jpsurvDataString,first_calc,com)
   outputData=readRDS(file)
   
   jpInd=jpsurvData$additional$headerJoinPoints
-  if(first_calc==TRUE)
+  if(first_calc==TRUE||is.null(jpInd))
   {
     jpInd=getSelectedModel(filePath,jpsurvDataString,com)-1
   }
