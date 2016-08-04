@@ -307,17 +307,28 @@ function preLoadValues() {
 	retrieveResults();
 
 }
+function updateCohortDropdown(){
+    cohort_array = jpsurvData.results.Runs.split(',');
+	display = document.getElementById("cohort-display");
+	length=cohort_array.length;
+	for (var i=0;i<length;i++){
+		var option=document.createElement("option");
+		cohort=cohort_array[i]
+		option.text=cohort;
+		display.add(option);
+	}
 
+}
 function updateCohortDisplay() {
 	//jpsurvData.calculate.form.cohortVars = ["Age groups", "Breast stage"];
 	jpsurvData.calculate.form.cohortValues = [];
-
 	var cohort_message = ""
 	$("#cohort-variables fieldset").each(function(index,element) {
+		jpsurvData.calculate.form.AllcohortValues[index]=[]
 		//console.warn(index+" : "+element);
 		//console.log(element.id);
 		//console.log($(element).attr('data-cohort'))
-		cohort_message += $(element).attr('data-cohort');
+	//	cohort_message += $(element).attr('data-cohort');
 
 		//jpsurvData.calculate.form.cohortValues.push($(element).attr('data-cohort'));
 		//Go through each checkbox to see which one is checked
@@ -325,17 +336,26 @@ function updateCohortDisplay() {
   		//console.log("inputs length: "+inputs.length);
 		//Go through each checkbox to see which one is checked
 		$.each(inputs, function(index2, element2) {
+
 			//console.log($(element2).val()+" "+$(element2).prop('checked'));
 			if($(element2).prop('checked')){
 				cohort_message +=' "'+$(element2).val()+'"';
-				jpsurvData.calculate.form.cohortValues.push('"'+$(element2).val()+'"');
+			//	jpsurvData.calculate.form.cohortValues.push('"'+$(element2).val()+'"');
+				if(!jpsurvData.calculate.form.AllcohortValues[index].includes('"'+$(element2).val()+'"')){ 
+					jpsurvData.calculate.form.AllcohortValues[index].push('"'+$(element2).val()+'"');
+				}
 			}
 		});
-		if(index < jpsurvData.calculate.form.cohortVars.length-1) {
+	//	if(index < jpsurvData.calculate.form.cohortVars.length-1) {
 			cohort_message += " and "
-		}
+	//	}
 	});
-	
+	keys=Object.keys(jpsurvData.calculate.form.AllcohortValues)
+	for (var i=0; i<keys.length;i++){
+		key=i.toString();
+		element=jpsurvData.calculate.form.AllcohortValues[key[0]][0];
+		jpsurvData.calculate.form.cohortValues.push(element);
+	}
 	//console.log(cohort_message);
 	//console.warn("form data");
 	//console.dir(jpsurvData.calculate.form);
@@ -348,7 +368,7 @@ function updateCohortDisplay() {
 			jpsurvData.calculate.form.cohortValues.push('"'+$('#cohort_value_'+index+'_select').val()+'"');
 		});
 */
-	$("#cohort-display").text(cohort_message);
+//	$("#cohort-display").text(cohort_message);
 
 	$("#cohort-variables fieldset").each(function(index,element) {
 		//console.warn(index+" : "+element);
