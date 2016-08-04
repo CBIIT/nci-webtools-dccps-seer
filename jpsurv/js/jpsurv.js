@@ -163,10 +163,10 @@ function addEventListeners() {
 		//console.log("submitting files");
 	});
 
-	$("#cohort-variables").on('click', ".cohort", function(e) {
+	/*$("#cohort-variables").on('click', ".cohort", function(e) {
 		$("."+this.classList.item(1)).attr('checked', false);
 		$(this).prop('checked', true);
-	});
+	});*/
 
 }
 
