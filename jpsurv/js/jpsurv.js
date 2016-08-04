@@ -395,11 +395,13 @@ function addCohortVariables() {
 	//console.warn("control_data");
 	//console.dir(control_data);
 	jpsurvData.calculate.form.cohortVars = [];
+	jpsurvData.calculate.form.AllcohortValues = {};
 
 	var i=0;
 	var html = "";
 	$.each(cohort_covariance_variables, function(key, value) {
 		jpsurvData.calculate.form.cohortVars.push(key);
+		jpsurvData.calculate.form.AllcohortValues[i]=[];
 		//console.warn("cohort-i: cohort-"+i);
 		//console.info(key+": "+value);
 		//alert("cohort"+i);
@@ -1008,6 +1010,7 @@ function retrieveResults() {
 		jpsurvData.results = results;
 		if(!jpsurvData.stage2completed) {
 			createModelSelection();
+			updateCohortDropdown();
 		}
 		if(certifyResults() == false){
 			console.warn("Results are corrupt.");
