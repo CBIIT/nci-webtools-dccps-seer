@@ -308,16 +308,39 @@ function preLoadValues() {
 
 }
 function updateCohortDropdown(){
-    cohort_array = jpsurvData.results.Runs.split(',');
-	display = document.getElementById("cohort-display");
-	length=cohort_array.length;
+    var cohort_array = jpsurvData.results.Runs.split(',');
+	var display = document.getElementById("cohort-display");
+	 display.innerHTML = "";
+	var length=cohort_array.length;
 	for (var i=0;i<length;i++){
 		var option=document.createElement("option");
+		option.setAttribute("id", i+1);
 		cohort=cohort_array[i]
 		option.text=cohort;
 		display.add(option);
 	}
+	dropdownListener();
 
+
+
+}
+function dropdownListener(){
+	var display = document.getElementById("cohort-display");
+	display.addEventListener("change", function() {
+	    var options = display.querySelectorAll("option");
+	    var count = options.length;
+	    	jpsurvData.additional.headerJoinPoints=null
+	        jpsurvData.calculate.form.cohortValues=[]
+	        var cohorts = display.options[display.selectedIndex].value.split(' + ');
+	        for(var j=0;j<cohorts.length;j++){
+	        	jpsurvData.calculate.form.cohortValues.push('"'+cohorts[j]+'"');
+	        }
+	        calculate();
+	        $.get('tmp/results-'+jpsurvData.tokenId+'.json', function (results) {
+				jpsurvData.results = results;
+	        	createModelSelection();
+	        });
+	});
 }
 function updateCohortDisplay() {
 	//jpsurvData.calculate.form.cohortVars = ["Age groups", "Breast stage"];
@@ -940,11 +963,13 @@ function calculate() {
 
 	if(jpsurvData.stage2completed) {
 		incrementImageId();
+		var dropdown = document.getElementById("cohort-display");
+		jpsurvData.run=dropdown.options[dropdown.selectedIndex].id;
 		stage3();  // This is a recalculation.
 	} else {
 		jpsurvData.tokenId = renewTokenId(true);
 		incrementImageId();
-
+		jpsurvData.run=1;
 		if(parseInt($("#max_join_point_select").val())>maxJP && validateVariables()) {
 			// SEND TO QUEUE
 			setIntervalsDefault();
@@ -966,6 +991,7 @@ function calculate() {
 			console.log("Not Calculating - validateVariables did not pass");
 		}
 		else {
+			jpsurvData.plot.static.imageId=0
 			stage2("calculate"); // This is the initial calculation and setup.
 		}
 	}
@@ -1009,8 +1035,9 @@ function retrieveResults() {
 
 		jpsurvData.results = results;
 		if(!jpsurvData.stage2completed) {
-			createModelSelection();
 			updateCohortDropdown();
+			createModelSelection();
+
 		}
 		if(certifyResults() == false){
 			console.warn("Results are corrupt.");
