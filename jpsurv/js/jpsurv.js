@@ -1959,7 +1959,7 @@ function getRestServerStatus() {
 	});
 */
 
-	var url = restServerUrl + "/status";
+	var url = "jpsurvRest/status";
 	var ajaxRequest = $.ajax({
 		url : url,
 		async :false,
