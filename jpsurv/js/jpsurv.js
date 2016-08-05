@@ -335,7 +335,7 @@ function dropdownListener(){
 	        for(var j=0;j<cohorts.length;j++){
 	        	jpsurvData.calculate.form.cohortValues.push('"'+cohorts[j]+'"');
 	        }
-	        calculate();
+	        calculate(true);
 	        $.get('tmp/results-'+jpsurvData.tokenId+'.json', function (results) {
 				jpsurvData.results = results;
 	        	createModelSelection();
@@ -955,14 +955,19 @@ function validateVariables() {
 	}
 }
 
-function calculate() {
+function calculate(run) {
 
 	//$("#calculating-spinner").modal('show');
 	//incrementImageId();
 	//Next tokenID
 
 	if(jpsurvData.stage2completed) {
-		incrementImageId();
+		if(run!=true)	{
+			incrementImageId();
+		}
+		else{
+			jpsurvData.plot.static.imageId=0
+		}
 		var dropdown = document.getElementById("cohort-display");
 		jpsurvData.run=dropdown.options[dropdown.selectedIndex].id;
 		stage3();  // This is a recalculation.
