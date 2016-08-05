@@ -127,7 +127,8 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,runs="NONE")
   ModelEstimate=getJointtModelWrapper(filePath,jpsurvDataString,first_calc,com)
   ModelSelection=geALLtModelWrapper(filePath,jpsurvDataString,com)
   Coefficients=getcoefficientsWrapper(filePath,jpsurvDataString,first_calc,com)
-  
+  print ("header joint point!!")
+  print (jpsurvData$additional$headerJoinPoints)
   ptm <- proc.time()
   IntGraph=getRelativeSurvivalByIntWrapper(filePath,jpsurvDataString,first_calc,com)
   print("Int Graph Time:")
@@ -509,7 +510,7 @@ getJPWrapper<-function(filePath,jpsurvDataString,first_calc,com)
 getSelectedModel<-function(filePath,jpsurvDataString,com)
 {
   jpsurvData=fromJSON(jpsurvDataString)
-    file=paste(filePath, paste("output-", jpsurvData$tokenId,"-",com,".rds", sep=""), sep="/")
+  file=paste(filePath, paste("output-", jpsurvData$tokenId,"-",com,".rds", sep=""), sep="/")
   outputData=readRDS(file)
   jpInd=jpsurvData$additional$headerJoinPoints
   
