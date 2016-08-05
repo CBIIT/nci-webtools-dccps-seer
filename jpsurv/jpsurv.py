@@ -2,6 +2,7 @@
 from flask import Flask, render_template, Response, abort, request, make_response, url_for, jsonify, redirect, current_app
 from functools import wraps
 import rpy2.robjects as robjects
+from rpy2.robjects import r
 import os
 import json
 from werkzeug import secure_filename
@@ -171,12 +172,11 @@ def stage1_upload():
     fo.close()
 
     #Init the R Source
-    rSource = robjects.r('source')
-    rSource('./JPSurvWrapper.R')
+    r.source('./JPSurvWrapper.R')
 
     # Next two lines execute the R Program
-    getDictionary = robjects.globalenv['getDictionary']
-    rStrVector = getDictionary(file_control_filename, UPLOAD_DIR, tokenId)
+    #getDictionary = robjects.globalenv['getDictionary']
+    rStrVector = r.getDictionary(file_control_filename, UPLOAD_DIR, tokenId)
     #Convert R StrVecter to tuple to str
 
     #keyId = "".join(tuple(rStrVector))
@@ -226,12 +226,11 @@ def stage2_calculate():
         print("var: %s = %s" % (key, value))
     
     #Init the R Source
-    rSource = robjects.r('source')
-    rSource('./JPSurvWrapper.R')
+    r.source('./JPSurvWrapper.R')
 
     info(BOLD+"**** Calling getFittedResultsWrapper ****"+ENDC)
-    getFittedResultWrapper = robjects.globalenv['getFittedResultWrapper']
-    getFittedResultWrapper(UPLOAD_DIR, jpsurvDataString)
+    #getFittedResultWrapper = robjects.globalenv['getFittedResultWrapper']
+    r.getFittedResultWrapper(UPLOAD_DIR, jpsurvDataString)
     # Next two lines execute the R Program
     #try:
     #    getFittedResultWrapper = robjects.globalenv['getFittedResultWrapper']
@@ -249,7 +248,7 @@ def stage2_calculate():
 def stage3_recalculate():
 
     print 'Go'
-
+    time.sleep(3)
     debug(OKGREEN+UNDERLINE+BOLD + "****** Stage 3: PLOT BUTTON ***** " + ENDC)
     info("Recalculating ...")
 
@@ -267,13 +266,13 @@ def stage3_recalculate():
         print("var: %s = %s" % (key, value))
     
     #Init the R Source
-    rSource = robjects.r('source')
-    rSource('./JPSurvWrapper.R')
+    #rSource = robjects.r('source')
+    r.source('./JPSurvWrapper.R')
 
     info(BOLD+"**** Calling getAllData ****"+ENDC)
     # Next two lines execute the R Program
-    getAllData = robjects.globalenv['getAllData']
-    getAllData(UPLOAD_DIR, jpsurvDataString)
+    #getAllData = robjects.r['getAllData']
+    r.getAllData(UPLOAD_DIR, jpsurvDataString)
     
     status = '{"status":"OK"}'
     mimetype = 'application/json'
@@ -294,12 +293,11 @@ def stage4_trends_calculate():
     jpsurvDataString = fix_jpsurv(jpsurvDataString)
 
     #Init the R Source
-    rSource = robjects.r('source')
-    rSource('./JPSurvWrapper.R')
+    r.source('./JPSurvWrapper.R')
 
     # Next two lines execute the R Program
-    getTrendsData = robjects.globalenv['getTrendsData']
-    getTrendsData(UPLOAD_DIR, jpsurvDataString)
+    #getTrendsData = robjects.globalenv['getTrendsData']
+    r.getTrendsData(UPLOAD_DIR, jpsurvDataString)
 
     status = '{"status":"OK"}'
     mimetype = 'application/json'
