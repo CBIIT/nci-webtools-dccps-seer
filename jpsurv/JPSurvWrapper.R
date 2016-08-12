@@ -165,6 +165,9 @@ getTrendsData<-function(filePath,jpsurvDataString,com)
 {
   ptm <- proc.time()
   jpsurvData <<- fromJSON(jpsurvDataString)
+  com=as.integer(jpsurvData$run)
+  print ("In trends combination:")
+  print(com)
   Trends=getTrendWrapper(filePath,jpsurvDataString,com)
   print("Trends Time:")
   print(proc.time() -ptm)
@@ -465,7 +468,7 @@ getJointtModelWrapper <- function (filePath,jpsurvDataString,first_calc,com) {
 }
 
 
-getTrendWrapper<- function (filePath,jpsurvDataString) {
+getTrendWrapper<- function (filePath,jpsurvDataString,com) {
   jsonl=c()
   jpsurvData=fromJSON(jpsurvDataString)
   fileName=paste("output-", jpsurvData$tokenId,"-",com,".rds", sep="")
@@ -490,7 +493,7 @@ getTrendWrapper<- function (filePath,jpsurvDataString) {
 getJPWrapper<-function(filePath,jpsurvDataString,first_calc,com)
 {
   jpsurvData=fromJSON(jpsurvDataString)
-    file=paste(filePath, paste("output-", jpsurvData$tokenId,"-",com,".rds", sep=""), sep="/")
+  file=paste(filePath, paste("output-", jpsurvData$tokenId,"-",com,".rds", sep=""), sep="/")
   outputData=readRDS(file)
   
   jpInd=jpsurvData$additional$headerJoinPoints
