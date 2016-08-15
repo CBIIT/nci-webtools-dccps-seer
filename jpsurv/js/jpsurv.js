@@ -81,6 +81,26 @@ function validateEmail() {
 
 }
 
+function hide_display_email(){
+	var multiple=false;
+	var num_types=$("#cohort-variables fieldset").length
+	var checked=$('[type=checkbox]').filter(':checked').length
+
+	if(checked>num_types){
+		multiple=true;
+	}
+	if(parseInt($("#max_join_point_select").val())>maxJP ||multiple==true) {
+			//console.log("fadeIn()");
+			$(".e-mail-grp").fadeIn();
+			$("#calculate").val("Submit");
+			validateEmail();
+		} else {
+			//console.log("fadeOut()");
+			$(".e-mail-grp").fadeOut();
+			$("#calculate").val("Calculate");
+			$("#calculate").prop("disabled", false);
+		}
+}
 function addEventListeners() {
 	$('#e-mail').on('keydown', function(e) {
 		if (e.which == 13) {
@@ -99,19 +119,16 @@ function addEventListeners() {
 	//$('#e-mail').on('keyup', validateEmail);
 	//$('#e-mail').on('keydown', pressedDown);
 
+	$("#cohort-variables").on('change', function(e){
+		//console.log("%s:%s",maxJP, $("#max_join_point_select").val());
+		hide_display_email();
+		
+	});
+
 	$("#max_join_point_select").on('change', function(e){
 		//console.log("%s:%s",maxJP, $("#max_join_point_select").val());
-		if(parseInt($("#max_join_point_select").val())>maxJP) {
-			//console.log("fadeIn()");
-			$(".e-mail-grp").fadeIn();
-			$("#calculate").val("Submit");
-			validateEmail();
-		} else {
-			//console.log("fadeOut()");
-			$(".e-mail-grp").fadeOut();
-			$("#calculate").val("Calculate");
-			$("#calculate").prop("disabled", false);
-		}
+		hide_display_email();
+		
 	});
 	$("#trends-tab-anchor").click(function(e) {
 		//console.warn("You clicked on trends-tab-anchor");
