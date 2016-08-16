@@ -307,7 +307,7 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_ca
   downloadFile = paste(filePath, paste("data_Year-", jpsurvData$tokenId, "-",iteration, ".csv", sep=""), sep="/") #CSV file to download
   survData=plot.surv.year(outputData$fittedResult$FitList[[jpInd+1]],intervals, NAs, NAs,statistic,"Survival vs Year of Diagnosis")
   dev.off()
-  results =c("RelSurYearGraph"=graphFile,"RelSurvYearData"=survData) #returns 
+  results =list("RelSurYearGraph"=graphFile,"RelSurvYearData"=survData) #returns 
   cohorts=jpsurvData$calculate$form$cohortVars
   cols=ncol(survData)
   for (i in length(cohorts):1)
