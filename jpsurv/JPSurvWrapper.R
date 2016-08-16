@@ -124,7 +124,6 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,runs="NONE")
   print("RUN NUMBER:")
   print(com)
 
-  ModelEstimate=getJointtModelWrapper(filePath,jpsurvDataString,first_calc,com)
   ModelSelection=geALLtModelWrapper(filePath,jpsurvDataString,com)
   Coefficients=getcoefficientsWrapper(filePath,jpsurvDataString,first_calc,com)
   print ("header joint point!!")
@@ -145,10 +144,10 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,runs="NONE")
   
   Full_data=getFullDataDownload(filePath,jpsurvDataString,com)
   if(runs!="NONE"){
-    jsonl =c(IntGraph,YearGraph,ModelEstimate,Coefficients,"ModelSelection" = ModelSelection, "JP"=JP,"SelectedModel"=Selected_Model,"Full_Data_Set"=Full_data,"Runs"=runs) #returns
+    jsonl =list("IntData"=IntGraph,"YearData"=YearGraph,"Coefficients"=Coefficients,"ModelSelection" = ModelSelection, "JP"=JP,"SelectedModel"=Selected_Model,"Full_Data_Set"=Full_data,"Runs"=runs) #returns
   }
   else{
-    jsonl =c(IntGraph,YearGraph,ModelEstimate,Coefficients,"ModelSelection" = ModelSelection, "JP"=JP,"SelectedModel"=Selected_Model,"Full_Data_Set"=Full_data) #returns
+    jsonl =list("IntData"=IntGraph,"YearData"=YearGraph,"Coefficients"=Coefficients,"ModelSelection" = ModelSelection, "JP"=JP,"SelectedModel"=Selected_Model,"Full_Data_Set"=Full_data) #returns
   }
   
   #jsonl =c(ModelEstimate,Coefficients,"ModelSelection" = ModelSelection, "JP"=JP,"SelectedModel"=Selected_Model) #returns
@@ -307,7 +306,7 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_ca
   downloadFile = paste(filePath, paste("data_Year-", jpsurvData$tokenId, "-",iteration, ".csv", sep=""), sep="/") #CSV file to download
   survData=plot.surv.year(outputData$fittedResult$FitList[[jpInd+1]],intervals, NAs, NAs,statistic,"Survival vs Year of Diagnosis")
   dev.off()
-  results =list("RelSurYearGraph"=graphFile,"RelSurvYearData"=survData) #returns 
+  results =c("RelSurYearGraph"=graphFile,"RelSurvYearData"=survData) #returns 
   cohorts=jpsurvData$calculate$form$cohortVars
   cols=ncol(survData)
   for (i in length(cohorts):1)
@@ -409,7 +408,7 @@ getcoefficientsWrapper <- function (filePath,jpsurvDataString,first_calc,com) {
   length=length(coefficients)/2
   Estimates=paste(coefficients[1:length,1],collapse=", ")
   Std_Error=paste(coefficients[1:length,2],collapse=", ")
-  results= c("Xvectors"=Xvector,"Estimates"=Estimates,"Std_Error"=Std_Error)
+  results= list("Xvectors"=Xvector,"Estimates"=Estimates,"Std_Error"=Std_Error)
   print(Xvector)
   return(results)
 }
@@ -443,29 +442,7 @@ geALLtModelWrapper <- function (filePath,jpsurvDataString,com) {
 }
 
 #gets all the model selection info for all joint points
-getJointtModelWrapper <- function (filePath,jpsurvDataString,first_calc,com) {
-  jpsurvData=fromJSON(jpsurvDataString)
-  fileName=paste("output-", jpsurvData$tokenId,"-",com,".rds", sep="")
-  
-  jpInd=jpsurvData$additional$headerJoinPoints
 
-  if(first_calc==TRUE||is.null(jpInd))
-  {
-    jpInd=getSelectedModel(filePath,jpsurvDataString,com)-1
-  }
-  # jpind=jpsurvData$calculate$form$jpInd #<-----new
-  file=paste(filePath, fileName, sep="/" )
-  outputData=readRDS(file)
-  jsonl=c()
-  saved=outputData$fittedResult$FitList
-  aicJson=paste(toJSON(saved[[jpInd+1]]$aic))
-  bicJson=paste(toJSON(saved[[jpInd+1]]$bic))
-  llJson=paste(toJSON(saved[[jpInd+1]]$ll))
-  convergedJson=paste(toJSON(saved[[jpInd+1]]$converged))
-  jsonl =c("aic"=aicJson, "bic"=bicJson, "ll"=llJson, "converged"=convergedJson)
-  
-  return (jsonl)
-}
 
 
 getTrendWrapper<- function (filePath,jpsurvDataString,com) {
