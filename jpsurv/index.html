@@ -33,7 +33,7 @@
     <div class="header">
       <div class="container">
         <a href="http://cancercontrol.cancer.gov/" target="DCCPS">
-        <img class="img-responsive" src="nci_dccps.svg" id="logo"
+        <img class="img-responsive" src="./images/nci_dccps.svg" id="logo"
           alt="National Cancer Institute: Division of Cancer Control and Population Sciences"
           title="National Cancer Institute: Division of Cancer Control and Population Sciences">
         </a>
@@ -60,9 +60,9 @@
           <span class="jpsurv-title col-md-6" ><img src="./images/jpsurv.png" style="height:60%;width:60%"></img></span>
           <h2 class=" col-md-6">
           <span class="pull-right">
-                        <i class="cursor-pointer glyphicon glyphicon-info-sign glyphicon-blue" aria-label="Help" onclick="openHelpWindow('help.html')"></i>
+                        <i class="cursor-pointer glyphicon glyphicon-info-sign glyphicon-blue" aria-label="Help" onclick="openHelpWindow('./html/help.html')"></i>
                       <a href="#">
-                        <span style="font-size:small;"  onclick="openHelpWindow('help.html');">Help</span>
+                        <span style="font-size:small;"  onclick="openHelpWindow('./html/help.html');">Help</span>
                       </a>
          </span>
        </h2>
@@ -74,12 +74,12 @@
                   
                   <hr class="stage-separator">
                   <div id="file_control_container" class= "form-group"> <label for='file_control'>Data Dictionary File:</label> 
-                    <a style='font-size:small' href='SEER9_Survival_6CancerSitesByStage_1975_2007.dic' download='SEER9_Survival_6CancerSitesByStage_1975_2007.dic'>(example dictionary)</a> 
+                    <a style='font-size:small' href='SEER9_Survival_6CancerSitesByStage_1975_2007.dic' download='./data/SEER9_Survival_6CancerSitesByStage_1975_2007.dic'>(example dictionary)</a> 
                     <input type="file" id="file_control" name="file_control">
                   </div>
                   <div id="file_data_container" class="form-group">
                     <label for='file_data'>Data File:</label>
-                    <a style='font-size:small' href='SEER9_Survival_6CancerSitesByStage_1975_2007.txt'download='SEER9_Survival_6CancerSitesByStage_1975_2007.txt'>(example data)</a> 
+                    <a style='font-size:small' href='SEER9_Survival_6CancerSitesByStage_1975_2007.txt'download='./data/SEER9_Survival_6CancerSitesByStage_1975_2007.txt'>(example data)</a> 
                     <input type="file" id="file_data" name="file_data">
                   </div>
                   <div id="data_type_container" class="form-group">
@@ -547,7 +547,7 @@
          <i class="fa fa-spinner fa-spin fa-4x" style="margin-left:100px;">&nbsp;</i>
          -->
         <div class="row col-md-offset-4">
-          <img src="spinner.gif">
+          <img src="./images/spinner.gif">
         </div>
 
       </div>

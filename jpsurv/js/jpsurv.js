@@ -409,8 +409,8 @@ function addCohortVariables() {
 }
 
 function loadHelp() {
-	$("#help-tab").load("help.html");
-	$("#help").append($("<div>").load("description.html"));
+	$("#help-tab").load("./html/help.html");
+	$("#help").append($("<div>").load("./html/description.html"));
 }
 
 function checkInputFiles() {
