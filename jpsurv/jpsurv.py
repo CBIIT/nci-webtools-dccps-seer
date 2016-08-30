@@ -11,6 +11,8 @@ from werkzeug import secure_filename
 
 app = Flask(__name__, static_folder='', static_url_path='/')
 
+os.makedirs('tmp')
+
 QUEUE_NAME = 'queue.name'
 QUEUE_URL = 'queue.url'
 jpsurvConfig = PropertyUtil(r"config.ini")
