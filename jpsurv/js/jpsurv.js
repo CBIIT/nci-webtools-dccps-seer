@@ -80,7 +80,7 @@ function validateEmail() {
 
 }
 
-function hide_display_email(){
+function check_multiple(){
 	var multiple=false;
 	var num_types=$("#cohort-variables fieldset").length
 	var checked=$('[type=checkbox]').filter(':checked').length
@@ -88,7 +88,12 @@ function hide_display_email(){
 	if(checked>num_types){
 		multiple=true;
 	}
-	if(parseInt($("#max_join_point_select").val())>maxJP ||multiple==true) {
+
+	return multiple
+}
+function hide_display_email(){
+	
+	if(parseInt($("#max_join_point_select").val())>maxJP ||check_multiple()==true) {
 			//console.log("fadeIn()");
 			$(".e-mail-grp").fadeIn();
 			$("#calculate").val("Submit");
@@ -531,13 +536,16 @@ function updateGraphs(token_id) {
 			$.each(jpsurvData.calculate.form.cohortValues, function(index2, value2) {
 				row += "<td>"+value2.replace(/"/g, "")+"</td>";
 			});
+
+			var type = Object.keys(jpsurvData.results.IntData.RelSurIntData)[2];
+
 			row += "<td>"+value+"</td>";
 			row += formatCell(jpsurvData.results.YearData.RelSurvYearData.Interval[index]);
 			row += formatCell(jpsurvData.results.YearData.RelSurvYearData.Died[index]);
 			row += formatCell(jpsurvData.results.YearData.RelSurvYearData.Alive_at_Start[index]);
 			row += formatCell(jpsurvData.results.YearData.RelSurvYearData.Lost_to_Followup[index]);
 			row += formatCell(jpsurvData.results.YearData.RelSurvYearData.Expected_Survival_Interval[index]);
-			row += formatCell(jpsurvData.results.IntData.RelSurIntData.Relative_Survival_Cum[index]);
+			row += formatCell(jpsurvData.results.IntData.RelSurIntData[type][index]);
 			row += formatCell(jpsurvData.results.YearData.RelSurvYearData.pred_int[index])
 			row += formatCell(jpsurvData.results.YearData.RelSurvYearData.pred_cum[index]);
 			row += formatCell(jpsurvData.results.YearData.RelSurvYearData.pred_int_se[index]);
@@ -900,7 +908,7 @@ function calculate(run) {
 		jpsurvData.tokenId = renewTokenId(true);
 		incrementImageId();
 		jpsurvData.run=1;
-		if(parseInt($("#max_join_point_select").val())>maxJP && validateVariables()) {
+		if(parseInt($("#max_join_point_select").val())>maxJP && validateVariables() || check_multiple()==true) {
 			// SEND TO QUEUE
 			setIntervalsDefault();
 			getIntervals();
