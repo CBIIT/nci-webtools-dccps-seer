@@ -174,7 +174,7 @@ function userChangePrecision() {
 	changePrecision();
 }
 function addMessages() {
-	var e_mail_msg = "Maximum Joinpoints greater than "+maxJP+" requires additional computing time.  When computation is completed a notification will be sent to the e-mail entered below.";
+	var e_mail_msg = "Multiple Cohorts or single cohort with maximum Joinpoints greater than "+maxJP+"  will require additional computing time. When computation is completed, a notification will be sent to the e-mail entered above.";
 	$("#e-mail-msg").text(e_mail_msg);
 
 	$("#jpsurv-help-message-container").hide();
