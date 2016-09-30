@@ -86,7 +86,7 @@ function check_multiple(){
 	var checked=$('[type=checkbox]').filter(':checked').length
 
 	if(checked>num_types){
-		multiple=false;
+		multiple=true;
 	}
 
 	return multiple
