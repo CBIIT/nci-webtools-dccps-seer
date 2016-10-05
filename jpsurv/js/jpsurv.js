@@ -2079,3 +2079,13 @@ function getCookie(cname) {
     }
     return "";
 } 
+$( "#csv" ).click(function() {
+  $("#dic_container").hide();
+  $("#csv_container").show();
+});
+
+$( "#dic" ).click(function() {
+  $("#csv_container").hide();
+  $("#dic_container").show();
+
+});
