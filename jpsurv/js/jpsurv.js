@@ -161,6 +161,7 @@ function addEventListeners() {
 
 	$("#file_data").on("change", checkInputFiles);
 	$("#file_control").on("change", checkInputFiles);
+	$("#file_control_csv").on("change", checkInputFiles);
 
 	$( "#upload-form" ).on("submit", function( event ) {
 ;
@@ -428,11 +429,23 @@ function checkInputFiles() {
 	//If both files are filed out then enable the Upload Files Button
 	var file_control = $("#file_control").val();
 	var file_data = $("#file_data").val();
+	var file_control_csv = $("#file_control_csv").val();
 
-	if(file_control.length > 0 && file_data.length > 0) {
-		$("#upload_file_submit").removeAttr('disabled');
-		$("#upload_file_submit").attr('title', 'Upload Input Files');
-	}
+		if($('#dic').is(':checked')){
+			if(file_control.length > 0 && file_data.length > 0) {
+				$("#upload_file_submit").removeAttr('disabled');
+				$("#upload_file_submit").attr('title', 'Upload Input Files');
+			}
+		}
+
+		else if($('#csv').is(':checked')){
+			if(file_control_csv.length > 0 ) {
+				$("#upload_file_submit").removeAttr('disabled');
+				$("#upload_file_submit").attr('title', 'Upload Input Files');
+			}
+		}
+	
+
 }
 
 // set Data after STAGE 1
@@ -2082,10 +2095,16 @@ function getCookie(cname) {
 $( "#csv" ).click(function() {
   $("#dic_container").hide();
   $("#csv_container").show();
+  $('#upload_file_submit').prop("disabled",true);
+  checkInputFiles();
+
 });
 
 $( "#dic" ).click(function() {
   $("#csv_container").hide();
   $("#dic_container").show();
+    $('#upload_file_submit').prop("disabled",true);
+
+  checkInputFiles();
 
 });
