@@ -13,6 +13,9 @@
   <!--<![endif]-->
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"type="text/css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"type="text/css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.10.12/css/dataTables.bootstrap.min.css"type="text/css">
+
   <link rel="stylesheet" href="../common/css/font-awesome.css"type="text/css">
   <link rel="stylesheet" href="../common/css/style.css" type="text/css">
   <link rel="stylesheet" href="css/jpsurv.css" type="text/css">
@@ -21,6 +24,11 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js" type="text/javascript"></script>
   <script src= "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" type="text/javascript"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/es6-shim/0.35.1/es6-shim.min.js" type="text/javascript"></script>
+  <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.js" type="text/javascript"></script>
+  <script src="https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap.js" type="text/javascript"></script>
+
+  <script type="text/javascript" src="./js/modal_content.js"></script>
+
   <head>
     <title>JPSurv</title>
   </head>
@@ -73,11 +81,11 @@
                 
                 <label>File Format:</label>
                   <input type="radio" name="data" value="dic" checked id="dic"> Dictionary/Data Files    
-                  <input type="radio" id="csv" name="data" value="csv"> CSV Files
+                  <input type="radio" id="csv" name="data" value="csv" checked> CSV Files
                   </br></br>
                   
                   <hr class="stage-separator">
-                  <div id="dic_container" >
+                  <div id="dic_container" style="display:none">
                     <div id="file_control_container" class= "form-group"> <label for='file_control'>Data Dictionary File:</label>
                       <a style='font-size:small' href='SEER9_Survival_6CancerSitesByStage_1975_2007.dic' download='./data/SEER9_Survival_6CancerSitesByStage_1975_2007.dic'>(example dictionary)</a>
                       <input type="file" id="file_control" name="file_control">
@@ -89,10 +97,10 @@
                     </div>
                   </div>
 
-                    <div id="csv_container" style="display:none">
+                    <div id="csv_container" >
                     <div id="file_control_container" class= "form-group"> <label for='file_control'>CSV File:</label>
                       <a style='font-size:small' href='Breast_RelativeSurvival_Head.csv' download='./data/Breast_RelativeSurvival_Head.csv'>(example csv with headers)</a></br>
-                      <input type="file" id="file_control" name="file_control"></br>
+                      <input type="file" id="file_control_csv" name="file_control"></br>
                     </div>
                     
                     <label for="has_headers">Does the file contain headers?  </label>
@@ -100,11 +108,13 @@
                     
                     <label for="num_col">Number of leading dictionary columns:  </label>
                     <input id="num_col" type="number" class="form-control pull-right sm-input" value="1" min="1"/><br><br>
-
-                    <label for="data_type">What data type is the file:  </label>
-                      <input type="radio" name="data_type" value="rel" checked> Relative    
-                      <input type="radio" id="data_type" name="data_type" value="cum"> Cause-Specific
-                  
+                    <label for="data_type">Data Type:  </label>
+                     <select id='data_type' class="jpsurv-label-content" name='data_type'>
+                      <option>Relative Survival</option>    
+                      <option>Cause Specific</option>
+                    </select>
+                    <button type="button" class="pull-right" id="Adv_input" >Advanced</button>
+                    </br></br>
                   </div>
 
                   <div class="row">
@@ -610,4 +620,6 @@
 </div><!-- /.modal -->
   </body>
   <script src="js/jpsurv.js" type="text/javascript"></script>
+  <script type="text/javascript" src="./js/modal_content.js"></script>
+
 </html>
