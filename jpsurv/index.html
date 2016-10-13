@@ -100,15 +100,15 @@
                   </div>
 
                     <div id="csv_container" >
-                    <div id="file_control_container" class= "form-group"> <label for='file_control_csv'>CSV File:</label>
+                    <div id="file_control_container_csv" class= "form-group"> <label for='file_control_csv'>CSV File:</label>
                       <a style='font-size:small' href='Breast_RelativeSurvival_Head.csv' download='./data/Breast_RelativeSurvival_Head.csv'>(example csv with headers)</a></br>
-                      <input type="file" id="file_data_csv" name="file_data_csv"></br>
+                      <input type="file" id="file_control_csv" name="file_control_csv"></br>
                     </div>
                     
-                    <label for="has_headers">Does the file contain headers?  </label>
+                    <label for="has_headers" id="csv_label_headers">Does the file contain headers?  </label>
                     <input type="checkbox" name="has_headers" id="has_headers" value="yes"><br><br>
                     
-                    <label for="data_type">Data Type:  </label>
+                    <label for="data_type" id="csv_label_data">Data Type:  </label>
                      <select id='data_type' class="jpsurv-label-content" name='data_type'>
                       <option>Relative Survival</option>    
                       <option>Cause Specific</option>

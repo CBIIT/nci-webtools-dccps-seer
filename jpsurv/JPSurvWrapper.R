@@ -11,7 +11,7 @@ getDictionary <- function (inputFile, path, tokenId) {
   cat(toJSON(seerFormData), file = fqOutputFileName)
   return(tokenId)
 }
-ReadCSVFile <- function (inputFile, path, tokenId, jpsurvDataString) { 
+ReadCSVFile <- function (inputFile, path, tokenId, jpsurvDataString,input_type) { 
   print ("HERE!!")
   jpsurvData <<- fromJSON(jpsurvDataString)
   print(jpsurvData)
@@ -24,11 +24,12 @@ ReadCSVFile <- function (inputFile, path, tokenId, jpsurvDataString) {
   interval=jpsurvData$interval
 
   
-  csvdata=read.csvdata(fileName=file.path(path, inputFile),          # fileName: Name of file to use in current directory, or filepath.
-                    hasHeader=has_headers);                             # hasHeader: Boolean variable indicating whether or not the CSV being read in has a header row or not. Default is FALSE.
+  csvdata=read.tabledata(fileName=file.path(path, inputFile),          # fileName: Name of file to use in current directory, or filepath.
+                    hasHeader=has_headers,
+                    dlm=",");                             # hasHeader: Boolean variable indicating whether or not the CSV being read in has a header row or not. Default is FALSE.
   
-  seerFormData=write.csvdic(inputData=csvdata,                       # inputData: Input data.frame.
-                    idColNum=4);    
+  seerFormData=write.tabledic(inputData=csvdata,                       # inputData: Input data.frame.
+                    idCols=c(cohorts,year,interval));    
                                                           # idColNum: Integer value defining how many leading columns to create a dictionary of possible values from. Default is 1. 
   print(names(csvdata))
   interval_name=names(csvdata)[interval]
@@ -41,7 +42,7 @@ ReadCSVFile <- function (inputFile, path, tokenId, jpsurvDataString) {
   print(year_name)
 
 
-  jsonl =list("data"=seerFormData,"cohorts"=cohort_name,"year"=year_name,"interval"=interval_name)
+  jsonl =list("data"=seerFormData,"cohort_names"=cohort_name,"cohort_keys"=cohorts,"year"=c(year_name,year),"interval"=c(interval_name,interval),"input_type"=input_type)
   exportJson <- toJSON(jsonl)
   
   #print (jsonl)
@@ -222,7 +223,7 @@ getFittedResult <- function (filePath, seerFilePrefix, yearOfDiagnosisVarName, y
   print (numJP)
   
   file=paste(filePath, seerFilePrefix, sep="/" )
-  
+  type=jpsurvData$input_type
   varLabels=getCorrectFormat(allVars)
   
   
