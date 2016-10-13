@@ -7,24 +7,46 @@ getDictionary <- function (inputFile, path, tokenId) {
   fqFileName = file.path(path, inputFile)
   outputFileName = paste("form-", tokenId, ".json", sep="")
   fqOutputFileName = file.path(path, outputFileName)
-  seerFormData = dictionary.overview(fqFileName)
+  seerFormData = dictionary.overview(fqFileName) 
   cat(toJSON(seerFormData), file = fqOutputFileName)
   return(tokenId)
 }
-ReadCSVFile <- function (inputFile, path, tokenId, has_headers, columns) {
-  
+ReadCSVFile <- function (inputFile, path, tokenId, jpsurvDataString) { 
+  print ("HERE!!")
+  jpsurvData <<- fromJSON(jpsurvDataString)
+  print(jpsurvData)
   fqFileName = file.path(path, inputFile)
   outputFileName = paste("form-", tokenId, ".json", sep="")
   fqOutputFileName = file.path(path, outputFileName)
+  has_headers=as.logical(jpsurvData$has_headers);
+  cohorts=jpsurvData$cohorts
+  year=jpsurvData$year
+  interval=jpsurvData$interval
+
   
-  data=read.csvdata(fileName="Breast_RelativeSurvival_Head.csv",          # fileName: Name of file to use in current directory, or filepath.
+  csvdata=read.csvdata(fileName=file.path(path, inputFile),          # fileName: Name of file to use in current directory, or filepath.
                     hasHeader=has_headers);                             # hasHeader: Boolean variable indicating whether or not the CSV being read in has a header row or not. Default is FALSE.
   
-  seerFormData=write.csvdic(inputData=data,                       # inputData: Input data.frame.
-                    idColNum=columns);                                          # idColNum: Integer value defining how many leading columns to create a dictionary of possible values from. Default is 1. 
-  
+  seerFormData=write.csvdic(inputData=csvdata,                       # inputData: Input data.frame.
+                    idColNum=4);    
+                                                          # idColNum: Integer value defining how many leading columns to create a dictionary of possible values from. Default is 1. 
+  print(names(csvdata))
+  interval_name=names(csvdata)[interval]
+  print(interval_name)
 
-  cat(toJSON(seerFormData), file = fqOutputFileName)
+  cohort_name=names(csvdata)[cohorts]
+  print(cohorts)
+
+  year_name=names(csvdata)[year]
+  print(year_name)
+
+
+  jsonl =list("data"=seerFormData,"cohorts"=cohort_name,"year"=year_name,"interval"=interval_name)
+  exportJson <- toJSON(jsonl)
+  
+  #print (jsonl)
+  print("Creating form file")
+  write(exportJson, fqOutputFileName)
   return(tokenId)
   
 }
@@ -246,7 +268,7 @@ getFittedResult <- function (filePath, seerFilePrefix, yearOfDiagnosisVarName, y
     alive_at_start=names(seerdata)[jpsurvData$additional$alive_at_start]
     lost_to_followup=names(seerdata)[jpsurvData$additional$lost_to_followup]
     exp_int=names(seerdata)[jpsurvData$additional$exp_int]
-    observed=names(seerdata)[jpsurvData$additional$rel_cum]
+    observed=names(seerdata)[jpsurvData$additional$observed]
     interval=names(seerdata)[jpsurvData$additional$interval]
     died=names(seerdata)[jpsurvData$additional$died]
     subsetStrL="year_dx >= 0 & year_dx <= 20 & age_rec == 0 & stage == 0"

@@ -161,7 +161,7 @@ function addEventListeners() {
 
 	$("#file_data").on("change", checkInputFiles);
 	$("#file_control").on("change", checkInputFiles);
-	$("#file_control_csv").on("change", checkInputFiles);
+	$("#file_data_csv").on("change", checkInputFiles);
 
 	$( "#upload-form" ).on("submit", function( event ) {
 ;
@@ -183,14 +183,15 @@ function addMessages() {
 
 function addInputSection() {
 
+//  $("#dic_container").hide();
+//  $("#csv_container").show();
 	var status = getUrlParameter('status');
 	if(status == "uploaded") {
-		$("#upload_file_submit").remove();
-		setUploadData();
-		control_data = load_ajax(jpsurvData.file.form);
-		load_form();
+		if( jpsurvData.input_type="dic"){
+			$('#csv_container').remove();
+			$('#dic_container').show();
 
-		$('#file_control_container')
+					$('#file_control_container')
 			.empty()
 			.append($('<div>')
 				.addClass('jpsurv-label-container')
@@ -219,6 +220,18 @@ function addInputSection() {
 					.addClass('jpsurv-label-content')
 				)
 			);
+		}
+		else if( jpsurvData.input_type="csv"){
+			$('#csv_container').show();
+			$('#dic_container').remove();
+		}
+		$( "#input_type_select" ).remove();
+		$("#upload_file_submit").remove();
+		setUploadData();
+		control_data = load_ajax(jpsurvData.file.form);
+		load_form();
+
+
 		$('#data_type_container')
 			.empty()
 			.append($('<div>')
@@ -394,29 +407,32 @@ function addCohortVariables() {
 
 	var i=0;
 	var html = "";
-	$.each(cohort_covariance_variables, function(key, value) {
-		jpsurvData.calculate.form.cohortVars.push(key);
-		jpsurvData.calculate.form.AllcohortValues[i]=[];
+	if(jpsurvData.input_type=="dic"){
+		$.each(cohort_covariance_variables, function(key, value) {
+			jpsurvData.calculate.form.cohortVars.push(key);
+			jpsurvData.calculate.form.AllcohortValues[i]=[];
 
-		html = '<div class="row"><div class="col-md-12"><fieldset id="cohort-'+i+'" data-cohort="'+key+'"><legend><span class="jpsurv-label">'+key+':</span></legend></fieldset></div></div>';
-		$("#cohort-variables").append(html);
-		$.each(control_data.VarFormatSecList[key].ItemValueInDic, function(key2, value2) {
-			$("#cohort-"+i)
-				.append(
-					$('<div>').addClass('checkbox')
-						.append($('<label>')
-							.append($('<input>')
-									.attr('type', 'checkbox')
-									.attr('value', value2)
-									.addClass('cohort')
-									.addClass('cohort-'+i)
-								).append(value2)
-					)
-				);
+			html = '<div class="row"><div class="col-md-12"><fieldset id="cohort-'+i+'" data-cohort="'+key+'"><legend><span class="jpsurv-label">'+key+':</span></legend></fieldset></div></div>';
+			$("#cohort-variables").append(html);
+			$.each(control_data.VarFormatSecList[key].ItemValueInDic, function(key2, value2) {
+				$("#cohort-"+i)
+					.append(
+						$('<div>').addClass('checkbox')
+							.append($('<label>')
+								.append($('<input>')
+										.attr('type', 'checkbox')
+										.attr('value', value2)
+										.addClass('cohort')
+										.addClass('cohort-'+i)
+									).append(value2)
+						)
+					);
+			});
+			$("#cohort-"+i).find('input').filter(":first").prop('checked', true);
+			i++;
+	
 		});
-		$("#cohort-"+i).find('input').filter(":first").prop('checked', true);
-		i++;
-	});
+	}
 	updateCohortDisplay();
 }
 
@@ -429,7 +445,7 @@ function checkInputFiles() {
 	//If both files are filed out then enable the Upload Files Button
 	var file_control = $("#file_control").val();
 	var file_data = $("#file_data").val();
-	var file_control_csv = $("#file_control_csv").val();
+	var file_data_csv = $("#file_data_csv").val();
 
 		if($('#dic').is(':checked')){
 			if(file_control.length > 0 && file_data.length > 0) {
@@ -439,7 +455,7 @@ function checkInputFiles() {
 		}
 
 		else if($('#csv').is(':checked')){
-			if(file_control_csv.length > 0 ) {
+			if(file_data_csv.length > 0 ) {
 				$("#upload_file_submit").removeAttr('disabled');
 				$("#upload_file_submit").attr('title', 'Upload Input Files');
 			}
@@ -958,7 +974,8 @@ function calculate(run) {
 
 function file_submit(event) {
 	jpsurvData.tokenId = renewTokenId(false);
-	$("#upload-form").attr('action', 'jpsurvRest/stage1_upload?tokenId='+jpsurvData.tokenId);
+	jpsurvData.mapping.has_headers=$('#has_headers').is(':checked')
+	$("#upload-form").attr('action', 'jpsurvRest/stage1_upload?tokenId='+jpsurvData.tokenId+'&input_type='+jpsurvData.input_type+'&map='+JSON.stringify(jpsurvData.mapping));
 	getRestServerStatus();
 }
 /*
@@ -1143,6 +1160,9 @@ function load_form() {
 	addCohortVariables();
 	addSessionVariables();
 	build_parameter_column();
+	
+
+
 
 	$('#diagnosis_title')
 		.empty()
@@ -1183,11 +1203,16 @@ function parse_diagnosis_years() {
 	// Then we need to read the label for the previous row, this will be the name used for the title,
 	// it will ALSO be the value in the array needed to find the years
 
-	if (diagnosis_row >= 2) {
-		jpsurvData.calculate.static.yearOfDiagnosisTitle = control_data.VarAllInfo.ItemValueInDic[diagnosis_row-1];
+	if(jpsurvData.input_type=="dic"){
+		if (diagnosis_row >= 2) {
+			jpsurvData.calculate.static.yearOfDiagnosisTitle = control_data.VarAllInfo.ItemValueInDic[diagnosis_row-1];
+		}
+		jpsurvData.calculate.static.years = control_data.VarFormatSecList[jpsurvData.calculate.static.yearOfDiagnosisTitle].ItemValueInDic;
 	}
-	jpsurvData.calculate.static.years = control_data.VarFormatSecList[jpsurvData.calculate.static.yearOfDiagnosisTitle].ItemValueInDic;
 
+	else if(jpsurvData.input_type=="csv"){
+		jpsurvData.calculate.static.years = control_data.VarFormatSecList[jpsurvData.calculate.static.yearOfDiagnosisTitle].ItemValueInDic;
+	}
 }
 function parse_cohort_covariance_variables() {
 	//console.log('parse_cohort_covariance_variables()');
@@ -1246,13 +1271,15 @@ function getNumberOfIntervals() {
 function getSessionOptionInfo(var_name) {
 
 	//console.log("getSessionOptionInfo()");
-	var session_value = "-1";
-	var options = control_data.SessionOptionInfo.ItemNameInDic;
-	$.each(control_data.SessionOptionInfo.ItemNameInDic, function(key, value) {
-		if(value == var_name) {
-			session_value = control_data.SessionOptionInfo.ItemValueInDic[key];
-		}
-	});
+	if(jpsurvData.input_type=="dic"){
+		var session_value = "-1";
+		var options = control_data.SessionOptionInfo.ItemNameInDic;
+		$.each(control_data.SessionOptionInfo.ItemNameInDic, function(key, value) {
+			if(value == var_name) {
+				session_value = control_data.SessionOptionInfo.ItemValueInDic[key];
+			}
+		});
+	}
 	//console.log(session_value);
 
 	return session_value;
@@ -1263,35 +1290,37 @@ function get_cohort_covariance_variable_names() {
 	var cohort_covariance_variable_names = [];
 
 	//var names = control_data.VarAllInfo.ItemNameInDic;
-	var form_data = control_data;
-	var names = control_data.VarAllInfo.ItemNameInDic;
+	if(jpsurvData.input_type=="dic"){
+		var form_data = control_data;
+		var names = control_data.VarAllInfo.ItemNameInDic;
 
-	//Put answer in footer
-	/*
-	$('#footer_output')
-			.append(
-				$('<div>').append(JSON.stringify(form_data[0]))
-			);
-	*/
-	var values = control_data.VarAllInfo.ItemValueInDic;
-	var regex_base = /^Var\d*Base/;
-	var regex_name = /^Var\d*Name/;
-	var regex_interval = /Interval/;
-	var regex_year = /Year of diagnosis/;
-  //Go through Item Value and look for "Year of diagnosis"
-  //Push variable names on to a list called cohort_covariance_variable_names.
-	for (var i=0; i<names.length; i++) {
-		//console.log('names['+i+'] = '+names[i]+', values['+i+'] = '+values[i]);
-		//if (regex_base.test(names[i]) && values[i] == "Year of diagnosis") break;
-		if (regex_interval.test(values[i])) break; //stops at a value with "Interval" in it
-		if (!regex_name.test(names[i])) continue;
-		if (values[i] == "Page type") continue; // Skip the Page type
-		if (regex_year.test(values[i])) continue; //skips "Year of diagnosis"
-		cohort_covariance_variable_names.push(values[i]);
+		//Put answer in footer
+		/*
+		$('#footer_output')
+				.append(
+					$('<div>').append(JSON.stringify(form_data[0]))
+				);
+		*/
+		var values = control_data.VarAllInfo.ItemValueInDic;
+		var regex_base = /^Var\d*Base/;
+		var regex_name = /^Var\d*Name/;
+		var regex_interval = /Interval/;
+		var regex_year = /Year of diagnosis/;
+	  //Go through Item Value and look for "Year of diagnosis"
+	  //Push variable names on to a list called cohort_covariance_variable_names.
+		for (var i=0; i<names.length; i++) {
+			//console.log('names['+i+'] = '+names[i]+', values['+i+'] = '+values[i]);
+			//if (regex_base.test(names[i]) && values[i] == "Year of diagnosis") break;
+			if (regex_interval.test(values[i])) break; //stops at a value with "Interval" in it
+			if (!regex_name.test(names[i])) continue;
+			if (values[i] == "Page type") continue; // Skip the Page type
+			if (regex_year.test(values[i])) continue; //skips "Year of diagnosis"
+			cohort_covariance_variable_names.push(values[i]);
+		}
+		//cohort_covariance_variable_names.pop();
+		//alert (JSON.stringify(cohort_covariance_variable_names));
+		//console.dir(cohort_covariance_variable_names);
 	}
-	//cohort_covariance_variable_names.pop();
-	//alert (JSON.stringify(cohort_covariance_variable_names));
-	//console.dir(cohort_covariance_variable_names);
 	return cohort_covariance_variable_names;
 }
 
@@ -1300,9 +1329,12 @@ function get_cohort_covariance_variable_values(name) {
 }
 
 function find_year_of_diagnosis_row() {
-	var vals = control_data.VarAllInfo.ItemValueInDic;
-	for (var i=0; i< vals.length; i++) {
-		if (vals[i] == "Year of diagnosis") return i;
+	
+	if(jpsurvData.input_type=="dic"){
+		var vals = control_data.VarAllInfo.ItemValueInDic;
+		for (var i=0; i< vals.length; i++) {
+			if (vals[i] == "Year of diagnosis") return i;
+		}
 	}
 	return 0;
 }
@@ -2089,18 +2121,20 @@ function getCookie(cname) {
         if (c.indexOf(name) == 0) {
             return c.substring(name.length,c.length);
         }
-    }
+    } 
     return "";
 } 
 $( "#csv" ).click(function() {
   $("#dic_container").hide();
   $("#csv_container").show();
   $('#upload_file_submit').prop("disabled",true);
+  jpsurvData.input_type="csv";
   checkInputFiles();
 
 });
 
 $( "#dic" ).click(function() {
+  jpsurvData.input_type="dic";
   $("#csv_container").hide();
   $("#dic_container").show();
     $('#upload_file_submit').prop("disabled",true);
@@ -2112,12 +2146,13 @@ $( "#dic" ).click(function() {
 
 //MODAL CONTENT BELOW!!/////////////////
 $('#Adv_input').click(function() {
-  var fileInput = $('#file_control_csv');
+  var fileInput = $('#file_data_csv');
   fileInput = fileInput[0];
   var file = fileInput.files[0];
   var filereader = new FileReader();
   var content="";
   var has_headers=$('#has_headers').is(':checked')
+
  // filereader.onload = function(event) { create_table(event.currentTarget.result)}
  filereader.onload = function(event) { create_table(event.currentTarget.result,19,has_headers)}
   filereader.readAsText(file);
@@ -2161,9 +2196,48 @@ function createModal(content,length) {
   });
 
    $('#save').click(function() {
+   	jpsurvData.mapping={}
+   	jpsurvData.mapping.cohorts=[]
    for (var i = 0; i < length; i ++) {
    		value=$('#type_'+i+' select').val()
-   		console.log(i,value);
+   		if(value=="Cohort"){
+   			jpsurvData.mapping.cohorts.push(i+1)
+   		}
+   		else if (value=="Year")
+   		{
+   			jpsurvData.mapping.year=i+1
+   		}
+   		
+   		else if (value=="Interval")
+   		{
+   			jpsurvData.mapping.interval=i+1
+   			jpsurvData.additional.interval=i+1
+   		}
+   		
+   		else if (value=="number.event")
+   		{
+   			jpsurvData.additional.died=i+1
+   		}
+   		
+   		else if (value=="number.alive")
+   		{
+   			jpsurvData.additional.alive_at_start=i+1
+   		}
+   		
+   		else if (value=="number.loss")
+   		{
+   			jpsurvData.additional.lost_to_followup=i+1
+   		}
+   		
+   		else if (value=="expected.rate")
+   		{
+   			jpsurvData.additional.exp_int=i+1
+   		}
+   		
+   		else if (value=="observedrelsurv")
+   		{
+   			jpsurvData.additional.observed=i+1
+   		}
    }
       $('#modal').modal('hide');
    

@@ -37,7 +37,7 @@ def fix_jpsurv(jpsurvDataString):
     print BOLD+"New:::"+ENDC
     print jpsurvDataString
 
-    return jpsurvDataString
+    return jpsurvDataString 
 
 @app.route('/jpsurvRest/debug', methods = ['GET'])
 def test():
@@ -95,63 +95,94 @@ def get_upload():
 def stage1_upload():
     print(OKGREEN+UNDERLINE+BOLD + "****** Stage 1: UPLOAD BUTTON ***** " + ENDC)
     tokenId = request.args.get('tokenId', False)
+    input_type = request.args.get('input_type')
+        
+    print("Input type")
+    print(input_type)
+
     print((BOLD + "****** Stage 1: tokenId = %s" + ENDC) % (tokenId))
 
     for k, v in request.args.iteritems():
         print "var: %s = %s" % (k, v)
+    r.source('./JPSurvWrapper.R')
+    if(input_type=="dic"):
+        file = request.files['file_control']
+        if file and file.filename:
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(UPLOAD_DIR, filename))
+            file_control_filename = filename
+            print("Saving file_control: %s" % file_control_filename) 
+        file = request.files['file_data']
+        if file and file.filename:
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(UPLOAD_DIR, filename))
+            file_data_filename = filename
+            print("Saving file_data: %s" % file_data_filename) 
 
-    file = request.files['file_control']
-    if file and file.filename:
-        filename = secure_filename(file.filename)
-        file.save(os.path.join(UPLOAD_DIR, filename))
-        file_control_filename = filename
-        print("Saving file_control: %s" % file_control_filename)
-    file = request.files['file_data']
-    if file and file.filename:
-        filename = secure_filename(file.filename)
-        file.save(os.path.join(UPLOAD_DIR, filename))
-        file_data_filename = filename
-        print("Saving file_data: %s" % file_data_filename)
+        if(request.files['file_control'] == ''):
+            print("file_control not assigned")
+        if(request.files['file_data'] == ''): 
+            print("file_data not assigned") 
 
-    if(request.files['file_control'] == ''):
-        print("file_control not assigned")
-    if(request.files['file_data'] == ''):
-        print("file_data not assigned")
+        #PRINT FILE_CONTROL
+        file_control = os.path.join(UPLOAD_DIR, file_control_filename)
+        fo = open(file_control, "r+")
+        str = fo.read(250)
+        fo.close()
 
+        #PRINT FILE_DATA
+        file_data = os.path.join(UPLOAD_DIR, file_data_filename)
+        fo = open(file_control, "r+")
+        str = fo.read(500)
+        fo.close()
+        r.getDictionary(file_control_filename, UPLOAD_DIR, tokenId)
+        output_filename = "form-%s.json" % tokenId
+
+        r_output_file = os.path.join(UPLOAD_DIR, output_filename)
+        fo = open(r_output_file, "r+")
+        str = fo.read(500)
+        fo.close()
+        status = "uploaded"
+        return_url = "%s/jpsurv?request=false&file_control_filename=%s&file_data_filename=%s&output_filename=%s&status=%s&tokenId=%s" % (request.url_root, file_control_filename, file_data_filename, output_filename, status, tokenId)
+        print(return_url)
+        return redirect(return_url)
+
+    if(input_type=="csv"):
+        mapping = request.args.get('map',False)
+        file = request.files['file_data_csv'] 
+        if file and file.filename:
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(UPLOAD_DIR, filename))
+            file_data_filename = filename
+            print("Saving file_data_csv: %s" % file_data_filename)  
+
+        if(request.files['file_data_csv'] == ''): 
+            print("file_data_csv not assigned")
+ 
+        #PRINT FILE_DATA
+        file_data = os.path.join(UPLOAD_DIR, file_data_filename)
+        fo = open(file_data, "r+")
+        str = fo.read(500)
+        fo.close()
+        print("SENDING.....")
+        print(mapping)
+        r.ReadCSVFile(file_data_filename, UPLOAD_DIR, tokenId,mapping)
+        output_filename = "form-%s.json" % tokenId
+        r_output_file = os.path.join(UPLOAD_DIR, output_filename)
+        fo = open(r_output_file, "r+")
+        str = fo.read(500)
+        fo.close()
+        status = "uploaded"
+        return_url = "%s/jpsurv?request=false&file_control_filename=%s&file_data_filename=%s&output_filename=%s&status=%s&tokenId=%s" % (request.url_root, file_control_filename, file_data_filename, output_filename, status, tokenId)
+        print(return_url)
+        return redirect(return_url) 
     #Now that the files are on the server RUN the RCode
 
-    #PRINT FILE_CONTROL
-    file_control = os.path.join(UPLOAD_DIR, file_control_filename)
-    fo = open(file_control, "r+")
-    str = fo.read(250)
-    fo.close()
 
-    #PRINT FILE_DATA
-    file_data = os.path.join(UPLOAD_DIR, file_data_filename)
-    fo = open(file_control, "r+")
-    str = fo.read(500)
-    fo.close()
 
     #Init the R Source
-    r.source('./JPSurvWrapper.R')
-
-    # Next  line execute the R Program
-    rStrVector = r.getDictionary(file_control_filename, UPLOAD_DIR, tokenId)
-    #Convert R StrVecter to tuple to str
-
-    output_filename = "form-%s.json" % tokenId
-
-    r_output_file = os.path.join(UPLOAD_DIR, output_filename)
-    fo = open(r_output_file, "r+")
-    str = fo.read(500)
-    fo.close()
 
 
-    status = "uploaded"
-
-    return_url = "%s/jpsurv?request=false&file_control_filename=%s&file_data_filename=%s&output_filename=%s&status=%s&tokenId=%s" % (request.url_root, file_control_filename, file_data_filename, output_filename, status, tokenId)
-    print(return_url)
-    return redirect(return_url)
 
 @app.route('/jpsurvRest/stage2_calculate', methods=['GET'])
 def stage2_calculate():

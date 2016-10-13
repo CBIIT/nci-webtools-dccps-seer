@@ -79,9 +79,11 @@
               <div class="box col-md-12" style="overflow:hidden">
                 <form id="upload-form" class="form-horizontal" role="form" method="post" enctype="multipart/form-data" action="/jpsurvRest/stage1_upload">
                 
-                <label>File Format:</label>
-                  <input type="radio" name="data" value="dic" checked id="dic"> Dictionary/Data Files    
-                  <input type="radio" id="csv" name="data" value="csv" checked> CSV Files
+                <div id="input_type_select">
+	                <label>File Format:</label>
+	                  <input type="radio" name="data" value="dic" checked id="dic"> Dictionary/Data Files    
+	                  <input type="radio" id="csv" name="data" value="csv" checked> CSV Files
+	            </div>
                   </br></br>
                   
                   <hr class="stage-separator">
@@ -100,14 +102,12 @@
                     <div id="csv_container" >
                     <div id="file_control_container" class= "form-group"> <label for='file_control_csv'>CSV File:</label>
                       <a style='font-size:small' href='Breast_RelativeSurvival_Head.csv' download='./data/Breast_RelativeSurvival_Head.csv'>(example csv with headers)</a></br>
-                      <input type="file" id="file_control_csv" name="file_control_csv"></br>
+                      <input type="file" id="file_data_csv" name="file_data_csv"></br>
                     </div>
                     
                     <label for="has_headers">Does the file contain headers?  </label>
                     <input type="checkbox" name="has_headers" id="has_headers" value="yes"><br><br>
                     
-                    <label for="num_col">Number of leading dictionary columns:  </label>
-                    <input id="num_col" type="number" class="form-control pull-right sm-input" value="1" min="1"/><br><br>
                     <label for="data_type">Data Type:  </label>
                      <select id='data_type' class="jpsurv-label-content" name='data_type'>
                       <option>Relative Survival</option>    
@@ -116,7 +116,8 @@
                     <button type="button" class="pull-right" id="Adv_input" >Advanced</button>
                     </br></br>
                   </div>
-
+				  <div id="data_type_container" class="form-group">
+                  </div>
                   <div class="row">
                     <div id="upload_file_submit_container" class="jpsurv-button pull-right">
                       <!--<INPUT type='submit' id='upload_file_submit' value='Upload Files' > -->
