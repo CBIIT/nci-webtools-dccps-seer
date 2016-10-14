@@ -17,11 +17,11 @@ if not os.path.exists('tmp'):
 QUEUE_NAME = 'queue.name'
 QUEUE_URL = 'queue.url'
 jpsurvConfig = PropertyUtil(r"config.ini")
-UPLOAD_DIR = os.path.join(os.getcwd(), 'tmp')
+UPLOAD_DIR = os.path.join(os.getcwd(), 'tmp') 
 
 print 'JPSurv is starting...'
 
-#COLORS TO Make logging Mover visible
+#COLORS TO Make logging Mover visible 
 HEADER = '\033[95m'
 OKBLUE = '\033[94m'
 OKGREEN = '\033[92m'
@@ -274,12 +274,12 @@ def stage4_trends_calculate():
     mimetype = 'application/json'
     out_json = json.dumps(status)
 
-    return current_app.response_class(out_json, mimetype=mimetype)
+    return current_app.response_class(out_json, mimetype=mimetype) 
 
-@app.route('/jpsurvRest/stage5_queue', methods=['GET'])
+@app.route('/jpsurvRest/stage5_queue', methods=['GET']) 
 def queue():
 
-    print(OKGREEN+UNDERLINE+BOLD + "****** Stage 5: Queue ***** " + ENDC)
+    print(OKGREEN+UNDERLINE+BOLD + "****** Stage 5: Queue ***** " + ENDC) 
     print("Sending info to queue ...")
 
     print(BOLD+"**** Calling sendqueue ****"+ENDC)

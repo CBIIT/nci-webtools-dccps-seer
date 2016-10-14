@@ -18,11 +18,19 @@ ReadCSVFile <- function (inputFile, path, tokenId, jpsurvDataString,input_type) 
   fqFileName = file.path(path, inputFile)
   outputFileName = paste("form-", tokenId, ".json", sep="")
   fqOutputFileName = file.path(path, outputFileName)
-  has_headers=as.logical(jpsurvData$has_headers);
-  cohorts=jpsurvData$cohorts
-  year=jpsurvData$year
-  interval=jpsurvData$interval
+  has_headers=as.logical(jpsurvData$mapping$has_headers);
+  
+  cohorts=jpsurvData$mapping$cohorts
+  year=jpsurvData$mapping$year
+  interval=jpsurvData$mapping$interval
+  
+  alive_at_start=jpsurvData$mapping$alive_at_start
+  lost_to_followup=jpsurvData$mapping$lost_to_followup
+  exp_int=jpsurvData$mapping$exp_int
+  observed=jpsurvData$mapping$observed
+  died=jpsurvData$mapping$died
 
+  statistic=jpsurvData$additional$statistic
   
   csvdata=read.tabledata(fileName=file.path(path, inputFile),          # fileName: Name of file to use in current directory, or filepath.
                     hasHeader=has_headers,
@@ -42,7 +50,7 @@ ReadCSVFile <- function (inputFile, path, tokenId, jpsurvDataString,input_type) 
   print(year_name)
 
 
-  jsonl =list("data"=seerFormData,"cohort_names"=cohort_name,"cohort_keys"=cohorts,"year"=c(year_name,year),"interval"=c(interval_name,interval),"input_type"=input_type)
+  jsonl =list("data"=seerFormData,"cohort_names"=cohort_name,"cohort_keys"=cohorts,"year"=c(year_name,year),"interval"=c(interval_name,interval),"input_type"=input_type,"statistic"=statistic,"alive_at_start"=alive_at_start,"lost_to_followup"=lost_to_followup,"exp_int"=exp_int,"observed"=observed,"died"=died,"has_headers"=has_headers)
   exportJson <- toJSON(jsonl)
   
   #print (jsonl)
@@ -164,16 +172,54 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,runs="NONE")
   com=as.integer(jpsurvData$run)
   print("RUN NUMBER:")
   print(com)
+  interval=""
+  observed=""
+  type=jpsurvData$additional$input_type
+  titles=list()
+  
+  if(type=="csv"){
+    header=as.logical(jpsurvData$additional$has_header)
+    seerFilePrefix = jpsurvData$calculate$static$seerFilePrefix
+    file=paste(filePath, seerFilePrefix, sep="/" )
+    file=paste(file,".csv",sep="")
+    seerdata=read.tabledata(fileName=file,          # fileName: Name of file to use in current directory, or filepath.
+                      hasHeader=header,
+                      dlm=",");    
+    observed=names(seerdata)[jpsurvData$additional$observed]
+    interval=names(seerdata)[as.integer(jpsurvData$additional$interval)]
+    print(observed)
+    print(interval)
+    input_type="csv"
+
+    died=names(seerdata)[jpsurvData$additional$died]
+    alive_at_start=names(seerdata)[jpsurvData$additional$alive_at_start]
+    lost_to_followup=names(seerdata)[jpsurvData$additional$lost_to_followup]
+    exp_int=names(seerdata)[jpsurvData$additional$exp_int]
+    interval=names(seerdata)[as.integer(jpsurvData$additional$interval)]
+    headers=list("Died"=died,"Alive_at_start"=alive_at_start,"Lost_to_followup"=lost_to_followup,"Expected_Survival_Interval"=exp_int,"Interval"=interval)
+
+  }
+   else 
+  {
+      observed=jpsurvData$additional$DataTypeVariable
+      interval="Interval"
+      input_type="dic"
+  }
+    ptm <- proc.time()
+    print("creating IntGraph");
+    print(observed)
+    print(interval)
+    IntGraph=getRelativeSurvivalByIntWrapper(filePath,jpsurvDataString,first_calc,com,interval,observed)
+    print("Int Graph Time:")
+    print(proc.time() -ptm)
+  
   
   ModelSelection=geALLtModelWrapper(filePath,jpsurvDataString,com)
   Coefficients=getcoefficientsWrapper(filePath,jpsurvDataString,first_calc,com)
   print ("header joint point!!")
   print (jpsurvData$additional$headerJoinPoints)
-  ptm <- proc.time()
-  IntGraph=getRelativeSurvivalByIntWrapper(filePath,jpsurvDataString,first_calc,com)
-  print("Int Graph Time:")
-  print(proc.time() -ptm)
   
+
   ptm <- proc.time()
   YearGraph=getRelativeSurvivalByYearWrapper(filePath,jpsurvDataString,first_calc,com)
   print("Year Graph Time:")
@@ -184,11 +230,12 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,runs="NONE")
   Selected_Model=getSelectedModel(filePath,jpsurvDataString,com)
   
   Full_data=getFullDataDownload(filePath,jpsurvDataString,com)
+
   if(runs!="NONE"){
-    jsonl =list("IntData"=IntGraph,"YearData"=YearGraph,"Coefficients"=Coefficients,"ModelSelection" = ModelSelection, "JP"=JP,"SelectedModel"=Selected_Model,"Full_Data_Set"=Full_data,"Runs"=runs) #returns
+    jsonl =list("IntData"=IntGraph,"YearData"=YearGraph,"Coefficients"=Coefficients,"ModelSelection" = ModelSelection, "JP"=JP,"SelectedModel"=Selected_Model,"Full_Data_Set"=Full_data,"Runs"=runs,"input_type"=input_type,"headers"=headers) #returns
  }
   else{
-    jsonl =list("IntData"=IntGraph,"YearData"=YearGraph,"Coefficients"=Coefficients,"ModelSelection" = ModelSelection, "JP"=JP,"SelectedModel"=Selected_Model,"Full_Data_Set"=Full_data) #returns
+    jsonl =list("IntData"=IntGraph,"YearData"=YearGraph,"Coefficients"=Coefficients,"ModelSelection" = ModelSelection, "JP"=JP,"SelectedModel"=Selected_Model,"Full_Data_Set"=Full_data,"input_type"=input_type,"headers"=headers) #returns
   }
   
 
@@ -223,27 +270,18 @@ getFittedResult <- function (filePath, seerFilePrefix, yearOfDiagnosisVarName, y
   print (numJP)
   
   file=paste(filePath, seerFilePrefix, sep="/" )
-  type=jpsurvData$input_type
+  type=jpsurvData$additional$input_type
   varLabels=getCorrectFormat(allVars)
   
+  statistic=jpsurvData$additional$DataTypeVariable
   
   subsetStr=getSubsetStr(yearOfDiagnosisVarName, yearOfDiagnosisRange, cohortVars, cohortValues)
   #assign subsetStr in the global in order for eval(parse(text=)) to work
   assign("subsetStr", subsetStr, envir = .GlobalEnv)
   
 
-  statistic=jpsurvData$additional$statistic
-  
-  if (statistic=="Relative Survival")
-  {
-    statistic="Relative_Survival_Cum"
-  } 
-  
-  if(statistic=="Cause-Specific Survival")
-  {
-    statistic="CauseSpecific_Survival_Cum"
-  }
-  
+
+  print(type)
   if(type=="dic"){
     seerdata = joinpoint.seerdata(seerfilename=file,
                                   newvarnames=varLabels,
@@ -262,18 +300,29 @@ getFittedResult <- function (filePath, seerFilePrefix, yearOfDiagnosisVarName, y
   if(type=="csv"){
     
     file=paste(file,".csv",sep="")
+    print("here")
     header=as.logical(jpsurvData$additional$has_header)
-    seerdata=read.csvdata(fileName=file,          # fileName: Name of file to use in current directory, or filepath.
-                          hasHeader=header);
-    
+    seerdata=read.tabledata(fileName=file,          # fileName: Name of file to use in current directory, or filepath.
+                    hasHeader=header,
+                    dlm=",");      
     alive_at_start=names(seerdata)[jpsurvData$additional$alive_at_start]
+    print(alive_at_start)
+    
     lost_to_followup=names(seerdata)[jpsurvData$additional$lost_to_followup]
+    print(lost_to_followup)
+    
     exp_int=names(seerdata)[jpsurvData$additional$exp_int]
+    print(exp_int)
+    
     observed=names(seerdata)[jpsurvData$additional$observed]
-    interval=names(seerdata)[jpsurvData$additional$interval]
+    print(observed)
+
+    interval=names(seerdata)[as.integer(jpsurvData$additional$interval)]
+    print(interval)
+    
     died=names(seerdata)[jpsurvData$additional$died]
-    subsetStrL="year_dx >= 0 & year_dx <= 20 & age_rec == 0 & stage == 0"
-    assign("subsetStrL", subsetStrL, envir = .GlobalEnv)
+    print(died)
+    
     
     fittedResult = joinpoint(seerdata, 
                                subset = eval(parse(text=subsetStr)),
@@ -402,7 +451,7 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_ca
   
 }
 #Graphs the Survival vs Time graph and saves a csv file of the data
-getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString,first_calc,com) {
+getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString,first_calc,com,interval,survar) {
   print(first_calc)
   jpsurvData <<- fromJSON(jpsurvDataString)
   # jpind=jpsurvData$calculate$form$jpInd #<-----new
@@ -411,6 +460,7 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString,first_cal
   if (statistic=="Relative Survival")
   {
     statistic="R"
+    survar
   } 
   
   if(statistic=="Cause-Specific Survival")
@@ -429,12 +479,16 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString,first_cal
   yearOfDiagnosisVarName = jpsurvData$calculate$static$yearOfDiagnosisVarName
   yearOfDiagnosis = jpsurvData$additional$yearOfDiagnosis
   iteration=jpsurvData$plot$static$imageId
-  
   png(filename = paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",iteration,".png", sep=""), sep="/"))
   graphFile= paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",iteration,".png", sep=""), sep="/")
   downloadFile = paste(filePath, paste("data_Int-", jpsurvData$tokenId, "-",iteration, ".csv", sep=""), sep="/") #CSV file to download
   yearOfDiagnosisVarName=getCorrectFormat(yearOfDiagnosisVarName)
-  survData=plot.surv.int(outputData$fittedResult$FitList[[jpInd+1]], yearOfDiagnosisVarName, yearOfDiagnosis,statistic);
+  
+  type=jpsurvData$additional$input_type
+
+    survData=plot.surv.int(outputData$fittedResult$FitList[[jpInd+1]], yearOfDiagnosisVarName, yearOfDiagnosis,interval, survar, statistic);
+  
+ 
   #survData=plot.relsurv.int(outputData$fittedResult$FitList[[jpInd+1]], "Year_of_diagnosis_7507_individual", 1975);
   print (yearOfDiagnosisVarName)
   dev.off()
