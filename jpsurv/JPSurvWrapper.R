@@ -196,7 +196,8 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,runs="NONE")
     lost_to_followup=names(seerdata)[jpsurvData$additional$lost_to_followup]
     exp_int=names(seerdata)[jpsurvData$additional$exp_int]
     interval=names(seerdata)[as.integer(jpsurvData$additional$interval)]
-    headers=list("Died"=died,"Alive_at_start"=alive_at_start,"Lost_to_followup"=lost_to_followup,"Expected_Survival_Interval"=exp_int,"Interval"=interval)
+    observed=names(seerdata)[jpsurvData$additional$observed]
+    headers=list("Died"=died,"Alive_at_Start"=alive_at_start,"Lost_to_followup"=lost_to_followup,"Expected_Survival_Interval"=exp_int,"Interval"=interval,"Relative_Survival_Cum"=observed)
 
   }
    else 

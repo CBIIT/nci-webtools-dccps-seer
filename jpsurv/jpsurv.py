@@ -9,7 +9,7 @@ from stompest.config import StompConfig
 from stompest.sync import Stomp
 from werkzeug import secure_filename
 
-app = Flask(__name__, static_folder='', static_url_path='/')
+app = Flask(__name__, static_folder='', static_url_path='/') 
 
 if not os.path.exists('tmp'):
     os.makedirs('tmp')
