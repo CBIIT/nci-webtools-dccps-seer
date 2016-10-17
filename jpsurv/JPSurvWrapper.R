@@ -175,7 +175,7 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,runs="NONE")
   interval=""
   observed=""
   type=jpsurvData$additional$input_type
-  titles=list()
+  headers=list()
   
   if(type=="csv"){
     header=as.logical(jpsurvData$additional$has_header)
@@ -232,11 +232,23 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,runs="NONE")
   
   Full_data=getFullDataDownload(filePath,jpsurvDataString,com)
 
+   statistic=jpsurvData$additional$statistic
+  if (statistic=="Relative Survival")
+  {
+    statistic="Relative_Survival_Cum"
+  } 
+  
+  if(statistic=="Cause-Specific Survival")
+  {
+    statistic="CauseSpecific_Survival_Cum"
+  }
+  
+
   if(runs!="NONE"){
-    jsonl =list("IntData"=IntGraph,"YearData"=YearGraph,"Coefficients"=Coefficients,"ModelSelection" = ModelSelection, "JP"=JP,"SelectedModel"=Selected_Model,"Full_Data_Set"=Full_data,"Runs"=runs,"input_type"=input_type,"headers"=headers) #returns
+    jsonl =list("IntData"=IntGraph,"YearData"=YearGraph,"Coefficients"=Coefficients,"ModelSelection" = ModelSelection, "JP"=JP,"SelectedModel"=Selected_Model,"Full_Data_Set"=Full_data,"Runs"=runs,"input_type"=input_type,"headers"=headers,"statistic"=statistic) #returns
  }
   else{
-    jsonl =list("IntData"=IntGraph,"YearData"=YearGraph,"Coefficients"=Coefficients,"ModelSelection" = ModelSelection, "JP"=JP,"SelectedModel"=Selected_Model,"Full_Data_Set"=Full_data,"input_type"=input_type,"headers"=headers) #returns
+    jsonl =list("IntData"=IntGraph,"YearData"=YearGraph,"Coefficients"=Coefficients,"ModelSelection" = ModelSelection, "JP"=JP,"SelectedModel"=Selected_Model,"Full_Data_Set"=Full_data,"input_type"=input_type,"headers"=headers,"statistic"=statistic) #returns
   }
   
 

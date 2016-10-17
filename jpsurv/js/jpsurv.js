@@ -672,13 +672,14 @@ function updateGraphs(token_id) {
 				row += "<td>"+value2.replace(/"/g, "")+"</td>";
 			});
 			row += "<td>"+value+"</td>";
+
 			if(jpsurvData.results.input_type=="dic"){
 				row += formatCell(jpsurvData.results.IntData.RelSurIntData.Interval[index]);
-				row += formatCell(jpsurvData.results.IntData.RelSurIntData.Relative_Survival_Cum[index]);
+				row += formatCell(jpsurvData.results.IntData.RelSurIntData[jpsurvData.results.statistic][index]);
 			}
 			else if(jpsurvData.results.input_type=="csv"){
 				row += formatCell(jpsurvData.results.IntData.RelSurIntData[jpsurvData.results.headers.Interval][index]);
-				row += formatCell(jpsurvData.results.IntData.RelSurIntData[jpsurvData.results.headers.Relative_Survival_Cum][index]);
+				row += formatCell(jpsurvData.results.IntData.RelSurIntData[jpsurvData.results.headers[jpsurvData.results.statistic]][index]);
 			}
 			row += formatCell(jpsurvData.results.IntData.RelSurIntData.pred_cum[index])+"</tr>/n";
 			$("#graph-time-table > tbody").append(row);
@@ -1034,14 +1035,17 @@ function calculate(run) {
 
 function file_submit(event) {
 	jpsurvData.tokenId = renewTokenId(false);
-	if(jpsurvData.input_type=="csv"){
+	if($('#csv').is(':checked')){
 		jpsurvData.additional.statistic=$("#data_type").val()
 		jpsurvData.mapping.has_headers=$('#has_headers').is(':checked');
 		$("#upload-form").attr('action', 'jpsurvRest/stage1_upload?tokenId='+jpsurvData.tokenId+'&input_type='+jpsurvData.input_type+'&map='+JSON.stringify(jpsurvData));
 	}
+
 	else{
+		jpsurvData.input_type="dic";
 		$("#upload-form").attr('action', 'jpsurvRest/stage1_upload?tokenId='+jpsurvData.tokenId+'&input_type='+jpsurvData.input_type);
 	}
+
 	getRestServerStatus();
 }
 /*
@@ -2405,5 +2409,31 @@ function create_table(content,max,has_headers){
   createModal(table,headers.length);
 }
 
-
+var _validFileExtensions = [".jpg", ".jpeg", ".bmp", ".gif", ".png"];    
+function Validate(oForm) {
+    var arrInputs = oForm.getElementsByTagName("input");
+    for (var i = 0; i < arrInputs.length; i++) {
+        var oInput = arrInputs[i];
+        if (oInput.type == "file") {
+            var sFileName = oInput.value;
+            if (sFileName.length > 0) {
+                var blnValid = false;
+                for (var j = 0; j < _validFileExtensions.length; j++) {
+                    var sCurExtension = _validFileExtensions[j];
+                    if (sFileName.substr(sFileName.length - sCurExtension.length, sCurExtension.length).toLowerCase() == sCurExtension.toLowerCase()) {
+                        blnValid = true;
+                        break;
+                    }
+                }
+                
+                if (!blnValid) {
+                    alert("Sorry, " + sFileName + " is invalid, allowed extensions are: " + _validFileExtensions.join(", "));
+                    return false;
+                }
+            }
+        }
+    }
+  
+    return true;
+}
 
