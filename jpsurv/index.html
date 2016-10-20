@@ -101,7 +101,7 @@
                     <div id="csv_container" style="display:none">
                     <div id="file_control_container_csv" class= "form-group"> <label for='file_control_csv'>CSV File:</label>
                       <a style='font-size:small' href='Breast_RelativeSurvival_Head.csv' download='./data/Breast_RelativeSurvival_Head.csv'>(example csv with headers)</a>
-                      <input type="file" id="file_control_csv" name="file_control_csv" style="padding-bottom:5px" accept=".csv" >
+                      <input type="file" id="file_control_csv" name="file_control_csv" style="padding-bottom:5px" accept=".csv, .txt" >
                     </div>
                     
                     <label for="has_headers" id="csv_label_headers">Does the file contain headers?  </label>
@@ -112,7 +112,7 @@
                       <option>Relative Survival</option>    
                       <option>Cause Specific</option>
                     </select>
-                    <button type="button" class="pull-right" id="Adv_input" style="margin-bottom:5px">Advanced</button>
+                    <button type="button" class="pull-right" id="Adv_input" style="margin-bottom:5px" disabled>Advanced</button>
                     
                   </div>
           <div id="data_type_container" class="form-group">
@@ -623,4 +623,3 @@
 
 
 </html>
-               
