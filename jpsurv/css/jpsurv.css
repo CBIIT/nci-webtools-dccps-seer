@@ -488,3 +488,11 @@ input:required:valid, input:focus:valid {
     background: #010080;
     padding: 0 24px;
 }
+.modal-lg {
+    width: 60%;
+}
+
+#data_table th:first-child,
+#data_table td:first-child {
+  border-left:1px solid #ddd;
+}
