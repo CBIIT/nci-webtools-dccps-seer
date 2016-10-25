@@ -439,20 +439,37 @@ function addCohortVariables() {
 			$("#cohort-variables").append(html);
 			if(control_data.input_type==undefined)
 			{
-				$.each(control_data.VarFormatSecList[key].ItemValueInDic, function(key2, value2) {
-					$("#cohort-"+i)
-						.append(
-							$('<div>').addClass('checkbox')
-								.append($('<label>')
-									.append($('<input>')
-											.attr('type', 'checkbox')
-											.attr('value', value2)
-											.addClass('cohort')
-											.addClass('cohort-'+i)
-										).append(value2)
-							)
-						);
-				});
+				if(typeof control_data.VarFormatSecList[key].ItemValueInDic == 'string')
+				{
+					$("#cohort-"+0)
+							.append(
+								$('<div>').addClass('checkbox')
+									.append($('<label>')
+										.append($('<input>')
+												.attr('type', 'checkbox')
+												.attr('value', control_data.VarFormatSecList[key].ItemValueInDic)
+												.addClass('cohort')
+												.addClass('cohort-'+i)
+											).append(control_data.VarFormatSecList[key].ItemValueInDic)
+								)
+							);
+				}
+				else{
+					$.each(control_data.VarFormatSecList[key].ItemValueInDic, function(key2, value2) {
+						$("#cohort-"+i)
+							.append(
+								$('<div>').addClass('checkbox')
+									.append($('<label>')
+										.append($('<input>')
+												.attr('type', 'checkbox')
+												.attr('value', value2)
+												.addClass('cohort')
+												.addClass('cohort-'+i)
+											).append(value2)
+								)
+							);
+					});
+				}
 			}
 			else if(control_data.input_type=="csv")
 			{
