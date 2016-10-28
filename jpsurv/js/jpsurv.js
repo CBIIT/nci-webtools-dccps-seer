@@ -86,7 +86,7 @@ function check_multiple(){
 	var checked=$('[type=checkbox]').filter(':checked').length
 
 	if(checked>num_types){
-		multiple=true;
+		multiple=false;
 	}
 
 	return multiple
@@ -106,6 +106,7 @@ function hide_display_email(){
 		}
 }
 function addEventListeners() {
+	
 	$('#e-mail').on('keydown', function(e) {
 		if (e.which == 13) {
 			e.preventDefault();
@@ -148,8 +149,22 @@ function addEventListeners() {
 	$("#upload_file_submit").click(function(event) { 
 		file_submit(event);
 	});
-	$("#year-of-diagnosis").on('change', setCalculateData);
-	$("#recalculate").on('click', setCalculateData);
+//	$("#year-of-diagnosis").on('change', setCalculateData);
+
+
+	$( "#recalculate" ).click(function() {
+	  jpsurvData.additional.recalculate="true"
+	  setCalculateData();
+	});
+
+	$( "#year-of-diagnosis" ).change(function() {
+	  jpsurvData.additional.recalculate="true"
+	  setCalculateData();
+	});
+
+
+
+//	$("#recalculate").on('click',setCalculateData);
 	//
 	// Set click listeners
 	//
@@ -363,16 +378,20 @@ function dropdownListener(){
 	display.addEventListener("change", function() {
 	    var options = display.querySelectorAll("option");
 	    var count = options.length;
-	    	jpsurvData.additional.headerJoinPoints=null
+	    //	jpsurvData.additional.headerJoinPoints=null
 	        jpsurvData.calculate.form.cohortValues=[]
 	        var cohorts = display.options[display.selectedIndex].value.split(' + ');
 	        for(var j=0;j<cohorts.length;j++){
 	        	jpsurvData.calculate.form.cohortValues.push('"'+cohorts[j]+'"');
 	        }
 	        jpsurvData.plot.static.imageId=0
+
 		//	var dropdown = document.getElementById("cohort-display");
 		//	jpsurvData.run=dropdown.options[dropdown.selectedIndex].id;
+			jpsurvData.switch=true
+			jpsurvData.additional.Runs=jpsurvData.results.Runs;
 			calculate(true);
+
 	    /*    $.get('tmp/results-'+jpsurvData.tokenId+'.json', function (results) {
 	        	console.log(results)
 				jpsurvData.results = results;
@@ -548,7 +567,7 @@ function setupModel() {
 		jpsurvData.results.SelectedModel = 1;
 	}
 
-	jpsurvData.additional.headerJoinPoints = jpsurvData.results.SelectedModel-1;
+	jpsurvData.additional.headerJoinPoints = jpsurvData.results.jpInd;
 	
 }
 
@@ -595,13 +614,13 @@ function updateGraphs(token_id) {
 
 	//Populate graph-year
 	$("#graph-year-tab").find( "img" ).show();
-	$("#graph-year-tab").find( "img" ).attr("src", "tmp/plot_Year-"+token_id+"-"+jpsurvData.plot.static.imageId+".png");
+	$("#graph-year-tab").find( "img" ).attr("src", "tmp/plot_Year-"+token_id+"-"+jpsurvData.results.com+"-"+jpsurvData.results.jpInd+"-"+jpsurvData.results.imageId+".png");
 	$("#graph-year-table > tbody").empty();
 	$("#graph-year-table > tbody").append('<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>');
 
 	//Populate time-year
 	$("#graph-time-tab").find( "img" ).show();
-	$("#graph-time-tab").find( "img" ).attr("src", "tmp/plot_Int-"+token_id+"-"+jpsurvData.plot.static.imageId+".png");
+	$("#graph-time-tab").find( "img" ).attr("src", "tmp/plot_Int-"+token_id+"-"+jpsurvData.results.com+"-"+jpsurvData.results.jpInd+"-"+jpsurvData.results.imageId+".png");
 
 
 	var row;
@@ -764,9 +783,9 @@ function updateTrendGraph(trend, table_id) {
 	}
 }
 function updateGraphLinks(token_id) {
-	$("#graph-year-dataset-link").attr("href", "tmp/data_Year-"+token_id+"-"+jpsurvData.plot.static.imageId+".csv");
-	$("#graph-time-dataset-link").attr("href", "tmp/data_Int-"+token_id+"-"+jpsurvData.plot.static.imageId+".csv");
-	$(".full-dataset-link").attr("href", "tmp/Full_Predicted-"+token_id+"-"+jpsurvData.plot.static.imageId+".csv");
+	$("#graph-year-dataset-link").attr("href", "tmp/data_Year-"+token_id+"-"+jpsurvData.results.com+"-"+jpsurvData.results.jpInd+"-"+jpsurvData.results.imageId+".csv");
+	$("#graph-time-dataset-link").attr("href", "tmp/data_Int-"+token_id+"-"+jpsurvData.results.com+"-"+jpsurvData.results.jpInd+"-"+jpsurvData.results.imageId+".csv");
+	$(".full-dataset-link").attr("href", "tmp/Full_Predicted-"+token_id+"-"+jpsurvData.results.com+"-"+jpsurvData.results.imageId+".csv");
 }
 
 function updateSelections(token_id) {
@@ -797,7 +816,10 @@ function calculateAllData() {
 
 function calculateAllDataCallback() {
 	console.log("calculateAllDataCallback..");
-	retrieveResults();
+	var cohort_com=jpsurvData.run;
+	var jpInd=jpsurvData.additional.headerJoinPoints;
+	retrieveResults(cohort_com,jpInd,jpsurvData.switch);
+	jpsurvData.switch=false
 }
 
 function calculateFittedResults() {
@@ -815,6 +837,7 @@ function calculateFittedResultsCallback() {
 	for (year=jpsurvData.calculate.form.yearOfDiagnosisRange[0];year<=jpsurvData.calculate.form.yearOfDiagnosisRange[1];year++) {
 		$("#year-of-diagnosis").append("<OPTION>"+year+"</OPTION>\n");
 	}
+	$('#year-of-diagnosis').val(jpsurvData.results.IntData.RelSurIntData[yodVarName]);
 	//Set precision if cookie is available
 	var precision = getCookie("precision");
 	if(parseInt(precision) > 0) {
@@ -1092,18 +1115,50 @@ function get_plot() {
 
 }
 */
-function retrieveResults() {
+function retrieveResults(cohort_com,jpInd,switch_cohort) {
+	var file_name=""
+	if(jpInd!=undefined && cohort_com!=undefined &&switch_cohort==false)
+		file_name='tmp/results-'+jpsurvData.tokenId+"-"+cohort_com+"-"+jpInd+'.json';
+	else
+	{
+		/*$.get({
+			url: 'tmp/cohort_models-'+jpsurvData.tokenId+'.json',
+			async: false
 
+		}).done(function (results) {
+			cohort_models=results
+			if(switch_cohort==undefined)
+				cohort_com=1
+			file_name='tmp/results-'+jpsurvData.tokenId+"-"+cohort_com+"-"+results[cohort_com-1]+'.json'; 
+		});*/
+
+		$.ajax({
+        url: 'tmp/cohort_models-'+jpsurvData.tokenId+'.json',
+        type: 'GET',
+        async: false,
+        dataType: 'json', // added data type
+        success: function(results) {
+		cohort_models=results
+			if(switch_cohort==undefined)
+				cohort_com=1
+			file_name='tmp/results-'+jpsurvData.tokenId+"-"+cohort_com+"-"+results[cohort_com-1]+'.json'; 
+			console.log(file_name)
+        }
+    });
+		
+	}
 	//console.log("retrieveResults");
-	$.get('tmp/results-'+jpsurvData.tokenId+'.json', function (results) {
+	$.get(file_name, function (results) {
 
 		jpsurvData.results = results;
 		if(!jpsurvData.stage2completed) {
 			updateCohortDropdown();
+			setupModel();
 			createModelSelection();
 
 		}
 		else{
+			setupModel();
 			createModelSelection();
 		}
 		if(certifyResults() == false){
@@ -1111,6 +1166,7 @@ function retrieveResults() {
 		}
 		updateTabs(jpsurvData.tokenId);
 		jpsurvData.stage2completed = true;
+		jpsurvData.additional.recalculate="false"
 	});
 
 }
@@ -2447,31 +2503,5 @@ function create_table(content,max,has_headers){
   createModal(table,headers.length);
 }
 
-var _validFileExtensions = [".jpg", ".jpeg", ".bmp", ".gif", ".png"];    
-function Validate(oForm) {
-    var arrInputs = oForm.getElementsByTagName("input");
-    for (var i = 0; i < arrInputs.length; i++) {
-        var oInput = arrInputs[i];
-        if (oInput.type == "file") {
-            var sFileName = oInput.value;
-            if (sFileName.length > 0) {
-                var blnValid = false;
-                for (var j = 0; j < _validFileExtensions.length; j++) {
-                    var sCurExtension = _validFileExtensions[j];
-                    if (sFileName.substr(sFileName.length - sCurExtension.length, sCurExtension.length).toLowerCase() == sCurExtension.toLowerCase()) {
-                        blnValid = true;
-                        break;
-                    }
-                }
-                
-                if (!blnValid) {
-                    alert("Sorry, " + sFileName + " is invalid, allowed extensions are: " + _validFileExtensions.join(", "));
-                    return false;
-                }
-            }
-        }
-    }
-  
-    return true;
-}
+
 
