@@ -2303,8 +2303,16 @@ var template_string='<div class="modal fade" id="modal" tabindex="-1" role="dial
             +'<input type="radio" id="comma" name="del" value="comma" checked/>Comma'
             +'<input type="radio" id="space" name="del" value="space"/>Space'
         +'</div>'
-      +'</fieldset>'
-              +'<p>Please map <b><i>all</i></b> required paramaters to the apprpriate columns (see help for details)'
+      +'</fieldset></br>'
+              
+       +'Displaying <select id="lines_displayed" class="jpsurv-label-content" name="lines_displayed">'
+                      +'<option>20</option>'
+                      +'<option>40</option>'
+                      +'<option>60</option>'
+                      +'<option>80</option>'
+                      +'<option>100</option>'
+                    +'</select> lines of the data file'
+      +'<p>Please map <b><i>all</i></b> required paramaters to the apprpriate columns (see help for details)'
       +'<div id="modalContent" class= "table-responsive" style="height:200px">'
       +'</div><button type="button" id="save" class="btn btn-primary btn-sm" style="margin-left:45%;margin-top:1%" onclick=\"save_params()\" >Save</button></button><button type="button" id="cancel" class="btn btn-primary btn-sm" style="margin-left:5%;margin-top:1%"">Cancel</button>'
       +'</div></div></div></div>';
