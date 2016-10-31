@@ -2290,13 +2290,22 @@ $('#Adv_input').click(function() {
 
 var template_string='<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'
   +'<div class="modal-dialog  modal-lg" role="document">'
-    +'<div class="modal-content">'
+    +'<div class="modal-content" >'
       +'<div class="modal-header">'
         +'<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'
-        +'<h4 class="modal-title" id="modalTitle">Modal title</h4>'
+        +'<b><h2 class="modal-title" id="modalTitle">Modal title</h4></b>'
       +'</div>'
       +'<div class="modal-body"><div id ="container" >'
-      +'<div id="modalContent" class= "table-responsive">'
+      +'<fieldset style="width:30%;padding-left:2%"><legend   style="font-size: 12px;width:25%">Deliminators</legend>'
+      	+'<div id="dels" class="row">'
+            +'<input type="radio" id="tab"   name="del" value="tab"/>Tab'    
+            +'<input type="radio" id="colan" name="del" value="colan"/>Semi-Colan'
+            +'<input type="radio" id="comma" name="del" value="comma" checked/>Comma'
+            +'<input type="radio" id="space" name="del" value="space"/>Space'
+        +'</div>'
+      +'</fieldset>'
+              +'<p>Please map <b><i>all</i></b> required paramaters to the apprpriate columns (see help for details)'
+      +'<div id="modalContent" class= "table-responsive" style="height:200px">'
       +'</div><button type="button" id="save" class="btn btn-primary btn-sm" style="margin-left:45%;margin-top:1%" onclick=\"save_params()\" >Save</button></button><button type="button" id="cancel" class="btn btn-primary btn-sm" style="margin-left:5%;margin-top:1%"">Cancel</button>'
       +'</div></div></div></div>';
 
@@ -2418,7 +2427,7 @@ function create_table(content,max,has_headers){
 
 //  var table = $('<table id="example" class="table table-striped table-bordered" cellspacing="0" width="100%"></table>');
   var html=""
-  var table = $('<table id="data_table" class="table table-striped table-bordered" style="border-top:none;border-left:none" cellspacing="0" width="100%"></table>')
+  var table = $('<table id="data_table" class="table table-striped" style="border-top:none;border-left:none;line-height:0" cellspacing:"0" cellpadding="0px" width="100%"></table>')
   table.DataTable({
     columns: headers,
     data: matrix.slice(0,max),
