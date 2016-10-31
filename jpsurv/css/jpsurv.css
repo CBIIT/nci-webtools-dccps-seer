@@ -489,10 +489,24 @@ input:required:valid, input:focus:valid {
     padding: 0 24px;
 }
 .modal-lg {
-    width: 60%;
+    width: 40%;
 }
+
 
 #data_table th:first-child,
 #data_table td:first-child {
   border-left:1px solid #ddd;
+
+}
+#data_table th{
+  border-right:1px solid #ddd;
+  line-height: 0
+}
+#data_table td{
+  line-height: 0;
+  border-top:0;
+}
+
+input[type="radio"] {
+    margin-left:10px;
 }
