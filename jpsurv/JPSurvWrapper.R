@@ -119,24 +119,14 @@ getFittedResultWrapper <- function (filePath, jpsurvDataString) {
   delLastIntvl=as.logical(jpsurvData$calculate$static$advanced$advDeleteInterval)
   
   type=jpsurvData$additional$input_type
-  
-  
-  length=length(jpsurvData$calculate$form$cohortVars)
+   length=length(jpsurvData$calculate$form$cohortVars)
   combination_array=c()
-  runs="" 
-  
-  
-
   for(i in 1:length){
     combination_array[i]=jpsurvData$calculate$form$AllcohortValues[i]
   }
   com_matrix=as.matrix(expand.grid(combination_array))
   
-  for(i in 1:nrow(com_matrix)){
-    row=paste(com_matrix[i,],collapse=" + ")
-    runs=paste(runs,gsub("\"","",row),sep=", ")
-  }
-  runs=substr(runs, 3, nchar(runs))
+ 
   
   jsonl=list()
   for(i in 1:nrow(com_matrix)){
@@ -154,28 +144,27 @@ getFittedResultWrapper <- function (filePath, jpsurvDataString) {
     print("Fitted Result Time:")
     
     print(proc.time() -ptm)
-  	Selected_Model=getSelectedModel(filePath,jpsurvDataString,i)
-  	print("SELECTED MODEL GET")
-  	print(Selected_Model)
-  	jsonl[[i]]=Selected_Model-1
+    Selected_Model=getSelectedModel(filePath,jpsurvDataString,i)
+    print("SELECTED MODEL GET")
+    print(Selected_Model)
+    jsonl[[i]]=Selected_Model-1
   }
   
-	print("Creating chort_models file")
-	exportJson <- toJSON(jsonl)
-	filename = paste(filePath, paste("cohort_models-", jpsurvData$tokenId, ".json", sep=""), sep="/") #CSV file to download
+  print("Creating chort_models file")
+  exportJson <- toJSON(jsonl)
+  filename = paste(filePath, paste("cohort_models-", jpsurvData$tokenId, ".json", sep=""), sep="/") #CSV file to download
 
-	write(exportJson, filename)
+  write(exportJson, filename)
 
   ptm <- proc.time()
-  getAllData(filePath,jpsurvDataString,TRUE,runs)
-  print("Calculation time")
-  print(proc.time() -ptm)
+  getAllData(filePath,jpsurvDataString,TRUE)
+  print("Calculation time") 
   print("return from getAllData")
   return
   # getFullDataDownloadWrapper(filePath,jpsurvDataString)
   
 }
-getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,runs="NONE",cohort=1)
+getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE)
 {
   
   print("calculating jointpoint")
@@ -189,9 +178,9 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,runs="NONE",coh
   observed=""
   type=jpsurvData$additional$input_type
   headers=list()
-  if(runs=="NONE"){
-    runs=jpsurvData$additional$Runs
-  }
+  print("RUNS")
+
+  runs=getRunsString(filePath, jpsurvDataString)
   if(type=="csv"){
     header=as.logical(jpsurvData$additional$has_header)
     seerFilePrefix = jpsurvData$calculate$static$seerFilePrefix
@@ -280,7 +269,8 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,runs="NONE",coh
 
 
   }
-  jsonl =list("IntData"=IntGraph,"YearData"=YearGraph,"Coefficients"=Coefficients,"ModelSelection" = ModelSelection, "JP"=JP,"SelectedModel"=SelectedModel,"Full_Data_Set"=Full_data,"Runs"=runs,"input_type"=input_type,"headers"=headers,"statistic"=statistic,"com"=com,"jpInd"=jpInd,"imageId"=imageId) #returns
+  yod=jpsurvData$additional$yearOfDiagnosis
+  jsonl =list("IntData"=IntGraph,"YearData"=YearGraph,"Coefficients"=Coefficients,"ModelSelection" = ModelSelection, "JP"=JP,"SelectedModel"=SelectedModel,"Full_Data_Set"=Full_data,"Runs"=runs,"input_type"=input_type,"headers"=headers,"statistic"=statistic,"com"=com,"jpInd"=jpInd,"imageId"=imageId,"yod"=yod) #returns
   exportJson <- toJSON(jsonl)
   filename = paste(filePath, paste("results-", jpsurvData$tokenId,"-",com,"-",jpInd, ".json", sep=""), sep="/") #CSV file to download
   write(exportJson, filename)
@@ -668,3 +658,20 @@ getSelectedModel<-function(filePath,jpsurvDataString,com)
 }
 
 
+getRunsString<-function(filePath,jpsurvDataString){
+  jpsurvData <<- fromJSON(jpsurvDataString)
+  length=length(jpsurvData$calculate$form$cohortVars)
+  runs=""
+  combination_array=c()
+  for(i in 1:length){
+    combination_array[i]=jpsurvData$calculate$form$AllcohortValues[i]
+  }
+  com_matrix=as.matrix(expand.grid(combination_array))
+  
+  for(i in 1:nrow(com_matrix)){
+    row=paste(com_matrix[i,],collapse=" + ")
+    runs=paste(runs,gsub("\"","",row),sep=", ")
+  }
+  runs=substr(runs, 3, nchar(runs))
+  return (runs)
+}
