@@ -239,7 +239,7 @@ def stage3_recalculate():
     print(cohort_com)
     
     print("JPIND")
-    jpInd=str(jpsurvData["additional"]["headerJoinPoints"])
+    jpInd=str(jpsurvData["additional"]["headerJoinPoints"]) 
     print(jpInd)
     
     print("RECALC?")
@@ -276,7 +276,7 @@ def stage3_recalculate():
 
         print(BOLD+"**** Calling getAllData ****"+ENDC) 
         # Next line execute the R Program
-        r.getAllData(UPLOAD_DIR, jpsurvDataString)
+        r.getAllData(UPLOAD_DIR, jpsurvDataString,switch)
     
     print("GOT RESULTS!")
     status = '{"status":"OK"}'
