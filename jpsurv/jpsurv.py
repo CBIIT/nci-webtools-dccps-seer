@@ -215,7 +215,7 @@ def stage2_calculate():
     r.getFittedResultWrapper(UPLOAD_DIR, jpsurvDataString)
    
     status = '{"status":"OK"}'
-    mimetype = 'application/json'
+    mimetype = 'application/json' 
     out_json = json.dumps(status)
     return current_app.response_class(out_json, mimetype=mimetype) 
 
@@ -249,7 +249,14 @@ def stage3_recalculate():
     print("SWITCH?")
     switch=jpsurvData["switch"]
     print(switch)
+    
+    use_default=False
+    if(str(jpsurvData["additional"]["use_default"])=="true"):
+        use_default=True
 
+    print("USE_DEFAULT")
+    print(use_default)
+    
     
     
 
@@ -276,7 +283,7 @@ def stage3_recalculate():
 
         print(BOLD+"**** Calling getAllData ****"+ENDC) 
         # Next line execute the R Program
-        r.getAllData(UPLOAD_DIR, jpsurvDataString,switch)
+        r.getAllData(UPLOAD_DIR, jpsurvDataString,switch,use_default)
     
     print("GOT RESULTS!")
     status = '{"status":"OK"}'
