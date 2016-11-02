@@ -86,7 +86,7 @@ function check_multiple(){
   var checked=$('[type=checkbox]').filter(':checked').length
 
   if(checked>num_types){
-    multiple=false;
+    multiple=true;
   }
 
   return multiple
@@ -158,8 +158,10 @@ function addEventListeners() {
   });
 
   $( "#year-of-diagnosis" ).change(function() {
+    jpsurvData.additional.default_year=false
     jpsurvData.additional.recalculate="true"
     setCalculateData();
+    jpsurvData.additional.default_year=true
   });
 
 
@@ -324,11 +326,22 @@ function preLoadValues() {
   $("#cohort-variables fieldset").each(function(index,element) {
     var inputs = $(element).find("."+element.id);
     $.each(inputs, function(index2, element2) {
-      if(inputData.calculate.form.cohortValues[index].substr(1,inputData.calculate.form.cohortValues[index].length -2) == $(element2).val()) {
+     /* if(inputData.calculate.form.cohortValues[index].substr(1,inputData.calculate.form.AllcohortValues[index].length -2) == $(element2).val()) {
         $(element2).attr('checked', true);
       } else {
         $(element2).attr('checked', false);
-      }
+      }*/
+          $.each( inputData.calculate.form.AllcohortValues, function( key, value ) {
+            for(var i=0;i<value.length;i++){
+                if(value[i].substr(1,value[i].length-2) == $(element2).val()) {
+                  console.log("cohort "+value[i].substr(1,value[i].length-2))
+                  console.log("value "+$(element2).val())
+                  console.log()
+              $(element2).prop('checked', true);
+              } 
+  
+            }
+        });
     });
   });
 
@@ -669,7 +682,7 @@ function updateGraphs(token_id) {
         $.each(values, function(index2, value2) {
         row += "<td>"+value2.replace(/"/g, "")+"</td>";
         });
-
+      }
       var type = Object.keys(jpsurvData.results.IntData.RelSurIntData)[2];
       row += "<td>"+value+"</td>";
       
@@ -695,7 +708,7 @@ function updateGraphs(token_id) {
       $("#graph-year-table > tbody").append(row);
     
     });
-      $('#year-of-diagnosis').val(jpsurvData.results.yod);
+      
   }
   else{
       $("#graph-year-table > tbody").empty();
@@ -758,6 +771,7 @@ function updateGraphs(token_id) {
       $("#graph-time-table > tbody").append(row);
     
     });
+    $('#year-of-diagnosis').val(jpsurvData.results.yod);
   }
   else{
       $("#graph-time-table > tbody").empty();
@@ -962,6 +976,7 @@ function setCalculateData(type) {
     jpsurvData.calculate.static.advanced.advLast = $("#adv-last").val();
     jpsurvData.calculate.static.advanced.advYear = $("#adv-year").val();
 
+    
     jpsurvData.additional.yearOfDiagnosis = parseInt($("#year-of-diagnosis").val());
     jpsurvData.additional.DataTypeVariable = "Relative_Survival_Cum"; 
     if(jpsurvData.additional.statistic == "Relative Survival") {
@@ -1085,9 +1100,10 @@ function calculate(run) {
       setIntervalsDefault();
       getIntervals();
       setUrlParameter("request", "true");
+      jpsurvData.additional.default_year=true
       jpsurvData.queue.url = encodeURIComponent(window.location.href.toString());
       jpsurvData.additional.yearOfDiagnosis = jpsurvData.calculate.form.yearOfDiagnosisRange[0].toString();
-
+      jpsurvData.additional.yearOfDiagnosis_default = parseInt($("#year_of_diagnosis_start").val());
       var params = getParams();
       $("#right_panel").hide();
       $("#help").show();
@@ -1102,6 +1118,8 @@ function calculate(run) {
     }
     else {
       jpsurvData.plot.static.imageId=0
+      jpsurvData.additional.yearOfDiagnosis_default = parseInt($("#year_of_diagnosis_start").val());
+      jpsurvData.additional.new_year="False"
       stage2("calculate"); // This is the initial calculation and setup.
     }
   }
@@ -1201,6 +1219,9 @@ function retrieveResults(cohort_com,jpInd,switch_cohort) {
     jpsurvData.stage2completed = true;
     jpsurvData.additional.recalculate="false"
   });
+    jpsurvData.switch=false
+    jpsurvData.additional.default_year=true
+
 
 }
 
