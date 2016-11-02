@@ -8,7 +8,7 @@ var cohort_covariance_variables;
 var advfields = ['adv-between','adv-first','adv-last','adv-year'];
 
 var jpsurvData = {"file":{"dictionary":"Breast.dic","data":"something.txt", "form":"form-983832.json"}, "calculate":{"form": {"yearOfDiagnosisRange":[]}, "static":{}}, "plot":{"form": {}, "static":{"imageId":-1} }, "additional":{"headerJoinPoints":0,"yearOfDiagnosis":null,"intervals":[1,4]}, "tokenId":"unknown", "status":"unknown", "stage2completed":0};
-
+jpsurvData.mapping={} 
 var DEBUG = false;
 var maxJP = (DEBUG ? 0 : 2);
 
@@ -555,9 +555,12 @@ function checkInputFiles() {
     }
 
     else if($('#csv').is(':checked')){
-      if(file_control_csv.length > 0 ) {
+      if(file_control_csv.length > 0 &&jpsurvData.passed==true) {
         $("#upload_file_submit").removeAttr('disabled');
         $("#upload_file_submit").attr('title', 'Upload Input Files');
+      }
+      else{
+        $("#upload_file_submit").prop('disabled', true);
       }
     }
   
@@ -2361,23 +2364,68 @@ function createModal(content,length) {
   $('body').append($(template_string));
   $('#modalTitle').html(header);
   $('#modalContent').html(content);
-  $('#modal').modal({backdrop: 'static', keyboard: false})  
+  $('#modal').modal({backdrop: 'static', keyboard: false}) 
+
 
   
   $('#cancel').click(function() {
+    checkInputFiles();
       $('#modal').modal('hide');
 
   });
 
 
 
- 
+  if(jpsurvData.mapping.cohorts!=undefined){
+  	length=$( "#data_table th" ).length/2
+  	for (var i = 0; i < length; i ++) {
+  		if(jpsurvData.mapping.cohorts.indexOf(i+1)!=-1){
+        	$('#type_'+i+' select').val("Cohort")
+      	}
+      else if (jpsurvData.mapping.year==i+1)
+      {
+        $('#type_'+i+' select').val("Year")
+      }
+      
+      else if (jpsurvData.mapping.interval==i+1)
+      {
+        $('#type_'+i+' select').val("Interval")
+      }
+      
+      else if (jpsurvData.mapping.died==i+1)
+      {
+        $('#type_'+i+' select').val("number.event")
+      }
+      
+      else if ( jpsurvData.mapping.alive_at_start==i+1)
+      {
+        $('#type_'+i+' select').val("number.alive")
+      }
+      
+      else if (jpsurvData.mapping.lost_to_followup==i+1)
+      {
+        $('#type_'+i+' select').val("number.loss")
+      }
+      
+      else if (jpsurvData.mapping.exp_int==i+1)
+      {
+        $('#type_'+i+' select').val("expected.rate")
+      }
+      
+      else if (jpsurvData.mapping.observed==i+1)
+      {
+        $('#type_'+i+' select').val("observedrelsurv")
+      }
+
+  	}  
+    
+  }
   $('#modal').modal('show')
+
 
 }
 function save_params() {
     var params = ['year','interval','died','alive_at_start','lost_to_followup','exp_int','observed'];
-    jpsurvData.mapping={}
     jpsurvData.mapping.cohorts=[]
     length=$( "#data_table th" ).length/2
    for (var i = 0; i < length; i ++) {
@@ -2421,17 +2469,22 @@ function save_params() {
       }
    }
     var passed=true;
+    jpsurvData.passed=true
+
        for (var i=0;i<params.length;i++){
           if(jpsurvData.mapping[params[i]]==undefined || jpsurvData.mapping.cohorts.length==0){
             alert("Please choose all necessary paramaters to continue")
             console.log("Please choose all necessary paramaters to continue")
             passed=false;
+            jpsurvData.passed=false
             break;
           }
        }
        console.log(jpsurvData.mapping.cohorts)
-       if(passed==true)
+       if(passed==true){
+          checkInputFiles()
           $('#modal').modal('hide');
+       }
 
    
   }
