@@ -119,23 +119,16 @@ getFittedResultWrapper <- function (filePath, jpsurvDataString) {
   delLastIntvl=as.logical(jpsurvData$calculate$static$advanced$advDeleteInterval)
   
   type=jpsurvData$additional$input_type
-  
-  
-  length=length(jpsurvData$calculate$form$cohortVars)
+   length=length(jpsurvData$calculate$form$cohortVars)
   combination_array=c()
-  runs="" 
-  
   for(i in 1:length){
     combination_array[i]=jpsurvData$calculate$form$AllcohortValues[i]
   }
   com_matrix=as.matrix(expand.grid(combination_array))
   
-  for(i in 1:nrow(com_matrix)){
-    row=paste(com_matrix[i,],collapse=" + ")
-    runs=paste(runs,gsub("\"","",row),sep=", ")
-  }
-  runs=substr(runs, 3, nchar(runs))
+ 
   
+  jsonl=list()
   for(i in 1:nrow(com_matrix)){
     fileName = paste('output', jpsurvData$tokenId,i,sep="-" )
     fileName = paste(fileName, "rds", sep="." )
@@ -151,24 +144,33 @@ getFittedResultWrapper <- function (filePath, jpsurvDataString) {
     print("Fitted Result Time:")
     
     print(proc.time() -ptm)
-    
+    Selected_Model=getSelectedModel(filePath,jpsurvDataString,i)
+    print("SELECTED MODEL GET")
+    print(Selected_Model)
+    jsonl[[i]]=Selected_Model-1
   }
+  
+  print("Creating chort_models file")
+  exportJson <- toJSON(jsonl)
+  filename = paste(filePath, paste("cohort_models-", jpsurvData$tokenId, ".json", sep=""), sep="/") #CSV file to download
+
+  write(exportJson, filename)
+
   ptm <- proc.time()
-  getAllData(filePath,jpsurvDataString,TRUE,runs)
-  print("Calculation time")
-  print(proc.time() -ptm)
+  getAllData(filePath,jpsurvDataString,TRUE)
+  print("Calculation time") 
   print("return from getAllData")
   return
   # getFullDataDownloadWrapper(filePath,jpsurvDataString)
   
 }
-getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,runs="NONE")
+getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,use_default=TRUE)
 {
   
   print("calculating jointpoint")
   jpsurvData <<- fromJSON(jpsurvDataString)
   print("Creating json")
-  
+  imageId=jpsurvData$plot$static$imageId
   com=as.integer(jpsurvData$run)
   print("RUN NUMBER:")
   print(com)
@@ -176,7 +178,9 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,runs="NONE")
   observed=""
   type=jpsurvData$additional$input_type
   headers=list()
-  
+  print("RUNS")
+
+  runs=getRunsString(filePath, jpsurvDataString)
   if(type=="csv"){
     header=as.logical(jpsurvData$additional$has_header)
     seerFilePrefix = jpsurvData$calculate$static$seerFilePrefix
@@ -210,7 +214,7 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,runs="NONE")
     print("creating IntGraph");
     print(observed)
     print(interval)
-    IntGraph=getRelativeSurvivalByIntWrapper(filePath,jpsurvDataString,first_calc,com,interval,observed)
+    IntGraph=getRelativeSurvivalByIntWrapper(filePath,jpsurvDataString,first_calc,com,interval,observed,use_default)
     print("Int Graph Time:")
     print(proc.time() -ptm)
   
@@ -222,15 +226,18 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,runs="NONE")
   
 
   ptm <- proc.time()
-  YearGraph=getRelativeSurvivalByYearWrapper(filePath,jpsurvDataString,first_calc,com)
+  YearGraph=getRelativeSurvivalByYearWrapper(filePath,jpsurvDataString,first_calc,com,use_default)
   print("Year Graph Time:")
   print(proc.time() -ptm)
   
   JP=getJPWrapper(filePath,jpsurvDataString,first_calc,com)
+  print("Completed getting JP")
   
   Selected_Model=getSelectedModel(filePath,jpsurvDataString,com)
+  print("Completed getting Selected_Model")
   
   Full_data=getFullDataDownload(filePath,jpsurvDataString,com)
+  print("Completed getting Full_data")
 
    statistic=jpsurvData$additional$statistic
   if (statistic=="Relative Survival")
@@ -240,24 +247,46 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,runs="NONE")
   
   if(statistic=="Cause-Specific Survival")
   {
-    statistic="CauseSpecific_Survival_Cum"
+    statistic="CauseSpecific_Survival_Cum" 
   }
   
 
-  if(runs!="NONE"){
-    jsonl =list("IntData"=IntGraph,"YearData"=YearGraph,"Coefficients"=Coefficients,"ModelSelection" = ModelSelection, "JP"=JP,"SelectedModel"=Selected_Model,"Full_Data_Set"=Full_data,"Runs"=runs,"input_type"=input_type,"headers"=headers,"statistic"=statistic) #returns
- }
-  else{
-    jsonl =list("IntData"=IntGraph,"YearData"=YearGraph,"Coefficients"=Coefficients,"ModelSelection" = ModelSelection, "JP"=JP,"SelectedModel"=Selected_Model,"Full_Data_Set"=Full_data,"input_type"=input_type,"headers"=headers,"statistic"=statistic) #returns
-  }
-  
-
-  exportJson <- toJSON(jsonl)
-  
+ # if(runs!="NONE"){
+ #}
+ # else{
+  #  jsonl =list("IntData"=IntGraph,"YearData"=YearGraph,"Coefficients"=Coefficients,"ModelSelection" = ModelSelection, "JP"=JP,"SelectedModel"=Selected_Model,"Full_Data_Set"=Full_data,"input_type"=input_type,"headers"=headers,"statistic"=statistic,"combination"=com) #returns
+ # }
   #print (jsonl)
-  print("Creating results file")
-  filename = paste(filePath, paste("results-", jpsurvData$tokenId, ".json", sep=""), sep="/") #CSV file to download
+  jpInd=jpsurvData$additional$headerJoinPoints
+  print(jpInd)
+  SelectedModel=getSelectedModel(filePath,jpsurvDataString,com)
+  if(first_calc==TRUE||is.null(jpInd))
+  {
+    jpInd=SelectedModel-1
+    print ("jpInd")
+    print(jpInd)
+    
+
+
+  }
+  yod=jpsurvData$additional$yearOfDiagnosis
+  intervals=jpsurvData$additional$intervals
+  if(use_default==TRUE){
+    yod=jpsurvData$additional$yearOfDiagnosis_default
+    intervals=jpsurvData$additional$intervals_default
+  }
+  print("YOD!")
+  print(use_default)
+  print(yod)
+
+  jsonl =list("IntData"=IntGraph,"YearData"=YearGraph,"Coefficients"=Coefficients,"ModelSelection" = ModelSelection, "JP"=JP,"SelectedModel"=SelectedModel,"Full_Data_Set"=Full_data,"Runs"=runs,"input_type"=input_type,"headers"=headers,"statistic"=statistic,"com"=com,"jpInd"=jpInd,"imageId"=imageId,"yod"=yod,"intervals"=intervals) #returns
+  exportJson <- toJSON(jsonl)
+  filename = paste(filePath, paste("results-", jpsurvData$tokenId,"-",com,"-",jpInd, ".json", sep=""), sep="/") #CSV file to download
   write(exportJson, filename)
+
+
+
+
 }
 getTrendsData<-function(filePath,jpsurvDataString,com)
 {
@@ -389,14 +418,14 @@ getFullDataDownload <- function(filePath,jpsurvDataString,com) {
     names(Full_Data)
   }  
   print ("FULL PREDICTED")
-  downloadFile = paste(filePath, paste("Full_Predicted-", jpsurvData$tokenId, "-",iteration, ".csv", sep=""), sep="/") #CSV file to download
+  downloadFile = paste(filePath, paste("Full_Predicted-", jpsurvData$tokenId,"-",com,"-",iteration, ".csv", sep=""), sep="/") #CSV file to download
   write.csv(Full_Data, downloadFile, row.names=FALSE)
   return (downloadFile)
   
 }
 
 #Graphs the Survival vs year graph and saves a csv file of the data
-getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_calc,com) {
+getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_calc,com,use_default=TRUE) {
   
   jpsurvData <<- fromJSON(jpsurvDataString)
   statistic=jpsurvData$additional$statistic
@@ -418,9 +447,19 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_ca
   file=paste(filePath, paste("output-", jpsurvData$tokenId,"-",com,".rds", sep=""), sep="/")  
   outputData=readRDS(file)
   intervals=c()
-  for(i in 1:length(jpsurvData$additional$intervals)) 
-  {
-    intervals=c(intervals,jpsurvData$additional$intervals[[i]])
+  if(use_default==FALSE){
+    for(i in 1:length(jpsurvData$additional$intervals)) 
+    {
+      intervals=c(intervals,jpsurvData$additional$intervals[[i]])
+    }
+  }
+  else{
+
+    for(i in 1:length(jpsurvData$additional$intervals_default)) 
+    {
+      intervals=c(intervals,jpsurvData$additional$intervals_default[[i]])
+    }
+
   }
   #  intervals = jpsurvData$plot$form$intervals #<-----new
   # jpind=jpsurvData$calculate$form$jpInd #<-----new
@@ -435,9 +474,9 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_ca
   #take the nth from FitList
   iteration=jpsurvData$plot$static$imageId
   fit.result=outputData$FitList[jpInd+1]
-  png(filename = paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",iteration,".png", sep=""), sep="/"))
-  graphFile= paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",iteration,".png", sep=""), sep="/")
-  downloadFile = paste(filePath, paste("data_Year-", jpsurvData$tokenId, "-",iteration, ".csv", sep=""), sep="/") #CSV file to download
+  png(filename = paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",com,"-",jpInd,"-",iteration,".png", sep=""), sep="/"))
+  graphFile= paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",com,"-",jpInd,"-",iteration,".png", sep=""), sep="/")
+  downloadFile = paste(filePath, paste("data_Year-", jpsurvData$tokenId, "-",com,"-",jpInd,"-",iteration, ".csv", sep=""), sep="/") #CSV file to download
   survData=plot.surv.year(outputData$fittedResult$FitList[[jpInd+1]],intervals, NAs, NAs,statistic,"Survival vs Year of Diagnosis")
   dev.off()
   results =list("RelSurYearGraph"=graphFile,"RelSurvYearData"=survData) #returns 
@@ -461,10 +500,10 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_ca
   write.csv(survData, downloadFile, row.names=FALSE)
   return (results)
   
-  
+   
 }
 #Graphs the Survival vs Time graph and saves a csv file of the data
-getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString,first_calc,com,interval,survar) {
+getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString,first_calc,com,interval,survar,use_default_year=TRUE) {
   print(first_calc)
   jpsurvData <<- fromJSON(jpsurvDataString)
   # jpind=jpsurvData$calculate$form$jpInd #<-----new
@@ -491,10 +530,13 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString,first_cal
   outputData=readRDS(file)
   yearOfDiagnosisVarName = jpsurvData$calculate$static$yearOfDiagnosisVarName
   yearOfDiagnosis = jpsurvData$additional$yearOfDiagnosis
+  if(use_default_year==TRUE){
+    yearOfDiagnosis=jpsurvData$additional$yearOfDiagnosis_default
+  }
   iteration=jpsurvData$plot$static$imageId
-  png(filename = paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",iteration,".png", sep=""), sep="/"))
-  graphFile= paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",iteration,".png", sep=""), sep="/")
-  downloadFile = paste(filePath, paste("data_Int-", jpsurvData$tokenId, "-",iteration, ".csv", sep=""), sep="/") #CSV file to download
+  png(filename = paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",com,"-",jpInd,"-",iteration,".png", sep=""), sep="/"))
+  graphFile= paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",com,"-",jpInd,"-",iteration,".png", sep=""), sep="/")
+  downloadFile = paste(filePath, paste("data_Int-", jpsurvData$tokenId,"-",com,"-",jpInd, "-",iteration, ".csv", sep=""), sep="/") #CSV file to download
   yearOfDiagnosisVarName=getCorrectFormat(yearOfDiagnosisVarName)
   
   type=jpsurvData$additional$input_type
@@ -630,11 +672,7 @@ getSelectedModel<-function(filePath,jpsurvDataString,com)
 {
   jpsurvData <<- fromJSON(jpsurvDataString)
   file=paste(filePath, paste("output-", jpsurvData$tokenId,"-",com,".rds", sep=""), sep="/")
-  outputData=readRDS(file)
-  jpInd=jpsurvData$additional$headerJoinPoints
-  
-  #  selected=outputData$fittedResult$X1names[[1]]
-  #  point=as.integer(strsplit(selected, "_")[[1]][2])+1
+  outputData=readRDS(file)  
   model=length(outputData$fittedResult$jp)+1
   print ("SELECTED MODEL")
   print (model)
@@ -642,3 +680,20 @@ getSelectedModel<-function(filePath,jpsurvDataString,com)
 }
 
 
+getRunsString<-function(filePath,jpsurvDataString){
+  jpsurvData <<- fromJSON(jpsurvDataString)
+  length=length(jpsurvData$calculate$form$cohortVars)
+  runs=""
+  combination_array=c()
+  for(i in 1:length){
+    combination_array[i]=jpsurvData$calculate$form$AllcohortValues[i]
+  }
+  com_matrix=as.matrix(expand.grid(combination_array))
+  
+  for(i in 1:nrow(com_matrix)){
+    row=paste(com_matrix[i,],collapse=" + ")
+    runs=paste(runs,gsub("\"","",row),sep=", ")
+  }
+  runs=substr(runs, 3, nchar(runs))
+  return (runs)
+}

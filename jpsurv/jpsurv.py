@@ -8,6 +8,7 @@ from rpy2.robjects import r
 from stompest.config import StompConfig
 from stompest.sync import Stomp
 from werkzeug import secure_filename
+import os.path
 
 app = Flask(__name__, static_folder='', static_url_path='/') 
 
@@ -216,7 +217,7 @@ def stage2_calculate():
     status = '{"status":"OK"}'
     mimetype = 'application/json'
     out_json = json.dumps(status)
-    return current_app.response_class(out_json, mimetype=mimetype)
+    return current_app.response_class(out_json, mimetype=mimetype) 
 
 
 @app.route('/jpsurvRest/stage3_recalculate', methods=['GET'])
@@ -231,21 +232,53 @@ def stage3_recalculate():
     jpsurvDataString = fix_jpsurv(jpsurvDataString)
     
     print(BOLD+"**** jpsurvDataString ****"+ENDC)
-    print(jpsurvDataString)
     print(OKBLUE+"The jpsurv STRING::::::"+ENDC)
-    print(jpsurvDataString)
+   # print(jpsurvDataString)
     jpsurvData = json.loads(jpsurvDataString)
-    for key, value in jpsurvData.iteritems():
-        print("var: %s = %s" % (key, value))
-        print("var: %s = %s" % (key, value))
+    cohort_com=str(jpsurvData["run"])
+    print(cohort_com)
+    
+    print("JPIND")
+    jpInd=str(jpsurvData["additional"]["headerJoinPoints"]) 
+    print(jpInd)
+    
+    print("RECALC?")
+    recalc=str(jpsurvData["additional"]["recalculate"])
+    print(recalc)
+
+    print("SWITCH?")
+    switch=jpsurvData["switch"]
+    print(switch)
+
+    
+    
+
+    if (switch==True):
+        with open('tmp/cohort_models-'+jpsurvData["tokenId"]+'.json') as data_file:    
+            data = json.load(data_file)
+            print (data)
+            print("NEW JPIND")
+            print(data[int(cohort_com)-1])
+            jpInd=str(data[int(cohort_com)-1])
+            
+    
+    fname='tmp/results-'+jpsurvData["tokenId"]+"-"+cohort_com+"-"+jpInd+'.json'
+    print(fname)
+    #for key, value in jpsurvData.iteritems():
+    #    print("var: %s = %s" % (key, value))
+    #    print("var: %s = %s" % (key, value))
     
     #Init the R Source
-    r.source('./JPSurvWrapper.R')
+    print(os.path.isfile(fname))
+    if(os.path.isfile(fname)==False or recalc=="true"):
 
-    print(BOLD+"**** Calling getAllData ****"+ENDC)
-    # Next line execute the R Program
-    r.getAllData(UPLOAD_DIR, jpsurvDataString)
+        r.source('./JPSurvWrapper.R')
+
+        print(BOLD+"**** Calling getAllData ****"+ENDC) 
+        # Next line execute the R Program
+        r.getAllData(UPLOAD_DIR, jpsurvDataString,switch)
     
+    print("GOT RESULTS!")
     status = '{"status":"OK"}'
     mimetype = 'application/json'
     out_json = json.dumps(status)
