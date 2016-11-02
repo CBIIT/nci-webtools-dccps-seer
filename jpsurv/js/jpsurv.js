@@ -154,14 +154,16 @@ function addEventListeners() {
 
   $( "#recalculate" ).click(function() {
     jpsurvData.additional.recalculate="true"
+    jpsurvData.additional.use_default="false"
     setCalculateData();
+    jpsurvData.additional.use_default="true"
   });
 
   $( "#year-of-diagnosis" ).change(function() {
-    jpsurvData.additional.default_year=false
+    jpsurvData.additional.use_default="false"
     jpsurvData.additional.recalculate="true"
     setCalculateData();
-    jpsurvData.additional.default_year=true
+    jpsurvData.additional.use_default="true"
   });
 
 
@@ -402,6 +404,7 @@ function dropdownListener(){
     //  var dropdown = document.getElementById("cohort-display");
     //  jpsurvData.run=dropdown.options[dropdown.selectedIndex].id;
       jpsurvData.switch=true
+      jpsurvData.additional.use_default="true"
       jpsurvData.additional.Runs=jpsurvData.results.Runs;
       calculate(true);
 
@@ -868,6 +871,8 @@ function calculateAllDataCallback() {
   var jpInd=jpsurvData.additional.headerJoinPoints;
   retrieveResults(cohort_com,jpInd,jpsurvData.switch);
   jpsurvData.switch=false
+  jpsurvData.additional.use_default="true"
+
 }
 
 function calculateFittedResults() {
@@ -891,6 +896,7 @@ function calculateFittedResultsCallback() {
     $('#precision>option:eq('+(parseInt(precision)-1)+')').prop('selected', true);
   }
   retrieveResults();
+  jpsurvData.additional.use_default="true"
 
 }
 
@@ -1100,7 +1106,7 @@ function calculate(run) {
       setIntervalsDefault();
       getIntervals();
       setUrlParameter("request", "true");
-      jpsurvData.additional.default_year=true
+      jpsurvData.additional.use_default="true"
       jpsurvData.queue.url = encodeURIComponent(window.location.href.toString());
       jpsurvData.additional.yearOfDiagnosis = jpsurvData.calculate.form.yearOfDiagnosisRange[0].toString();
       jpsurvData.additional.yearOfDiagnosis_default = parseInt($("#year_of_diagnosis_start").val());
@@ -1119,7 +1125,7 @@ function calculate(run) {
     else {
       jpsurvData.plot.static.imageId=0
       jpsurvData.additional.yearOfDiagnosis_default = parseInt($("#year_of_diagnosis_start").val());
-      jpsurvData.additional.new_year="False"
+      jpsurvData.additional.use_default="true"
       stage2("calculate"); // This is the initial calculation and setup.
     }
   }
@@ -1220,7 +1226,7 @@ function retrieveResults(cohort_com,jpInd,switch_cohort) {
     jpsurvData.additional.recalculate="false"
   });
     jpsurvData.switch=false
-    jpsurvData.additional.default_year=true
+    jpsurvData.additional.use_default="true"
 
 
 }
@@ -1458,6 +1464,7 @@ function parse_cohort_covariance_variables() {
 }
 
 function setIntervalsDefault() {
+jpsurvData.additional.intervals_default = [];
 
   //
   // Initially select years 1 and 4
@@ -1473,10 +1480,13 @@ function setIntervalsDefault() {
   //Set the ranges based on interval length
   if(intervals >= 10) {
     years = [5, 10];
+    jpsurvData.additional.intervals_default=years
   } else if (intervals >= 5) {
     years = [5];
+    jpsurvData.additional.intervals_default=years
   } else if (intervals < 5) {
     years = [1];
+    jpsurvData.additional.intervals_default=years
   } 
   //console.dir(years);
 
@@ -1541,17 +1551,14 @@ function get_cohort_covariance_variable_names() {
     //Go through Item Value and look for "Year of diagnosis"
     //Push variable names on to a list called cohort_covariance_variable_names.
     for (var i=0; i<names.length; i++) {
-      //console.log('names['+i+'] = '+names[i]+', values['+i+'] = '+values[i]);
-      //if (regex_base.test(names[i]) && values[i] == "Year of diagnosis") break;
+    
       if (regex_interval.test(values[i])) break; //stops at a value with "Interval" in it
       if (!regex_name.test(names[i])) continue;
       if (values[i] == "Page type") continue; // Skip the Page type
       if (regex_year.test(values[i])) continue; //skips "Year of diagnosis"
       cohort_covariance_variable_names.push(values[i]);
     }
-    //cohort_covariance_variable_names.pop();
-    //alert (JSON.stringify(cohort_covariance_variable_names));
-    //console.dir(cohort_covariance_variable_names);
+
   }
   else if(control_data.input_type=="csv"){
     for (var i=0; i< control_data.cohort_names.length;i++) {
@@ -1706,35 +1713,7 @@ function change_covariate_select() {
     $("#covariate-fieldset").show();
   }
 
-/*
-  if($('#covariate_select').val() == "None") {
-    alert('Covariate Sub Select = none');
-    $("#covariate_sub_select").empty();
-  } else {
-    alert('Covariate Sub Select = '+ $('#covariate_select').val());
-    //add_cohort_covariance_variable_select2();
-    add_cohort_covariance_variable_select($("#covariate_sub_select"), "val_"+i, keys[j], cohort_covariance_variables[keys[j]]);
-/*
-    for (var i=0;i<all_selected.length;i++) {
-      for (var j=0;j<keys.length;j++) {
-        if (all_selected[i] == keys[j])
-          add_cohort_covariance_variable_select($("#covariate_sub_select"), "val_"+i, keys[j], cohort_covariance_variables[keys[j]]);
-      }
-    }
-*/
 
-/*
-  for (var i=0;i<all_selected.length;i++) {
-    for (var j=0;j<keys.length;j++) {
-      if (all_selected[i] == keys[j])
-        add_cohort_covariance_variable_select($("#covariate_sub_select"), "val_"+i, keys[j], cohort_covariance_variables[keys[j]]);
-    }
-  }
-*/
-  //
-  //Just clear for now....
-  //
-  //$("#covariate_sub_select").empty();
 }
 
 function add_cohort_covariance_variable_select(field, variable_name, variable_title, values) {
@@ -1879,11 +1858,7 @@ function jpsurvRest(action, params) {
     });
     return json;
   })();
-  //console.log("Print json");
-  //console.log(json);
   if(typeof json === 'object') {
-    //console.log("It is already json");
-    //console.dir(json);
   }
 
   return json;
@@ -2039,9 +2014,7 @@ $.fn.serializeObject = function()
 };
 
 function replaceAll(find, replace, str) {
-  //console.log(typeof(find));
-  //console.log(typeof(replace));
-  //console.log(typeof(str));
+
 
     return str.replace(new RegExp(find, 'g'), replace);
 }
@@ -2133,26 +2106,7 @@ function decimalPlaces(num) {
   return answer;
 }
 
-/*
-function displayCommFail(id, jqXHR, textStatus) {
-  //alert("Comm Fail");
-  console.log(id);
-  console.log(textStatus);
-  console.dir(jqXHR);
 
-  console.warn("CommFail\n"+"Status: "+textStatus);
-  var message = jqXHR.responseText;
-  message += "<p>code: "+jqXHR.status+" - "+textStatus+"</p>";
-  $('#' + id + '-message').show();
-  $('#' + id + '-message-content').empty().append(message);
-  $('#' + id + '-progress').hide();
-  $('#' + id+ '-results-container').hide();
-  //hide loading icon
-
-  showMessage(id, message, message_type);
-
-}
-*/
 function displayError(id, data) {
   // Display error or warning if available.
   console.dir(data);
@@ -2192,31 +2146,7 @@ function getRestServerStatus() {
 
   console.log("getRestServerStatus");
 
-  //$("#upload-form").submit();
-  //return;
 
-// Assign handlers immediately after making the request,
-// and remember the jqXHR object for this request
-/*
-  var jqxhr = $.ajax( url ).done(function() {
-    $("#calculating-spinner").modal('show');
-    $("#upload-form").submit();
-    $("#calculating-spinner").modal('hide');
-  })
-  .fail(function(jqXHR, textStatus) {
-    console.warn("header: "
-      + jqXHR
-      + "\n"
-      + "Status: "
-      + textStatus
-      + "\n\nThe server is temporarily unable to service your request due to maintenance downtime or capacity problems. Please try again later.");
-    //alert('Communication problem: ' + textStatus);
-    // ERROR
-    message = 'Service Unavailable: ' + textStatus + "<br>";
-    message += "The server is temporarily unable to service your request due to maintenance downtime or capacity problems. Please try again later.<br>";
-    showMessage(id, message, 'error');
-  });
-*/
 
   var url = "jpsurvRest/status";
   var ajaxRequest = $.ajax({
@@ -2225,9 +2155,7 @@ function getRestServerStatus() {
     contentType : 'application/json' // JSON
   });
   ajaxRequest.success(function(data) {
-    //data is returned as a string representation of JSON instead of JSON obj
-    //console.log("ajaxRequetst.success");
-    //console.dir(data);
+
     $("#"+id+"-message-container").hide();
     if (displayError(id, data) == false) {
       //$("#calculating-spinner").modal('show');
@@ -2266,9 +2194,7 @@ function certifyResults() {
 function renewTokenId(refresh_url) {
 
   var tokenId = Math.floor(Math.random() * (999999 - 100000 + 1));
-  //var tokenId = 620060;
   jpsurvData.plot.static.imageId = -1;
-  //alert(tokenId);
   console.warn(tokenId);
   if(refresh_url == true) {
     setUrlParameter("tokenId", tokenId.toString());
@@ -2298,21 +2224,10 @@ function setUrlParameter(sParam, value) {
   console.dir(sURLVariables);
   console.log("Put this back on the url");
   console.log("Will this work: "+sURLVariables.join("&"))
-  //alert(sURLVariables.join("&"));
     window.history.pushState({},'', "?"+sURLVariables.join("&"));
 
   console.log(window.location.search.substring(1));
-  //window.history.push('"'+$('#cohort_value_'+index+'_select)")));
 
-/*
-  for (var i = 0; i < sURLVariables.length; i++) {
-    var sParameterName = sURLVariables[i].split('=');
-    if (sParameterName[0] == sParam)
-    {
-      return sParameterName[1];
-    }
-  }
-*/
 
 }
 
