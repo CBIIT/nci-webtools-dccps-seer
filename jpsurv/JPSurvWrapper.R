@@ -164,7 +164,7 @@ getFittedResultWrapper <- function (filePath, jpsurvDataString) {
   # getFullDataDownloadWrapper(filePath,jpsurvDataString)
   
 }
-getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE)
+getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,use_default=TRUE)
 {
   
   print("calculating jointpoint")
@@ -214,7 +214,7 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE)
     print("creating IntGraph");
     print(observed)
     print(interval)
-    IntGraph=getRelativeSurvivalByIntWrapper(filePath,jpsurvDataString,first_calc,com,interval,observed)
+    IntGraph=getRelativeSurvivalByIntWrapper(filePath,jpsurvDataString,first_calc,com,interval,observed,use_default)
     print("Int Graph Time:")
     print(proc.time() -ptm)
   
@@ -226,7 +226,7 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE)
   
 
   ptm <- proc.time()
-  YearGraph=getRelativeSurvivalByYearWrapper(filePath,jpsurvDataString,first_calc,com)
+  YearGraph=getRelativeSurvivalByYearWrapper(filePath,jpsurvDataString,first_calc,com,use_default)
   print("Year Graph Time:")
   print(proc.time() -ptm)
   
@@ -270,7 +270,16 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE)
 
   }
   yod=jpsurvData$additional$yearOfDiagnosis
-  jsonl =list("IntData"=IntGraph,"YearData"=YearGraph,"Coefficients"=Coefficients,"ModelSelection" = ModelSelection, "JP"=JP,"SelectedModel"=SelectedModel,"Full_Data_Set"=Full_data,"Runs"=runs,"input_type"=input_type,"headers"=headers,"statistic"=statistic,"com"=com,"jpInd"=jpInd,"imageId"=imageId,"yod"=yod) #returns
+  intervals=jpsurvData$additional$intervals
+  if(use_default==TRUE){
+    yod=jpsurvData$additional$yearOfDiagnosis_default
+    intervals=jpsurvData$additional$intervals_default
+  }
+  print("YOD!")
+  print(use_default)
+  print(yod)
+
+  jsonl =list("IntData"=IntGraph,"YearData"=YearGraph,"Coefficients"=Coefficients,"ModelSelection" = ModelSelection, "JP"=JP,"SelectedModel"=SelectedModel,"Full_Data_Set"=Full_data,"Runs"=runs,"input_type"=input_type,"headers"=headers,"statistic"=statistic,"com"=com,"jpInd"=jpInd,"imageId"=imageId,"yod"=yod,"intervals"=intervals) #returns
   exportJson <- toJSON(jsonl)
   filename = paste(filePath, paste("results-", jpsurvData$tokenId,"-",com,"-",jpInd, ".json", sep=""), sep="/") #CSV file to download
   write(exportJson, filename)
@@ -416,7 +425,7 @@ getFullDataDownload <- function(filePath,jpsurvDataString,com) {
 }
 
 #Graphs the Survival vs year graph and saves a csv file of the data
-getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_calc,com) {
+getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_calc,com,use_default=TRUE) {
   
   jpsurvData <<- fromJSON(jpsurvDataString)
   statistic=jpsurvData$additional$statistic
@@ -438,9 +447,19 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_ca
   file=paste(filePath, paste("output-", jpsurvData$tokenId,"-",com,".rds", sep=""), sep="/")  
   outputData=readRDS(file)
   intervals=c()
-  for(i in 1:length(jpsurvData$additional$intervals)) 
-  {
-    intervals=c(intervals,jpsurvData$additional$intervals[[i]])
+  if(use_default==FALSE){
+    for(i in 1:length(jpsurvData$additional$intervals)) 
+    {
+      intervals=c(intervals,jpsurvData$additional$intervals[[i]])
+    }
+  }
+  else{
+
+    for(i in 1:length(jpsurvData$additional$intervals_default)) 
+    {
+      intervals=c(intervals,jpsurvData$additional$intervals_default[[i]])
+    }
+
   }
   #  intervals = jpsurvData$plot$form$intervals #<-----new
   # jpind=jpsurvData$calculate$form$jpInd #<-----new
@@ -481,10 +500,10 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_ca
   write.csv(survData, downloadFile, row.names=FALSE)
   return (results)
   
-  
+   
 }
 #Graphs the Survival vs Time graph and saves a csv file of the data
-getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString,first_calc,com,interval,survar) {
+getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString,first_calc,com,interval,survar,use_default_year=TRUE) {
   print(first_calc)
   jpsurvData <<- fromJSON(jpsurvDataString)
   # jpind=jpsurvData$calculate$form$jpInd #<-----new
@@ -511,6 +530,9 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString,first_cal
   outputData=readRDS(file)
   yearOfDiagnosisVarName = jpsurvData$calculate$static$yearOfDiagnosisVarName
   yearOfDiagnosis = jpsurvData$additional$yearOfDiagnosis
+  if(use_default_year==TRUE){
+    yearOfDiagnosis=jpsurvData$additional$yearOfDiagnosis_default
+  }
   iteration=jpsurvData$plot$static$imageId
   png(filename = paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",com,"-",jpInd,"-",iteration,".png", sep=""), sep="/"))
   graphFile= paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",com,"-",jpInd,"-",iteration,".png", sep=""), sep="/")
