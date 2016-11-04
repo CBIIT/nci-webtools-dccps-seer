@@ -2325,7 +2325,7 @@ var template_string='<div class="modal fade" id="modal" tabindex="-1" role="dial
       +'</div>'
       +'<div class="modal-body"><div id ="container" >'
       +'<fieldset style="padding-left:2%"><legend   style="font-size: 12px"><h4><span style="margin-right:80%">Delimiters</span></h4></legend>'
-      	+'<div id="dels" class="row" style="padding-left:12.5%">'
+        +'<div id="dels" class="row" style="padding-left:12.5%">'
             +'<div style="width:25% ;display:inline-block"><input type="radio" id="tab"   name="del" value="tab"/>Tab</div>'    
             +'<div style="width:25%; display:inline-block"><input type="radio" id="colan" name="del" value="colan"/>Semi-Colon</div>'
             +'<div style="width:25%; display:inline-block"><input type="radio" id="comma" name="del" value="comma" checked/>Comma</div>'
@@ -2341,8 +2341,8 @@ var template_string='<div class="modal fade" id="modal" tabindex="-1" role="dial
                       +'<option>100</option>'
                     +'</select> lines of the data file'
       +'<p>Please map <b><i>all</i></b> required paramaters to the apprpriate columns (see help for details)'
-      +'<div id="modalContent" class= "table-responsive" style="height:200px">'
-      +'</div><button type="button" id="save" class="btn btn-primary btn-sm" style="margin-left:45%;margin-top:1%" onclick=\"save_params()\" >Save</button></button><button type="button" id="cancel" class="btn btn-primary btn-sm" style="margin-left:5%;margin-top:1%"">Cancel</button>'
+      +'<div id="modalContent"  style="height:200px"><table id="data_table" class="table table-striped" style="height:100px;border-top:none;border-left:none;line-height:0" cellspacing:"0" cellpadding="0px" width="100%"></table>'
+      +'</div><button type="button" id="save" class="btn btn-primary btn-sm" style="margin-left:45%;margin-top:1%;display:inline-block" onclick=\"save_params()\" >Save</button></button><button type="button" id="cancel" class="btn btn-primary btn-sm" style="display:inline-block;margin-left:5%;margin-top:1%"">Cancel</button>'
       +'</div></div></div></div>';
 
 var selector= '<select id="data_type" class="jpsurv-label-content" name="data_type">'
@@ -2359,11 +2359,13 @@ var selector= '<select id="data_type" class="jpsurv-label-content" name="data_ty
               +'</select>';
 
 
-function createModal(content,length) {
+function createModal() {
   var header = "CSV File Form - Advance Settings";
   $('body').append($(template_string));
   $('#modalTitle').html(header);
-  $('#modalContent').html(content);
+  //$('#data_table').html(table_data);
+
+
   $('#modal').modal({backdrop: 'static', keyboard: false}) 
 
 
@@ -2377,11 +2379,11 @@ function createModal(content,length) {
 
 
   if(jpsurvData.mapping.cohorts!=undefined){
-  	length=$( "#data_table th" ).length/2
-  	for (var i = 0; i < length; i ++) {
-  		if(jpsurvData.mapping.cohorts.indexOf(i+1)!=-1){
-        	$('#type_'+i+' select').val("Cohort")
-      	}
+    length=$( "#data_table th" ).length/2
+    for (var i = 0; i < length; i ++) {
+      if(jpsurvData.mapping.cohorts.indexOf(i+1)!=-1){
+          $('#type_'+i+' select').val("Cohort")
+        }
       else if (jpsurvData.mapping.year==i+1)
       {
         $('#type_'+i+' select').val("Year")
@@ -2417,7 +2419,7 @@ function createModal(content,length) {
         $('#type_'+i+' select').val("observedrelsurv")
       }
 
-  	}  
+    }  
     
   }
   $('#modal').modal('show')
@@ -2489,6 +2491,7 @@ function save_params() {
    
   }
 function create_table(content,max,has_headers){
+  createModal();
   var arr=content.split("\n");
   var matrix=arr.map(function(line) { return line.split(',') })
   if(has_headers==true){
@@ -2513,33 +2516,48 @@ function create_table(content,max,has_headers){
 
 //  var table = $('<table id="example" class="table table-striped table-bordered" cellspacing="0" width="100%"></table>');
   var html=""
-  var table = $('<table id="data_table" class="table table-striped" style="border-top:none;border-left:none;line-height:0" cellspacing:"0" cellpadding="0px" width="100%"></table>')
-  table.DataTable({
+  $('#data_table').DataTable({
     columns: headers,
     data: matrix.slice(0,max),
     bSort: false,
     bFilter: false,
     paging: false,
     responsive: true,
+    fixedColumns: true,
     aaSorting: [],
-    dom: 't'
+    dom: 't',
+    scrollY: '150px',
+    scrollX: true
   })
+    var header = $('#modalContent thead').first()
+  var headerRow = $('<tr>')
+  for (var i = 0; i < headers.length; i ++) {
+   var title = headers[0].title
+    var selectHeader = $('<th id="type_'+i+'" style="border-style:none;margin-left:0px">')
+    selectHeader.html(selector)
 
-  var row = $('<tr>');
+    headerRow.append(selectHeader)
+  }
+  
+  header.prepend(headerRow)
+ /* var row = $('<table style="margin-bottom:10px">');
+  row.append('<tr>')
   counter=0
 
   for (var i = 0; i < headers.length; i ++) {
     var title = headers[0].title
-    var selectHeader = $('<th id="type_'+i+'" style="border-style:none">')
+    var selectHeader = $('<th id="type_'+i+'" style="border-style:none;margin-left:0px">')
     selectHeader.html(selector)
     row.append(selectHeader)
-    console.log('added header', 0, title )
-    console.log(row)
-  }
-  console.log(headers)
-  html=table+'<button type="button" class="pull-right" id="Adv_input" >Advanced</button>'
-  $(table[0].tHead).prepend(row);
-  createModal(table,headers.length);
+
+  }*/
+
+
+  
+
+
+
+  //html_tables=table_headers.append(table_data)
 }
 
 
