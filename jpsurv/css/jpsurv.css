@@ -492,7 +492,14 @@ input:required:valid, input:focus:valid {
     width: 40%;
 }
 
+/*
+#data_table th, #data_table td { white-space: nowrap; }
 
+#table_wrapper {
+        width: 800px;
+        margin: 0 auto;
+    }
+*/
 #data_table th:first-child,
 #data_table td:first-child {
   border-left:1px solid #ddd;
@@ -501,12 +508,39 @@ input:required:valid, input:focus:valid {
 #data_table th{
   border-right:1px solid #ddd;
   line-height: 0
+
 }
 #data_table td{
   line-height: 0;
   border-top:0;
 }
 
+/*#data_table thead, #data_table tbody, #data_table tr, #data_table, #data_table th {
+  display: block;
+}
+#data_table tbody td, #data_table thead > tr> th {
+  float: left;
+  border-bottom-width: 0;
+}
+#data_table tbody {
+  height: 230px;
+  overflow-y: auto;
+  width: 100%;
+}*/
+
 input[type="radio"] {
     margin-left:10px;
+}
+
+h4 {
+   width: 100%; 
+   text-align: center; 
+   border-bottom: 1px solid silver; 
+   line-height: 0.1em;
+   margin: 10px 0 20px; 
+} 
+
+h4 span { 
+    background:#fff; 
+    padding:0 10px; 
 }
