@@ -224,7 +224,7 @@ def stage2_calculate():
 def stage3_recalculate():
 
     print 'Go'
-    time.sleep(3)
+    #time.sleep(3)
     print(OKGREEN+UNDERLINE+BOLD + "****** Stage 3: PLOT BUTTON ***** " + ENDC)
     print("Recalculating ...")
 
