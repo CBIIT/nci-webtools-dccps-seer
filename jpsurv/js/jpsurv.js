@@ -2324,11 +2324,11 @@ var template_string='<div class="modal fade" id="modal" tabindex="-1" role="dial
         +'<b><h2 class="modal-title" id="modalTitle">Modal title</h4></b>'
       +'</div>'
       +'<div class="modal-body"><div id ="container" >'
-      +'<fieldset style="padding-left:2%"><legend   style="font-size: 12px"><h4><span style="margin-right:80%">Delimiters</span></h4></legend>'
+      +'<fieldset style="padding:0 0 .75em"><legend   style="font-size: 12px;margin-bottom:12px"><h4><span style="margin-right:80%">Delimiters</span></h4></legend>'
         +'<div id="dels" class="row" style="padding-left:12.5%">'
+            +'<div style="width:25%; display:inline-block"><input type="radio" id="comma" name="del" value="comma" checked/>Comma</div>'
             +'<div style="width:25% ;display:inline-block"><input type="radio" id="tab"   name="del" value="tab"/>Tab</div>'    
             +'<div style="width:25%; display:inline-block"><input type="radio" id="colan" name="del" value="colan"/>Semi-Colon</div>'
-            +'<div style="width:25%; display:inline-block"><input type="radio" id="comma" name="del" value="comma" checked/>Comma</div>'
             +'<div style="width:25%; display:inline-block"><input type="radio" id="space" name="del" value="space"/>Space</div>'
         +'</div>'
       +'</fieldset></br>'
@@ -2339,9 +2339,9 @@ var template_string='<div class="modal fade" id="modal" tabindex="-1" role="dial
                       +'<option>60</option>'
                       +'<option>80</option>'
                       +'<option>100</option>'
-                    +'</select> lines of the data file'
-      +'<p>Please map <b><i>all</i></b> required paramaters to the apprpriate columns (see help for details)'
-      +'<div id="modalContent"  style="height:200px"><table id="data_table" class="table table-striped" style="height:100px;border-top:none;border-left:none;line-height:0" cellspacing:"0" cellpadding="0px" width="100%"></table>'
+                    +'</select> lines of the data file</br></br>'
+      +'<span>Please map <b><i>all</i></b> required paramaters to the apprpriate columns (see help for details)</span>'
+      +'<div id="modalContent"  style="height:200px;border-left:1px solid #ddd"><table id="data_table" class="table table-striped" style="height:100px;border-top:none;border-left:none;line-height:0" cellspacing:"0" cellpadding="0px" width="100%"></table>'
       +'</div><button type="button" id="save" class="btn btn-primary btn-sm" style="margin-left:45%;margin-top:1%;display:inline-block" onclick=\"save_params()\" >Save</button></button><button type="button" id="cancel" class="btn btn-primary btn-sm" style="display:inline-block;margin-left:5%;margin-top:1%"">Cancel</button>'
       +'</div></div></div></div>';
 
@@ -2533,7 +2533,7 @@ function create_table(content,max,has_headers){
   var headerRow = $('<tr>')
   for (var i = 0; i < headers.length; i ++) {
    var title = headers[0].title
-    var selectHeader = $('<th id="type_'+i+'" style="border-style:none;margin-left:0px">')
+    var selectHeader = $('<th id="type_'+i+'" style="border-left:1px solid white;border-right:1px solid white">')
     selectHeader.html(selector)
 
     headerRow.append(selectHeader)
