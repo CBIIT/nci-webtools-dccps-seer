@@ -2311,9 +2311,14 @@ $('#Adv_input').click(function() {
   var has_headers=$('#has_headers').is(':checked')
 
  // filereader.onload = function(event) { create_table(event.currentTarget.result)}
+ if(jpsurvData.mapping.cohorts==undefined){
  filereader.onload = function(event) { create_table(event.currentTarget.result,19,has_headers)}
   filereader.readAsText(file);
+}
+else{
+	  $('#modal').modal('show')
  // createModal(content);
+}
 })
 
 var template_string='<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'
@@ -2341,7 +2346,7 @@ var template_string='<div class="modal fade" id="modal" tabindex="-1" role="dial
                       +'<option>100</option>'
                     +'</select> lines of the data file</br></br>'
       +'<span>Please map <b><i>all</i></b> required paramaters to the apprpriate columns (see help for details)</span>'
-      +'<div id="modalContent"  style="height:200px;border-left:1px solid #ddd"><table id="data_table" class="table table-striped" style="height:100px;border-top:none;border-left:none;line-height:0" cellspacing:"0" cellpadding="0px" width="100%"></table>'
+      +'<div id="modalContent"><table id="data_table" class="table table-striped" style="height:100px;border-top:none;border-left:none;line-height:0" cellspacing:"0" cellpadding="0px" width="100%"></table>'
       +'</div><button type="button" id="save" class="btn btn-primary btn-sm" style="margin-left:45%;margin-top:1%;display:inline-block" onclick=\"save_params()\" >Save</button></button><button type="button" id="cancel" class="btn btn-primary btn-sm" style="display:inline-block;margin-left:5%;margin-top:1%"">Cancel</button>'
       +'</div></div></div></div>';
 
@@ -2429,7 +2434,7 @@ function createModal() {
 function save_params() {
     var params = ['year','interval','died','alive_at_start','lost_to_followup','exp_int','observed'];
     jpsurvData.mapping.cohorts=[]
-    length=$( "#data_table th" ).length/2
+    length=$( "#data_table th" ).length
    for (var i = 0; i < length; i ++) {
       value=$('#type_'+i+' select').val()
       if(value=="Cohort"){
