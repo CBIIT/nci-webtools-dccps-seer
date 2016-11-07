@@ -226,7 +226,7 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,use_default=TRU
   
 
   ptm <- proc.time()
-  YearGraph=getRelativeSurvivalByYearWrapper(filePath,jpsurvDataString,first_calc,com,use_default)
+  YearGraph=getRelativeSurvivalByYearWrapper(filePath,jpsurvDataString,first_calc,com,interval,observed,use_default)
   print("Year Graph Time:")
   print(proc.time() -ptm)
   
@@ -425,7 +425,7 @@ getFullDataDownload <- function(filePath,jpsurvDataString,com) {
 }
 
 #Graphs the Survival vs year graph and saves a csv file of the data
-getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_calc,com,use_default=TRUE) {
+getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_calc,com,interval_var,observed,use_default=TRUE) {
   
   jpsurvData <<- fromJSON(jpsurvDataString)
   statistic=jpsurvData$additional$statistic
@@ -447,6 +447,8 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_ca
   file=paste(filePath, paste("output-", jpsurvData$tokenId,"-",com,".rds", sep=""), sep="/")  
   outputData=readRDS(file)
   intervals=c()
+  yearOfDiagnosisVarName = jpsurvData$calculate$static$yearOfDiagnosisVarName
+  yearOfDiagnosis = jpsurvData$additional$yearOfDiagnosis
   if(use_default==FALSE){
     for(i in 1:length(jpsurvData$additional$intervals)) 
     {
@@ -454,7 +456,7 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_ca
     }
   }
   else{
-
+    yearOfDiagnosis=yearOfDiagnosis=jpsurvData$additional$yearOfDiagnosis_default
     for(i in 1:length(jpsurvData$additional$intervals_default)) 
     {
       intervals=c(intervals,jpsurvData$additional$intervals_default[[i]])
@@ -477,7 +479,7 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_ca
   png(filename = paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",com,"-",jpInd,"-",iteration,".png", sep=""), sep="/"))
   graphFile= paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",com,"-",jpInd,"-",iteration,".png", sep=""), sep="/")
   downloadFile = paste(filePath, paste("data_Year-", jpsurvData$tokenId, "-",com,"-",jpInd,"-",iteration, ".csv", sep=""), sep="/") #CSV file to download
-  survData=plot.surv.year(outputData$fittedResult$FitList[[jpInd+1]],intervals, NAs, NAs,statistic,"Survival vs Year of Diagnosis")
+  survData=plot.surv.year(outputData$fittedResult$FitList[[jpInd+1]],int.col=intervals, covar.cont.col=c(NA), covar.col=c(NA),yearvar=yearOfDiagnosisVarName,interval=interval_var,survvar=observed,survType=statistic,titlestring="Survival vs Year of Diagnosis")
   dev.off()
   results =list("RelSurYearGraph"=graphFile,"RelSurvYearData"=survData) #returns 
   cohorts=jpsurvData$calculate$form$cohortVars
