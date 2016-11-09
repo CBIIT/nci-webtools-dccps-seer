@@ -102,6 +102,7 @@ getFittedResultWrapper <- function (filePath, jpsurvDataString) {
   print ("parsing data string")
   jpsurvData <<- fromJSON(jpsurvDataString)
   print(jpsurvData)
+  del=""
   seerFilePrefix = jpsurvData$calculate$static$seerFilePrefix
   yearOfDiagnosisVarName = jpsurvData$calculate$static$yearOfDiagnosisVarName
   yearOfDiagnosisRange = jpsurvData$calculate$form$yearOfDiagnosisRange
@@ -120,7 +121,8 @@ getFittedResultWrapper <- function (filePath, jpsurvDataString) {
   delLastIntvl=as.logical(jpsurvData$calculate$static$advanced$advDeleteInterval)
   
   type=jpsurvData$additional$input_type
-   del=jpsurvData$additional$del
+  print("DEL")
+  print(del)
    length=length(jpsurvData$calculate$form$cohortVars)
   combination_array=c()
   for(i in 1:length){
@@ -308,11 +310,11 @@ getTrendsData<-function(filePath,jpsurvDataString,com)
 }
 
 #Creates the SEER Data and Fitted Result
-getFittedResult <- function (filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange, allVars, cohortVars, cohortValues, numJP, advanced_options,delLastIntvlAdv,outputFileName,jpsurvDataString,projyear,type,alive_at_start=NULL,interval=NULL,died=NULL,lost_to_followup=NULL,rel_cum=NULL,del) {
+getFittedResult <- function (filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange, allVars, cohortVars, cohortValues, numJP, advanced_options,delLastIntvlAdv,outputFileName,jpsurvDataString,projyear,type,alive_at_start=NULL,interval=NULL,died=NULL,lost_to_followup=NULL,rel_cum=NULL) {
   jpsurvData <<- fromJSON(jpsurvDataString)
   print ("creating RDS")
   print (numJP)
-  
+
   file=paste(filePath, seerFilePrefix, sep="/" )
   type=jpsurvData$additional$input_type
   varLabels=getCorrectFormat(allVars)
@@ -342,9 +344,11 @@ getFittedResult <- function (filePath, seerFilePrefix, yearOfDiagnosisVarName, y
                            proj.year.num=projyear);
   }
   if(type=="csv"){
-    
+      del=jpsurvData$additional$del
     file=paste(file,".csv",sep="")
     print("here")
+    print("DEL")
+    print(del)
     header=as.logical(jpsurvData$additional$has_header)
     seerdata=read.tabledata(fileName=file,          # fileName: Name of file to use in current directory, or filepath.
                     hasHeader=header,
