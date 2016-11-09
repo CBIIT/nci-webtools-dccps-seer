@@ -539,6 +539,9 @@ function loadHelp() {
 }
 
 $('#file_control_csv').change(function(){
+   first_modal=true
+   $('#modalContent').html('<table id="data_table" class="table table-striped" style="height:100px;border-top:none;border-left:none;line-height:0" cellspacing:"0" cellpadding="0px" width="100%"></table>');
+    //$('#data_table').DataTable({
     $("#Adv_input").removeAttr('disabled');
 });
 function checkInputFiles() {
@@ -2313,14 +2316,14 @@ $('#Adv_input').click(function() {
  // filereader.onload = function(event) { create_table(event.currentTarget.result)}
  if(first_modal==true){
  filereader.onload = function(event) { create_table(event.currentTarget.result,19,has_headers)}
- first_modal=false
   filereader.readAsText(file);
 }
 else{
-	  $('#modal').modal('show')
+    $('#modal').modal('show')
  // createModal(content);
 }
 })
+
 
 var template_string='<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'
   +'<div class="modal-dialog  modal-lg" role="document">'
@@ -2332,19 +2335,19 @@ var template_string='<div class="modal fade" id="modal" tabindex="-1" role="dial
       +'<div class="modal-body"><div id ="container" >'
       +'<fieldset style="padding:0 0 .75em"><legend   style="font-size: 12px;margin-bottom:12px"><h4><span style="margin-right:80%">Delimiters</span></h4></legend>'
         +'<div id="dels" class="row" style="padding-left:12.5%">'
-            +'<div style="width:25%; display:inline-block"><input type="radio" id="comma" name="del" value="," checked/>Comma</div>'
-            +'<div style="width:25% ;display:inline-block"><input type="radio" id="tab"   name="del" value="\t"/>Tab</div>'    
-            +'<div style="width:25%; display:inline-block"><input type="radio" id="colan" name="del" value=";"/>Semi-Colon</div>'
-            +'<div style="width:25%; display:inline-block"><input type="radio" id="space" name="del" value="\s"/>Space</div>'
+            +'<div style="width:25%; display:inline-block"><input type="radio" id="comma" name="del" value="comma" checked/>Comma</div>'
+            +'<div style="width:25% ;display:inline-block"><input type="radio" id="tab"   name="del" value="tab"/>Tab</div>'    
+            +'<div style="width:25%; display:inline-block"><input type="radio" id="colan" name="del" value="colan"/>Semi-Colon</div>'
+            +'<div style="width:25%; display:inline-block"><input type="radio" id="space" name="del" value="space"/>Space</div>'
         +'</div>'
       +'</fieldset></br>'
               
        +'Displaying <select id="lines_displayed" class="jpsurv-label-content" name="lines_displayed">'
                       +'<option>20</option>'
+                      +'<option>30</option>'
                       +'<option>40</option>'
+                      +'<option>50</option>'
                       +'<option>60</option>'
-                      +'<option>80</option>'
-                      +'<option>100</option>'
                     +'</select> lines of the data file</br></br>'
       +'<span>Please map <b><i>all</i></b> required paramaters to the apprpriate columns (see help for details)</span>'
       +'<div id="modalContent"><table id="data_table" class="table table-striped" style="height:100px;border-top:none;border-left:none;line-height:0" cellspacing:"0" cellpadding="0px" width="100%"></table>'
@@ -2382,7 +2385,19 @@ function createModal() {
 
   });
 
+$('#lines_displayed').change(function() {
+  console.log("changed lines")
+  var fileInput = $('#file_control_csv');
+  var has_headers=$('#has_headers').is(':checked')
+  fileInput = fileInput[0];
+  var file = fileInput.files[0];
+  var filereader = new FileReader();
+  lines=parseInt($('#lines_displayed').val())
+   filereader.onload = function(event) { create_table(event.currentTarget.result,lines,has_headers)}
+    first_modal=false
+  filereader.readAsText(file);
 
+})
 
   if(jpsurvData.mapping.cohorts!=undefined){
     length=$( "#data_table th" ).length/2
@@ -2496,8 +2511,9 @@ function save_params() {
 
    
   }
-function create_table(content,max,has_headers){
-  createModal();
+function create_table(content,rows,has_headers){
+  if(first_modal==true)
+    createModal();
   var arr=content.split("\n");
   var matrix=arr.map(function(line) { return line.split(',') })
   if(has_headers==true){
@@ -2520,51 +2536,38 @@ function create_table(content,max,has_headers){
   console.log(headers);
   console.log(matrix);
 
-//  var table = $('<table id="example" class="table table-striped table-bordered" cellspacing="0" width="100%"></table>');
-  var html=""
-  $('#data_table').DataTable({
+data_table(matrix,headers,rows)  
+var html=""
+
+if(first_modal==true){
+  var header = $('#modalContent thead').first()
+  var headerRow = $('<tr>')
+  for (var i = 0; i < headers.length; i ++) {
+    var title = headers[0].title
+    var selectHeader = $('<th id="type_'+i+'" style="border-left:1px solid white;border-right:1px solid white">')
+    selectHeader.html(selector)
+    headerRow.append(selectHeader)
+  }
+  header.prepend(headerRow)
+  first_modal=false
+}
+
+}
+
+function data_table(matrix,headers,rows){
+    $('#data_table').DataTable({
     columns: headers,
-    data: matrix.slice(0,max),
+    data: matrix.slice(0,rows),
     bSort: false,
     bFilter: false,
     paging: false,
     responsive: true,
     fixedColumns: true,
+    destroy: true,
     aaSorting: [],
     dom: 't',
     scrollY: '150px',
     scrollX: true
   })
-    var header = $('#modalContent thead').first()
-  var headerRow = $('<tr>')
-  for (var i = 0; i < headers.length; i ++) {
-   var title = headers[0].title
-    var selectHeader = $('<th id="type_'+i+'" style="border-left:1px solid white;border-right:1px solid white">')
-    selectHeader.html(selector)
-
-    headerRow.append(selectHeader)
-  }
-  
-  header.prepend(headerRow)
- /* var row = $('<table style="margin-bottom:10px">');
-  row.append('<tr>')
-  counter=0
-
-  for (var i = 0; i < headers.length; i ++) {
-    var title = headers[0].title
-    var selectHeader = $('<th id="type_'+i+'" style="border-style:none;margin-left:0px">')
-    selectHeader.html(selector)
-    row.append(selectHeader)
-
-  }*/
-
-
-  
-
-
-
-  //html_tables=table_headers.append(table_data)
 }
-
-
 
