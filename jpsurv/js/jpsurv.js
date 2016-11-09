@@ -1132,6 +1132,7 @@ function calculate(run) {
       jpsurvData.plot.static.imageId=0
       jpsurvData.additional.yearOfDiagnosis_default = parseInt($("#year_of_diagnosis_start").val());
       jpsurvData.additional.use_default="true"
+      jpsurvData.additional.del=control_data.del
       stage2("calculate"); // This is the initial calculation and setup.
     }
   }
@@ -2335,10 +2336,10 @@ var template_string='<div class="modal fade" id="modal" tabindex="-1" role="dial
       +'<div class="modal-body"><div id ="container" >'
       +'<fieldset style="padding:0 0 .75em"><legend   style="font-size: 12px;margin-bottom:12px"><h4><span style="margin-right:80%">Delimiters</span></h4></legend>'
         +'<div id="dels" class="row" style="padding-left:12.5%">'
-            +'<div style="width:25%; display:inline-block"><input type="radio" id="comma" name="del" value="comma" checked/>Comma</div>'
-            +'<div style="width:25% ;display:inline-block"><input type="radio" id="tab"   name="del" value="tab"/>Tab</div>'    
-            +'<div style="width:25%; display:inline-block"><input type="radio" id="colan" name="del" value="colan"/>Semi-Colon</div>'
-            +'<div style="width:25%; display:inline-block"><input type="radio" id="space" name="del" value="space"/>Space</div>'
+            +'<div style="width:25%; display:inline-block"><input type="radio" id="comma" name="del" value="," checked/>Comma</div>'
+            +'<div style="width:25% ;display:inline-block"><input type="radio" id="tab"   name="del" value=""/>Tab</div>'    
+            +'<div style="width:25%; display:inline-block"><input type="radio" id="colan" name="del" value=";"/>Semi-Colon</div>'
+            +'<div style="width:25%; display:inline-block"><input type="radio" id="space" name="del" value=""/>Space</div>'
         +'</div>'
       +'</fieldset></br>'
               
@@ -2492,6 +2493,7 @@ function save_params() {
       }
    }
     var passed=true;
+  jpsurvData.additional.del=$("input[name=del]:checked").val()
     jpsurvData.passed=true
 
        for (var i=0;i<params.length;i++){
