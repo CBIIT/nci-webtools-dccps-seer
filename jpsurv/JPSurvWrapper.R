@@ -23,7 +23,8 @@ ReadCSVFile <- function (inputFile, path, tokenId, jpsurvDataString,input_type) 
   cohorts=jpsurvData$mapping$cohorts
   year=jpsurvData$mapping$year
   interval=jpsurvData$mapping$interval
-  
+  del=jpsurvData$additional$del
+
   alive_at_start=jpsurvData$mapping$alive_at_start
   lost_to_followup=jpsurvData$mapping$lost_to_followup
   exp_int=jpsurvData$mapping$exp_int
@@ -34,7 +35,7 @@ ReadCSVFile <- function (inputFile, path, tokenId, jpsurvDataString,input_type) 
   
   csvdata=read.tabledata(fileName=file.path(path, inputFile),          # fileName: Name of file to use in current directory, or filepath.
                     hasHeader=has_headers,
-                    dlm=",");                             # hasHeader: Boolean variable indicating whether or not the CSV being read in has a header row or not. Default is FALSE.
+                    dlm=del);                             # hasHeader: Boolean variable indicating whether or not the CSV being read in has a header row or not. Default is FALSE.
   
   seerFormData=write.tabledic(inputData=csvdata,                       # inputData: Input data.frame.
                     idCols=c(cohorts,year,interval));    
@@ -50,7 +51,7 @@ ReadCSVFile <- function (inputFile, path, tokenId, jpsurvDataString,input_type) 
   print(year_name)
 
 
-  jsonl =list("data"=seerFormData,"cohort_names"=cohort_name,"cohort_keys"=cohorts,"year"=c(year_name,year),"interval"=c(interval_name,interval),"input_type"=input_type,"statistic"=statistic,"alive_at_start"=alive_at_start,"lost_to_followup"=lost_to_followup,"exp_int"=exp_int,"observed"=observed,"died"=died,"has_headers"=has_headers)
+  jsonl =list("data"=seerFormData,"cohort_names"=cohort_name,"cohort_keys"=cohorts,"year"=c(year_name,year),"interval"=c(interval_name,interval),"input_type"=input_type,"statistic"=statistic,"alive_at_start"=alive_at_start,"lost_to_followup"=lost_to_followup,"exp_int"=exp_int,"observed"=observed,"died"=died,"has_headers"=has_headers,"del"=del)
   exportJson <- toJSON(jsonl)
   
   #print (jsonl)
@@ -119,6 +120,7 @@ getFittedResultWrapper <- function (filePath, jpsurvDataString) {
   delLastIntvl=as.logical(jpsurvData$calculate$static$advanced$advDeleteInterval)
   
   type=jpsurvData$additional$input_type
+   del=jpsurvData$additional$del
    length=length(jpsurvData$calculate$form$cohortVars)
   combination_array=c()
   for(i in 1:length){
@@ -139,7 +141,7 @@ getFittedResultWrapper <- function (filePath, jpsurvDataString) {
     cat('combination',i,com_matrix[i,],"\n")
     # cohortValues=toJSON(com_matrix[i,])
     cohortValues=com_matrix[i,]
-    getFittedResult(filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange, allVars, cohortVars, cohortValues, numJP,advanced_options, delLastIntvl, outputFileName,jpsurvDataString,projyear,type)
+    getFittedResult(filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange, allVars, cohortVars, cohortValues, numJP,advanced_options, delLastIntvl, outputFileName,jpsurvDataString,projyear,type,del)
     
     print("Fitted Result Time:")
     
@@ -306,7 +308,7 @@ getTrendsData<-function(filePath,jpsurvDataString,com)
 }
 
 #Creates the SEER Data and Fitted Result
-getFittedResult <- function (filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange, allVars, cohortVars, cohortValues, numJP, advanced_options,delLastIntvlAdv,outputFileName,jpsurvDataString,projyear,type,alive_at_start=NULL,interval=NULL,died=NULL,lost_to_followup=NULL,rel_cum=NULL) {
+getFittedResult <- function (filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange, allVars, cohortVars, cohortValues, numJP, advanced_options,delLastIntvlAdv,outputFileName,jpsurvDataString,projyear,type,alive_at_start=NULL,interval=NULL,died=NULL,lost_to_followup=NULL,rel_cum=NULL,del) {
   jpsurvData <<- fromJSON(jpsurvDataString)
   print ("creating RDS")
   print (numJP)
@@ -346,7 +348,7 @@ getFittedResult <- function (filePath, seerFilePrefix, yearOfDiagnosisVarName, y
     header=as.logical(jpsurvData$additional$has_header)
     seerdata=read.tabledata(fileName=file,          # fileName: Name of file to use in current directory, or filepath.
                     hasHeader=header,
-                    dlm=",");      
+                    dlm=del);      
     alive_at_start=names(seerdata)[jpsurvData$additional$alive_at_start]
     print(alive_at_start)
     
@@ -448,6 +450,7 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_ca
   outputData=readRDS(file)
   intervals=c()
   yearOfDiagnosisVarName = jpsurvData$calculate$static$yearOfDiagnosisVarName
+  print(yearOfDiagnosisVarName)
   yearOfDiagnosis = jpsurvData$additional$yearOfDiagnosis
   if(use_default==FALSE){
     for(i in 1:length(jpsurvData$additional$intervals)) 
@@ -465,6 +468,8 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_ca
   }
   #  intervals = jpsurvData$plot$form$intervals #<-----new
   # jpind=jpsurvData$calculate$form$jpInd #<-----new
+    yearOfDiagnosisVarName=getCorrectFormat(yearOfDiagnosisVarName)
+
   cohortValues = c()
   NAs=c()
   for(i in 1:length(jpsurvData$cohortValues)) 
