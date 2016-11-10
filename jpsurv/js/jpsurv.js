@@ -242,6 +242,7 @@ function addInputSection() {
           .addClass('jpsurv-label-content')
         )
       );
+      $( "#input_type_select" ).remove();
     }
     else if( control_data.input_type=="csv"){
       jpsurvData.additional.input_type="csv"
@@ -262,7 +263,7 @@ function addInputSection() {
           .addClass('jpsurv-label-content')
         )
       );
-      $( "#input_type_select" ).remove();
+      $("#input_type_select").remove();
       $("#upload_file_submit").remove();
       $( "#has_headers" ).remove();
       $("#csv_label_data").remove();
