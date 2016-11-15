@@ -781,7 +781,10 @@ function updateGraphs(token_id) {
       $("#graph-time-table > tbody").append(row);
     
     });
-    $('#year-of-diagnosis').val(jpsurvData.results.yod);
+    console.log("changing to ", jpsurvData.results.yod)
+    	$('#year-of-diagnosis').val(jpsurvData.results.yod);
+    console.log("new year of diagnosis ",$('#year-of-diagnosis').val())
+
   }
   else{
       $("#graph-time-table > tbody").empty();
