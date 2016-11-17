@@ -783,7 +783,7 @@ function updateGraphs(token_id) {
     });
     console.log("clicked on ",$('#year-of-diagnosis').val())
     console.log("changing to via results json", jpsurvData.results.yod)
-    	$('#year-of-diagnosis').val(jpsurvData.results.yod);
+      $('#year-of-diagnosis').val(jpsurvData.results.yod);
     console.log("new year of diagnosis value is ",$('#year-of-diagnosis').val())
 
   }
@@ -1811,10 +1811,8 @@ function displayCommFail(id, jqXHR, textStatus) {
   //alert('Communication problem: ' + textStatus);
   // ERROR
   if(jqXHR.status == 500) {
-    message = 'Internal Server Error: ' + textStatus + "<br>";
-    message += jqXHR.responseText;
-    message += "<br>code("+jqXHR.status+")";
-    message_type = 'warning';
+    message = "An unexpected error occured. Please ensure the input file(s) is in the correct format and/or correct parameters were chosen. <br>";
+    message_type = 'error';
   } else {
     message = jqXHR.statusText+" ("+ textStatus + ")<br><br>";
     message += "The server is temporarily unable to service your request due to maintenance downtime or capacity problems. Please try again later.<br>";
@@ -1853,9 +1851,8 @@ function jpsurvRest(action, params) {
         //alert('Communication problem: ' + textStatus);
         // ERROR
         if(errorThrown == "INTERNAL SERVER ERROR") {
-          message = 'Internal Server Error: ' + textStatus + "<br>";
-          message += "A variable value such as 'None' may have caused an internal error during calculation.<br>";
-          message_type = 'warning';
+          message = "An unexpected error occured. Please esnure the input file(s) is in the correct format and/or correct parameters were chosen. <br>";
+          message_type = 'error';
           //message = "I got a friend like you.";
         } else {
           message = 'Service Unavailable: ' + textStatus + "<br>";
