@@ -544,6 +544,7 @@ $('#file_control_csv').change(function(){
    $('#modalContent').html('<table id="data_table" class="table table-striped" style="height:100px;border-top:none;border-left:none;line-height:0" cellspacing:"0" cellpadding="0px" width="100%"></table>');
     //$('#data_table').DataTable({
     $("#Adv_input").removeAttr('disabled');
+    Read_csv_file();
 });
 function checkInputFiles() {
   //If both files are filed out then enable the Upload Files Button
@@ -2309,7 +2310,11 @@ $( "#dic" ).click(function() {
 
 //MODAL CONTENT BELOW!!/////////////////
 $('#Adv_input').click(function() {
-  var fileInput = $('#file_control_csv');
+  Read_csv_file()
+})
+
+function Read_csv_file(){
+   var fileInput = $('#file_control_csv');
   fileInput = fileInput[0];
   var file = fileInput.files[0];
   var filereader = new FileReader();
@@ -2318,15 +2323,14 @@ $('#Adv_input').click(function() {
   
  // filereader.onload = function(event) { create_table(event.currentTarget.result)}
  if(first_modal==true){
- filereader.onload = function(event) { create_table(event.currentTarget.result,19,has_headers)}
+  filereader.onload = function(event) { create_table(event.currentTarget.result,19,true)}
   filereader.readAsText(file);
 }
 else{
     $('#modal').modal('show')
  // createModal(content);
 }
-})
-
+}
 
 var template_string='<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'
   +'<div class="modal-dialog  modal-lg" role="document">'
@@ -2344,7 +2348,8 @@ var template_string='<div class="modal fade" id="modal" tabindex="-1" role="dial
             +'<div style="width:25%; display:inline-block"><input type="radio" id="space" name="del" value=""/>Space</div>'
         +'</div>'
       +'</fieldset></br>'
-              
+      +'<label for="has_headers" id="csv_label_headers">Does the file contain headers?  </label>'
+      +'<input type="checkbox" name="has_headers" id="has_headers" value="yes" checked></br>'
        +'Displaying <select id="lines_displayed" class="jpsurv-label-content" name="lines_displayed">'
                       +'<option>20</option>'
                       +'<option>30</option>'
