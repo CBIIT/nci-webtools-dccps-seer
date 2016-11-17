@@ -2310,7 +2310,12 @@ $( "#dic" ).click(function() {
 
 //MODAL CONTENT BELOW!!/////////////////
 $('#Adv_input').click(function() {
-  Read_csv_file()
+   if(first_modal==true)
+      Read_csv_file()
+  else{
+    $('#modal').modal('show')
+ // createModal(content);
+}
 })
 
 function Read_csv_file(){
@@ -2319,18 +2324,23 @@ function Read_csv_file(){
   var file = fileInput.files[0];
   var filereader = new FileReader();
   var content="";
-  var has_headers=$('#has_headers').is(':checked')
-  
+    var has_headers=$('#has_headers').is(':checked')
+  lines=parseInt($('#lines_displayed').val())
+  if(first_modal==true){
+    lines=19
+    has_headers=true
+  }
+
+
  // filereader.onload = function(event) { create_table(event.currentTarget.result)}
- if(first_modal==true){
-  filereader.onload = function(event) { create_table(event.currentTarget.result,19,true)}
+  filereader.onload = function(event) { create_table(event.currentTarget.result,lines,has_headers)}
   filereader.readAsText(file);
+
 }
-else{
-    $('#modal').modal('show')
- // createModal(content);
-}
-}
+
+
+
+
 
 var template_string='<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'
   +'<div class="modal-dialog  modal-lg" role="document">'
@@ -2393,19 +2403,16 @@ function createModal() {
 
   });
 
-$('#lines_displayed').change(function() {
-  console.log("changed lines")
-  var fileInput = $('#file_control_csv');
-  var has_headers=$('#has_headers').is(':checked')
-  fileInput = fileInput[0];
-  var file = fileInput.files[0];
-  var filereader = new FileReader();
-  lines=parseInt($('#lines_displayed').val())
-   filereader.onload = function(event) { create_table(event.currentTarget.result,lines,has_headers)}
-    first_modal=false
-  filereader.readAsText(file);
+    $("#has_headers").on('change', function(e){
 
-})
+Read_csv_file()
+        
+  });
+
+$('#lines_displayed').change(function() {
+Read_csv_file()
+
+});
 
   if(jpsurvData.mapping.cohorts!=undefined){
     length=$( "#data_table th" ).length/2
