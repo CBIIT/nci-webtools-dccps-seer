@@ -2394,6 +2394,7 @@ function createModal() {
 
 
   $('#modal').modal({backdrop: 'static', keyboard: false}) 
+  setTimeout(function(){ Read_csv_file() }, 1);
 
 
   
@@ -2404,9 +2405,7 @@ function createModal() {
   });
 
     $("#has_headers").on('change', function(e){
-
-Read_csv_file()
-        
+    Read_csv_file()
   });
 
 $('#lines_displayed').change(function() {
@@ -2532,6 +2531,8 @@ function create_table(content,rows,has_headers){
     createModal();
   var arr=content.split("\n");
   var matrix=arr.map(function(line) { return line.split(',') })
+  
+  //reads csv file headers to be placed in text box and reads he first row to act as the "headers" ofthe datatable
   if(has_headers==true){
     var headers=matrix[0].map(function(header) {
       return {
@@ -2539,7 +2540,16 @@ function create_table(content,rows,has_headers){
       }
     });
     matrix.shift();
+
+    var first_row=matrix[0].map(function(first) {
+      return {
+        title: first
+      }
+    });
+
   }
+    //reads csv file if no headers are present and places a generic V1, V2 etc as the editable header row. 
+
   else{
     counter=0;
     var headers=matrix[0].map(function(column) {
@@ -2548,32 +2558,61 @@ function create_table(content,rows,has_headers){
         title: "V"+counter
       }
     });
+
+      var first_row=matrix[0].map(function(first) {
+      counter++;
+      return {
+        title: first
+      }
+    });
   }
   console.log(headers);
   console.log(matrix);
 
-data_table(matrix,headers,rows)  
+data_table(matrix,first_row,rows)  
 var html=""
 
 if(first_modal==true){
   var header = $('#modalContent thead').first()
   var headerRow = $('<tr>')
+  var selector_row = $('<tr>')
+
   for (var i = 0; i < headers.length; i ++) {
-    var title = headers[0].title
-    var selectHeader = $('<th id="type_'+i+'" style="border-left:1px solid white;border-right:1px solid white">')
+    var title = headers[i].title
+    var selectHeader = $('<th id="type_'+i+'" style="border-left:1px solid white;border-right:1px solid white"/>')
+    var text_box_headers = $('<th style="padding:0 0 0 0"><input type="text" id="header_'+i+'" style="width:100%;text-align:center;border:none;border: 1px solid #ddd;font-weight:bold" value="'+title+'"/></th>')
+
+    headerRow.append(text_box_headers)
+
     selectHeader.html(selector)
-    headerRow.append(selectHeader)
+    selector_row.append(selectHeader)
   }
   header.prepend(headerRow)
+  header.prepend(selector_row)
+
   first_modal=false
 }
 
+else{
+  for (var i = 0; i < headers.length; i ++) {
+    var title = headers[i].title
+     $('#header_'+i).val(title);
+
+  }
+}
+
+}
+
+function myCallbackFunction(updatedCell, updatedRow, oldValue) {
+    console.log("The new value for the cell is: " + updatedCell.data());
+    console.log("The old value for that cell was: " + oldValue);
+    console.log("The values for each cell in that row are: " + updatedRow.data());
 }
 
 function data_table(matrix,headers,rows){
-    $('#data_table').DataTable({
+ var table=   $('#data_table').DataTable({
     columns: headers,
-    data: matrix.slice(0,rows),
+    data: matrix.slice(1,rows+1),
     bSort: false,
     bFilter: false,
     paging: false,
@@ -2583,7 +2622,12 @@ function data_table(matrix,headers,rows){
     aaSorting: [],
     dom: 't',
     scrollY: '150px',
-    scrollX: true
+    scrollX: true,
+
+   
   })
+/*    table.MakeCellsEditable({
+        "onUpdate": myCallbackFunction
+    });*/
 }
 

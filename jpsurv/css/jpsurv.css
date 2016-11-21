@@ -563,15 +563,34 @@ h4 span {
 }
 
 
-#modalContent thead th{
-  border-left:1px solid #ddd;
+
+#data_table_wrapper th {
+    font-weight: normal;
+}
+
+#data_table_wrapper th:nth-child(1) {
+    border-left: 1px solid #ddd; 
+}
+
+#data_table_wrapper th:last-child {
+    border-right: 1px solid #ddd; 
+}
+
+#data_table td:nth-child(1)  {
+    border-left: 1px solid #ddd; 
+
+}
+
+#data_table td:last-child {
+    border-right: 1px solid #ddd; 
 }
 #modalContent thead th, 
 #modalContent thead td{
     max-width: 100px !important;
     min-width: 100px !important;
     text-align: center !important;
-    line-height: 0 !important;;
+    line-height: 0 !important;
+
 
 
 }
