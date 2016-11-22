@@ -33,7 +33,7 @@ UNDERLINE = '\033[4m'
 ENDC = '\033[0m'
 
 def fix_jpsurv(jpsurvDataString):
-    jpsurvDataString = jpsurvDataString.decode("utf-8").replace("{plus}", "+").encode("utf-8")
+    jpsurvDataString = jpsurvDataString.decode("utf-8").replace("{plus}", "+").encode("utf-8") 
     
     print BOLD+"New:::"+ENDC
     print jpsurvDataString
