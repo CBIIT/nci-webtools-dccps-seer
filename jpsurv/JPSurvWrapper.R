@@ -34,7 +34,7 @@ ReadCSVFile <- function (inputFile, path, tokenId, jpsurvDataString,input_type) 
   statistic=jpsurvData$additional$statistic
   
   csvdata=read.tabledata(fileName=file.path(path, inputFile),          # fileName: Name of file to use in current directory, or filepath.
-                    hasHeader=has_headers,
+                    hasHeader=TRUE,
                     dlm=del);                             # hasHeader: Boolean variable indicating whether or not the CSV being read in has a header row or not. Default is FALSE.
   
   seerFormData=write.tabledic(inputData=csvdata,                       # inputData: Input data.frame.
@@ -191,7 +191,7 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,use_default=TRU
     file=paste(filePath, seerFilePrefix, sep="/" )
     file=paste(file,".csv",sep="")
     seerdata=read.tabledata(fileName=file,          # fileName: Name of file to use in current directory, or filepath.
-                      hasHeader=header,
+                      hasHeader=TRUE,
                       dlm=",");    
     observed=names(seerdata)[jpsurvData$additional$observed]
     interval=names(seerdata)[as.integer(jpsurvData$additional$interval)]
@@ -349,9 +349,8 @@ getFittedResult <- function (filePath, seerFilePrefix, yearOfDiagnosisVarName, y
     print("here")
     print("DEL")
     print(del)
-    header=as.logical(jpsurvData$additional$has_header)
     seerdata=read.tabledata(fileName=file,          # fileName: Name of file to use in current directory, or filepath.
-                    hasHeader=header,
+                    hasHeader=TRUE,
                     dlm=del);      
     alive_at_start=names(seerdata)[jpsurvData$additional$alive_at_start]
     print(alive_at_start)

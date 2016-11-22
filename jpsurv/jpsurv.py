@@ -9,7 +9,7 @@ from stompest.config import StompConfig
 from stompest.sync import Stomp
 from werkzeug import secure_filename
 import os.path
-
+from shutil import copytree, ignore_patterns
 app = Flask(__name__, static_folder='', static_url_path='/') 
 
 if not os.path.exists('tmp'):
@@ -128,20 +128,20 @@ def stage1_upload():
         #PRINT FILE_CONTROL
         file_control = os.path.join(UPLOAD_DIR, file_control_filename)
         fo = open(file_control, "r+")
-        str = fo.read(250)
+        stri = fo.read(250)
         fo.close()
 
         #PRINT FILE_DATA
         file_data = os.path.join(UPLOAD_DIR, file_data_filename)
         fo = open(file_control, "r+")
-        str = fo.read(500)
+        stri = fo.read(500)
         fo.close()
         r.getDictionary(file_control_filename, UPLOAD_DIR, tokenId)
         output_filename = "form-%s.json" % tokenId
 
         r_output_file = os.path.join(UPLOAD_DIR, output_filename)
         fo = open(r_output_file, "r+")
-        str = fo.read(500)
+        stri = fo.read(500)
         fo.close()
         status = "uploaded"
         return_url = "%s/jpsurv?request=false&file_control_filename=%s&file_data_filename=%s&output_filename=%s&status=%s&tokenId=%s" % (request.url_root, file_control_filename, file_data_filename, output_filename, status, tokenId)
@@ -149,7 +149,15 @@ def stage1_upload():
         return redirect(return_url)
 
     if(input_type=="csv"):
+
         mapping = request.args.get('map',False)
+        has_headers = request.args.get('has_headers',False)
+        headers= request.args.get('headers',False)
+
+        print("has headers?")
+        print (has_headers)
+        
+
         file = request.files['file_control_csv'] 
         if file and file.filename:
             filename = secure_filename(file.filename)
@@ -162,16 +170,34 @@ def stage1_upload():
  
         #PRINT FILE_DATA
         file_data = os.path.join(UPLOAD_DIR, file_control_filename)
+        #If headers already exist replace with with custom headers user specified frm the UI: headers from json
+        if(str(has_headers)=="true"):
+            print("replacing headers")
+            print(file_data)
+            with open(file_data, 'r') as file:
+                 data = file.readlines()
+            data[0]=headers+"\n"
+            with open(file_data, 'w') as file:
+                file.writelines(data)
+        #If headers do not exist insert headers before data: headers from json
+        if(str(has_headers)=="false"):
+            print("inserting headers")
+            print(file_data)
+            with open(file_data, 'r') as file:
+                 data = file.readlines()
+            data.insert(0,headers+"\n")
+            with open(file_data, 'w') as file:
+                file.writelines(data)
+
         fo = open(file_data, "r+")
-        str = fo.read(500)
+        stri = fo.read(500)
         fo.close()
         print("SENDING.....")
-        print(mapping)
         r.ReadCSVFile(file_control_filename, UPLOAD_DIR, tokenId,mapping,input_type)
         output_filename = "form-%s.json" % tokenId
         r_output_file = os.path.join(UPLOAD_DIR, output_filename)
         fo = open(r_output_file, "r+")
-        str = fo.read(500) 
+        stri = fo.read(500) 
         fo.close()
         status = "uploaded"
         return_url = "%s/jpsurv?request=false&file_control_filename=%s&output_filename=%s&status=%s&tokenId=%s" % (request.url_root, file_control_filename, output_filename, status, tokenId)

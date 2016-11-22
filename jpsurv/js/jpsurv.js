@@ -1149,9 +1149,15 @@ function calculate(run) {
 function file_submit(event) {
   jpsurvData.tokenId = renewTokenId(false);
   if($('#csv').is(':checked')){
+    headers=""
+    for (var i=0;i<$('#header_row th').length/2;i++){
+      header=$('#header_'+i).val()
+      headers+=header+",";
+    }
+    headers=headers.substring(0,headers.length-1)
     jpsurvData.additional.statistic=$("#data_type").val()
-    jpsurvData.mapping.has_headers=$('#has_headers').is(':checked');
-    $("#upload-form").attr('action', 'jpsurvRest/stage1_upload?tokenId='+jpsurvData.tokenId+'&input_type='+jpsurvData.input_type+'&map='+JSON.stringify(jpsurvData));
+    jpsurvData.mapping.has_headers=String($('#has_headers').is(':checked'));
+    $("#upload-form").attr('action', 'jpsurvRest/stage1_upload?tokenId='+jpsurvData.tokenId+'&input_type='+jpsurvData.input_type+'&map='+JSON.stringify(jpsurvData)+'&has_headers='+jpsurvData.mapping.has_headers+'&headers='+headers);
   }
 
   else{
@@ -2412,7 +2418,7 @@ $('#lines_displayed').change(function() {
 Read_csv_file()
 
 });
-
+//populating drop down values from previous saved paramaters
   if(jpsurvData.mapping.cohorts!=undefined){
     length=$( "#data_table th" ).length/2
     for (var i = 0; i < length; i ++) {
@@ -2462,6 +2468,7 @@ Read_csv_file()
 
 }
 function save_params() {
+  //Mapping selected drop down values to json
     var params = ['year','interval','died','alive_at_start','lost_to_followup','exp_int','observed'];
     jpsurvData.mapping.cohorts=[]
     length=$( "#data_table th" ).length
@@ -2574,13 +2581,13 @@ var html=""
 
 if(first_modal==true){
   var header = $('#modalContent thead').first()
-  var headerRow = $('<tr>')
+  var headerRow = $('<tr id="header_row">')
   var selector_row = $('<tr>')
 
   for (var i = 0; i < headers.length; i ++) {
     var title = headers[i].title
     var selectHeader = $('<th id="type_'+i+'" style="border-left:1px solid white;border-right:1px solid white"/>')
-    var text_box_headers = $('<th style="padding:0 0 0 0"><input type="text" id="header_'+i+'" style="width:100%;text-align:center;border:none;border: 1px solid #ddd;font-weight:bold" value="'+title+'"/></th>')
+    var text_box_headers = $('<th style="padding:0 0 0 0" id="textboxes"><input type="text" id="header_'+i+'" style="width:100%;text-align:center;border:none;border: 1px solid #ddd;font-weight:bold" value="'+title+'"/></th>')
 
     headerRow.append(text_box_headers)
 
