@@ -764,7 +764,7 @@ function updateGraphs(token_id) {
 
       if(jpsurvData.results.Runs.split(',')!=undefined){
         var cohort_array = jpsurvData.results.Runs.split(',');
-        var values= cohort_array[jpsurvData.results.com-1].split("+"); 
+        var values= cohort_array[jpsurvData.results.com-1].split(" + "); 
         $.each(values, function(index2, value2) {
           row += "<td>"+value2.replace(/"/g, "")+"</td>";
           });
