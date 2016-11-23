@@ -666,7 +666,8 @@ function updateGraphs(token_id) {
       header.push(value);
     });
 
-    var timeHeader = ["Year of Diagnosis", "Interval", "Died", "Alive_at_Start","Lost_to_Followup","Expected_Survival_Interval","Relative_Survival_Cum","pred_int","pred_cum","pred_int_se","pred_cum_se"];
+    var data_type = jpsurvData.results.statistic
+    var timeHeader = ["Year of Diagnosis", "Interval", "Died", "Alive_at_Start","Lost_to_Followup","Expected_Survival_Interval",data_type,"pred_int","pred_cum","pred_int_se","pred_cum_se"];
     header.push.apply(header, timeHeader);
     //Create the header
     $("#graph-year-table > thead").empty();
@@ -736,7 +737,14 @@ function updateGraphs(token_id) {
     $.each(jpsurvData.calculate.form.cohortVars, function(index, value) {
       header.push(value);
     });
-    var timeHeader = ["Year of Diagnosis", "Interval", "Cumulative Relative Survival", "Predicted Cumulative Relative Survival"];
+    var data_type = jpsurvData.results.statistic
+    var Cumulative_header=""
+    if(data_type=="CauseSpecific_Survival_Cum")
+    	Cumulative_header="Cumulative CauseSpecific Survival" 
+    if(data_type=="Relative_Survival_Cum")
+    	Cumulative_header="Cumulative Relative Survival"    
+    
+    var timeHeader = ["Year of Diagnosis", "Interval", Cumulative_header, "Predicted Cumulative Relative Survival"];
     header.push.apply(header, timeHeader);
     //Create the header
     $("#graph-time-table > thead").empty();
