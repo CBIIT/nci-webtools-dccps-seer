@@ -329,6 +329,10 @@ function preLoadValues() {
   $("#cohort-variables fieldset").each(function(index,element) {
     var inputs = $(element).find("."+element.id);
     $.each(inputs, function(index2, element2) {
+    	$(element2).prop('checked', false);
+
+	});
+    $.each(inputs, function(index2, element2) {
      /* if(inputData.calculate.form.cohortValues[index].substr(1,inputData.calculate.form.AllcohortValues[index].length -2) == $(element2).val()) {
         $(element2).attr('checked', true);
       } else {
