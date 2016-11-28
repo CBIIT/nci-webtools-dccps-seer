@@ -584,6 +584,11 @@ function setUploadData() {
   jpsurvData.file.dictionary = getUrlParameter('file_control_filename');
   jpsurvData.file.data = getUrlParameter('file_data_filename');
   jpsurvData.file.form = getUrlParameter('output_filename');
+
+  session=getUrlParameter('output_filename');
+  session=session.split(".json").shift();
+  session=session.split("form-").pop();
+  jpsurvData.session_tokenId=session;
   //jpsurvData.file.formId = getUrlParameter('output_filename').substr(5, 6);
   jpsurvData.status = getUrlParameter('status');
 
