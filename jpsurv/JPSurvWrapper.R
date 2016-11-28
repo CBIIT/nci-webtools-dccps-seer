@@ -4,7 +4,8 @@ library('JPSurv')
 VERBOSE=TRUE
 
 getDictionary <- function (inputFile, path, tokenId) {
-  fqFileName = file.path(path, inputFile)
+  fqFileName = file.path(path,inputFile)
+  print(fqFileName)
   outputFileName = paste("form-", tokenId, ".json", sep="")
   fqOutputFileName = file.path(path, outputFileName)
   seerFormData = dictionary.overview(fqFileName) 
@@ -15,7 +16,7 @@ ReadCSVFile <- function (inputFile, path, tokenId, jpsurvDataString,input_type) 
   print ("HERE!!")
   jpsurvData <<- fromJSON(jpsurvDataString)
   print(jpsurvData)
-  fqFileName = file.path(path, inputFile)
+  fqFileName = file.path(path, inputFile,tokenId)
   outputFileName = paste("form-", tokenId, ".json", sep="")
   fqOutputFileName = file.path(path, outputFileName)
   has_headers=as.logical(jpsurvData$mapping$has_headers);
@@ -119,7 +120,7 @@ getFittedResultWrapper <- function (filePath, jpsurvDataString) {
   
   advanced_options=list("numbetwn"=numbetwn,"numfromstart"=numfromstart,"numtoend"=numtoend)
   delLastIntvl=as.logical(jpsurvData$calculate$static$advanced$advDeleteInterval)
-  
+  session_tokenId=jpsurvData$session_tokenId
   type=jpsurvData$additional$input_type
   print("DEL")
   print(del)
@@ -143,7 +144,7 @@ getFittedResultWrapper <- function (filePath, jpsurvDataString) {
     cat('combination',i,com_matrix[i,],"\n")
     # cohortValues=toJSON(com_matrix[i,])
     cohortValues=com_matrix[i,]
-    getFittedResult(filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange, allVars, cohortVars, cohortValues, numJP,advanced_options, delLastIntvl, outputFileName,jpsurvDataString,projyear,type,del)
+    getFittedResult(session_tokenId,filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange, allVars, cohortVars, cohortValues, numJP,advanced_options, delLastIntvl, outputFileName,jpsurvDataString,projyear,type,del)
     
     print("Fitted Result Time:")
     
@@ -310,12 +311,14 @@ getTrendsData<-function(filePath,jpsurvDataString,com)
 }
 
 #Creates the SEER Data and Fitted Result
-getFittedResult <- function (filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange, allVars, cohortVars, cohortValues, numJP, advanced_options,delLastIntvlAdv,outputFileName,jpsurvDataString,projyear,type,alive_at_start=NULL,interval=NULL,died=NULL,lost_to_followup=NULL,rel_cum=NULL) {
+getFittedResult <- function (session_tokenId,filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange, allVars, cohortVars, cohortValues, numJP, advanced_options,delLastIntvlAdv,outputFileName,jpsurvDataString,projyear,type,alive_at_start=NULL,interval=NULL,died=NULL,lost_to_followup=NULL,rel_cum=NULL) {
   jpsurvData <<- fromJSON(jpsurvDataString)
   print ("creating RDS")
   print (numJP)
-
-  file=paste(filePath, seerFilePrefix, sep="/" )
+  file_name=paste(seerFilePrefix, sep="" )
+  file=paste(filePath, file_name, sep="/" )
+  print("FILE_NAME IN FITTED RESULTS")
+  print(file)
   type=jpsurvData$additional$input_type
   varLabels=getCorrectFormat(allVars)
   
