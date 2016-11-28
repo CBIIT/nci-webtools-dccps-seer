@@ -109,13 +109,13 @@ def stage1_upload():
     if(input_type=="dic"):
         file = request.files['file_control']
         if file and file.filename:
-            filename = secure_filename(file.filename)
+            filename = tokenId+secure_filename(file.filename)
             file.save(os.path.join(UPLOAD_DIR, filename))
             file_control_filename = filename
             print("Saving file_control: %s" % file_control_filename) 
         file = request.files['file_data']
         if file and file.filename:
-            filename = secure_filename(file.filename)
+            filename = tokenId+secure_filename(file.filename)
             file.save(os.path.join(UPLOAD_DIR, filename))
             file_data_filename = filename
             print("Saving file_data: %s" % file_data_filename) 
@@ -126,13 +126,14 @@ def stage1_upload():
             print("file_data not assigned") 
 
         #PRINT FILE_CONTROL
-        file_control = os.path.join(UPLOAD_DIR, file_control_filename)
+        
+        file_control = os.path.join(UPLOAD_DIR,file_control_filename)
         fo = open(file_control, "r+")
         stri = fo.read(250)
         fo.close()
 
         #PRINT FILE_DATA
-        file_data = os.path.join(UPLOAD_DIR, file_data_filename)
+        file_data = os.path.join(UPLOAD_DIR,tokenId,file_data_filename)
         fo = open(file_control, "r+")
         stri = fo.read(500)
         fo.close()
