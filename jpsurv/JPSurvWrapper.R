@@ -495,6 +495,8 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_ca
   results =list("RelSurYearGraph"=graphFile,"RelSurvYearData"=survData) #returns 
   cohorts=jpsurvData$calculate$form$cohortVars
   cols=ncol(survData)
+  print("COLS")
+  print(cols)
   for (i in length(cohorts):1)
   {
     value=gsub("\"",'',jpsurvData$calculate$form$cohortValues[[i]])
@@ -505,17 +507,17 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_ca
     #col_idx <- grep(cohorts[[i]], names(survData))
     col_idx=ncol(survData)
     print(ncol(survData))
-    survData <- survData[, c(col_idx, (1:cols)[-col_idx])]
+      survData <- survData[, c(col_idx, (1:ncol(survData))[-col_idx])]
     names(survData)
   }  
-  
-  #  print(survData)
+
+  print(survData)
   write.csv(survData, downloadFile, row.names=FALSE)
   return (results)
   
    
 }
-#Graphs the Survival vs Time graph and saves a csv file of the data
+#Graphs the Survival vs Time graph and saves a
 getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString,first_calc,com,interval,survar,use_default_year=TRUE) {
   print(first_calc)
   jpsurvData <<- fromJSON(jpsurvDataString)
