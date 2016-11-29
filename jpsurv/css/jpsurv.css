@@ -461,10 +461,6 @@ input:required:valid, input:focus:valid {
         margin-right: 5px;
     }
 }
-
-.container {
-    width: 1900px;
-}
 #ribbon h1 a {
     color: #fff;
     font-size: 26px;
