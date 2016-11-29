@@ -721,7 +721,7 @@ function updateGraphs(token_id) {
         row += formatCell(jpsurvData.results.YearData.RelSurvYearData[jpsurvData.results.headers.Lost_to_followup][index]);
         row += formatCell(jpsurvData.results.YearData.RelSurvYearData[jpsurvData.results.headers.Expected_Survival_Interval][index]);
       }
-      row += formatCell(jpsurvData.results.IntData.RelSurIntData[type][index]);
+      row += formatCell(jpsurvData.results.YearData.RelSurvYearData[type][index]);
       row += formatCell(jpsurvData.results.YearData.RelSurvYearData.pred_int[index])
       row += formatCell(jpsurvData.results.YearData.RelSurvYearData.pred_cum[index]);
       row += formatCell(jpsurvData.results.YearData.RelSurvYearData.pred_int_se[index]);
