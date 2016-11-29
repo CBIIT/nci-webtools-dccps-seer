@@ -684,6 +684,7 @@ function updateGraphs(token_id) {
     $("#graph-year-table > thead").append(row);
 
     $("#graph-year-table > tbody").empty();
+    var rows=0;
     $.each(yod, function( index, value ) {
       row = "<tr>";
     /*  $.each(jpsurvData.calculate.form.cohortValues, function(index2, value2) {
@@ -727,8 +728,9 @@ function updateGraphs(token_id) {
       row += formatCell(jpsurvData.results.YearData.RelSurvYearData.pred_int_se[index]);
       row += formatCell(jpsurvData.results.YearData.RelSurvYearData.pred_cum_se[index])+"</tr>/n";
       $("#graph-year-table > tbody").append(row);
-    
+      rows++;
     });
+    $("#year-tab-rows").html("Total Row Count: "+rows)
       
   }
   else{
@@ -761,6 +763,7 @@ function updateGraphs(token_id) {
     $("#graph-time-table > thead").append(row);
 
     $("#graph-time-table > tbody").empty();
+    var rows=0;
     $.each(yod, function( index, value ) {
       row = "<tr>";
       /*$.each(jpsurvData.calculate.form.cohortValues, function(index2, value2) {
@@ -797,12 +800,14 @@ function updateGraphs(token_id) {
       }
       row += formatCell(jpsurvData.results.IntData.RelSurIntData.pred_cum[index])+"</tr>/n";
       $("#graph-time-table > tbody").append(row);
+      rows++;
     
     });
     console.log("clicked on ",$('#year-of-diagnosis').val())
     console.log("changing to via results json", jpsurvData.results.yod)
       $('#year-of-diagnosis').val(jpsurvData.results.yod);
     console.log("new year of diagnosis value is ",$('#year-of-diagnosis').val())
+        $("#time-tab-rows").html("Total Row Count: "+rows)
 
   }
   else{
