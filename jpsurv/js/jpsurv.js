@@ -85,8 +85,11 @@ function check_multiple(){
   var num_types=$("#cohort-variables fieldset").length
   var checked=$('[type=checkbox]').filter(':checked').length
 
-  if(checked>num_types){
+  if(checked>num_types||checked<num_types){
     multiple=true;
+  }
+  if(checked<num_types){
+    jpsurvData.none=true;
   }
 
   return multiple
@@ -311,6 +314,7 @@ function checkInputFile() {
   return found;
 }
 
+//loads the form based on selected values
 function preLoadValues() {
 
   //
@@ -333,17 +337,10 @@ function preLoadValues() {
 
 	});
     $.each(inputs, function(index2, element2) {
-     /* if(inputData.calculate.form.cohortValues[index].substr(1,inputData.calculate.form.AllcohortValues[index].length -2) == $(element2).val()) {
-        $(element2).attr('checked', true);
-      } else {
-        $(element2).attr('checked', false);
-      }*/
           $.each( inputData.calculate.form.AllcohortValues, function( key, value ) {
+            //loops through each possible cohort on the form, if the cohort is in the json it gets checked
             for(var i=0;i<value.length;i++){
                 if(value[i].substr(1,value[i].length-2) == $(element2).val()) {
-                  console.log("cohort "+value[i].substr(1,value[i].length-2))
-                  console.log("value "+$(element2).val())
-                  console.log()
               $(element2).prop('checked', true);
               } 
   
@@ -376,6 +373,7 @@ function preLoadValues() {
   retrieveResults();
 
 }
+//populates the chort dropdown window based on the form selection
 function updateCohortDropdown(){
     var cohort_array = jpsurvData.results.Runs.split(',');
   var display = document.getElementById("cohort-display");
@@ -393,6 +391,7 @@ function updateCohortDropdown(){
 
 
 }
+//populates the inpout json wit hthe desired cohort combination baserd on the cohort dropdown window
 function dropdownListener(){
   var display = document.getElementById("cohort-display");
   display.addEventListener("change", function() {
@@ -400,10 +399,13 @@ function dropdownListener(){
       var count = options.length;
       //  jpsurvData.additional.headerJoinPoints=null
           jpsurvData.calculate.form.cohortValues=[]
+          //splits the cohorts based on a " + "
           var cohorts = display.options[display.selectedIndex].value.split(' + ');
+          //adds each cohort to the json
           for(var j=0;j<cohorts.length;j++){
             jpsurvData.calculate.form.cohortValues.push('"'+cohorts[j]+'"');
           }
+          //resets the image id 
           jpsurvData.plot.static.imageId=0
 
     //  var dropdown = document.getElementById("cohort-display");
@@ -413,36 +415,45 @@ function dropdownListener(){
       jpsurvData.additional.Runs=jpsurvData.results.Runs;
       calculate(true);
 
-      /*    $.get('tmp/results-'+jpsurvData.tokenId+'.json', function (results) {
-            console.log(results)
-        jpsurvData.results = results;
-            createModelSelection();
-          });*/
           console.log(jpsurvData.results);
       //    createModelSelection();
   });
 }
+
 function updateCohortDisplay() {
-  //jpsurvData.calculate.form.cohortVars = ["Age groups", "Breast stage"];
   jpsurvData.calculate.form.cohortValues = [];
   var cohort_message = ""
   $("#cohort-variables fieldset").each(function(index,element) {
     jpsurvData.calculate.form.AllcohortValues[index]=[]
 
       var inputs = $(element).find("."+element.id);
-    //Go through each checkbox to see which one is checked
+    //Adds all cohorts selected
+    checked=false //will be used to flag if any cohort vlues are checked, default is false until a vlaue is seen as checked
     $.each(inputs, function(index2, element2) {
-
+    //if checked add to ALL cohorts to be used for populating the drop down (if at least one checkbox is selected)
       if($(element2).prop('checked')){
+      	checked=true;
         cohort_message +=' "'+$(element2).val()+'"';
         if(!jpsurvData.calculate.form.AllcohortValues[index].includes('"'+$(element2).val()+'"')){ 
           jpsurvData.calculate.form.AllcohortValues[index].push('"'+$(element2).val()+'"');
         }
       }
     });
+
+    if(checked==false)
+    	 $.each(inputs, function(index2, element2) {
+    //if checked add to ALL cohorts to be used for populating the drop down (if at least one checkbox is selected)
+        cohort_message +=' "'+$(element2).val()+'"';
+        if(!jpsurvData.calculate.form.AllcohortValues[index].includes('"'+$(element2).val()+'"')){ 
+          jpsurvData.calculate.form.AllcohortValues[index].push('"'+$(element2).val()+'"');
+        }
+      
+    });
+    //if none was checked lopp back through and add all cohort values for that cohort
       cohort_message += " and "
   
   });
+  //inserts the first cohort combination based on all the cohorts slected (1st value of each cohort)
   keys=Object.keys(jpsurvData.calculate.form.AllcohortValues)
   for (var i=0; i<keys.length;i++){
     key=i.toString();
