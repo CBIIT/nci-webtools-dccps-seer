@@ -600,28 +600,19 @@ h4 span {
    line-height: 0;
    text-align: center !important;
 }
-@media (min-width: 1600px) {
-.container {
-    width: 1540px;
-  }
-   .col-lg-3{
-    width:18%;
-  }
-    .col-lg-9{
-    width:82%;
-  }
-  }
 
-  @media (min-width: 2560px) {
+
 .container {
-    width: 2200px;
+    width: 1800px;
   }
     .col-lg-3{
     width:18%;
+    min-width:396px;
   }
     .col-lg-9{
     width:82%;
-  }
+    max-width:1400px;
+  
   }
 
 
