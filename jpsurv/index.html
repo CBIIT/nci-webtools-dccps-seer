@@ -1,4 +1,529 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>
+<html class="no-js lt-ie9 lt-ie8 lt-ie7">
+  <![endif]-->
+  <!--[if IE 7]>
+  <html class="no-js lt-ie9 lt-ie8">
+    <![endif]-->
+    <!--[if IE 8]>
+    <html class="no-js lt-ie9">
+      <![endif]-->
+      <!--[if gt IE 8]><!-->
+<html class="no-js">
+  <!--<![endif]-->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"type="text/css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"type="text/css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.10.12/css/dataTables.bootstrap.min.css"type="text/css">
 
+  <link rel="stylesheet" href="../common/css/font-awesome.css"type="text/css">
+  <link rel="stylesheet" href="../common/css/style.css" type="text/css">
+  <link rel="stylesheet" href="css/jpsurv.css" type="text/css">
+  <link rel="stylesheet" href="css/normalize.min.css">
+  <link rel="stylesheet" href="css/header.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js" type="text/javascript"></script>
+  <script src= "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" type="text/javascript"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/es6-shim/0.35.1/es6-shim.min.js" type="text/javascript"></script>
+  <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.js" type="text/javascript"></script>
+  <script src="https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap.js" type="text/javascript"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/es6-shim/0.35.1/es6-shim.min.js" type="text/javascript"></script>
+  <script src="js/Includes_PolyFill.js" type="text/javascript"></script>
+  <head>
+    <title>JPSurv</title>
+  </head>
+  <body role="document">
+    <!--[if lt IE 7]>
+    <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+    <![endif]-->
+    <!-- LOGO Section -->
+    <div class="header">
+      <div class="container">
+        <a href="https://cancercontrol.cancer.gov/" target="DCCPS">
+        <img class="img-responsive" src="./images/nci_dccps.svg" id="logo"
+          alt="National Cancer Institute: Division of Cancer Control and Population Sciences"
+          title="National Cancer Institute: Division of Cancer Control and Population Sciences">
+        </a>
+  <div id="header" role="banner">
+        <div id="ribbon" class="clearfix">
+          <div class="wrapper">
+              <h1><a href="/" title="Return to SRP Home">Surveillance Research Program</a></h1>
+            </div>
+        </div>
+    </div>
+      </div>
+    </div>
+    <!-- CONTENTS Section -->
+
+    <div class="container">
+            <div class="row">
+                <div class="col-lg-12 col-lg-offset-1" id="jpsurv-message-container" style="display:none;width:100%;margin-left:0%">
+                  <div class="panel panel-danger">
+                    <div class="panel-heading">Error</div>
+                    <div class="panel-body" id="jpsurv-message-content"></div>
+                  </div>
+                </div>
+              </div>
+
+
+      <div class="row">
+
+        <!-- Upload FORM - STAGE 1 -->
+        <div id="slideoutTab">
+
+          <i id ="icon" class="fa fa-caret-left fa-2x" onclick="Slide_menu_Horz()" style="margin-left:31%;visibility:hidden;"></i>
+        </div>
+        <div class="col-md-4" id="slideoutForm">
+          <span class="jpsurv-title col-md-6" ><img src="./images/jpsurv.png" style="height:60%;width:60%"></img></span>
+          <h2 class=" col-md-6">
+          <span class="pull-right">
+                        <i class="cursor-pointer glyphicon glyphicon-info-sign glyphicon-blue" aria-label="Help" onclick="openHelpWindow('./html/help.html')"></i>
+                      <a href="#">
+                        <span style="font-size:small;"  onclick="openHelpWindow('./html/help.html');">Help</span>
+                      </a>
+         </span>
+       </h2>
+          <div id="slideout">
+            <div class="well">
+              <!-- Upload FORM - STAGE 1 -->
+              <div class="box col-md-12" style="overflow:hidden">
+                <form id="upload-form" class="form-horizontal" role="form" method="post" enctype="multipart/form-data" action="/jpsurvRest/stage1_upload">
+                
+                <div id="input_type_select" style="margin-bottom:5%">
+                  <label>File Format:</label>
+                    <input type="radio" name="data" value="dic" checked id="dic"> Dictionary/Data Files    
+                    <input type="radio" id="csv" name="data" value="csv"> CSV Files
+              </div>
+                  
+                  
+                  <hr class="stage-separator">
+                  <div id="dic_container" >
+                    <div id="file_control_container" class= "form-group"> <label for='file_control'>SEER Stat Dictionary File:</label>
+                      <a style='font-size:small' href='./data/SEER9_Survival_6CancerSitesByStage_1975_2007.dic' download='SEER9_Survival_6CancerSitesByStage_1975_2007.dic'>(example dictionary)</a>
+                      <input type="file" id="file_control" name="file_control" accept=".dic" >
+                    </div>
+                    <div id="file_data_container" class="form-group">
+                      <label for='file_data'>SEER Stat Data File:</label>
+                      <a style='font-size:small' href='./data/SEER9_Survival_6CancerSitesByStage_1975_2007.txt' download='SEER9_Survival_6CancerSitesByStage_1975_2007.txt'>(example data)</a>
+                      <input type="file" id="file_data" name="file_data" accept=".txt" >
+                    </div>
+                  </div>
+
+                    <div id="csv_container" style="display:none">
+                    <div id="file_control_container_csv" class= "form-group"> <label for='file_control_csv'>CSV File:</label>
+                      <a style='font-size:small' href='./data/Breast_RelativeSurvival_Head_NA0.csv' download='Breast_RelativeSurvival_Head_NA0.csv'>(example csv with headers)</a>
+                      <input type="file" id="file_control_csv" name="file_control_csv" style="padding-bottom:5px" accept=".csv, .txt" >
+                    </div>
+                    
+                    <label for="data_type" id="csv_label_data">Data Type:  </label>
+                     <select id='data_type' class="jpsurv-label-content" name='data_type'>
+                      <option>Relative Survival</option>    
+                      <option>Cause Specific</option>
+                    </select>
+                    <button type="button" class=" btn pull-right btn-xs" id="Adv_input" style="margin-bottom:5px" disabled>Advanced</button>
+                    
+                  </div>
+          <div id="data_type_container" class="form-group">
+                  </div>
+                  <div class="row">
+                    <div id="upload_file_submit_container" class="jpsurv-button pull-right">
+                      <!--<INPUT type='submit' id='upload_file_submit' value='Upload Files' > -->
+                      <button id='upload_file_submit' type="submit"class="btn btn-primary btn-sm" title="Please attach both input files to enable upload."disabled>Upload Input Files</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+              <!-- Calculate - STAGE 2 -->
+              <div id="stage2-calculate" class="box col-md-12" style="display:none;">
+                <form id='parameters' class="form-horizontal" role="form">
+                  <h2 class="stage-header">Cohort and Model Specifications</h2>
+                  <hr class="stage-separator">
+                  <div id='diagnosis_title'></div>
+                  <div class="jpsurv-label-container">
+                    <span class="jpsurv-label">Year of Diagnosis Range:
+                    <span>
+                    <span class="jpsurv-label-content">
+                    <label for="year_of_diagnosis_start" style="display:none">Start Year</label>
+                    <select id='year_of_diagnosis_start' name='year_of_diagnosis_start'></select> to
+                    <label for="year_of_diagnosis_end"style="display:none">End Year</label>
+                    <select id='year_of_diagnosis_end' name='year_of_diagnosis_end'>
+                    </select>
+                    </span>
+                    </span>
+                    </span>
+                  </div>
+                  <div id="cohort-variables">
+                  </div>
+                  <!--
+                  <div class="form-group jpsurv-label-container">
+                    <label class="jpsurv-label" for="cohort_select">Cohort Variables:</label>
+                    <select id='cohort_select' class="jpsurv-label-content" name='cohort_select' multiple></select>
+                  </div>
+                  <fieldset id="cohort-fieldset" class="jpsurv-fieldset">
+                    <legend class="jpsurv-legend">Cohort Values:</legend>
+                    <div id='cohort_sub_select' class="form-group jpsurv-label-container co-value-container"></div>
+                  </fieldset>
+                  <div style="clear:both;"></div>
+                  -->
+                  <div  id="popover" class="form-group jpsurv-label-container" style="display:none;">
+                    <label class="jpsurv-label" for= "covariate_select">Covariates:</label>
+                    <select id='covariate_select' class="jpsurv-label-content" name='covariate_select' name ="selectList"></select>
+                  </div>
+                  <div class="form-group jpsurv-label-container">
+                    <label for="max_join_point_select" class="jpsurv-label">Maximum Joinpoints:</label>
+                    <select id='max_join_point_select' class="jpsurv-label-content" name='max_join_point_select'>
+                      <option>0</option>
+                      <option>1</option>
+                      <option>2</option>
+                      <option>3</option>
+                      <option>4</option>
+                      <option>5</option>
+                    </select>
+                    <div class="row">
+                      <div id="e-mail-msg" class="e-mail-grp" style="padding:5px 15px;display:none;">
+                      </div>
+                    </div>
+                    <div class="form-group e-mail-grp" style="display:none;">
+                      <label for="e-mail" class="jpsurv-label" title="Enter a valid e-mail">E-mail:</label>
+                      <input class="arrow" tabindex="0" required id="e-mail" type="email" placeholder="Enter e-mail address" title="Enter a valid e-mail address.">
+<!--
+<i class="arrow"></i>
+-->
+                    </div>
+                  <div id="Advanced_toogle" class="row advanced" onclick="Slide_menu_Vert('stage2b-advanced','both')">Advanced Options</div>
+
+
+                  </div>
+
+                </form>
+              </div>
+              <!-- Advanced Options - STAGE 2b -->
+              <div class="box col-md-12" div id="stage2b-advanced" style="display:none;">
+                <h2 class="stage-header" >Advanced Options</h2>
+                <hr class="stage-separator">
+                <div id="adv-options">
+                  <!-- Delete Last Interval -->
+                  <div class="row" style="margin-bottom:10px;">
+
+                      <label for="adv-delete-interval" class="pull-left">Delete Last Interval:</label>
+                      <div class="pull-right" style="margin-right:12px;">
+                        <form id="adv-delete-interval">
+                          <div class="radio-inline">
+                            <label for="del-int-yes"><input type="radio" id="del-int-yes" value="Yes" name="adv-delete-interval">Yes</label>
+                          </div>
+                          <div class="radio-inline">
+                            <label for="del-int-no"><input type="radio" id="del-int-no" value="No" name="adv-delete-interval"checked>No</label>
+                          </div>
+                      </div>
+
+                  </div>
+                  <!-- Skipped Observations between (adv-between)-->
+                  <div class="row form-inline">
+                    <label for="adv-between" class="pull-left">Minimum Number of Years between Joinpoints (Excluding Joinpoints):  </label>
+                    <input id="adv-between" type="number" class="form-control pull-right sm-input" value="2" min="2" required/>
+                  </div>
+
+                  <!-- Skipped Obervations from First (adv-first) -->
+                  <div class="row form-inline">
+                    <label for="adv-first" class="pull-left">Minimum Number of Years before First Joinpoint (Excluding Joinpoint):  </label>
+                    <input id="adv-first" type="number" class="form-control pull-right sm-input" value="3" min="2" required/>
+                  </div>
+
+                  <!-- Skipped Obervations to Last (adv-last) -->
+                  <div class="row form-inline">
+                    <label for="adv-last" class="pull-left">Minimum Number of Years after Last Joinpoint (Excluding Joinpoint):  </label>
+                    <input id="adv-last" type="number" class="form-control pull-right sm-input" value="5" min="2"/>
+                  </div>
+                  <!-- Number of Calendar Year of Project (adv-year) -->
+                  <div class="row form-inline">
+                    <label for="adv-year" class="pull-left">Number of Calendar Years of Projected Survival:</label>
+                    <input id="adv-year" type="number" class="form-control pull-right sm-input" value="5" min="0" required/>
+                  </div>
+                  <div class="row">
+                    <div class="pull-right advanced" onclick="Slide_menu_Vert('stage2b-advanced','both')">Hide</div>
+                  </div>
+
+                </div>
+              </div>
+              <input type='button' tabindex="1" id='calculate' value='Calculate' class="btn btn-primary btn-sm pull-right">
+              <input type='button' tabindex="2" onclick="window.location.href='/jpsurv'" value="Reset" class="btn btn-warning btn-sm pull-right" title="Reset all values" style="margin-right:10px;">
+
+              <div style="clear:both;"></div>
+            </div>
+          </div>
+          <!-- </form> -->
+          <!-- Main Menu Tabs -->
+        </div>
+        <div id="help" class="well col-md-8">
+          <div class="row">
+            <div class="col-sm-7 col-sm-offset-2" id="jpsurv-help-message-container" style="display:none;">
+              <div class="panel panel-danger">
+                <div class="panel-heading">Error</div>
+                <div class="panel-body" id="jpsurv-message-content"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="right_panel" class="col-md-8" style="display:none;">
+          <div id="cohort-join-points" class="box">
+            <div class="row model-select-row" style="padding-bottom:15px;">
+              <div class="col-md-12">
+                <strong style="float:left;margin-right:5px;margin-bottom:5px;">Cohort</strong>&nbsp;
+                <select id="cohort-display"></select>
+              </div>
+            </div>
+            <div class="row model-select-row">
+              <div class="col-md-10">
+                <strong>Model Selection</strong>
+              </div>
+            </div>
+            <div class="row">
+              <div class="table-responsive" style="padding:10px 25px 0px;">
+                <table id="model-selection-table" class="table table-bordered table-hover">
+                  <thead>
+                    <tr>
+                      <th>Model #</th>
+                      <th>Number of Joinpoints</th>
+                      <th>Bayesian Information Criterion (BIC)</th>
+                      <th>Akaike Information Criterion (AIC)</th>
+                      <th>Log Likelihood</th>
+                      <th>Converged</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="row model-select-row">
+              <div class="col-md-10" style="padding-bottom:15px;">
+                <strong>Display Options</strong>
+              </div>
+              <div class="col-md-10">
+
+                <div style="padding-bottom:15px;">
+                  <form style="padding-right:10px;">
+                    <label title="Rounded to decimal places." style="margin-left:10px;">Number of Decimal Places</label>
+                    <select name="abcselect" id="precision">
+                      <option>1</option>
+                      <option>2</option>
+                      <option>3</option>
+                      <option>4</option>
+                      <option>5</option>
+                      <option>6</option>
+                      <option>7</option>
+                      <option>8</option>
+                      <option selected>9</option>
+                    </select>
+                  </form>
+                </div>
+
+
+              </div>
+            </div>
+
+          </div>
+              <!-- Spinner
+              <div class="row">
+                <div id="spinner" style="display:none;">
+                  <i class="fa fa-spinner fa-spin fa-2x">&nbsp;</i>
+                  <span style="font-weight:bold;font-size:150%;margin-top:100px;">Calculating</span>
+                </div>
+              </div>
+              -->
+              <!-- Message Panel for Error or Warning-->
+      
+          <ul id="jpsurv-tabs" class="nav nav-tabs responsive">
+            <li class="active"><a href="#home" data-toggle="tab">Survival Graph/Data</a></li>
+            <li><a href="#estimates-tab" data-toggle="tab">Model Estimates</a></li>
+            <li><a id="trends-tab-anchor" href="#trends-tab" data-toggle="tab">Trends</a></li>
+            <li><a href="#help-tab" data-toggle="tab">Help</a></li>
+          </ul>
+          <!-- TABS HERE -->
+          <div class="tab-content">
+            <!-- Home Tab -->
+            <div class="tab-pane active" id="home">
+              <!-- Sub Tabs for Home -->
+              <ul class="nav nav-tabs" id="dashboard_tabs">
+                <li class="active"><a href="#graph-year-tab" data-toggle="tab">Survival vs. Year of Diagnosis</a></li>
+                <li><a href="#graph-time-tab" data-toggle="tab">Survival vs. Time Since Diagnosis</a></li>
+              </ul>
+              <!-- Sub Graphs here -->
+              <div class="tab-content">
+                  <div id="graph-year-tab" class="tab-pane fade active in">
+                    <div class="row">
+                      <div class="col-md-2 col-md-offset-1">
+                        <b>Interval Years</b>
+                      </div>
+                      <div class="col-md-1">
+                        <select id="interval-years" multiple>
+                          <option selected>1</option>
+                          <option>2</option>
+                          <option>3</option>
+                          <option selected>4</option>
+                        </select>
+                      </div>
+                      <div class="col-md-1">
+                        <button id="recalculate" class="btn btn-secondary btn-sm" type="button">Select</button>
+                      </div>
+                      <div class="col-md-7">
+                        <span class="pull-right">
+                        <a id="graph-year-dataset-link" href="#" style="text-decoration: underline;">Download Graph Dataset</a>
+                        &nbsp;
+                        <a class="full-dataset-link" href="#" style="text-decoration: underline;">Download Full Dataset</a>
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-md-offset-2">
+                        <img src="" style="display:none;">
+                        
+                      </div>
+                    </div>
+                     <b><span id="year-tab-rows" style="display:inline-block;padding-bottom:1%;padding-top:5%"></span></b>
+                    <div class="table-responsive" style="max-height:500px;overflow:scroll">
+                      <table id="graph-year-table" class="table table-striped table-bordered table-condensed">
+                        <thead>
+                          <tr>
+                            <th>Year of Diagnosis 1975</th>
+                            <th>Interval</th>
+                            <th>Died</th>
+                            <th>Alive at Start</th>
+                            <th>Lost to Followup</th>
+                            <th>Expected Survival Interval</th>
+                            <th>Relative Survival Cum</th>
+                            <th>pred int</th>
+                            <th>pred cum</th>
+                            <th>pred int se</th>
+                            <th>pred cum se</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                  <div id="graph-time-tab" class="tab-pane fade">
+                      <div class="row">
+                        <div class="col-md-2 col-md-offset-1">
+                          <label for="year-of-diagnosis" class="pull-right">Year of Diagnosis</label>
+                        </div>
+                        <div class="col-md-2">
+                          <select id='year-of-diagnosis' name='year_of_diagnosis_start'></select>
+                        </div>
+                        <div class="col-md-7">
+                          <span class="pull-right">
+                          <a id="graph-time-dataset-link" href="#" style="text-decoration: underline;">Download Graph Dataset</a>
+                          &nbsp;
+                          <a class="full-dataset-link" href="#" style="text-decoration: underline;">Download Full Dataset</a>
+                          </span>
+                        </div>
+
+                      </div>
+                      <div class="row">
+                        <div class="col-md-offset-2">
+                          <img src="" style="display:none;">
+                        </div>
+                      </div>
+                     <b><span id="time-tab-rows" style="display:inline-block;padding-bottom:1%;padding-top:5%"></span></b>
+                    <div class="table-responsive">
+                      <table id="graph-time-table" class="table table-striped table-bordered table-condensed">
+                        <thead>
+                          <tr>
+                            <th>Year of Diagnosis</th>
+                            <th>Interval</th>
+                            <th>Cumulative Relative Survival</th>
+                            <th>Predicted Cumulative Relative Survival</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+              </div>
+            </div>
+            <!-- Model Estimates Tab -->
+            <div id="estimates-tab" class="tab-pane fade">
+              <h3 style="margin-bottom:3px;">Estimates of the Joinpoints</h3>
+              <div style="margin:0px 0px 10px 30px;"><span id="yod-range">1975</span></div>
+              <div class="table-responsive">
+                <table id="estimates-jp" class="table table-striped table-bordered table-condensed">
+                  <thead>
+                    <tr>
+                      <th>Estimates</th>
+                      <th>Joinpoint <span id="estimates-jp-selected">0</span></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  </tbody>
+                </table>
+              </div>
+
+              <h3>Coefficients</h3>
+              <div class="table-responsive">
+                <table id="estimates-coefficients" class="table table-striped table-bordered table-condensed">
+                  <thead>
+                    <tr>
+                      <th>Parameter</th>
+                      <th>Estimate</th>
+                      <th>Standard Error</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <!-- Trends Tab -->
+            <div id="trends-tab" class="tab-pane fade">
+              <h2>Trend Measures</h2>
+              <h3>Relative Change in Survival</h3>
+              <div class="table-responsive">
+                <table id="trend-apc" class="table table-striped table-bordered table-condensed">
+                  <thead>
+                    <tr>
+                      <th>Start Year</th>
+                      <th>End Year</th>
+                      <th>Estimate</th>
+                      <th>Standard Error</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  </tbody>
+                </table>
+              </div>
+
+              <h3>Absolute Change in Survival</h3>
+              <div class="table-responsive">
+                <table id="trend-aac" class="table table-striped table-bordered table-condensed">
+                  <thead>
+                    <tr>
+                      <th>Start Year</th>
+                      <th>End Year</th>
+                      <th>Estimate</th>
+                      <th>Standard Error</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  </tbody>
+                </table>
+              </div>
+
+              <h3>Relative Change in Hazard</h3>
+              <div class="table-responsive">
+                <table id="trend-dap" class="table table-striped table-bordered table-condensed">
+                  <thead>
+                    <tr>
+                      <th>Start Year</th>
+                      <th>End Year</th>
+                      <th>Estimate</th>
+                      <th>Standard Error</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  </tbody>
+                </table>
               </div>
             </div>
             <!-- Help Tab -->
