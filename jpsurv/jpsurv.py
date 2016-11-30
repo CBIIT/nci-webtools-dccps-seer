@@ -161,7 +161,7 @@ def stage1_upload():
 
         file = request.files['file_control_csv'] 
         if file and file.filename:
-            filename = secure_filename(file.filename)
+            filename = tokenId+secure_filename(file.filename)
             file.save(os.path.join(UPLOAD_DIR, filename))
             file_control_filename = filename
             print("Saving file_control_csv: %s" % file_control_filename)  
@@ -170,7 +170,8 @@ def stage1_upload():
             print("file_control_csv not assigned")
  
         #PRINT FILE_DATA
-        file_data = os.path.join(UPLOAD_DIR, file_control_filename)
+        file_data = os.path.join(UPLOAD_DIR,filename)
+        print(file_data)
         #If headers already exist replace with with custom headers user specified frm the UI: headers from json
         if(str(has_headers)=="true"):
             print("replacing headers")

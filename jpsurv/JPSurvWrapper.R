@@ -16,7 +16,7 @@ ReadCSVFile <- function (inputFile, path, tokenId, jpsurvDataString,input_type) 
   print ("HERE!!")
   jpsurvData <<- fromJSON(jpsurvDataString)
   print(jpsurvData)
-  fqFileName = file.path(path, inputFile,tokenId)
+  fqFileName = file.path(path,inputFile)
   outputFileName = paste("form-", tokenId, ".json", sep="")
   fqOutputFileName = file.path(path, outputFileName)
   has_headers=as.logical(jpsurvData$mapping$has_headers);
