@@ -33,7 +33,10 @@ ReadCSVFile <- function (inputFile, path, tokenId, jpsurvDataString,input_type) 
   died=jpsurvData$mapping$died
 
   statistic=jpsurvData$additional$statistic
-  
+  if(del=="\t"||del==" ")
+      {
+        del=""
+      }
   csvdata=read.tabledata(fileName=file.path(path, inputFile),          # fileName: Name of file to use in current directory, or filepath.
                     hasHeader=TRUE,
                     dlm=del);                             # hasHeader: Boolean variable indicating whether or not the CSV being read in has a header row or not. Default is FALSE.
@@ -184,16 +187,22 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,use_default=TRU
   type=jpsurvData$additional$input_type
   headers=list()
   print("RUNS")
-
+  del=""
   runs=getRunsString(filePath, jpsurvDataString)
   if(type=="csv"){
     header=as.logical(jpsurvData$additional$has_header)
-    seerFilePrefix = jpsurvData$calculate$static$seerFilePrefix
+    seerFilePrefix = jpsurvData$file$dictionary
+    print ("FILE NAME")
+    print(seerFilePrefix)
     file=paste(filePath, seerFilePrefix, sep="/" )
-    file=paste(file,".csv",sep="")
+    del=jpsurvData$additional$del
+    if(del=="\t"||del==" ")
+      {
+        del=""
+      }
     seerdata=read.tabledata(fileName=file,          # fileName: Name of file to use in current directory, or filepath.
                       hasHeader=TRUE,
-                      dlm=",");    
+                      dlm=del);    
     observed=names(seerdata)[jpsurvData$additional$observed]
     interval=names(seerdata)[as.integer(jpsurvData$additional$interval)]
     print(observed)
@@ -315,8 +324,6 @@ getFittedResult <- function (session_tokenId,filePath, seerFilePrefix, yearOfDia
   jpsurvData <<- fromJSON(jpsurvDataString)
   print ("creating RDS")
   print (numJP)
-  file_name=paste(seerFilePrefix, sep="" )
-  file=paste(filePath, file_name, sep="/" )
   print("FILE_NAME IN FITTED RESULTS")
   print(file)
   type=jpsurvData$additional$input_type
@@ -332,6 +339,8 @@ getFittedResult <- function (session_tokenId,filePath, seerFilePrefix, yearOfDia
 
   print(type)
   if(type=="dic"){
+    file_name=paste(seerFilePrefix, sep="" )
+    file=paste(filePath, file_name, sep="/" )
     seerdata = joinpoint.seerdata(seerfilename=file,
                                   newvarnames=varLabels,
                                   NoFit=T,
@@ -348,9 +357,14 @@ getFittedResult <- function (session_tokenId,filePath, seerFilePrefix, yearOfDia
   }
   if(type=="csv"){
       del=jpsurvData$additional$del
-    file=paste(file,".csv",sep="")
+    file_name=jpsurvData$file$dictionary
+    file=paste(filePath, file_name, sep="/" )
     print("here")
     print("DEL")
+    if(del=="\t"||del==" ")
+      {
+        del=""
+      }
     print(del)
     seerdata=read.tabledata(fileName=file,          # fileName: Name of file to use in current directory, or filepath.
                     hasHeader=TRUE,

@@ -333,9 +333,9 @@ function preLoadValues() {
   $("#cohort-variables fieldset").each(function(index,element) {
     var inputs = $(element).find("."+element.id);
     $.each(inputs, function(index2, element2) {
-    	$(element2).prop('checked', false);
+      $(element2).prop('checked', false);
 
-	});
+  });
     $.each(inputs, function(index2, element2) {
           $.each( inputData.calculate.form.AllcohortValues, function( key, value ) {
             //loops through each possible cohort on the form, if the cohort is in the json it gets checked
@@ -432,7 +432,7 @@ function updateCohortDisplay() {
     $.each(inputs, function(index2, element2) {
     //if checked add to ALL cohorts to be used for populating the drop down (if at least one checkbox is selected)
       if($(element2).prop('checked')){
-      	checked=true;
+        checked=true;
         cohort_message +=' "'+$(element2).val()+'"';
         if(!jpsurvData.calculate.form.AllcohortValues[index].includes('"'+$(element2).val()+'"')){ 
           jpsurvData.calculate.form.AllcohortValues[index].push('"'+$(element2).val()+'"');
@@ -441,7 +441,7 @@ function updateCohortDisplay() {
     });
 
     if(checked==false)
-    	 $.each(inputs, function(index2, element2) {
+       $.each(inputs, function(index2, element2) {
     //if checked add to ALL cohorts to be used for populating the drop down (if at least one checkbox is selected)
         cohort_message +=' "'+$(element2).val()+'"';
         if(!jpsurvData.calculate.form.AllcohortValues[index].includes('"'+$(element2).val()+'"')){ 
@@ -758,9 +758,9 @@ function updateGraphs(token_id) {
     var data_type = jpsurvData.results.statistic
     var Cumulative_header=""
     if(data_type=="CauseSpecific_Survival_Cum")
-    	Cumulative_header="Cumulative CauseSpecific Survival" 
+      Cumulative_header="Cumulative CauseSpecific Survival" 
     if(data_type=="Relative_Survival_Cum")
-    	Cumulative_header="Cumulative Relative Survival"    
+      Cumulative_header="Cumulative Relative Survival"    
     
     var timeHeader = ["Year of Diagnosis", "Interval", Cumulative_header, "Predicted Cumulative Relative Survival"];
     header.push.apply(header, timeHeader);
@@ -1183,9 +1183,11 @@ function file_submit(event) {
   jpsurvData.tokenId = renewTokenId(false);
   if($('#csv').is(':checked')){
     headers=""
+    del=$("input[name=del]:checked").val()
+    console.log("del" +del)
     for (var i=0;i<$('#header_row th').length/2;i++){
       header=$('#header_'+i).val()
-      headers+=header+",";
+      headers+=header+del;
     }
     headers=headers.substring(0,headers.length-1)
     jpsurvData.additional.statistic=$("#data_type").val()
@@ -2392,9 +2394,9 @@ var template_string='<div class="modal fade" id="modal" tabindex="-1" role="dial
       +'<fieldset style="padding:0 0 .75em"><legend   style="font-size: 12px;margin-bottom:12px"><h4><span style="margin-right:80%">Delimiters</span></h4></legend>'
         +'<div id="dels" class="row" style="padding-left:12.5%">'
             +'<div style="width:25%; display:inline-block"><input type="radio" id="comma" name="del" value="," checked/>Comma</div>'
-            +'<div style="width:25% ;display:inline-block"><input type="radio" id="tab"   name="del" value=""/>Tab</div>'    
+            +'<div style="width:25% ;display:inline-block"><input type="radio" id="tab"   name="del" value=" "/>Tab</div>'    
             +'<div style="width:25%; display:inline-block"><input type="radio" id="colan" name="del" value=";"/>Semi-Colon</div>'
-            +'<div style="width:25%; display:inline-block"><input type="radio" id="space" name="del" value=""/>Space</div>'
+            +'<div style="width:25%; display:inline-block"><input type="radio" id="space" name="del" value=" "/>Space</div>'
         +'</div>'
       +'</fieldset></br>'
       +'<label for="has_headers" id="csv_label_headers">Does the file contain headers?  </label>'
@@ -2570,7 +2572,22 @@ function create_table(content,rows,has_headers){
   if(first_modal==true)
     createModal();
   var arr=content.split("\n");
-  var matrix=arr.map(function(line) { return line.split(',') })
+  if(content.indexOf(",") !== -1){
+    $("#comma").prop("checked", true)
+    var matrix=arr.map(function(line) { return line.split(',') })
+  }
+  else if(content.indexOf(";") !== -1){
+    $("#colan").prop("checked", true)
+    var matrix=arr.map(function(line) { return line.split(";") })
+  }
+  else if(content.indexOf("\t") !== -1){
+    $("#tab").prop("checked", true)
+    var matrix=arr.map(function(line) { return line.split('\t') })
+  }
+  else if(content.indexOf(" ") !== -1){
+    $("#space").prop("checked", true)
+    var matrix=arr.map(function(line) { return line.split(' ') })
+  }
   
   //reads csv file headers to be placed in text box and reads he first row to act as the "headers" ofthe datatable
   if(has_headers==true){
