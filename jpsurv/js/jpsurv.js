@@ -1147,21 +1147,25 @@ function calculate(run) {
     incrementImageId();
     jpsurvData.run=1;
     if(parseInt($("#max_join_point_select").val())>maxJP && validateVariables() || check_multiple()==true) {
+      //asks user to confirm they want thier job queued
+      var send = confirm("Please confirm you would like your job sent to the queuing system for calculation");
       // SEND TO QUEUE
-      setIntervalsDefault();
-      getIntervals();
-      setUrlParameter("request", "true");
-      jpsurvData.additional.use_default="true"
-      jpsurvData.queue.url = encodeURIComponent(window.location.href.toString());
-      jpsurvData.additional.yearOfDiagnosis = jpsurvData.calculate.form.yearOfDiagnosisRange[0].toString();
-      jpsurvData.additional.yearOfDiagnosis_default = parseInt($("#year_of_diagnosis_start").val());
-      var params = getParams();
-      $("#right_panel").hide();
-      $("#help").show();
-      $("#icon").css('visibility', 'hidden');
-      var comm_results = JSON.parse(jpsurvRest('stage5_queue', params));
-      $("#calculating-spinner").modal('hide');
-      okAlert("Your submission has been queued.  You will receive an e-mail when calculation is completed.", "Calculation in Queue");
+      if(send == true){
+        setIntervalsDefault();
+        getIntervals();
+        setUrlParameter("request", "true");
+        jpsurvData.additional.use_default="true"
+        jpsurvData.queue.url = encodeURIComponent(window.location.href.toString());
+        jpsurvData.additional.yearOfDiagnosis = jpsurvData.calculate.form.yearOfDiagnosisRange[0].toString();
+        jpsurvData.additional.yearOfDiagnosis_default = parseInt($("#year_of_diagnosis_start").val());
+        var params = getParams();
+        $("#right_panel").hide();
+        $("#help").show();
+        $("#icon").css('visibility', 'hidden');
+        var comm_results = JSON.parse(jpsurvRest('stage5_queue', params));
+        $("#calculating-spinner").modal('hide');
+        okAlert("Your submission has been queued.  You will receive an e-mail when calculation is completed.", "Calculation in Queue");
+      }
 
     } 
     else if(parseInt($("#max_join_point_select").val())>maxJP && !validateVariables()){
@@ -2370,8 +2374,8 @@ function Read_csv_file(){
   if(first_modal==true){
     lines=19
     has_headers=true
-  }
-
+  
+}
 
  // filereader.onload = function(event) { create_table(event.currentTarget.result)}
   filereader.onload = function(event) { create_table(event.currentTarget.result,lines,has_headers)}
