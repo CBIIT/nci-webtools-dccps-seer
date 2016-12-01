@@ -154,7 +154,7 @@ def stage1_upload():
         mapping = request.args.get('map',False)
         has_headers = request.args.get('has_headers',False)
         headers= request.args.get('headers',False)
-
+        print(headers)
         print("has headers?")
         print (has_headers)
         
