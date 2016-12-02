@@ -195,16 +195,24 @@ def stage1_upload():
         stri = fo.read(500)
         fo.close()
         print("SENDING.....")
-        r.ReadCSVFile(file_control_filename, UPLOAD_DIR, tokenId,mapping,input_type)
-        output_filename = "form-%s.json" % tokenId
-        r_output_file = os.path.join(UPLOAD_DIR, output_filename)
-        fo = open(r_output_file, "r+")
-        stri = fo.read(500) 
-        fo.close()
-        status = "uploaded"
-        return_url = "%s/jpsurv?request=false&file_control_filename=%s&output_filename=%s&status=%s&tokenId=%s" % (request.url_root, file_control_filename, output_filename, status, tokenId)
-        print(return_url)
-        return redirect(return_url) 
+        try:
+            r.ReadCSVFile(file_control_filename, UPLOAD_DIR, tokenId,mapping,input_type)
+            output_filename = "form-%s.json" % tokenId
+            r_output_file = os.path.join(UPLOAD_DIR, output_filename)
+            fo = open(r_output_file, "r+")
+            stri = fo.read(500) 
+            fo.close()
+            status = "uploaded"
+            return_url = "%s/jpsurv?request=false&file_control_filename=%s&output_filename=%s&status=%s&tokenId=%s" % (request.url_root, file_control_filename, output_filename, status, tokenId)
+            print(return_url)
+            return redirect(return_url)
+        except:
+            status = "failed_upload"
+            print "FAILED"
+            return_url = "/jpsurv?request=false&status=failed_upload"
+            print(return_url)
+            return redirect(return_url)
+
     #Now that the files are on the server RUN the RCode
 
 
