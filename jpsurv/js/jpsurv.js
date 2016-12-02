@@ -164,10 +164,12 @@ function addEventListeners() {
   });
 
   $( "#year-of-diagnosis" ).change(function() {
+    console.log("click event fired, changing to "+ $( "#year-of-diagnosis" ).val() )
     jpsurvData.additional.use_default="false"
     jpsurvData.additional.recalculate="true"
     setCalculateData();
     jpsurvData.additional.use_default="true"
+    $("#year-of-diagnosis").data('changed', true);
   });
 
 
@@ -825,11 +827,14 @@ function updateGraphs(token_id) {
       rows++;
     
     });
-    console.log("clicked on ",$('#year-of-diagnosis').val())
-    console.log("changing to via results json", jpsurvData.results.yod)
+    
+    if(!$('#year-of-diagnosis').data('changed')) {
       $('#year-of-diagnosis').val(jpsurvData.results.yod);
-    console.log("new year of diagnosis value is ",$('#year-of-diagnosis').val())
-        $("#time-tab-rows").html("Total Row Count: "+rows)
+      console.log("setting to "+jpsurvData.results.yod+" from json")
+    }
+    $("#year-of-diagnosis").data('changed', false);
+    
+    $("#time-tab-rows").html("Total Row Count: "+rows)
 
   }
   else{
