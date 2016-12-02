@@ -21,10 +21,11 @@ if(getUrlParameter('status')) {
 }
 
 $(document).ready(function() {
-  loadHelp();
   addEventListeners();
   addMessages();
   addInputSection();
+    loadHelp();
+
   if(DEBUG) {
     console.warn("%cDEBUG is on", "color:white; background-color:red");
     $("#year_of_diagnosis_start").val("1975");
@@ -295,6 +296,16 @@ function addInputSection() {
       );
 
     $('#upload_file_submit_container').remove();
+  }
+  else if (status=="failed_upload")
+  {
+    message = "An unexpected error occured. Please ensure the input file(s) is in the correct format and/or correct parameters were chosen. <br>";;
+    message_type = 'error';
+    id="jpsurv"
+    showMessage(id, message, message_type);
+    $("#right_panel").hide();
+    $("#help").show();
+
   }
   if(getUrlParameter('request') == "true" && checkInputFile()) {
     preLoadValues();
@@ -1205,31 +1216,9 @@ function file_submit(event) {
   }
 
   getRestServerStatus();
-}
-/*
-function get_plot() {
-  $('#plot-instructions').hide();
-  $("#plot-container").hide();
-  $("#spinner-plotting").show();
-  //console.log('get_plot');
-
-  var params = 'jpsurvData='+JSON.stringify(jpsurvData);
-  var plot_json = JSON.parse(jpsurvRest('stage3_plot', params));
-  //console.dir(plot_json);
-  //Check to see if there was a comm error
-  if(plot_json.status == 'error') {
-    return;
-  }
-
-  //console.log("plot_json");
-  //console.dir(plot_json);
-
-  $("#spinner-plotting").hide();
-  $("#plot-image").attr('src', '../jpsurv/tmp/plot-'+jpsurvData.tokenId+'.png');
-  $("#plot-container").fadeIn();
 
 }
-*/
+
 function retrieveResults(cohort_com,jpInd,switch_cohort) {
   var file_name=""
   if(jpInd!=undefined && cohort_com!=undefined &&switch_cohort==false)
@@ -2224,9 +2213,11 @@ function getRestServerStatus() {
     console.log(textStatus);
     displayCommFail(id, jqXHR, textStatus);
   });
-  ajaxRequest.always(function() {
-    //$("#calculating-spinner").modal('hide');
+    ajaxRequest.error(function(jqXHR, textStatus) {
+    $("#calculating-spinner").modal('hide');
+    displayCommFail("jpsurv", jqXHR, textStatus);
   });
+
 }
 
 function certifyResults() {
