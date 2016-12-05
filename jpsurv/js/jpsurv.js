@@ -2413,7 +2413,7 @@ var template_string='<div class="modal fade" id="modal" tabindex="-1" role="dial
       +'</div><button type="button" id="save" class="btn btn-primary btn-sm" style="margin-left:45%;margin-top:1%;display:inline-block" onclick=\"save_params()\" >Save</button></button><button type="button" id="cancel" class="btn btn-primary btn-sm" style="display:inline-block;margin-left:5%;margin-top:1%"">Cancel</button>'
       +'</div></div></div></div>';
 
-var selector= '<select id="data_type" class="jpsurv-label-content" name="data_type">'
+var selector= '<select id="column_values" class="jpsurv-label-content" name="data_type">'
                       +'<option></option>'    
                       +'<option>Cohort</option>'    
                       +'<option>Year</option>'
@@ -2637,7 +2637,7 @@ if(first_modal==true){
 
   for (var i = 0; i < headers.length; i ++) {
     var title = headers[i].title
-    var selectHeader = $('<th id="type_'+i+'" style="border-left:1px solid white;border-right:1px solid white"/>')
+    var selectHeader = $('<th id="type_'+i+'" style="border-left:1px solid white;border-right:1px solid white;padding:8px 3px 8px 3px"/>')
     var text_box_headers = $('<th style="padding:0 0 0 0" id="textboxes"><input type="text" id="header_'+i+'" style="width:100%;text-align:center;border:none;border: 1px solid #ddd;font-weight:bold" value="'+title+'"/></th>')
 
     headerRow.append(text_box_headers)
