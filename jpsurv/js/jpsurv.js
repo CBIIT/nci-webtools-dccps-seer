@@ -2572,6 +2572,7 @@ function create_table(content,rows,has_headers){
   if(first_modal==true)
     createModal();
   var arr=content.split("\n");
+  $("#has_headers").prop("checked", true)
   if(content.indexOf(",") !== -1){
     $("#comma").prop("checked", true)
     var matrix=arr.map(function(line) { return line.split(',') })
