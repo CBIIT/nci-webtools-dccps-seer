@@ -2391,7 +2391,7 @@ var template_string='<div class="modal fade" id="modal" tabindex="-1" role="dial
         +'<b><h2 class="modal-title" id="modalTitle">Modal title</h4></b>'
       +'</div>'
       +'<div class="modal-body"><div id ="container" >'
-      +'<fieldset style="padding:0 0 .75em"><legend   style="font-size: 12px;margin-bottom:12px"><h4><span style="margin-right:80%">Delimiters</span></h4></legend>'
+      +'<fieldset style="padding:0 0 .75em"><legend   style="font-size: 12px;margin-bottom:12px"><h4><span style="margin-right:80%">Delimiter</span></h4></legend>'
         +'<div id="dels" class="row" style="padding-left:12.5%">'
             +'<div style="width:25%; display:inline-block"><input type="radio" id="comma" name="del" value="," checked/>Comma</div>'
             +'<div style="width:25% ;display:inline-block"><input type="radio" id="tab"   name="del" value=" "/>Tab</div>'    
