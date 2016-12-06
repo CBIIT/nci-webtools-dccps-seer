@@ -572,7 +572,7 @@ $('#file_control_csv').change(function(){
    $('#modalContent').html('<table id="data_table" class="table table-striped" style="height:100px;border-top:none;border-left:none;line-height:0" cellspacing:"0" cellpadding="0px" width="100%"></table>');
     //$('#data_table').DataTable({
     $("#Adv_input").removeAttr('disabled');
-    	$("#has_headers").prop("checked", true)
+      $("#has_headers").prop("checked", true)
     Read_csv_file();
 });
 function checkInputFiles() {
@@ -2384,25 +2384,25 @@ function Read_csv_file(){
 
 
 
-var template_string='<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'
+var template_string='<div class="modal fade" id="modal" tabindex="-1" role="dialog">'
   +'<div class="modal-dialog  modal-lg" role="document">'
     +'<div class="modal-content" >'
       +'<div class="modal-header">'
-        +'<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'
+        +'<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>'
         +'<b><h2 class="modal-title" id="modalTitle">Modal title</h4></b>'
       +'</div>'
       +'<div class="modal-body"><div id ="container" >'
       +'<fieldset style="padding:0 0 .75em"><legend   style="font-size: 12px;margin-bottom:12px"><h4><span style="margin-right:80%">Delimiters</span></h4></legend>'
         +'<div id="dels" class="row" style="padding-left:12.5%">'
-            +'<div style="width:25%; display:inline-block"><input type="radio" id="comma" name="del" value="," checked/>Comma</div>'
-            +'<div style="width:25% ;display:inline-block"><input type="radio" id="tab"   name="del" value=" "/>Tab</div>'    
-            +'<div style="width:25%; display:inline-block"><input type="radio" id="colan" name="del" value=";"/>Semi-Colon</div>'
-            +'<div style="width:25%; display:inline-block"><input type="radio" id="space" name="del" value=" "/>Space</div>'
+            +'<div style="width:25%; display:inline-block"><input type="radio" id="comma" name="del" value="," aria-label="comma" checked/>Comma</div>'
+            +'<div style="width:25% ;display:inline-block"><input type="radio" id="tab"   name="del" value=" " aria-label="tab"/>Tab</div>'    
+            +'<div style="width:25%; display:inline-block"><input type="radio" id="colan" name="del" value=";" aria-label="colan"/>Semi-Colon</div>'
+            +'<div style="width:25%; display:inline-block"><input type="radio" id="space" name="del" value=" " aria-label="sapce"/>Space</div>'
         +'</div>'
       +'</fieldset></br>'
       +'<label for="has_headers" id="csv_label_headers">Does the file contain headers?  </label>'
       +'<input type="checkbox" name="has_headers" id="has_headers" value="yes" checked></br>'
-       +'Displaying <select id="lines_displayed" class="jpsurv-label-content" name="lines_displayed">'
+       +'Displaying <select id="lines_displayed" class="jpsurv-label-content" name="lines_displayed" aria-label="display lines">'
                       +'<option>20</option>'
                       +'<option>30</option>'
                       +'<option>40</option>'
@@ -2414,7 +2414,7 @@ var template_string='<div class="modal fade" id="modal" tabindex="-1" role="dial
       +'</div><button type="button" id="save" class="btn btn-primary btn-sm" style="margin-left:45%;margin-top:1%;display:inline-block" onclick=\"save_params()\" >Save</button></button><button type="button" id="cancel" class="btn btn-primary btn-sm" style="display:inline-block;margin-left:5%;margin-top:1%"">Cancel</button>'
       +'</div></div></div></div>';
 
-var selector= '<select id="column_values" class="jpsurv-label-content" name="data_type">'
+var selector= '<select id="column_values" class="jpsurv-label-content" name="data_type" aria-label="column values">'
                       +'<option></option>'    
                       +'<option>Cohort</option>'    
                       +'<option>Year</option>'
@@ -2638,7 +2638,7 @@ if(first_modal==true){
   for (var i = 0; i < headers.length; i ++) {
     var title = headers[i].title
     var selectHeader = $('<th id="type_'+i+'" style="border-left:1px solid white;border-right:1px solid white;padding:8px 3px 8px 3px"/>')
-    var text_box_headers = $('<th style="padding:0 0 0 0" id="textboxes"><input type="text" id="header_'+i+'" style="width:100%;text-align:center;border:none;border: 1px solid #ddd;font-weight:bold" value="'+title+'"/></th>')
+    var text_box_headers = $('<th style="padding:0 0 0 0" id="textboxes">&#8204<input type="text" id="header_'+i+'" style="width:100%;text-align:center;border:none;border: 1px solid #ddd;font-weight:bold" value="'+title+'" aria-label="textbox"/></th>')
 
     headerRow.append(text_box_headers)
 

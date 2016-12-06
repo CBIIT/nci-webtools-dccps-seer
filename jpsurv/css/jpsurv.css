@@ -36,9 +36,9 @@ h3 {
 h2.stage-header {
   font-weight:bold;
   font-style:normal;
-  font-size:large;
   padding:0px;
   margin-top:-15px;
+  font-size: 14px;
 }
 
 .sub_select {
@@ -267,7 +267,7 @@ input[type="file"] {
 }
 
 .advanced{
-  color:#337ab7;
+  color:#3273ab;
   text-decoration: underline;
   font-weight: bold;
   float:right;
@@ -602,4 +602,8 @@ h4 span {
   max-width:100%;
   width:100%;
   margin-left: 0px
+}
+
+#Adv_input.btn[disabled]{
+    color:black;
 }
