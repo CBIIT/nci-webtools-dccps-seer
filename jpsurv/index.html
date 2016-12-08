@@ -76,23 +76,26 @@
 
           <i id ="icon" class="fa fa-caret-left fa-2x" onclick="Slide_menu_Horz()" style="margin-left:31%;visibility:hidden;"></i>
         </div>
-        <div class="col-md-4" id="slideoutForm">
-          <span class="jpsurv-title col-md-6" ><img src="./images/jpsurv.png" style="height:60%;width:60%" alt="JPSurv (Joint Point Survival Model)"></img></span>
-          <h2 class=" col-md-6">
-          <span class="pull-right">
+        <div class="col-md-4 col-lg-4 col-sm-12" id="slideoutForm">
+          <span  class="jpsurv-title col-md-6 hidden-xs hidden-sm" ><img  src="./images/jpsurv.png" style="height:60%;width:60%" alt="JPSurv (Joint Point Survival Model)"></img></span>
+          <span  class="jpsurv-title col-md-12 visible-xs visible-sm" ><img  src="./images/jpsurv.png" style="height:60%;width:40%" alt="JPSurv (Joint Point Survival Model)"></img></span>
+          
+          <div id="slideout">
+            <div class="well ">
+            <h2 class=" col-md-6">
+                <span class="pull-right">
                         <i class="cursor-pointer glyphicon glyphicon-info-sign glyphicon-blue" aria-label="Help" onclick="openHelpWindow('./html/help.html')"></i>
                       <a href="#">
                         <span style="font-size:small;"  onclick="openHelpWindow('./html/help.html');">Help</span>
                       </a>
-         </span>
-       </h2>
-          <div id="slideout">
-            <div class="well">
+                </span>
+            </h2>
               <!-- Upload FORM - STAGE 1 -->
-              <div class="box col-md-12" style="overflow:hidden">
+              <div class="box col-md-12" style="overflow:hidden;width:100%">
+
                 <form id="upload-form" class="form-horizontal" role="form" method="post" enctype="multipart/form-data" action="/jpsurvRest/stage1_upload">
                 
-                <div id="input_type_select" style="margin-bottom:5%">
+                <div id="input_type_select" style="margin-bottom:2%">
                   <label>File Format:</label>
                     <input type="radio" name="data" value="dic" checked id="dic" aria-label="dictionary"> Dictionary/Data Files    
                     <input type="radio" id="csv" name="data" value="csv" aria-label="csv"> CSV Files
@@ -121,7 +124,7 @@
                     <label for="data_type" id="csv_label_data">Data Type:  </label>
                      <select id='data_type' class="jpsurv-label-content" name='data_type' aria-label="data_type">
                       <option>Relative Survival</option>    
-                      <option>Cause Specific</option>
+                      <option>Cause-Specific Survival</option>
                     </select>
                     <button type="button" class=" btn pull-right btn-xs" id="Adv_input" style="margin-bottom:5px" disabled>Advanced</button>
                     
@@ -257,7 +260,7 @@
           <!-- </form> -->
           <!-- Main Menu Tabs -->
         </div>
-        <div id="help" class="well col-md-8">
+        <div id="help" class="well col-md-8 col-lg-8 sm-12">
           <div class="row">
             <div class="col-sm-7 col-sm-offset-2" id="jpsurv-help-message-container" style="display:none;">
               <div class="panel panel-danger">
@@ -267,7 +270,7 @@
             </div>
           </div>
         </div>
-        <div id="right_panel" class="col-md-8" style="display:none;">
+        <div id="right_panel" class="ccol-md-8 col-lg-8 sm-12" style="display:none;">
           <div id="cohort-join-points" class="box">
             <div class="row model-select-row" style="padding-bottom:15px;">
               <div class="col-md-12">

@@ -607,3 +607,48 @@ h4 span {
 #Adv_input.btn[disabled]{
     color:black;
 }
+
+@media(min-width: 1800px){
+.container {
+    width: 1800px;
+  }
+    .col-lg-4{
+    min-width:396px;
+    max-width: 396px !important;
+  }
+    .col-lg-8{
+    width:82%;
+    max-width:1400px;
+  
+  }
+}
+
+@media(min-width: 1800px){
+.col-md-12 {
+    width: 100%;
+}
+}
+
+@media(min-width: 1800px){
+.container {
+    width: 1800px;
+  }
+    .col-lg-4{
+    max-width: 396px !important;
+  }
+    .col-lg-8{
+    width:82%;
+    max-width:1400px;
+  
+  }
+}
+
+@media(max-width: 1799px){
+.container {
+    width: 100%;
+  }
+
+
+
+}
+

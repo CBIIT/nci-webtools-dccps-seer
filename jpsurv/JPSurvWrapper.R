@@ -215,7 +215,20 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,use_default=TRU
     exp_int=names(seerdata)[jpsurvData$additional$exp_int]
     interval=names(seerdata)[as.integer(jpsurvData$additional$interval)]
     observed=names(seerdata)[jpsurvData$additional$observed]
+    
+
+   statistic=jpsurvData$additional$statistic
+  if (statistic=="Relative Survival")
+  {
     headers=list("Died"=died,"Alive_at_Start"=alive_at_start,"Lost_to_followup"=lost_to_followup,"Expected_Survival_Interval"=exp_int,"Interval"=interval,"Relative_Survival_Cum"=observed)
+  } 
+  
+  if(statistic=="Cause-Specific Survival")
+  {
+        headers=list("Died"=died,"Alive_at_Start"=alive_at_start,"Lost_to_followup"=lost_to_followup,"Expected_Survival_Interval"=exp_int,"Interval"=interval,"CauseSpecific_Survival_Cum"=observed)
+  }
+
+
 
   }
    else 
@@ -293,6 +306,8 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,use_default=TRU
   print(use_default)
   print(yod)
 
+  print("statistic")
+  print(statistic)
   jsonl =list("IntData"=IntGraph,"YearData"=YearGraph,"Coefficients"=Coefficients,"ModelSelection" = ModelSelection, "JP"=JP,"SelectedModel"=SelectedModel,"Full_Data_Set"=Full_data,"Runs"=runs,"input_type"=input_type,"headers"=headers,"statistic"=statistic,"com"=com,"jpInd"=jpInd,"imageId"=imageId,"yod"=yod,"intervals"=intervals) #returns
   exportJson <- toJSON(jsonl)
   filename = paste(filePath, paste("results-", jpsurvData$tokenId,"-",com,"-",jpInd, ".json", sep=""), sep="/") #CSV file to download

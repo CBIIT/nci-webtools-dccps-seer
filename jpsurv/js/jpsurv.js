@@ -2356,6 +2356,9 @@ $('#Adv_input').click(function() {
       Read_csv_file()
   else{
     $('#modal').modal('show')
+    var type=$('#data_type').val()
+    $('option[id="observed"]').text(type)
+
  // createModal(content);
 }
 })
@@ -2419,11 +2422,11 @@ var selector= '<select id="column_values" class="jpsurv-label-content" name="dat
                       +'<option>Cohort</option>'    
                       +'<option>Year</option>'
                       +'<option>Interval</option>'
-                      +'<option>number.event</option>'
-                      +'<option>number.alive</option>'
-                      +'<option>number.loss</option>'
-                      +'<option>expected.rate</option>'
-                      +'<option>observedrelsurv</option>'
+                      +'<option>Number.Dead</option>'
+                      +'<option>Number.Alive</option>'
+                      +'<option>Number.Lost</option>'
+                      +'<option>Expected.Survival</option>'
+                      +'<option id="observed">observedrelsurv</option>'
 
               +'</select>';
 
@@ -2473,32 +2476,34 @@ Read_csv_file()
       
       else if (jpsurvData.mapping.died==i+1)
       {
-        $('#type_'+i+' select').val("number.event")
+        $('#type_'+i+' select').val("Number.Dead")
       }
       
       else if ( jpsurvData.mapping.alive_at_start==i+1)
       {
-        $('#type_'+i+' select').val("number.alive")
+        $('#type_'+i+' select').val("Number.Alive")
       }
       
       else if (jpsurvData.mapping.lost_to_followup==i+1)
       {
-        $('#type_'+i+' select').val("number.loss")
+        $('#type_'+i+' select').val("Number.Lost")
       }
       
       else if (jpsurvData.mapping.exp_int==i+1)
       {
-        $('#type_'+i+' select').val("expected.rate")
+        $('#type_'+i+' select').val("Expected.Survival")
       }
       
       else if (jpsurvData.mapping.observed==i+1)
       {
-        $('#type_'+i+' select').val("observedrelsurv")
+        var type=$('#data_type').val()
+        $('#type_'+i+' select').val(type)
       }
 
     }  
     
   }
+  
   $('#modal').modal('show')
 
 
@@ -2508,6 +2513,7 @@ function save_params() {
     var params = ['year','interval','died','alive_at_start','lost_to_followup','exp_int','observed'];
     jpsurvData.mapping.cohorts=[]
     length=$( "#data_table th" ).length
+    var type=$('#data_type').val()
    for (var i = 0; i < length; i ++) {
       value=$('#type_'+i+' select').val()
       if(value=="Cohort"){
@@ -2523,27 +2529,27 @@ function save_params() {
         jpsurvData.mapping.interval=i+1
       }
       
-      else if (value=="number.event")
+      else if (value=="Number.Dead")
       {
         jpsurvData.mapping.died=i+1
       }
       
-      else if (value=="number.alive")
+      else if (value=="Number.Alive")
       {
         jpsurvData.mapping.alive_at_start=i+1
       }
       
-      else if (value=="number.loss")
+      else if (value=="Number.Lost")
       {
         jpsurvData.mapping.lost_to_followup=i+1
       }
       
-      else if (value=="expected.rate")
+      else if (value=="Expected.Survival")
       {
         jpsurvData.mapping.exp_int=i+1
       }
       
-      else if (value=="observedrelsurv")
+      else if (value==type)
       {
         jpsurvData.mapping.observed=i+1
       }
@@ -2645,8 +2651,11 @@ if(first_modal==true){
     selectHeader.html(selector)
     selector_row.append(selectHeader)
   }
+
   header.prepend(headerRow)
   header.prepend(selector_row)
+  var type=$('#data_type').val()
+  $('option[id="observed"]').text(type)
 
   first_modal=false
 }
