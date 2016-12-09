@@ -629,7 +629,7 @@ h4 span {
 }
 }
 
-@media(min-width: 1200px){
+@media(min-width: 1800px){
 .container {
     width: 1800px;
   }
@@ -641,13 +641,23 @@ h4 span {
     max-width:1400px;
   
   }
+
+}
+
+@media(max-width: 1196px) and (min-width: 1200px){
+.container {
+    width: 100%;
+  }
+
+.col-lg-4{
+    max-width: 396px !important;
+    min-width: 396px !important;
+
+  }
 }
 
 @media(max-width: 1199px){
 .container {
     width: 100%;
   }
-
-
-}
 
