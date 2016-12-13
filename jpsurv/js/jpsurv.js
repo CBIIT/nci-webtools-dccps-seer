@@ -24,7 +24,9 @@ $(document).ready(function() {
   addEventListeners();
   addMessages();
   addInputSection();
-    loadHelp();
+  loadHelp();
+
+
 
   if(DEBUG) {
     console.warn("%cDEBUG is on", "color:white; background-color:red");
@@ -385,6 +387,8 @@ function preLoadValues() {
   stage2("no calculate"); // This is the initial calculation and setup.
   retrieveResults();
 
+
+
 }
 //populates the chort dropdown window based on the form selection
 function updateCohortDropdown(){
@@ -703,7 +707,7 @@ function updateGraphs(token_id) {
     $("#graph-year-table > thead").empty();
     row = "<tr>";
     $.each(header, function( index, value ) {
-      row += "<th>"+value.replace(/_/g, " ")+"</th>";
+      row += '<th scope="col">'+value.replace(/_/g, " ")+'</th>';
     });
     row += "</tr>/n";
     $("#graph-year-table > thead").append(row);
@@ -782,7 +786,7 @@ function updateGraphs(token_id) {
     $("#graph-time-table > thead").empty();
     row = "<tr>";
     $.each(header, function( index, value ) {
-      row += "<th>"+value.replace(/_/g, " ")+"</th>";
+      row += '<th scope="col">'+value.replace(/_/g, " ")+'</th>';
     });
     row += "</tr>/n";
     $("#graph-time-table > thead").append(row);
@@ -945,6 +949,7 @@ function calculateFittedResultsCallback() {
   console.log("calculateFittedResultsCallback..");
   //console.dir(comm_results);
   $("#right_panel").show();
+  $("#right_panel").css('display', 'inline-block');
   $("#help").hide();
   $("#icon").css('visibility', 'visible');
 
@@ -2091,28 +2096,38 @@ function Slide_menu_Horz(action) {
         marginLeft: '1%',
     }, 300);
 
-      $("#slideout").animate({
+      $("#slideoutForm").animate({
         transform: 'translate(-400px, 0px)',
     }, 300);
 
       setTimeout(function(){
         $("#right_panel").animate({
-        width: '100%'
       }, 300);
     }, 600);
+    
+    $("#right_panel").removeClass("col-lg-8");
+    $("#right_panel").removeClass("col-md-8");
+
+    $("#right_panel").addClass("col-lg-12");
+    $("#right_panel").addClass("col-md-12");
+
     }
     else if($("#icon").hasClass("fa fa-caret-right fa-2x")||action=='show')
     {
        $('#icon').removeClass("fa fa-caret-right fa-2x");
        $('#icon').addClass("fa fa-caret-left fa-2x");
        $("#slideoutForm").fadeIn(500);
+       $("#right_panel").removeClass("col-lg-12");
+       $("#right_panel").removeClass("col-md-12");
+
+       $("#right_panel").addClass("col-lg-8");
+       $("#right_panel").addClass("col-md-8");
+       left_panel_width=$("#slideoutTab").width();
+
        $("#icon").animate({
-        marginLeft: '31%'
+        marginLeft: "100%"
     }, 20);
 
-       $("#right_panel").animate({
-        width: '66.66%'
-      }, 10);
   }
 }
 
@@ -2643,8 +2658,8 @@ if(first_modal==true){
 
   for (var i = 0; i < headers.length; i ++) {
     var title = headers[i].title
-    var selectHeader = $('<th id="type_'+i+'" style="border-left:1px solid white;border-right:1px solid white;padding:8px 3px 8px 3px"/>')
-    var text_box_headers = $('<th style="padding:0 0 0 0" id="textboxes">&#8204<input type="text" id="header_'+i+'" style="width:100%;text-align:center;border:none;border: 1px solid #ddd;font-weight:bold" value="'+title+'" aria-label="textbox"/></th>')
+    var selectHeader = $('<th  scope="col" id="type_'+i+'" style="border-left:1px solid white;border-right:1px solid white;padding:8px 3px 8px 3px"/>')
+    var text_box_headers = $('<th scope="col" style="padding:0 0 0 0" id="textboxes">&#8204<input type="text" id="header_'+i+'" style="width:100%;text-align:center;border:none;border: 1px solid #ddd;font-weight:bold" value="'+title+'" aria-label="textbox"/></th>')
 
     headerRow.append(text_box_headers)
 
