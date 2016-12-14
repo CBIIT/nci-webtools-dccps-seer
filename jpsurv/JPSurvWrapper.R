@@ -1,5 +1,6 @@
 library('rjson')
 library('JPSurv')
+library("ggplot2");
 
 VERBOSE=TRUE
 
@@ -143,7 +144,6 @@ getFittedResultWrapper <- function (filePath, jpsurvDataString) {
     
     outputFileName =paste(filePath, fileName, sep="/" )
     print (outputFileName)
-    ptm <- proc.time()
     cat('combination',i,com_matrix[i,],"\n")
     # cohortValues=toJSON(com_matrix[i,])
     cohortValues=com_matrix[i,]
@@ -151,7 +151,6 @@ getFittedResultWrapper <- function (filePath, jpsurvDataString) {
     
     print("Fitted Result Time:")
     
-    print(proc.time() -ptm)
     Selected_Model=getSelectedModel(filePath,jpsurvDataString,i)
     print("SELECTED MODEL GET")
     print(Selected_Model)
@@ -164,7 +163,6 @@ getFittedResultWrapper <- function (filePath, jpsurvDataString) {
 
   write(exportJson, filename)
 
-  ptm <- proc.time()
   getAllData(filePath,jpsurvDataString,TRUE)
   print("Calculation time") 
   print("return from getAllData")
@@ -237,13 +235,13 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,use_default=TRU
       interval="Interval"
       input_type="dic"
   }
-    ptm <- proc.time()
+
+    print("CREATING Year GRAPH")
+    YearGraph=getRelativeSurvivalByYearWrapper(filePath,jpsurvDataString,first_calc,com,interval,observed,use_default)
+
     print("creating IntGraph");
-    print(observed)
-    print(interval)
     IntGraph=getRelativeSurvivalByIntWrapper(filePath,jpsurvDataString,first_calc,com,interval,observed,use_default)
     print("Int Graph Time:")
-    print(proc.time() -ptm)
   
   
   ModelSelection=geALLtModelWrapper(filePath,jpsurvDataString,com)
@@ -252,10 +250,7 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,use_default=TRU
   print (jpsurvData$additional$headerJoinPoints)
   
 
-  ptm <- proc.time()
-  YearGraph=getRelativeSurvivalByYearWrapper(filePath,jpsurvDataString,first_calc,com,interval,observed,use_default)
-  print("Year Graph Time:")
-  print(proc.time() -ptm)
+
   
   JP=getJPWrapper(filePath,jpsurvDataString,first_calc,com)
   print("Completed getting JP")
@@ -319,14 +314,12 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,use_default=TRU
 }
 getTrendsData<-function(filePath,jpsurvDataString,com)
 {
-  ptm <- proc.time()
   jpsurvData <<- fromJSON(jpsurvDataString)
   com=as.integer(jpsurvData$run)
   print ("In trends combination:")
   print(com)
   Trends=getTrendWrapper(filePath,jpsurvDataString,com)
   print("Trends Time:")
-  print(proc.time() -ptm)
   jsonl =c(Trends) #returns
   exportJson <- toJSON(jsonl)
   print("Creating  trends results file")
@@ -466,14 +459,17 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_ca
   
   jpsurvData <<- fromJSON(jpsurvDataString)
   statistic=jpsurvData$additional$statistic
+  type=""
   if (statistic=="Relative Survival")
   {
     statistic="R"
+    type="Relative"
   } 
   
   if(statistic=="Cause-Specific Survival")
   {
     statistic="CS"
+    type="Cause-Specific"
   }
   
   jpInd=jpsurvData$additional$headerJoinPoints
@@ -516,11 +512,30 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_ca
   #take the nth from FitList
   iteration=jpsurvData$plot$static$imageId
   fit.result=outputData$FitList[jpInd+1]
-  png(filename = paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",com,"-",jpInd,"-",iteration,".png", sep=""), sep="/"))
   graphFile= paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",com,"-",jpInd,"-",iteration,".png", sep=""), sep="/")
   downloadFile = paste(filePath, paste("data_Year-", jpsurvData$tokenId, "-",com,"-",jpInd,"-",iteration, ".csv", sep=""), sep="/") #CSV file to download
-  survData=plot.surv.year(outputData$fittedResult$FitList[[jpInd+1]],int.col=intervals, covar.cont.col=c(NA), covar.col=c(NA),yearvar=yearOfDiagnosisVarName,interval=interval_var,survvar=observed,survType=statistic,titlestring="Survival vs Year of Diagnosis")
-  dev.off()
+  yearOfDiagnosisVarName=getCorrectFormat(yearOfDiagnosisVarName)
+  
+  survData=data.plot.surv.year(outputData$fittedResult$FitList[[jpInd+1]],
+    int.col=intervals, 
+    interval=interval_var)
+
+  maxyear <- max(survData[[yearOfDiagnosisVarName]])
+
+  #JP Trendgraph
+  #png(filename = paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",com,"-",jpInd,"-",iteration,".png", sep=""), sep="/"))
+  ggplot(survData, aes(x=survData[[yearOfDiagnosisVarName]], group=survData[[interval_var]], colour=factor(survData[[interval_var]]))) + 
+    geom_line(aes(y=pred_cum)) + 
+    geom_point(aes(y=survData[[observed]])) +
+    labs(title="Survival vs Year of Diagnosis",
+         x="Year of Diagnosis",
+         y=paste("Cumulative",type,"Survival", sep=" ")) +
+    scale_x_continuous(breaks=seq(0,maxyear,5)) +
+    scale_y_continuous(breaks=seq(0,1,0.1)) +
+    labs(colour=interval_var)+
+    theme(plot.title = element_text(hjust = 0.5))
+  
+  ggsave(file=paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",com,"-",jpInd,"-",iteration,".png", sep=""), sep="/"))
   results =list("RelSurYearGraph"=graphFile,"RelSurvYearData"=survData) #returns 
   cohorts=jpsurvData$calculate$form$cohortVars
   cols=ncol(survData)
@@ -547,21 +562,22 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_ca
    
 }
 #Graphs the Survival vs Time graph and saves a
-getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString,first_calc,com,interval,survar,use_default_year=TRUE) {
+getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString,first_calc,com,interval_var,survar_var,use_default_year=TRUE) {
   print(first_calc)
   jpsurvData <<- fromJSON(jpsurvDataString)
   # jpind=jpsurvData$calculate$form$jpInd #<-----new
   statistic=jpsurvData$additional$statistic
-  
+  type=""
   if (statistic=="Relative Survival")
   {
     statistic="R"
-    survar
+    type="Relative"
   } 
   
   if(statistic=="Cause-Specific Survival")
   {
     statistic="CS"
+    type="Cause-Specific"
   }
   
   jpInd=jpsurvData$additional$headerJoinPoints
@@ -578,19 +594,41 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString,first_cal
     yearOfDiagnosis=jpsurvData$additional$yearOfDiagnosis_default
   }
   iteration=jpsurvData$plot$static$imageId
-  png(filename = paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",com,"-",jpInd,"-",iteration,".png", sep=""), sep="/"))
   graphFile= paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",com,"-",jpInd,"-",iteration,".png", sep=""), sep="/")
   downloadFile = paste(filePath, paste("data_Int-", jpsurvData$tokenId,"-",com,"-",jpInd, "-",iteration, ".csv", sep=""), sep="/") #CSV file to download
   yearOfDiagnosisVarName=getCorrectFormat(yearOfDiagnosisVarName)
   
-  type=jpsurvData$additional$input_type
 
-    survData=plot.surv.int(outputData$fittedResult$FitList[[jpInd+1]], yearOfDiagnosisVarName, yearOfDiagnosis,interval, survar, statistic);
+
+    survData=data.plot.surv.int(outputData$fittedResult$FitList[[jpInd+1]], 
+      yearvar=yearOfDiagnosisVarName, 
+      year=yearOfDiagnosis,
+      interval=interval_var, 
+      survvar=survar_var);
+
+    print(survData)
   
- 
-  #survData=plot.relsurv.int(outputData$fittedResult$FitList[[jpInd+1]], "Year_of_diagnosis_7507_individual", 1975);
-  print (yearOfDiagnosisVarName)
-  dev.off()
+    maxint <- max(survData[[interval_var]])
+#From package, interval graph
+#  png(filename = paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",com,"-",jpInd,"-",iteration,".png", sep=""), sep="/"))
+  ggplot(survData, aes(x=survData[[interval_var]])) + 
+      geom_line(aes(y=pred_cum, colour="pred_cum")) + 
+      geom_point(aes(y=survData[[survar_var]], colour=survar_var)) +
+      labs(title=paste("Cumulative",type,"Survival by Interval for", yearOfDiagnosis, sep=" "),
+           x=interval_var,
+           y=paste("Cumulative",type,"Survival", sep=" ")) +
+      scale_x_continuous(breaks=seq(0,maxint,1)) +
+      coord_cartesian(ylim=c(0,1)) +
+      scale_y_continuous(breaks=seq(0,1,0.1)) +
+      scale_colour_discrete(breaks=c("pred_cum", survar_var),
+                            labels=c(paste("Predicted Cumulative",type,"Survival", sep=" "), paste("Observed Cumulative",type,"Survival", sep=" "))) +
+      theme(legend.position="bottom", 
+            legend.title=element_blank(),
+            plot.title = element_text(hjust = 0.5))
+  
+  print("end of ggplot")
+  ggsave(file=paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",com,"-",jpInd,"-",iteration,".png", sep=""), sep="/"))
+  print("saved int graph")
   results =c("RelSurIntData"=survData,"RelSurIntGraph"=graphFile) #returns 
   cohorts=jpsurvData$calculate$form$cohortVars
   # 

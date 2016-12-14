@@ -676,12 +676,14 @@ function updateGraphs(token_id) {
 
   //Populate graph-year
   $("#graph-year-tab").find( "img" ).show();
+  $("#graph-year-tab").find( "img" ).css("width","50%");
   $("#graph-year-tab").find( "img" ).attr("src", "tmp/plot_Year-"+token_id+"-"+jpsurvData.results.com+"-"+jpsurvData.results.jpInd+"-"+jpsurvData.results.imageId+".png");
   $("#graph-year-table > tbody").empty();
   $("#graph-year-table > tbody").append('<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>');
 
   //Populate time-year
   $("#graph-time-tab").find( "img" ).show();
+  $("#graph-time-tab").find( "img" ).css("width","50%");
   $("#graph-time-tab").find( "img" ).attr("src", "tmp/plot_Int-"+token_id+"-"+jpsurvData.results.com+"-"+jpsurvData.results.jpInd+"-"+jpsurvData.results.imageId+".png");
 
 
