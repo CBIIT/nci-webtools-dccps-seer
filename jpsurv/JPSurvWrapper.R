@@ -555,7 +555,6 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_ca
     names(survData)
   }  
 
-  print(survData)
   write.csv(survData, downloadFile, row.names=FALSE)
   return (results)
   
@@ -606,14 +605,13 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString,first_cal
       interval=interval_var, 
       survvar=survar_var);
 
-    print(survData)
   
-    maxint <- max(survData[[interval_var]])
+    maxint <- max(survData[[1]][[interval_var]])
 #From package, interval graph
 #  png(filename = paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",com,"-",jpInd,"-",iteration,".png", sep=""), sep="/"))
-  ggplot(survData, aes(x=survData[[interval_var]])) + 
+  ggplot(survData[[1]], aes(x=survData[[1]][[interval_var]])) + 
       geom_line(aes(y=pred_cum, colour="pred_cum")) + 
-      geom_point(aes(y=survData[[survar_var]], colour=survar_var)) +
+      geom_point(aes(y=survData[[1]][[survar_var]], colour=survar_var)) +
       labs(title=paste("Cumulative",type,"Survival by Interval for", yearOfDiagnosis, sep=" "),
            x=interval_var,
            y=paste("Cumulative",type,"Survival", sep=" ")) +
