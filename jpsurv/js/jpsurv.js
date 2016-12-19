@@ -195,6 +195,7 @@ function addEventListeners() {
   });
 
 
+
 }
 
 function userChangePrecision() {
@@ -2420,9 +2421,15 @@ var template_string='<div class="modal fade" id="modal" tabindex="-1" role="dial
             +'<div style="width:25%; display:inline-block"><input type="radio" id="space" name="del" value=" " aria-label="sapce"/>Space</div>'
         +'</div>'
       +'</fieldset></br>'
-      +'<label for="has_headers" id="csv_label_headers">Does the file contain headers?  </label>'
+      +'<label for="has_headers" id="csv_label_headers" style="margin-bottom:1%">Does the file contain headers?  </label>'
+
       +'<input type="checkbox" name="has_headers" id="has_headers" value="yes" checked></br>'
-       +'Displaying <select id="lines_displayed" class="jpsurv-label-content" name="lines_displayed" aria-label="display lines">'
+      +'<label for="data_type" id="csv_label_data">Data Type:  </label>'
+               +'<select id="data_type" class="jpsurv-label-content" name="data_type" aria-label="data_type" style="margin-bottom:1%">'
+                +'<option>Relative Survival</option>'    
+                +'<option>Cause-Specific Survival</option>'
+               +'</select></br>'
+      +'Displaying <select id="lines_displayed" class="jpsurv-label-content" name="lines_displayed" aria-label="display lines">'
                       +'<option>20</option>'
                       +'<option>30</option>'
                       +'<option>40</option>'
@@ -2453,6 +2460,11 @@ function createModal() {
   $('body').append($(template_string));
   $('#modalTitle').html(header);
   //$('#data_table').html(table_data);
+  $("#data_type").change(function(){
+
+    var type=$('#data_type').val()
+    $('option[id="observed"]').text(type)
+  });
 
 
   $('#modal').modal({backdrop: 'static', keyboard: false}) 
