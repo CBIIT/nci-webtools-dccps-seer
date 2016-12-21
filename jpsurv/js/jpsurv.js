@@ -2460,7 +2460,7 @@ var selector= '<select id="column_values" class="jpsurv-label-content" name="dat
 
 
 function createModal() {
-  var header = "CSV File Form - Advance Settings";
+  var header = "CSV Configuration";
   $('body').append($(template_string));
   $('#modalTitle').html(header);
   //$('#data_table').html(table_data);

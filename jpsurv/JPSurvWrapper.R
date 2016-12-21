@@ -527,7 +527,7 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_ca
   ggplot(survData, aes(x=survData[[yearOfDiagnosisVarName]], group=survData[[interval_var]], colour=factor(survData[[interval_var]]))) + 
     geom_line(aes(y=pred_cum)) + 
     geom_point(aes(y=survData[[observed]])) +
-    labs(title="Survival vs Year of Diagnosis",
+    labs(title="Survival by Year of Diagnosis",
          x="Year of Diagnosis",
          y=paste("Cumulative",type,"Survival", sep=" ")) +
     scale_x_continuous(breaks=seq(0,maxyear,5)) +
