@@ -2106,13 +2106,17 @@ function Slide_menu_Horz(action) {
       setTimeout(function(){
         $("#right_panel").animate({
       }, 300);
-    }, 600);
-    
+
     $("#right_panel").removeClass("col-lg-8");
     $("#right_panel").removeClass("col-md-8");
 
+    
+
     $("#right_panel").addClass("col-lg-12");
     $("#right_panel").addClass("col-md-12");
+    }, 300);
+    
+
 
     }
     else if($("#icon").hasClass("fa fa-caret-right fa-2x")||action=='show')
