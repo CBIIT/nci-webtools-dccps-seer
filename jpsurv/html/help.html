@@ -33,11 +33,7 @@
 
     <tr>
       <td>
-        <p>Joinpoint models characterize trends over calendar time.
-        The joinpoint model consists of linear segments connected
-        through join points. The number and location of join points
-        are estimated from data, and represent the times at which
-        trends changed.</p>
+        <p>Joinpoint models characterize trends over calendar time. The joinpoint model consists of linear segments connected through joinpoints. The number and location of joinpoints are estimated from data and represent the times at which trends changed.</p>
       </td>
     </tr>
 
@@ -59,8 +55,8 @@
       <td>
         <a name="Input" id="Input"></a>
 
-        <h3><b>Input  Data File</b><a href="#top"><font size=
-        "2">&nbsp;[Top]</font></a></h3>
+        <h2><b>Input Data File - From SEER*Stat</b><a href="#top"><font size=
+        "2">&nbsp;[Top]</font></a></h2>
 
 
         <ul>
@@ -77,6 +73,22 @@
         </ul>
 
 
+
+      </td>
+    </tr>
+
+        <tr>
+      <td>
+        <a name="Input" id="Input"></a>
+
+        <h2><b>Input Data File – From Delimited Text File</b><a href="#top"><font size=
+        "2">&nbsp;[Top]</font></a></h2>
+
+
+        <ul>
+          <p>JPSurv can also read data from delimited text files using common delimiters (comma, semicolon, or tab). The user will need to have prior knowledge of the data stored in each column in order to correctly use the package. 
+          The data requires at a minimum the following variables: calendar year of diagnosis, survival time interval, number at risk at beginning of interval, number of deaths, and number of cases lost to follow-up, and interval expected survival in the case of relative survival. The data may also include other covariates of interest such as cancer site, sex, stage, etc.
+          </p>
 
       </td>
     </tr>
@@ -116,7 +128,7 @@
           <p><b>Model Selection:</b>  Criteria for assessing goodness of fit for each joinpoint model considered. JPSurv uses the minimum Bayesian Information Criterion (BIC) to select a K-joinpoint model where K is between 0 and the maximum number of joinpoints. The Akaike Information Criterion (AIC) is also provided and tends to pick models with a higher number of joinpoints.</p>
           <p><b>Survival Graph/Data:</b>Displays, for each Joinpoint model fit, the predicted and observed cumulative survival by the following.</p>
           <ol>
-            <li><b>Year of Diagnosis:</b>  The user can select 1 or more values of interval time since diagnosis, e.g. 5-year or 10-year cumulative survival. The default is 5-year cumulative survival.
+            <li><b>Year of Diagnosis:</b>  The user can select 1 or more values of <i>interval time since diagnosis</i>, e.g. 5-year or 10-year cumulative survival. The default is 5-year cumulative survival.
             </li>
             <li>
               <b>Interval Time since Diagnosis:</b>  The user can select one calendar year, e.g. 2000, and show modeled vs. observed survival by years since diagnosis. 
