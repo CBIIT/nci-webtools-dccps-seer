@@ -399,7 +399,7 @@ getFittedResult <- function (session_tokenId,filePath, seerFilePrefix, yearOfDia
     fittedResult = joinpoint(seerdata, 
                                subset = eval(parse(text=subsetStr)),
                                year=getCorrectFormat(yearOfDiagnosisVarName),
-                               interval=interval,                             .
+                               interval=interval,                             
                                number.event=died,
                                number.alive=alive_at_start,
                                number.loss=lost_to_followup,
