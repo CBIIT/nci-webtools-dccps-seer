@@ -269,7 +269,6 @@ def stage3_recalculate():
     
     print(BOLD+"**** jpsurvDataString ****"+ENDC)
     print(OKBLUE+"The jpsurv STRING::::::"+ENDC)
-   # print(jpsurvDataString)
     jpsurvData = json.loads(jpsurvDataString)
     cohort_com=str(jpsurvData["run"])
     print(cohort_com)
@@ -307,9 +306,7 @@ def stage3_recalculate():
     
     fname='tmp/results-'+jpsurvData["tokenId"]+"-"+cohort_com+"-"+jpInd+'.json'
     print(fname)
-    #for key, value in jpsurvData.iteritems():
-    #    print("var: %s = %s" % (key, value))
-    #    print("var: %s = %s" % (key, value))
+
     
     #Init the R Source
     print(os.path.isfile(fname))
