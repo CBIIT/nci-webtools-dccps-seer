@@ -306,6 +306,16 @@ function addInputSection() {
     $("#help").show();
 
   }
+  else if (status=="failed_calculation")
+  {
+    message = "An unexpected error occured. Please ensure the input file(s) is in the correct format and/or correct parameters were chosen. <br>";;
+    message_type = 'error';
+    id="jpsurv"
+    showMessage(id, message, message_type);
+    $("#right_panel").hide();
+    $("#help").show();
+
+  }
   if(getUrlParameter('request') == "true" && checkInputFile()) {
     preLoadValues();
   }
@@ -350,7 +360,7 @@ function preLoadValues() {
           $.each( inputData.calculate.form.AllcohortValues, function( key, value ) {
             //loops through each possible cohort on the form, if the cohort is in the json it gets checked
             for(var i=0;i<value.length;i++){
-                if(value[i].substr(1,value[i].length-2) == $(element2).val()) {
+                if(value[i].substr(1,value[i].length-2) == $(element2).val()&&element2.className.indexOf(key) > -1) {
               $(element2).prop('checked', true);
               } 
   
