@@ -1141,6 +1141,7 @@ function calculate(run) {
         jpsurvData.queue.url = encodeURIComponent(window.location.href.toString());
         jpsurvData.additional.yearOfDiagnosis = jpsurvData.calculate.form.yearOfDiagnosisRange[0].toString();
         jpsurvData.additional.yearOfDiagnosis_default = parseInt($("#year_of_diagnosis_start").val());
+        jpsurvData.additional.del=control_data.del
         var params = getParams();
         $("#right_panel").hide();
         $("#help").show();
