@@ -17,6 +17,7 @@ from stompest.async.listener import SubscriptionListener
 from stompest.async.listener import DisconnectListener
 from stompest.config import StompConfig
 from stompest.protocol import StompSpec
+from rpy2.robjects import r
 
 class RequestProcessor(DisconnectListener):
   CONFIG = 'queue.config'
@@ -82,6 +83,7 @@ class RequestProcessor(DisconnectListener):
       r.getFittedResultWrapper(parameters['filepath'], jpsurvDataString)
       print "Calculating"
       print "making message"
+      url=urllib.unquote(data['queue']['url'])
     except:
       url=urllib.unquote(data['queue']['url'])
       print(url)
