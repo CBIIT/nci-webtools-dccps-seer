@@ -77,17 +77,17 @@ class RequestProcessor(DisconnectListener):
 
     data=json.loads(jpsurvDataString)
     print data
-    rSource = robjects.r['source']('JPSurvWrapper.R')
-    robjects.r['getFittedResultWrapper'](parameters['filepath'], jpsurvDataString)
-    print "Calculating"
-    print "making message"
+    try:
+      r.source('./JPSurvWrapper.R')
+      r.getFittedResultWrapper(parameters['filepath'], jpsurvDataString)
+      print "Calculating"
+      print "making message"
+    except:
+      url=urllib.unquote(data['queue']['url'])
+      print(url)
+      url=url+"&calculation=failed"
 
-#    rSource('./JPSurvWrapper.R')
-#    getFittedResultWrapper = robjects.globalenv['getFittedResultWrapper']
-   # print parameters['data']
-    #http://analysistools-dev.nci.nih.gov/jpsurv/?file_control_filename=Breast_RelativeSurvival.dic&file_data_filename=Breast_RelativeSurvival.txt&output_filename=form-766756.json&status=uploaded&tokenId=766756
-    #print data(['queue']['url'])
-    Link='<a href='+urllib.unquote(data['queue']['url'])+'> Here </a>' 
+    Link='<a href='+url+'> Here </a>' 
     print parameters['timestamp']
     print "Here is the Link to the past:"
     print Link
@@ -98,7 +98,7 @@ class RequestProcessor(DisconnectListener):
             <p>Here are the results you requested on """+parameters['timestamp']+""" from the """+product_name+""".</p>
             <p>
             <div style="margin:20px auto 40px auto;width:200px;text-align:center;font-size:14px;font-weight:bold;padding:10px;line-height:25px">
-              <div style="font-size:24px;"><a href='"""+urllib.unquote(data['queue']['url'])+"""'>View Results</a></div>
+              <div style="font-size:24px;"><a href='"""+url+"""'>View Results</a></div>
             </div>
             </p>
             <p>The results will be available online for the next 14 days.</p>

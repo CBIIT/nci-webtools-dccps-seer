@@ -21,9 +21,9 @@ if(getUrlParameter('status')) {
 }
 
 $(document).ready(function() {
+  addInputSection();
   addEventListeners();
   addMessages();
-  addInputSection();
   loadHelp();
 
 
@@ -210,8 +210,17 @@ function addInputSection() {
 
   var status = getUrlParameter('status');
   if(status == "uploaded") {
+    message = "An unexpected error occured. Please ensure the input file(s) is in the correct format and/or correct parameters were chosen. <br>";;
+    message_type = 'error';
+    id="jpsurv"
+    showMessage(id, message, message_type);
+    $("#right_panel").hide();
+    $("#help").show();
     setUploadData();
+
     control_data = load_ajax(jpsurvData.file.form);
+
+
     if( control_data.input_type==undefined){
       jpsurvData.additional.input_type="dic"
       $('#csv_container').remove();
@@ -246,6 +255,7 @@ function addInputSection() {
         )
       );
       $( "#input_type_select" ).remove();
+      
     }
     else if( control_data.input_type=="csv"){
       jpsurvData.additional.input_type="csv"
@@ -275,8 +285,8 @@ function addInputSection() {
       $("#Adv_input").remove();
     }
 
-
     load_form();
+
 
 
     $('#data_type_container')
@@ -295,6 +305,11 @@ function addInputSection() {
       );
 
     $('#upload_file_submit_container').remove();
+
+  
+    
+
+  
   }
   else if (status=="failed_upload")
   {
@@ -306,17 +321,8 @@ function addInputSection() {
     $("#help").show();
 
   }
-  else if (status=="failed_calculation")
-  {
-    message = "An unexpected error occured. Please ensure the input file(s) is in the correct format and/or correct parameters were chosen. <br>";;
-    message_type = 'error';
-    id="jpsurv"
-    showMessage(id, message, message_type);
-    $("#right_panel").hide();
-    $("#help").show();
-
-  }
-  if(getUrlParameter('request') == "true" && checkInputFile()) {
+  calc_status=getUrlParameter('calculation')
+  if(getUrlParameter('request') == "true" && checkInputFile()&&calc_status!="failed") {
     preLoadValues();
   }
 }
@@ -391,8 +397,18 @@ function preLoadValues() {
   getIntervals();
   stage2("no calculate"); // This is the initial calculation and setup.
   retrieveResults();
+  var status = getUrlParameter('status');
+console.log(status)  
 
+/*if (status=="failed_calculation")
+  {
+    
+    message = "An unexpected error occured. Please ensure the input file(s) is in the correct format and/or correct parameters were chosen. <br>";;
+    message_type = 'error';
+    id="jpsurv"
+    showMessage(id, message, message_type);
 
+  }*/
 
 }
 //populates the chort dropdown window based on the form selection
