@@ -324,6 +324,12 @@ function addInputSection() {
     showMessage(id, message, message_type);
     $("#right_panel").hide();
     $("#help").show();
+    var inputData = load_ajax("input_" + jpsurvData.tokenId + ".json");
+
+    console.warn("inputData");
+    console.dir(inputData);
+    load_input_form(inputData)
+
   }
   if(getUrlParameter('request') == "true" && checkInputFile()&&calc_status!="failed") {
     preLoadValues();
@@ -354,8 +360,23 @@ function preLoadValues() {
 
   console.warn("inputData");
   console.dir(inputData);
-
+  load_input_form(inputData)
   //Form section
+
+
+  //Set jpsurvData and update everything....
+  jpsurvData = inputData;
+  
+  setIntervalsDefault();
+  getIntervals();
+  stage2("no calculate"); // This is the initial calculation and setup.
+  retrieveResults();
+  var status = getUrlParameter('status');
+  console.log(status)  
+
+
+}
+function load_input_form(inputData){
   $("#year_of_diagnosis_start").val(inputData.calculate.form.yearOfDiagnosisRange[0]);
   $("#year_of_diagnosis_end").val(inputData.calculate.form.yearOfDiagnosisRange[1]);
 
@@ -392,27 +413,6 @@ function preLoadValues() {
   $("#adv-first").val(inputData.calculate.static.advanced.advFirst);
   $("#adv-last").val(inputData.calculate.static.advanced.advLast);
   $("#adv-year").val(inputData.calculate.static.advanced.advYear);
-
-  //Set jpsurvData and update everything....
-  jpsurvData = inputData;
-  
-  setIntervalsDefault();
-  getIntervals();
-  stage2("no calculate"); // This is the initial calculation and setup.
-  retrieveResults();
-  var status = getUrlParameter('status');
-console.log(status)  
-
-/*if (status=="failed_calculation")
-  {
-    
-    message = "An unexpected error occured. Please ensure the input file(s) is in the correct format and/or correct parameters were chosen. <br>";;
-    message_type = 'error';
-    id="jpsurv"
-    showMessage(id, message, message_type);
-
-  }*/
-
 }
 //populates the chort dropdown window based on the form selection
 function updateCohortDropdown(){
