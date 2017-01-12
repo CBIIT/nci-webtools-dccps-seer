@@ -1492,8 +1492,8 @@ function getNumberOfIntervals() {
   if(control_data.input_type==undefined)
     return parseInt(getSessionOptionInfo("NumberOfIntervals"));
   else if(control_data.input_type=="csv"){
-    year_col=control_data.year[1]
-    return control_data.year_col=control_data.data[year_col].length-1
+    interval_col=control_data.interval[1]
+    return control_data.interval_col=control_data.data[interval_col].length
   }
 }
 
