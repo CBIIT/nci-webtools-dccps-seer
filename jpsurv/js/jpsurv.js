@@ -210,12 +210,7 @@ function addInputSection() {
 
   var status = getUrlParameter('status');
   if(status == "uploaded") {
-    message = "An unexpected error occured. Please ensure the input file(s) is in the correct format and/or correct parameters were chosen. <br>";;
-    message_type = 'error';
-    id="jpsurv"
-    showMessage(id, message, message_type);
-    $("#right_panel").hide();
-    $("#help").show();
+    
     setUploadData();
 
     control_data = load_ajax(jpsurvData.file.form);
@@ -322,6 +317,14 @@ function addInputSection() {
 
   }
   calc_status=getUrlParameter('calculation')
+  if(calc_status=="failed"){
+    message = "An unexpected error occured. Please ensure the input file(s) is in the correct format and/or correct parameters were chosen. <br>";;
+    message_type = 'error';
+    id="jpsurv"
+    showMessage(id, message, message_type);
+    $("#right_panel").hide();
+    $("#help").show();
+  }
   if(getUrlParameter('request') == "true" && checkInputFile()&&calc_status!="failed") {
     preLoadValues();
   }
