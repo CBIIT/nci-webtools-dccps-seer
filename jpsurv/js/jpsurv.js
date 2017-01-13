@@ -1461,28 +1461,44 @@ jpsurvData.additional.intervals_default = [];
 
 
   var intervals = getNumberOfIntervals();
-  var selectedRange = jpsurvData.calculate.form.yearOfDiagnosisRange[1] - jpsurvData.calculate.form.yearOfDiagnosisRange[0];
-  intervals = (selectedRange < intervals ? selectedRange : intervals);
-  //console.log(intervals+" : "+selectedRange);
-  var years = [];
-  //Set the ranges based on interval length
-  if(intervals >= 10) {
-    years = [5, 10];
-    jpsurvData.additional.intervals_default=years
-  } else if (intervals >= 5) {
-    years = [5];
-    jpsurvData.additional.intervals_default=years
-  } else if (intervals < 5) {
-    years = [1];
-    jpsurvData.additional.intervals_default=years
-  } 
+    var selectedRange = jpsurvData.calculate.form.yearOfDiagnosisRange[1] - jpsurvData.calculate.form.yearOfDiagnosisRange[0];
+    $("#interval-years").empty();
+    if(control_data.input_type==undefined){
+    intervals = (selectedRange < intervals ? selectedRange : intervals);
+    //console.log(intervals+" : "+selectedRange);
+    var years = [];
+    //Set the ranges based on interval length
+    if(intervals >= 10) {
+      years = [5, 10];
+      jpsurvData.additional.intervals_default=years
+    } else if (intervals >= 5) {
+      years = [5];
+      jpsurvData.additional.intervals_default=years
+    } else if (intervals < 5) {
+      years = [1];
+      jpsurvData.additional.intervals_default=years
+    } 
 
-  $("#interval-years").empty();
-  for (var i = 1; i <= intervals; i++) {
-    if($.inArray(i, years) >= 0) {
-      $("#interval-years").append($("<option>").attr("selected", "selected").text(i));
-    } else {
-      $("#interval-years").append($("<option>").text(i));
+    for (var i = 1; i <= intervals; i++) {
+      if($.inArray(i, years) >= 0) {
+        $("#interval-years").append($("<option>").attr("selected", "selected").text(i));
+      } else {
+        $("#interval-years").append($("<option>").text(i));
+      }
+    }
+
+  }
+
+  else if(control_data.input_type=="csv"){
+      years = [intervals[0]];
+      jpsurvData.additional.intervals_default=years
+
+      for (var i = 0; i < intervals.length; i++) {
+      if($.inArray(intervals[i], years) >= 0) {
+        $("#interval-years").append($("<option>").attr("selected", "selected").text(intervals[i]));
+      } else {
+        $("#interval-years").append($("<option>").text(intervals[i]));
+      }
     }
   }
 
@@ -1492,8 +1508,8 @@ function getNumberOfIntervals() {
   if(control_data.input_type==undefined)
     return parseInt(getSessionOptionInfo("NumberOfIntervals"));
   else if(control_data.input_type=="csv"){
-    interval_col=control_data.interval[1]
-    return control_data.interval_col=control_data.data[interval_col].length
+    intervals=control_data.data[6]
+    return intervals
   }
 }
 
