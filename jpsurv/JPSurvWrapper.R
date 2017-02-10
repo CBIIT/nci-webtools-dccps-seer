@@ -758,8 +758,10 @@ getRunsString<-function(filePath,jpsurvDataString){
   
   for(i in 1:nrow(com_matrix)){
     row=paste(com_matrix[i,],collapse=" + ")
-    runs=paste(runs,gsub("\"","",row),sep=", ")
+    print(row)
+    runs=paste(runs,gsub("\"","",row),sep=" jpcom ")
+    print(runs)
   }
-  runs=substr(runs, 3, nchar(runs))
+  runs=substr(runs, 7, nchar(runs))
   return (runs)
 }

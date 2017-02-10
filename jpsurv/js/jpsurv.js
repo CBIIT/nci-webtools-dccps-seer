@@ -416,7 +416,7 @@ function load_input_form(inputData){
 }
 //populates the chort dropdown window based on the form selection
 function updateCohortDropdown(){
-    var cohort_array = jpsurvData.results.Runs.split(',');
+    var cohort_array = jpsurvData.results.Runs.split('jpcom');
   var display = document.getElementById("cohort-display");
    display.innerHTML = "";
   var length=cohort_array.length;
@@ -742,15 +742,15 @@ function updateGraphs(token_id) {
         row += "<td>"+value2.replace(/"/g, "")+"</td>";
       });*/
 
-        if(jpsurvData.results.Runs.split(',')!=undefined){
-        var cohort_array = jpsurvData.results.Runs.split(',');
+        if(jpsurvData.results.Runs.split('jpcom')!=undefined){
+        var cohort_array = jpsurvData.results.Runs.split('jpcom');
         var values= cohort_array[jpsurvData.results.com-1].split(" + "); 
         $.each(values, function(index2, value2) {
           row += "<td>"+value2.replace(/"/g, "")+"</td>";
           });
       }
       else{
-        var cohort_array = jpsurvData.results.Runs.split(',');
+        var cohort_array = jpsurvData.results.Runs.split('jpcom');
         var values= cohort_array.split(" + ");
         $.each(values, function(index2, value2) {
         row += "<td>"+value2.replace(/"/g, "")+"</td>";
@@ -818,15 +818,15 @@ function updateGraphs(token_id) {
     $.each(yod, function( index, value ) {
       row = "<tr>";
   
-      if(jpsurvData.results.Runs.split(',')!=undefined){
-        var cohort_array = jpsurvData.results.Runs.split(',');
+      if(jpsurvData.results.Runs.split('jpcom')!=undefined){
+        var cohort_array = jpsurvData.results.Runs.split('jpcom');
         var values= cohort_array[jpsurvData.results.com-1].split(" + "); 
         $.each(values, function(index2, value2) {
           row += "<td>"+value2.replace(/"/g, "")+"</td>";
           });
       }
       else{
-        var cohort_array = jpsurvData.results.Runs.split(',');
+        var cohort_array = jpsurvData.results.Runs.split('jpcom');
         var values= cohort_array.split("+");
         $.each(values, function(index2, value2) {
         row += "<td>"+value2.replace(/"/g, "")+"</td>";
