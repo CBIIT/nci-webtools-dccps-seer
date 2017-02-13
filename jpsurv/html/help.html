@@ -47,7 +47,7 @@
 
     <tr>
       <td>
-        This Beta version of the JPSurv software can only run one joinpoint survival model at a time. Multiple runs will be implemented in the next version. The next sections will describe the input data file, the JPSurv control options for data and model specification, and the JPSurv output produced. 
+       This Beta version of the JPSurv software can handle multiple runs where a single cohort is selected. If multiple runs are selected, then the web application will run them individually in succession and upon completion the user will be able to interact with each set of output. The next sections will describe the input data file, the JPSurv control options for data and model specification, and the JPSurv output produced.
       </td>
     </tr>
     
@@ -66,7 +66,7 @@
           Tips for creating the survival data in SEER*Stat.
           <ul>
               <li>Year at diagnosis needs to be included as a covariate.</li>
-              <li>Make sure the Display/Standard Life option in the Parameters Tab is checked. JPSurv does not read the Summary Table format.</li>
+              <li>Make sure the <b>Display/Standard Life</b> option in the Parameters Tab is checked. JPSurv does not read the Summary Table format.</li>
               <li>In order to reflect trends in calendar years, 12 months per interval needs to be specified.</li>
               <li>Export Data.</li>
           </ul>
@@ -87,7 +87,7 @@
 
         <ul>
           <p>JPSurv can also read data from delimited text files using common delimiters (comma, semicolon, or tab). The user will need to have prior knowledge of the data stored in each column in order to correctly use the package. 
-          The data requires at a minimum the following variables: calendar year of diagnosis, survival time interval, number at risk at beginning of interval, number of deaths, and number of cases lost to follow-up, and interval expected survival in the case of relative survival. The data may also include other covariates of interest such as cancer site, sex, stage, etc.
+The data requires at a minimum the following variables: calendar year of diagnosis, survival time interval, number at risk at beginning of interval, number of deaths, and number of cases lost to follow-up, and interval expected survival in the case of relative survival. The data may also include other covariates of interest such as cancer site, sex, stage, etc.
           </p>
 
       </td>
@@ -102,7 +102,7 @@
         <ul>
           <li><b>Year of Diagnosis Range:</b>  Specify the number of years that is going to be used to fit the JPSurv model. For example, the data may include diagnosis years from 1975 through 2011, but the user is interested in trends in the last 10 years, e.g. 2002-2011.</li></br>
 
-          <li><b>Cohort Selection:</b>  The current version of JPSurv runs one model at a time, thus the user can only specify 1 value for each of the input variables, e.g. cancer site, sex, stage, etc. A future version will allow users to select multiple variables and fit multiple models.</li></br>
+          <li><b>Cohort Selection:</b>  The current version of JPSurv runs one model at a time and runs models in successions if multiple cohorts are selected in the menu. The user selects the desired cohorts from a menu of variables, e.g. cancer site, sex, stage, etc. The Akaike Information Criterion (AIC) is also provided and tends to pick models with a higher number of joinpoints</li></br>
 
           <li><b>Maximum Number of Joinpoints:</b>  The user can specify the maximum number of joinpoints to be tested. Depending on the number of calendar years and joinpoints the calculation may be slow. Thus for 3 or more joinpoints the calculations are done in a server and an email is sent with a link for the user to retrieve results.</li></br>
           <li><b>Advanced Options:</b></li>
@@ -134,6 +134,7 @@
               <b>Interval Time since Diagnosis:</b>  The user can select one calendar year, e.g. 2000, and show modeled vs. observed survival by years since diagnosis. 
             </li>
           </ol>
+          <p>All plots produced by the JPSurv web application are done using the package <i>ggplot2</i> [1] developed for the R environment. 
             <p><b>Model Estimates:</b>  Displays the number and location of joinpoints, the parameter estimates, and standard errors. </p>
             <p><b>Trend:</b>  Displays 3 summary measures of the trend for each segment between joinpoints: </p>
             <ol>
@@ -143,8 +144,11 @@
             </ol>
             <p>In a segment between 2 joinpoints, trend measures 1 and 2 depend on calendar year, and the average over calendar years is reported. Both of these trend measures also depend on the time since diagnosis as selected by the user. Measure 3 is independent of both calendar year and time since diagnosis.</p>
         </ul>
+              <p>All plots produced by the JPSurv web application are done using the package ggplot2 [1] developed for the R environment. </p>
+
       </td>
     </tr>
+
   </table>
 </body>
 </html>
