@@ -562,6 +562,21 @@ function addCohortVariables() {
       }
       else if(control_data.input_type=="csv")
       {
+        if(typeof  cohort_covariance_variables[key]=='number'|| typeof cohort_covariance_variables[key]=="string")
+        {
+          $("#cohort-"+i)
+            .append(
+              $('<div>').addClass('checkbox')
+                .append($('<label>')
+                  .append($('<input>')
+                      .attr('type', 'checkbox')
+                      .attr('value', cohort_covariance_variables[key])
+                      .addClass('cohort')
+                      .addClass('cohort-'+i)
+                    ).append(cohort_covariance_variables[key])
+              )
+            );
+        }
         for(var j=0;j<cohort_covariance_variables[key].length;j++) {
           $("#cohort-"+i)
             .append(
