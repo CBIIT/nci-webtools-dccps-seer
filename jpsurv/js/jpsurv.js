@@ -1523,7 +1523,8 @@ function getNumberOfIntervals() {
   if(control_data.input_type==undefined)
     return parseInt(getSessionOptionInfo("NumberOfIntervals"));
   else if(control_data.input_type=="csv"){
-    intervals=control_data.data[6]
+    interval_col=control_data.interval[1]
+    intervals=control_data.data[interval_col]
     return intervals
   }
 }
