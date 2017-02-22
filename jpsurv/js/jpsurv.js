@@ -1780,7 +1780,7 @@ function displayCommFail(id, jqXHR, textStatus) {
   //console.warn("CommFail\n"+"Status: "+textStatus);
   var message;
   var errorThrown = "";
-  //console.warn("header: " + jqXHR
+  console.warn("header: " + jqXHR
   + "\ntextStatus: " + textStatus
   + "\nerrorThrown: " + errorThrown);
   // ERROR
@@ -1816,7 +1816,7 @@ function jpsurvRest(action, params) {
         //console.dir(jqXHR);
         //console.log(errorThrown);
         var id = 'jpsurv';
-        //console.warn("header: " + jqXHR
+        console.warn("header: " + jqXHR
           + "\ntextStatus: " + textStatus
           + "\nerrorThrown: " + errorThrown);
         // ERROR
