@@ -653,7 +653,7 @@ getcoefficientsWrapper <- function (filePath,jpsurvDataString,first_calc,com) {
   }
   file=paste(filePath, fileName, sep="/" )
   outputData=readRDS(file)
-  coefficients=outputData$fittedResult$coefficients
+  coefficients=outputData$fittedResult$FitList[[jpInd+1]]$coefficients
   Xvector=paste(rownames(coefficients),collapse=", ")
   length=length(coefficients)/2
   Estimates=paste(coefficients[1:length,1],collapse=", ")
