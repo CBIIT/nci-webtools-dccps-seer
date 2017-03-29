@@ -164,6 +164,7 @@ def stage1_upload():
 
         file = request.files['file_control_csv'] 
         if file and file.filename:
+            file_control_filename_clean=secure_filename(file.filename)
             filename = tokenId+secure_filename(file.filename)
             file.save(os.path.join(UPLOAD_DIR, filename))
             file_control_filename = filename
@@ -206,7 +207,7 @@ def stage1_upload():
             stri = fo.read(500) 
             fo.close()
             status = "uploaded"
-            return_url = "%s/jpsurv?request=false&file_control_filename=%s&output_filename=%s&status=%s&tokenId=%s" % (request.url_root, file_control_filename, output_filename, status, tokenId)
+            return_url = "%s/jpsurv?request=false&file_control_filename=%s&output_filename=%s&status=%s&tokenId=%s" % (request.url_root, file_control_filename_clean, output_filename, status, tokenId)
             print(return_url)
             return redirect(return_url)
         except:

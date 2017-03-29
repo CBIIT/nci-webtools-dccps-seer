@@ -18,6 +18,7 @@ ReadCSVFile <- function (inputFile, path, tokenId, jpsurvDataString,input_type) 
   jpsurvData <<- fromJSON(jpsurvDataString)
   print(jpsurvData)
   fqFileName = file.path(path,inputFile)
+  file_name=paste(jpsurvData$tokenId,fqFileName, sep="" )
   outputFileName = paste("form-", tokenId, ".json", sep="")
   fqOutputFileName = file.path(path, outputFileName)
   #Reading mapped paramteres by user
@@ -364,7 +365,7 @@ getFittedResult <- function (tokenId,filePath, seerFilePrefix, yearOfDiagnosisVa
   }
   if(type=="csv"){
       del=jpsurvData$additional$del
-    file_name=jpsurvData$file$dictionary
+    file_name=paste(tokenId,jpsurvData$file$dictionary, sep="" )
     file=paste(filePath, file_name, sep="/" )
     print("here")
     print("DEL")
