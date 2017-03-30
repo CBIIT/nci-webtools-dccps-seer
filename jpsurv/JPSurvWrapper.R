@@ -198,7 +198,8 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,use_default=TRU
     seerFilePrefix = jpsurvData$file$dictionary
     print ("FILE NAME")
     print(seerFilePrefix)
-    file=paste(filePath, seerFilePrefix, sep="/" )
+    file_name=paste(jpsurvData$session_tokenId,seerFilePrefix, sep="" )
+    file=paste(filePath, file_name, sep="/" )
     del=jpsurvData$additional$del
     if(del=="\t"||del==" ")
       {
@@ -366,6 +367,7 @@ getFittedResult <- function (tokenId,filePath, seerFilePrefix, yearOfDiagnosisVa
   if(type=="csv"){
       del=jpsurvData$additional$del
     file_name=paste(tokenId,jpsurvData$file$dictionary, sep="" )
+    print(file_name)
     file=paste(filePath, file_name, sep="/" )
     print("here")
     print("DEL")
