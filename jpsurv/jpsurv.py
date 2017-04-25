@@ -116,12 +116,18 @@ def stage1_upload():
                     file_control_filename_clean=secure_filename(file.filename)
                     filename = tokenId+secure_filename(file.filename)
                     file_control_filename = filename
+                    dictionary_name=name
                 if(ext==".txt"):
                     file_data_filename_clean=secure_filename(file.filename)
                     filename = tokenId+secure_filename(file.filename)
                     file_data_filename = filename
-                file.save(os.path.join(UPLOAD_DIR, filename))
+                    data_name=name
+                file.save(os.path.join(UPLOAD_DIR, filename))                
+            print (dictionary_name)
+            print(data_name)
 
+            if(dictionary_name!=data_name):
+                os.rename(os.path.join(UPLOAD_DIR, file_data_filename), os.path.join(UPLOAD_DIR, tokenId+dictionary_name+".txt"))
             #PRINT FILE_CONTROL
             
             file_control = os.path.join(UPLOAD_DIR,file_control_filename)
