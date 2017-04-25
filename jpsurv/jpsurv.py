@@ -120,9 +120,7 @@ def stage1_upload():
                     file_data_filename_clean=secure_filename(file.filename)
                     filename = tokenId+secure_filename(file.filename)
                     file_data_filename = filename
-                filename = tokenId+secure_filename(file.filename)
                 file.save(os.path.join(UPLOAD_DIR, filename))
-                file_control_filename = filename
 
             #PRINT FILE_CONTROL
             
