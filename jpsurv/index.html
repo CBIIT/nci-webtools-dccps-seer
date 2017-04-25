@@ -108,15 +108,14 @@
                   
                   <hr class="stage-separator">
                   <div id="dic_container" >
-                    <div id="file_control_container" class= "form-group"> <label for='file_control'>SEER Stat Dictionary File:</label>
-                      <a style='font-size:small;color:#3273ab' href='./data/SEER9_Survival_6CancerSitesByStage_1975_2007.dic' download='SEER9_Survival_6CancerSitesByStage_1975_2007.dic'>(example)</a>
-                      <input type="file" id="file_control" name="file_control" accept=".dic" aria-label="dictionary file chooser" >
+                    <div id="file_control_container" class= "form-group" > <label for='file_control'>SEER Stat Dictionary/Data Files:</label></br>
+                      <a style='font-size:small;color:#3273ab' href='./data/SEER9_Survival_6CancerSitesByStage_1975_2007.dic' download='SEER9_Survival_6CancerSitesByStage_1975_2007.dic'>(example SEER Stat)</a></br>
+                      <a style='font-size:small;color:#3273ab' href='./data/SEER9_Survival_6CancerSitesByStage_1975_2007.txt' download='SEER9_Survival_6CancerSitesByStage_1975_2007.txt'>(example text file)</a></br></br>
+                      <input type="file" id="file_control" name="file_control" accept=".dic, .txt" aria-label="dictionary file chooser" multiple max-uploads = 2 >
+                      <div style="margin-top:2%" id="file_display"></div>
                     </div>
-                    <div id="file_data_container" class="form-group">
-                      <label for='file_data'>SEER Stat Data File:</label>
-                      <a style='font-size:small;color:#3273ab' href='./data/SEER9_Survival_6CancerSitesByStage_1975_2007.txt' download='SEER9_Survival_6CancerSitesByStage_1975_2007.txt'>(example)</a>
-                      <input type="file" id="file_data" name="file_data" accept=".txt" aria-label="text file chooser" >
-                    </div>
+
+                      <div id="file_data_container" class="form-group"></div>
                   </div>
 
                     <div id="csv_container" style="display:none">

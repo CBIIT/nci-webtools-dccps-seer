@@ -621,10 +621,34 @@ function checkInputFiles() {
   var file_control_csv = $("#file_control_csv").val();
 
     if($('#dic').is(':checked')){
-      if(file_control.length > 0 && file_data.length > 0) {
+      var has_dic=false
+      var has_txt=false
+      var error_msg="Please choose 1 dictionary file and one text file"
+      $("#file_display").empty();
+      if($("#file_control").prop("files").length>2)
+        $("#file_display").append('<span style="color:red">'+error_msg+'</span></br>');
+      else{
+        for(var i=0;i<($("#file_control").prop("files").length);i++){
+          var ext=$("#file_control").prop("files")[i].name.substr($("#file_control").prop("files")[i].name.length-3)
+          if(ext=="txt"&& has_txt==false)
+          {
+            $("#file_display").append("<span'><b>Dictionary file: </b>"+$("#file_control").prop("files")[i].name+'</span></br>');
+            has_txt=true;
+          }
+          if(ext=="dic"&& has_dic==false)
+          {
+            $("#file_display").append("<span'><b>Data file: </b>"+$("#file_control").prop("files")[i].name+'</span></br>');
+            has_dic=true;
+          }
+
+        }
+      }
+      if(file_control.length > 0 && has_dic==true &&  has_txt==true) {
         $("#upload_file_submit").removeAttr('disabled');
         $("#upload_file_submit").attr('title', 'Upload Input Files');
       }
+      else
+        $("#file_display").append('<span style="color:red">'+error_msg+'</span></br>');
     }
 
     else if($('#csv').is(':checked')){

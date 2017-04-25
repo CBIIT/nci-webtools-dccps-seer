@@ -106,52 +106,49 @@ def stage1_upload():
     for k, v in request.args.iteritems():
         print "var: %s = %s" % (k, v)
     r.source('./JPSurvWrapper.R')
-    if(input_type=="dic"):
-        file = request.files['file_control']
-        if file and file.filename:
-            file_control_filename_clean=secure_filename(file.filename)
-            filename = tokenId+secure_filename(file.filename)
-            file.save(os.path.join(UPLOAD_DIR, filename))
-            file_control_filename = filename
-            print("Saving file_control: %s" % file_control_filename) 
-        file = request.files['file_data']
-        if file and file.filename:
-            file_data_filename_clean=secure_filename(file.filename)
-            print(file_data_filename_clean)
-            filename = tokenId+secure_filename(file.filename)
-            file.save(os.path.join(UPLOAD_DIR, filename))
-            file_data_filename = filename
-            print("Saving file_data: %s" % file_data_filename) 
+    try:
+        if(input_type=="dic"):
+            uploaded_files = request.files.getlist("file_control")
+            print("got files")
+            for file in uploaded_files:
+                name, ext = os.path.splitext(file.filename)
+                if(ext==".dic"):
+                    file_control_filename_clean=secure_filename(file.filename)
+                    filename = tokenId+secure_filename(file.filename)
+                    file_control_filename = filename
+                if(ext==".txt"):
+                    file_data_filename_clean=secure_filename(file.filename)
+                    filename = tokenId+secure_filename(file.filename)
+                    file_data_filename = filename
+                filename = tokenId+secure_filename(file.filename)
+                file.save(os.path.join(UPLOAD_DIR, filename))
+                file_control_filename = filename
 
-        if(request.files['file_control'] == ''):
-            print("file_control not assigned")
-        if(request.files['file_data'] == ''): 
-            print("file_data not assigned") 
+            #PRINT FILE_CONTROL
+            
+            file_control = os.path.join(UPLOAD_DIR,file_control_filename)
+            fo = open(file_control, "r+")
+            stri = fo.read(250)
+            fo.close()
 
-        #PRINT FILE_CONTROL
-        
-        file_control = os.path.join(UPLOAD_DIR,file_control_filename)
-        fo = open(file_control, "r+")
-        stri = fo.read(250)
-        fo.close()
+            #PRINT FILE_DATA
+            file_data = os.path.join(UPLOAD_DIR,tokenId,file_data_filename)
+            fo = open(file_control, "r+")
+            stri = fo.read(500)
+            fo.close()
+            r.getDictionary(file_control_filename, UPLOAD_DIR, tokenId)
+            output_filename = "form-%s.json" % tokenId
 
-        #PRINT FILE_DATA
-        file_data = os.path.join(UPLOAD_DIR,tokenId,file_data_filename)
-        fo = open(file_control, "r+")
-        stri = fo.read(500)
-        fo.close()
-        r.getDictionary(file_control_filename, UPLOAD_DIR, tokenId)
-        output_filename = "form-%s.json" % tokenId
-
-        r_output_file = os.path.join(UPLOAD_DIR, output_filename)
-        fo = open(r_output_file, "r+")
-        stri = fo.read(500)
-        fo.close()
-        status = "uploaded"
-        return_url = "%s/jpsurv?request=false&file_control_filename=%s&file_data_filename=%s&output_filename=%s&status=%s&tokenId=%s" % (request.url_root, file_control_filename_clean, file_data_filename_clean, output_filename, status, tokenId)
-        print(return_url)
-        return redirect(return_url)
-
+            r_output_file = os.path.join(UPLOAD_DIR, output_filename)
+            fo = open(r_output_file, "r+")
+            stri = fo.read(500)
+            fo.close()
+            status = "uploaded" 
+            return_url = "%s/jpsurv?request=false&file_control_filename=%s&file_data_filename=%s&output_filename=%s&status=%s&tokenId=%s" % (request.url_root, file_control_filename_clean, file_data_filename_clean, output_filename, status, tokenId)
+            print(return_url)
+            return redirect(return_url)
+    except Exception as e: print(e)
+    
     if(input_type=="csv"):
 
         mapping = request.args.get('map',False)
