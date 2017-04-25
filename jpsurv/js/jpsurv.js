@@ -626,7 +626,7 @@ function checkInputFiles() {
       var error_msg="Please choose 1 dictionary file and one text file"
       $("#file_display").empty();
       if($("#file_control").prop("files").length>2)
-        $("#file_display").append('<span style="color:red">'+error_msg+'</span></br>');
+        $("#file_display").html('<span style="color:red">'+error_msg+'</span></br>');
       else{
         for(var i=0;i<($("#file_control").prop("files").length);i++){
           var ext=$("#file_control").prop("files")[i].name.substr($("#file_control").prop("files")[i].name.length-3)
@@ -648,7 +648,7 @@ function checkInputFiles() {
         $("#upload_file_submit").attr('title', 'Upload Input Files');
       }
       else
-        $("#file_display").append('<span style="color:red">'+error_msg+'</span></br>');
+        $("#file_display").html('<span style="color:red">'+error_msg+'</span></br>');
     }
 
     else if($('#csv').is(':checked')){
