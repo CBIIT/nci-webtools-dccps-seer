@@ -528,7 +528,13 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_ca
     scale_x_continuous(breaks=seq(0,maxyear,5)) +
     scale_y_continuous(breaks=seq(0,1,0.1)) +
     labs(colour=interval_var)+
-    theme(plot.title = element_text(hjust = 0.5))
+    theme(legend.position="bottom", 
+            legend.title=element_blank(),
+            plot.title = element_text(hjust = 0.5,face = "bold",size=18,vjust=5,margin = unit(c(0, 10, 10, 0), "mm")),
+            axis.title=element_text(size=15),
+            axis.title.x = element_text(margin = unit(c(10, 0, 0, 0), "mm")),
+            axis.title.y = element_text(margin = unit(c(0, 10, 0, 0), "mm")),
+            legend.text=element_text(size=9.5))
   
   ggsave(file=paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",com,"-",jpInd,"-",iteration,".png", sep=""), sep="/"))
   results =list("RelSurYearGraph"=graphFile,"RelSurvYearData"=survData) #returns 
@@ -614,10 +620,15 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString,first_cal
                             labels=c(paste("Predicted Cumulative",type,"Survival", sep=" "), paste("Observed Cumulative",type,"Survival", sep=" "))) +
       theme(legend.position="bottom", 
             legend.title=element_blank(),
-            plot.title = element_text(hjust = 0.5))
+            plot.title = element_text(hjust = 0.5,size=18,face = "bold",vjust=5,margin = unit(c(0, 10, 10, 0), "mm")),
+            axis.title=element_text(size=16),
+            axis.title.x = element_text(margin = unit(c(10, 0, 0, 0), "mm")),
+            axis.title.y = element_text(margin = unit(c(0, 10, 0, 0), "mm")),
+            legend.text=element_text(size=9.5))
   
   print("end of ggplot")
   ggsave(file=paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",com,"-",jpInd,"-",iteration,".png", sep=""), sep="/"))
+# ggsave(file=paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",com,"-",jpInd,"-",iteration,".png", sep=""), sep="/"))
   print("saved int graph")
   results =c("RelSurIntData"=survData,"RelSurIntGraph"=graphFile) #returns 
   cohorts=jpsurvData$calculate$form$cohortVars
