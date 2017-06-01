@@ -293,11 +293,13 @@ function addInputSection() {
           .addClass('jpsurv-label')
         )
         .append($('<span>')
-          .append(jpsurvData.additional.statistic)
-          .attr('title', "Type of data is "+jpsurvData.additional.statistic)
+          .append(jpsurvData.additional.statistic+" in "+getSessionOptionInfo("RatesDisplayedAs"))
+          .attr('title', "Type of data is "+jpsurvData.additional.statistic+" in "+getSessionOptionInfo("RatesDisplayedAs"))
           .addClass('jpsurv-label-content')
         )
       );
+
+      
 
     $('#upload_file_submit_container').remove();
 
@@ -735,14 +737,14 @@ function updateGraphs(token_id) {
 
   //Populate graph-year
   $("#graph-year-tab").find( "img" ).show();
-  $("#graph-year-tab").find( "img" ).css("width","50%");
+  $("#graph-year-tab").find( "img" ).css("width","65%");
   $("#graph-year-tab").find( "img" ).attr("src", "tmp/plot_Year-"+token_id+"-"+jpsurvData.results.com+"-"+jpsurvData.results.jpInd+"-"+jpsurvData.results.imageId+".png");
   $("#graph-year-table > tbody").empty();
   $("#graph-year-table > tbody").append('<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>');
 
   //Populate time-year
   $("#graph-time-tab").find( "img" ).show();
-  $("#graph-time-tab").find( "img" ).css("width","65%");
+  $("#graph-time-tab").find( "img" ).css("width","70%");
   $("#graph-time-tab").find( "img" ).attr("src", "tmp/plot_Int-"+token_id+"-"+jpsurvData.results.com+"-"+jpsurvData.results.jpInd+"-"+jpsurvData.results.imageId+".png");
 
 
@@ -762,7 +764,7 @@ function updateGraphs(token_id) {
     });
 
     var data_type = jpsurvData.results.statistic
-    var timeHeader = ["Year of Diagnosis", "Interval", "Died", "Alive_at_Start","Lost_to_Followup","Expected_Survival_Interval",data_type,"pred_int","pred_cum","pred_int_se","pred_cum_se"];
+    var timeHeader = ["Year of Diagnosis", "Interval", "Died", "Alive_at_Start","Lost_to_Followup","Expected_Survival_Interval",data_type,"Predicted Interval Survival","Predicted Cumulative Survival","Predicted Interval Survival Std. Err.","Predicted Cumulative Survival Std. Err. "];
     header.push.apply(header, timeHeader);
     //Create the header
     $("#graph-year-table > thead").empty();
@@ -2666,21 +2668,3 @@ function data_table(matrix,headers,rows){
 
 }
 
-$(document).ready(function(){
-  $("#max_help").popover({
-    html: true,
-    content: "Most common situation is to have 0 or 1 joinpoint since survival trends change gradually. Begin with small number of joinpoints. Increase the number if thier is not a good fit or to be sure you capture all joinpoints. Computation time increases exponentially eith number of joinpoints tested.",
-    title:'Maximum Joinpoints<a class="close" href="#");">&times;</a>',
-    template: '<div class="popover" stylle="width:100%"><div class="arrow"></div><div class="popover-inner"><h3 class="popover-title"></h3><div class="popover-content"><p></p></div></div></div>'
-  });
- // $('a[rel=popover]').addClass('custom_popover');
-
-
-});
-
-$(document).click(function (e) {
-
-    if ($(e.target).is('.close')) 
-      $('#max_help').popover('hide');
-    
-});

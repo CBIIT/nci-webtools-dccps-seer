@@ -620,14 +620,14 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString,first_cal
                             labels=c(paste("Predicted Cumulative",type,"Survival", sep=" "), paste("Observed Cumulative",type,"Survival", sep=" "))) +
       theme(legend.position="bottom", 
             legend.title=element_blank(),
-            plot.title = element_text(hjust = 0.5,size=18,face = "bold",vjust=5,margin = unit(c(0, 10, 10, 0), "mm")),
-            axis.title=element_text(size=16),
+            plot.title = element_text(hjust = 0.5,size=20,face = "bold",vjust=5,margin = unit(c(0, 10, 10, 0), "mm")),
+            axis.title=element_text(size=18),
             axis.title.x = element_text(margin = unit(c(10, 0, 0, 0), "mm")),
             axis.title.y = element_text(margin = unit(c(0, 10, 0, 0), "mm")),
-            legend.text=element_text(size=9.5))
+            legend.text=element_text(size=12.5))
   
   print("end of ggplot")
-  ggsave(file=paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",com,"-",jpInd,"-",iteration,".png", sep=""), sep="/"))
+  ggsave(file=paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",com,"-",jpInd,"-",iteration,".png", sep=""), sep="/"),width = 10, height = 8)
 # ggsave(file=paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",com,"-",jpInd,"-",iteration,".png", sep=""), sep="/"))
   print("saved int graph")
   results =c("RelSurIntData"=survData,"RelSurIntGraph"=graphFile) #returns 
