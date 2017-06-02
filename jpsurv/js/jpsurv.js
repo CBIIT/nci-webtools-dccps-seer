@@ -250,6 +250,21 @@ function addInputSection() {
         )
       );
       $( "#input_type_select" ).remove();
+      load_form();
+       $('#data_type_container')
+      .empty()
+      .append($('<div>')
+        .addClass('jpsurv-label-container')
+        .append($('<span>')
+          .append('Data Type:')
+          .addClass('jpsurv-label')
+        )
+        .append($('<span>')
+          .append(jpsurvData.additional.statistic+" in "+getSessionOptionInfo("RatesDisplayedAs"))
+          .attr('title', "Type of data is "+jpsurvData.additional.statistic+" in "+getSessionOptionInfo("RatesDisplayedAs"))
+          .addClass('jpsurv-label-content')
+        )
+      );
       
     }
     else if( control_data.input_type=="csv"){
@@ -278,12 +293,8 @@ function addInputSection() {
       $("#csv_label_headers").remove();
       $("#data_type").remove();
       $("#Adv_input").remove();
-    }
-
+    
     load_form();
-
-
-
     $('#data_type_container')
       .empty()
       .append($('<div>')
@@ -293,13 +304,13 @@ function addInputSection() {
           .addClass('jpsurv-label')
         )
         .append($('<span>')
-          .append(jpsurvData.additional.statistic+" in "+getSessionOptionInfo("RatesDisplayedAs"))
-          .attr('title', "Type of data is "+jpsurvData.additional.statistic+" in "+getSessionOptionInfo("RatesDisplayedAs"))
+          .append(jpsurvData.additional.statistic+" in "+control_data.rates)
+          .attr('title', "Type of data is "+jpsurvData.additional.statistic+" in "+control_data.rates)
           .addClass('jpsurv-label-content')
         )
       );
 
-      
+    }
 
     $('#upload_file_submit_container').remove();
 
@@ -1212,6 +1223,7 @@ function calculate(run) {
         jpsurvData.additional.yearOfDiagnosis = jpsurvData.calculate.form.yearOfDiagnosisRange[0].toString();
         jpsurvData.additional.yearOfDiagnosis_default = parseInt($("#year_of_diagnosis_start").val());
         jpsurvData.additional.del=control_data.del
+      //  jpsurvData.additional.rates=control.rates
         var params = getParams();
         $("#right_panel").hide();
         $("#help").show();
@@ -1230,6 +1242,7 @@ function calculate(run) {
       jpsurvData.additional.yearOfDiagnosis_default = parseInt($("#year_of_diagnosis_start").val());
       jpsurvData.additional.use_default="true"
       jpsurvData.additional.del=control_data.del
+   //   jpsurvData.additional.rates=control.rates
       stage2("calculate"); // This is the initial calculation and setup.
     }
   }
@@ -2372,6 +2385,11 @@ var template_string='<div class="modal fade" id="modal" tabindex="-1" role="dial
                +'<select id="data_type" class="jpsurv-label-content" name="data_type" aria-label="data_type" style="margin-bottom:1%">'
                 +'<option>Relative Survival</option>'    
                 +'<option>Cause-Specific Survival</option>'
+               +'</select>'
+      +'<label for="rates_display" id="csv_label_rates" style="margin-left:1%">Rates Displayed As:  </label>'
+               +'<select id="rates_display" class="jpsurv-label-content" name="rates_display" aria-label="rates_display" style="margin-bottom:1%">'
+                +'<option>Percents</option>'    
+                +'<option>Proportions</option>'
                +'</select></br>'
       +'Displaying <select id="lines_displayed" class="jpsurv-label-content" name="lines_displayed" aria-label="display lines">'
                       +'<option>20</option>'
@@ -2528,6 +2546,7 @@ function save_params() {
    }
     var passed=true;
   jpsurvData.additional.del=$("input[name=del]:checked").val()
+  jpsurvData.additional.rates=$("#rates_display").val()
     jpsurvData.passed=true
 
        for (var i=0;i<params.length;i++){

@@ -19,7 +19,7 @@ ReadCSVFile <- function (inputFile, path, tokenId, jpsurvDataString,input_type) 
   print(jpsurvData)
   fqFileName = file.path(path,inputFile)
   file_name=paste(jpsurvData$tokenId,fqFileName, sep="" )
-  outputFileName = paste("form-", tokenId, ".json", sep="")
+  outputFileName = paste("form-", tokenId, ".json", sep="") 
   fqOutputFileName = file.path(path, outputFileName)
   #Reading mapped paramteres by user
   has_headers=as.logical(jpsurvData$mapping$has_headers);
@@ -28,6 +28,7 @@ ReadCSVFile <- function (inputFile, path, tokenId, jpsurvDataString,input_type) 
   year=jpsurvData$mapping$year
   interval=jpsurvData$mapping$interval
   del=jpsurvData$additional$del
+  rates=jpsurvData$additional$rates
 
   alive_at_start=jpsurvData$mapping$alive_at_start
   lost_to_followup=jpsurvData$mapping$lost_to_followup
@@ -58,7 +59,7 @@ ReadCSVFile <- function (inputFile, path, tokenId, jpsurvDataString,input_type) 
   print(year_name)
 
 
-  jsonl =list("data"=seerFormData,"cohort_names"=cohort_name,"cohort_keys"=cohorts,"year"=c(year_name,year),"interval"=c(interval_name,interval),"input_type"=input_type,"statistic"=statistic,"alive_at_start"=alive_at_start,"lost_to_followup"=lost_to_followup,"exp_int"=exp_int,"observed"=observed,"died"=died,"has_headers"=has_headers,"del"=del)
+  jsonl =list("data"=seerFormData,"cohort_names"=cohort_name,"cohort_keys"=cohorts,"year"=c(year_name,year),"interval"=c(interval_name,interval),"input_type"=input_type,"statistic"=statistic,"alive_at_start"=alive_at_start,"lost_to_followup"=lost_to_followup,"exp_int"=exp_int,"observed"=observed,"died"=died,"has_headers"=has_headers,"del"=del,"rates"=rates)
   exportJson <- toJSON(jsonl)
   
   print("Creating form file")
