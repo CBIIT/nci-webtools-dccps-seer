@@ -958,15 +958,37 @@ function updateTrendGraph(trend, table_id) {
     row = "<tr><td>"+trend["start.year"]+"</td>";
     row += "<td>"+trend["end.year"]+"</td>";
     row += formatCell(trend.estimate);
-    row += formatCell(trend["std.error"])+"</tr>/n";
+    row += formatCell(trend["std.error"])+"</td>";
+    row += formatCell(trend["upCI"])+"</td>";
+    row += formatCell(trend["lowCI"])+"</td>";
+    var trend_sig=""
+    if (trend["lowCI"]>0)
+        trend_sig="Increasing"
+    else if(trend["upCI"]<0)
+        trend_sig="Decreasing"
+    else if(trend["lowCI"]<=0 &&trend["upCI"]>=0)
+        trend_sig="Not significant"
+    row+=formatCell(trend_sig)+"</tr>/n";
     $("#"+table_id+" > tbody").append(row);
   } else {
     $.each(trend["start.year"], function( index, value ) {
       row = "<tr><td>"+value+"</td>";
       row += "<td>"+trend["end.year"][index]+"</td>";
       row += formatCell(trend.estimate[index]);
-      row += formatCell(trend["std.error"][index])+"</tr>/n";
+      row += formatCell(trend["std.error"][index])+"</td>";
+      row += formatCell(trend["upCI"][index])+"</td>";
+      row += formatCell(trend["lowCI"][index])+"</td>";
+      var trend_sig=""
+      if (trend["lowCI"]>0)
+        trend_sig="Increasing"
+      else if(trend["upCI"]<0)
+        trend_sig="Decreasing"
+      else if(trend["lowCI"]<=0 &&trend["upCI"]>=0)
+        trend_sig="Not significant"
+      $("#"+table_id+" > tbody").append(row); 
+      row+=formatCell(trend_sig)+"</tr>/n";
       $("#"+table_id+" > tbody").append(row);
+
     });
   }
 }
