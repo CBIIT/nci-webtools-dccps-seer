@@ -611,7 +611,14 @@ h4 span {
 }
 
 
-
+.cursor{
+  cursor: pointer
+}
+.help_container{
+  text-align:left;
+  padding-left:0;
+  font-size: 18px
+}
 @media(min-width: 1440px){
 .container {
     width: 1440px;
