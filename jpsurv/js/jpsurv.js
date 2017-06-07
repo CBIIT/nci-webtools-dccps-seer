@@ -2709,3 +2709,21 @@ function data_table(matrix,headers,rows){
 
 }
 
+$(document).ready(function(){ 
+  $("#max_help").popover({ 
+    html: true, 
+    content: "Most common situation is to have 0 or 1 joinpoint since survival trends change gradually. Begin with small number of joinpoints. Increase the number if thier is not a good fit or to be sure you capture all joinpoints. Computation time increases exponentially eith number of joinpoints tested.", 
+    title:'Maximum Joinpoints<a class="close" href="#");">&times;</a>', 
+    template: '<div class="popover" stylle="width:100%"><div class="arrow"></div><div class="popover-inner"><h3 class="popover-title"></h3><div class="popover-content"><p></p></div></div></div>' 
+  }); 
+ // $('a[rel=popover]').addClass('custom_popover'); 
+ 
+ 
+}); 
+ 
+$(document).click(function (e) { 
+ 
+    if ($(e.target).is('.close'))  
+      $('#max_help').popover('hide'); 
+     
+});
