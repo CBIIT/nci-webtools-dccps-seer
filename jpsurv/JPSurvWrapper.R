@@ -492,7 +492,7 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_ca
     yearOfDiagnosis=yearOfDiagnosis=jpsurvData$additional$yearOfDiagnosis_default
     for(i in 1:length(jpsurvData$additional$intervals_default)) 
     {
-      intervals=c(intervals,jpsurvData$additional$intervals_default[[i]])
+      intervals=c(intervals,jpsurvData$additional$intervals_default[[i]]) 
     }
 
   }
@@ -535,7 +535,8 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_ca
             axis.title=element_text(size=15),
             axis.title.x = element_text(margin = unit(c(10, 0, 0, 0), "mm")),
             axis.title.y = element_text(margin = unit(c(0, 10, 0, 0), "mm")),
-            legend.text=element_text(size=9.5))
+            axis.text = element_text(size=11.5),
+            legend.text=element_text(size=11.5))
   
   ggsave(file=paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",com,"-",jpInd,"-",iteration,".png", sep=""), sep="/"))
   results =list("RelSurYearGraph"=graphFile,"RelSurvYearData"=survData) #returns 
@@ -621,11 +622,12 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString,first_cal
                             labels=c(paste("Predicted Cumulative",type,"Survival", sep=" "), paste("Observed Cumulative",type,"Survival", sep=" "))) +
       theme(legend.position="bottom", 
             legend.title=element_blank(),
-            plot.title = element_text(hjust = 0.5,size=20,face = "bold",vjust=5,margin = unit(c(0, 10, 10, 0), "mm")),
-            axis.title=element_text(size=18),
+            plot.title = element_text(hjust = 0.5,size=22,face = "bold",vjust=5,margin = unit(c(0, 10, 10, 0), "mm")),
+            axis.title=element_text(size=20),
             axis.title.x = element_text(margin = unit(c(10, 0, 0, 0), "mm")),
+            axis.text = element_text(size=14.5),
             axis.title.y = element_text(margin = unit(c(0, 10, 0, 0), "mm")),
-            legend.text=element_text(size=12.5))
+            legend.text=element_text(size=14.5))
   
   print("end of ggplot")
   ggsave(file=paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",com,"-",jpInd,"-",iteration,".png", sep=""), sep="/"),width = 10, height = 8)
