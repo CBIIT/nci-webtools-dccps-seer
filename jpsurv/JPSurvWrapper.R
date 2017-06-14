@@ -617,7 +617,7 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString,first_cal
            y=paste("Cumulative",type,"Survival", sep=" ")) +
       scale_x_continuous(breaks=seq(0,maxint,1)) +
       coord_cartesian(ylim=c(0,1)) +
-      scale_y_continuous(breaks=seq(0,1,0.01)) +
+      scale_y_continuous(breaks=seq(0,1,0.1)) +
       scale_colour_discrete(breaks=c("pred_cum", survar_var),
                             labels=c(paste("Predicted Cumulative",type,"Survival", sep=" "), paste("Observed Cumulative",type,"Survival", sep=" "))) +
       theme(legend.position="bottom", 
