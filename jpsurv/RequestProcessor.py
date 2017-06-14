@@ -6,6 +6,7 @@ import smtplib
 import time
 import logging
 import urllib
+import sys
 
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
@@ -150,7 +151,8 @@ class RequestProcessor(DisconnectListener):
   
   @defer.inlineCallbacks
   def run(self):
-    client = yield Stomp(self.config).connect()
+    client = Stomp(self.config)
+    yield client.connect()
     headers = {
         # client-individual mode is necessary for concurrent processing
         # (requires ActiveMQ >= 5.2)
@@ -158,6 +160,7 @@ class RequestProcessor(DisconnectListener):
         # the maximal number of messages the broker will let you work on at the same time
         'activemq.prefetchSize': '100',
     }
+    
     client.subscribe(self.QUEUE, headers, listener=SubscriptionListener(self.consume, errorDestination=self.ERROR_QUEUE))
     client.add(listener=self)
 
