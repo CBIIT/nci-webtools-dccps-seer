@@ -527,7 +527,7 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_ca
          x="Year of Diagnosis",
          y=paste("Cumulative",type,"Survival", sep=" ")) +
     scale_x_continuous(breaks=seq(0,maxyear,5)) +
-    scale_y_continuous(breaks=seq(0,1,0.1)) +
+    scale_y_continuous(breaks=seq(0,1,0.1),limits = c(0, 1)) +
     labs(colour=interval_var)+
     theme(legend.position="bottom", 
             legend.title=element_blank(),
