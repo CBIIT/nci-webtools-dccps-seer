@@ -961,8 +961,8 @@ function updateTrendGraph(trend, table_id) {
     row += "<td>"+trend["end.year"]+"</td>";
     row += formatCell(trend.estimate);
     row += formatCell(trend["std.error"])+"</td>";
-    row += formatCell(trend["upCI"])+"</td>";
     row += formatCell(trend["lowCI"])+"</td>";
+    row += formatCell(trend["upCI"])+"</td>";
     var trend_sig=""
     if (trend["lowCI"]>0)
         trend_sig="Increasing"
@@ -978,8 +978,8 @@ function updateTrendGraph(trend, table_id) {
       row += "<td>"+trend["end.year"][index]+"</td>";
       row += formatCell(trend.estimate[index]);
       row += formatCell(trend["std.error"][index])+"</td>";
-      row += formatCell(trend["upCI"][index])+"</td>";
       row += formatCell(trend["lowCI"][index])+"</td>";
+      row += formatCell(trend["upCI"][index])+"</td>";
       var trend_sig=""
       if (trend["lowCI"][index]>0)
         trend_sig="Increasing"
