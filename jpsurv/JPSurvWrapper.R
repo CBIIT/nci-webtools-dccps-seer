@@ -606,7 +606,7 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString,first_cal
       interval=interval_var, 
       survvar=survar_var);
 
-  
+
     maxint <- max(survData[[1]][[interval_var]])
 #From package, interval graph
   ggplot(survData[[1]], aes(x=survData[[1]][[interval_var]])) + 
@@ -615,7 +615,7 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString,first_cal
       labs(title=paste("Cumulative",type,"Survival by Interval for", yearOfDiagnosis, sep=" "),
            x=interval_var,
            y=paste("Cumulative",type,"Survival", sep=" ")) +
-      scale_x_continuous(breaks=seq(0,maxint,1)) +
+      scale_x_continuous(breaks=seq(0,maxint, if(yearOfDiagnosis < 1990) 2 else 1)) +
       coord_cartesian(ylim=c(0,1)) +
       scale_y_continuous(breaks=seq(0,1,0.1)) +
       scale_colour_discrete(breaks=c("pred_cum", survar_var),
