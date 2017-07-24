@@ -531,7 +531,7 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_ca
     labs(colour=interval_var)+
     theme(legend.position="bottom", 
             legend.title=element_blank(),
-            plot.title = element_text(hjust = 0.5,face = "bold",size=18,vjust=5,margin = unit(c(0, 10, 10, 0), "mm")),
+            plot.title = element_text(hjust = 0.5,face = "bold",size=18,vjust=0.5,margin = margin(0, 0, 10, 0, 'pt')),
             axis.title=element_text(size=15),
             axis.title.x = element_text(margin = unit(c(10, 0, 0, 0), "mm")),
             axis.title.y = element_text(margin = unit(c(0, 10, 0, 0), "mm")),
