@@ -621,7 +621,7 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString,first_cal
                             labels=c(paste("Predicted Cumulative",type,"Survival", sep=" "), paste("Observed Cumulative",type,"Survival", sep=" "))) +
       theme(legend.position="bottom", 
             legend.title=element_blank(),
-            plot.title = element_text(hjust = 0.5,size=22,face = "bold",vjust=5,margin = unit(c(0, 10, 10, 0), "mm")),
+            plot.title = element_text(hjust = 0.5,size=22,face = "bold",vjust=0.5,margin = margin(0, 0, 10, 0, 'pt')),
             axis.title=element_text(size=20),
             axis.title.x = element_text(margin = unit(c(10, 0, 0, 0), "mm")),
             axis.text = element_text(size=14.5),
