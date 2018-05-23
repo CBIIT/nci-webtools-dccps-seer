@@ -20,7 +20,7 @@ from stompest.config import StompConfig
 from stompest.protocol import StompSpec
 from rpy2.robjects import r
 
-class JPSurvProcessor(DisconnectListener):
+class jpsurvProcessor(DisconnectListener):
   CONFIG = 'queue.config'
   NAME = 'queue.name'
   URL = 'queue.url'
@@ -177,12 +177,12 @@ class JPSurvProcessor(DisconnectListener):
   def __init__(self):
     config = PropertyUtil(r"config.ini")
      # Initialize Connections to ActiveMQ
-    self.QUEUE=config.getAsString(JPSurvProcessor.NAME)
+    self.QUEUE=config.getAsString(jpsurvProcessor.NAME)
     self.ERROR_QUEUE=config.getAsString('queue.error.name')
-    config = StompConfig(config.getAsString(JPSurvProcessor.URL))
+    config = StompConfig(config.getAsString(jpsurvProcessor.URL))
     self.config = config
 
 if __name__ == '__main__':
   logging.basicConfig(level=logging.INFO)
-  JPSurvProcessor().run()
+  jpsurvProcessor().run()
   reactor.run()
