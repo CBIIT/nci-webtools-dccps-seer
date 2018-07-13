@@ -41,7 +41,7 @@ ReadCSVFile <- function (inputFile, path, tokenId, jpsurvDataString,input_type) 
       {
         del=""
       }
-  csvdata=read.tabledata(fileName=file.path(path, inputFile),          # fileName: Name of file to use in current directory, or filepath.
+  csvdata=read.tabledata(fileName=file.path(path, inputFile),  # fileName: Name of file to use in current directory, or filepath.
                     hasHeader=TRUE,
                     dlm=del);                             # hasHeader: Boolean variable indicating whether or not the CSV being read in has a header row or not. Default is FALSE.
   
@@ -74,12 +74,18 @@ getSubsetStr <- function (yearOfDiagnosisVarName, yearOfDiagnosisRange, cohortVa
   startYearStr=paste(yearOfDiagnosisVarName, ">=", yearOfDiagnosisRange[1])
   endYearStr=paste(yearOfDiagnosisVarName, "<=", yearOfDiagnosisRange[2])
   yearStr=paste(startYearStr, endYearStr, sep='&')
-  cohortVars=paste0("`",getCorrectFormat(cohortVars), "`")
-  
-  subsetStr=paste(paste(cohortVars, cohortValues, sep="=="), collapse='&')
-  subsetStr=paste(subsetStr, yearStr, sep='&')
+
+  subsetStr = ""
+
+  if( length(cohortVars) > 0 ) {
+    cohortVars=paste0("`",getCorrectFormat(cohortVars), "`")
+    subsetStr=paste(paste(cohortVars, cohortValues, sep="=="), collapse='&')
+    subsetStr=paste(subsetStr, yearStr, sep='&')
+  } else {
+    subsetStr=paste(subsetStr, yearStr, sep='')
+  }
+
   print (subsetStr)
-  
   return (subsetStr)
   
 }
@@ -96,7 +102,7 @@ getFactorStr <- function (covariateVars) {
 }
 
 #replace empty space with _, strip anything other than alphanumeric _ /
-                              getCorrectFormat <-function(variable) {
+getCorrectFormat <-function(variable) {
                                 variable=gsub("[^[:alnum:]_/]", "", gsub(" ", "_", variable))
                                 variable=gsub("__", "_",variable)
                                 return (variable)
@@ -140,42 +146,55 @@ getFittedResultWrapper <- function (filePath, jpsurvDataString) {
   }
   #creates a matrix of each possible combination
   com_matrix=as.matrix(expand.grid(combination_array))
-  
- 
-  
+
   jsonl=list()
   #loops through each combnation in t he matrix and creates a R data file
-  for(i in 1:nrow(com_matrix)){
-    fileName = paste('output', jpsurvData$tokenId,i,sep="-" )
-    fileName = paste(fileName, "rds", sep="." )
-    
-    outputFileName =paste(filePath, fileName, sep="/" )
-    print (outputFileName)
-    cat('combination',i,com_matrix[i,],"\n")
-    # cohortValues=toJSON(com_matrix[i,])
-    cohortValues=com_matrix[i,]
-    getFittedResult(jpsurvData$session_tokenId,filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange, allVars, cohortVars, cohortValues, numJP,advanced_options, delLastIntvl, outputFileName,jpsurvDataString,projyear,type,del)
-    
-    print("Fitted Result Time:")
-    
-    Selected_Model=getSelectedModel(filePath,jpsurvDataString,i)
-    print("SELECTED MODEL GET")
-    print(Selected_Model)
-    jsonl[[i]]=Selected_Model-1
+
+  if( nrow(com_matrix) > 0 ) {
+    for(i in 1:nrow(com_matrix)){
+        jsonl[[i]]=getFittedResultForVarCombo(i,jpsurvData,filePath,seerFilePrefix,yearOfDiagnosisVarName,
+          yearOfDiagnosisRange, allVars, cohortVars, com_matrix[i,], numJP,advanced_options, delLastIntvl,
+          jpsurvDataString,projyear,type,del)
+    }
+  } else {
+      jsonl[[1]]=getFittedResultForVarCombo(1,jpsurvData,filePath,seerFilePrefix,yearOfDiagnosisVarName,
+        yearOfDiagnosisRange, allVars, cohortVars, matrix(nrow = 0, ncol = 0), numJP,advanced_options, delLastIntvl,
+        jpsurvDataString,projyear,type,del)
   }
-  
+
   print("Creating chort_models file")
   exportJson <- toJSON(jsonl)
   filename = paste(filePath, paste("cohort_models-", jpsurvData$tokenId, ".json", sep=""), sep="/") #CSV file to download
 
   write(exportJson, filename)
-#Calculates graphs, model estimates etc for first combination by setting first_calc=TRUE
+  #Calculates graphs, model estimates etc for first combination by setting first_calc=TRUE
   getAllData(filePath,jpsurvDataString,TRUE)
-  print("Calculation time") 
+  print("Calculation time")
   print("return from getAllData")
   return
-  
 }
+
+getFittedResultForVarCombo<- function(modelIndex,jpsurvData,filePath,seerFilePrefix,yearOfDiagnosisVarName,
+    yearOfDiagnosisRange, allVars, cohortVars, cohortValues, numJP,advanced_options, delLastIntvl,
+    jpsurvDataString,projyear,type,del) {
+  fileName = paste('output', jpsurvData$tokenId,modelIndex,sep="-" )
+  fileName = paste(fileName, "rds", sep="." )
+
+  outputFileName =paste(filePath, fileName, sep="/" )
+  print (outputFileName)
+  #cat ('combination',modelIndex,cohortValues,"\n")
+
+  getFittedResult(jpsurvData$session_tokenId,filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange,
+    allVars, cohortVars, cohortValues, numJP,advanced_options, delLastIntvl, outputFileName,jpsurvDataString,projyear,type,del)
+
+  print("Fitted Result Time:")
+
+  Selected_Model=getSelectedModel(filePath,jpsurvDataString,modelIndex)
+  print("SELECTED MODEL GET")
+  print(Selected_Model)
+  return (Selected_Model-1)
+}
+
 getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,use_default=TRUE)
 {
   
@@ -193,6 +212,7 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,use_default=TRU
   print("RUNS")
   del=""
   runs=getRunsString(filePath, jpsurvDataString) #gets runs tring
+
   #if input type is a CSV file
   if(type=="csv"){
     header=as.logical(jpsurvData$additional$has_header) #contains headers?
@@ -309,11 +329,8 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,use_default=TRU
   exportJson <- toJSON(jsonl)
   filename = paste(filePath, paste("results-", jpsurvData$tokenId,"-",com,"-",jpInd, ".json", sep=""), sep="/") #CSV file to download
   write(exportJson, filename)
-
-
-
-
 }
+
 getTrendsData<-function(filePath,jpsurvDataString,com)
 {
   jpsurvData <<- fromJSON(jpsurvDataString)
@@ -330,7 +347,9 @@ getTrendsData<-function(filePath,jpsurvDataString,com)
 }
 
 #Creates the SEER Data and Fitted Result
-getFittedResult <- function (tokenId,filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange, allVars, cohortVars, cohortValues, numJP, advanced_options,delLastIntvlAdv,outputFileName,jpsurvDataString,projyear,type,alive_at_start=NULL,interval=NULL,died=NULL,lost_to_followup=NULL,rel_cum=NULL) {
+getFittedResult <- function (tokenId,filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange,
+    allVars, cohortVars,cohortValues, numJP, advanced_options,delLastIntvlAdv,outputFileName,jpsurvDataString,projyear,type,
+    alive_at_start=NULL,interval=NULL,died=NULL,lost_to_followup=NULL,rel_cum=NULL) {
   jpsurvData <<- fromJSON(jpsurvDataString)
   print ("creating RDS")
   print (numJP)
@@ -344,8 +363,6 @@ getFittedResult <- function (tokenId,filePath, seerFilePrefix, yearOfDiagnosisVa
   subsetStr=getSubsetStr(yearOfDiagnosisVarName, yearOfDiagnosisRange, cohortVars, cohortValues)
   #assign subsetStr in the global in order for eval(parse(text=)) to work
   assign("subsetStr", subsetStr, envir = .GlobalEnv)
-  
-
 
   print(type)
   if(type=="dic"){
@@ -435,17 +452,18 @@ getFullDataDownload <- function(filePath,jpsurvDataString,com) {
   Full_Data=outputData$fittedResult$fullpredicted
   
   cohorts=jpsurvData$calculate$form$cohortVars
-  
-  for (i in length(cohorts):1)
-  {
-    value=gsub("\"",'',jpsurvData$calculate$form$cohortValues[[i]])
-    value=noquote(value)
-    Full_Data[cohorts[[i]]] <- value
-    
-    col_idx=ncol(Full_Data)
-    Full_Data <- Full_Data[, c(col_idx, (1:ncol(Full_Data))[-col_idx])]
-    names(Full_Data)
-  }  
+  if(length(cohorts) > 0) {
+    for (i in length(cohorts):1)
+    {
+      value=gsub("\"",'',jpsurvData$calculate$form$cohortValues[[i]])
+      value=noquote(value)
+      Full_Data[cohorts[[i]]] <- value
+
+      col_idx=ncol(Full_Data)
+      Full_Data <- Full_Data[, c(col_idx, (1:ncol(Full_Data))[-col_idx])]
+      names(Full_Data)
+    }
+  }
   print ("FULL PREDICTED")
   downloadFile = paste(filePath, paste("Full_Predicted-", jpsurvData$tokenId,"-",com,"-",iteration, ".csv", sep=""), sep="/") #CSV file to download
   write.csv(Full_Data, downloadFile, row.names=FALSE)
@@ -544,18 +562,21 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_ca
   cols=ncol(survData)
   print("COLS")
   print(cols)
-  for (i in length(cohorts):1)
-  {
-    value=gsub("\"",'',jpsurvData$calculate$form$cohortValues[[i]])
-    print(value)
-    value=noquote(value)
-    survData[cohorts[[i]]] <- value
-    
-    col_idx=ncol(survData)
-    print(ncol(survData))
-      survData <- survData[, c(col_idx, (1:ncol(survData))[-col_idx])]
-    names(survData)
-  }  
+
+  if(length(cohorts) > 0) {
+    for (i in length(cohorts):1)
+    {
+      value=gsub("\"",'',jpsurvData$calculate$form$cohortValues[[i]])
+      print(value)
+      value=noquote(value)
+      survData[cohorts[[i]]] <- value
+
+      col_idx=ncol(survData)
+      print(ncol(survData))
+        survData <- survData[, c(col_idx, (1:ncol(survData))[-col_idx])]
+      names(survData)
+    }
+  }
 
   write.csv(survData, downloadFile, row.names=FALSE)
   return (results)
@@ -635,7 +656,7 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString,first_cal
   results =c("RelSurIntData"=survData,"RelSurIntGraph"=graphFile) #returns 
   cohorts=jpsurvData$calculate$form$cohortVars
   # 
-  if(!is.integer(nrow(survData))){
+  if(!is.integer(nrow(survData)) && length(cohorts) > 0){
     survData=survData[[1]]
     for (i in length(cohorts):1)
     {
@@ -766,17 +787,21 @@ getRunsString<-function(filePath,jpsurvDataString){
   length=length(jpsurvData$calculate$form$cohortVars)
   runs=""
   combination_array=c()
-  for(i in 1:length){
-    combination_array[i]=jpsurvData$calculate$form$AllcohortValues[i]
+
+  if(length > 0) {
+    for(i in 1:length){
+      combination_array[i]=jpsurvData$calculate$form$AllcohortValues[i]
+    }
+
+    com_matrix=as.matrix(expand.grid(combination_array))
+
+    for(i in 1:nrow(com_matrix)){
+      row=paste(com_matrix[i,],collapse=" + ")
+      print(row)
+      runs=paste(runs,gsub("\"","",row),sep=" jpcom ")
+      print(runs)
+    }
+    runs=substr(runs, 7, nchar(runs))
   }
-  com_matrix=as.matrix(expand.grid(combination_array))
-  
-  for(i in 1:nrow(com_matrix)){
-    row=paste(com_matrix[i,],collapse=" + ")
-    print(row)
-    runs=paste(runs,gsub("\"","",row),sep=" jpcom ")
-    print(runs)
-  }
-  runs=substr(runs, 7, nchar(runs))
   return (runs)
 }

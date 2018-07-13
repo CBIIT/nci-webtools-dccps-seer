@@ -429,10 +429,12 @@ function load_input_form(inputData){
 }
 //populates the chort dropdown window based on the form selection
 function updateCohortDropdown(){
-    var cohort_array = jpsurvData.results.Runs.split('jpcom');
+  var cohort_array = jpsurvData.results.Runs.split('jpcom');
   var display = document.getElementById("cohort-display");
-   display.innerHTML = "";
+  var displayParent = display.parentElement;
   var length=cohort_array.length;
+
+  display.innerHTML = "";
   for (var i=0;i<length;i++){
     var option=document.createElement("option");
     option.setAttribute("id", i+1);
@@ -440,11 +442,14 @@ function updateCohortDropdown(){
     option.text=cohort;
     display.add(option);
   }
+
+  if (length === 0 || $.inArray("",cohort_array) === 0) {
+    displayParent.style.display = "none";
+  }
+
   dropdownListener();
-
-
-
 }
+
 //populates the inpout json wit hthe desired cohort combination baserd on the cohort dropdown window
 function dropdownListener(){
   var display = document.getElementById("cohort-display");
@@ -798,16 +803,20 @@ function updateGraphs(token_id) {
 
         if(jpsurvData.results.Runs.split('jpcom')!=undefined){
         var cohort_array = jpsurvData.results.Runs.split('jpcom');
-        var values= cohort_array[jpsurvData.results.com-1].split(" + "); 
+        var values= cohort_array[jpsurvData.results.com-1].split(" + ");
         $.each(values, function(index2, value2) {
-          row += "<td>"+value2.replace(/"/g, "")+"</td>";
-          });
+          if(value2) {
+            row += "<td>"+value2.replace(/"/g, "")+"</td>";
+          }
+         });
       }
       else{
         var cohort_array = jpsurvData.results.Runs.split('jpcom');
         var values= cohort_array.split(" + ");
         $.each(values, function(index2, value2) {
-        row += "<td>"+value2.replace(/"/g, "")+"</td>";
+          if(value2) {
+            row += "<td>"+value2.replace(/"/g, "")+"</td>";
+          }
         });
       }
       var type = Object.keys(jpsurvData.results.IntData.RelSurIntData)[2];
@@ -876,8 +885,10 @@ function updateGraphs(token_id) {
         var cohort_array = jpsurvData.results.Runs.split('jpcom');
         var values= cohort_array[jpsurvData.results.com-1].split(" + "); 
         $.each(values, function(index2, value2) {
-          row += "<td>"+value2.replace(/"/g, "")+"</td>";
-          });
+          if(value2) {
+            row += "<td>"+value2.replace(/"/g, "")+"</td>";
+          }
+         });
       }
       else{
         var cohort_array = jpsurvData.results.Runs.split('jpcom');
@@ -1320,7 +1331,7 @@ function retrieveResults(cohort_com,jpInd,switch_cohort) {
     });
     
   }
-  $.get(file_name, function (results) {
+  $.getJSON(file_name, function (results) {
 
     jpsurvData.results = results;
     if(!jpsurvData.stage2completed) {
