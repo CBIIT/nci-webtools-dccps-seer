@@ -44,24 +44,40 @@ ReadCSVFile <- function (inputFile, path, tokenId, jpsurvDataString,input_type) 
   csvdata=read.tabledata(fileName=file.path(path, inputFile),  # fileName: Name of file to use in current directory, or filepath.
                     hasHeader=TRUE,
                     dlm=del);                             # hasHeader: Boolean variable indicating whether or not the CSV being read in has a header row or not. Default is FALSE.
-  
+
+  dictionaryCols=c()
+  if( length(cohorts) > 0) {
+    dictionaryCols = c(cohorts,year,interval)
+  } else {
+    dictionaryCols = c(year,interval)
+  }
+  print (dictionaryCols)
   seerFormData=write.tabledic(inputData=csvdata,                       # inputData: Input data.frame.
-                    idCols=c(cohorts,year,interval));    
+                    idCols=dictionaryCols);
                                                           # idColNum: Integer value defining how many leading columns to create a dictionary of possible values from. Default is 1. 
   print(names(csvdata))
   interval_name=names(csvdata)[interval]
   print(interval_name)
 
-  cohort_name=names(csvdata)[cohorts]
+  if( length(cohorts) > 0 ) {
+    cohort_name=names(csvdata)[cohorts]
+  } else {
+    cohort_name=list()
+  }
+
+  if( length(cohorts) == 1 ) {
+    cohort_name = list(cohort_name)
+    cohorts = list(cohorts)
+  }
+
   print(cohorts)
+  print (cohort_name)
 
   year_name=names(csvdata)[year]
   print(year_name)
 
-
   jsonl =list("data"=seerFormData,"cohort_names"=cohort_name,"cohort_keys"=cohorts,"year"=c(year_name,year),"interval"=c(interval_name,interval),"input_type"=input_type,"statistic"=statistic,"alive_at_start"=alive_at_start,"lost_to_followup"=lost_to_followup,"exp_int"=exp_int,"observed"=observed,"died"=died,"has_headers"=has_headers,"del"=del,"rates"=rates)
   exportJson <- toJSON(jsonl)
-  
   print("Creating form file")
   write(exportJson, fqOutputFileName)
   return(tokenId)
@@ -414,8 +430,7 @@ getFittedResult <- function (tokenId,filePath, seerFilePrefix, yearOfDiagnosisVa
     
     died=names(seerdata)[jpsurvData$additional$died]
     print(died)
-    
-    
+
     fittedResult = joinpoint(seerdata, 
                                subset = eval(parse(text=subsetStr)),
                                year=getCorrectFormat(yearOfDiagnosisVarName),

@@ -539,81 +539,83 @@ function addCohortVariables() {
   var i=0;
   var html = "";
     $.each(cohort_covariance_variables, function(key, value) {
-      jpsurvData.calculate.form.cohortVars.push(key);
-      jpsurvData.calculate.form.AllcohortValues[i]=[];
+      if(key) {
+        jpsurvData.calculate.form.cohortVars.push(key);
+        jpsurvData.calculate.form.AllcohortValues[i]=[];
 
-      html = '<div class="row"><div class="col-md-12"><fieldset id="cohort-'+i+'" data-cohort="'+key+'"><legend><span class="jpsurv-label">'+key+':</span></legend></fieldset></div></div>';
-      $("#cohort-variables").append(html);
-      if(control_data.input_type==undefined)
-      {
-        if(typeof control_data.VarFormatSecList[key].ItemValueInDic == 'string')
+        html = '<div class="row"><div class="col-md-12"><fieldset id="cohort-'+i+'" data-cohort="'+key+'"><legend><span class="jpsurv-label">'+key+':</span></legend></fieldset></div></div>';
+        $("#cohort-variables").append(html);
+        if(control_data.input_type==undefined)
         {
-          $("#cohort-"+0)
-              .append(
-                $('<div>').addClass('checkbox')
-                  .append($('<label>')
-                    .append($('<input>')
-                        .attr('type', 'checkbox')
-                        .attr('value', control_data.VarFormatSecList[key].ItemValueInDic)
-                        .addClass('cohort')
-                        .addClass('cohort-'+i)
-                      ).append(control_data.VarFormatSecList[key].ItemValueInDic)
-                )
-              );
+          if(typeof control_data.VarFormatSecList[key].ItemValueInDic == 'string')
+          {
+            $("#cohort-"+0)
+                .append(
+                  $('<div>').addClass('checkbox')
+                    .append($('<label>')
+                      .append($('<input>')
+                          .attr('type', 'checkbox')
+                          .attr('value', control_data.VarFormatSecList[key].ItemValueInDic)
+                          .addClass('cohort')
+                          .addClass('cohort-'+i)
+                        ).append(control_data.VarFormatSecList[key].ItemValueInDic)
+                  )
+                );
+          }
+          else{
+            $.each(control_data.VarFormatSecList[key].ItemValueInDic, function(key2, value2) {
+              $("#cohort-"+i)
+                .append(
+                  $('<div>').addClass('checkbox')
+                    .append($('<label>')
+                      .append($('<input>')
+                          .attr('type', 'checkbox')
+                          .attr('value', value2)
+                          .addClass('cohort')
+                          .addClass('cohort-'+i)
+                        ).append(value2)
+                  )
+                );
+            });
+          }
         }
-        else{
-          $.each(control_data.VarFormatSecList[key].ItemValueInDic, function(key2, value2) {
+        else if(control_data.input_type=="csv")
+        {
+          if(typeof  cohort_covariance_variables[key]=='number'|| typeof cohort_covariance_variables[key]=="string")
+          {
             $("#cohort-"+i)
               .append(
                 $('<div>').addClass('checkbox')
                   .append($('<label>')
                     .append($('<input>')
                         .attr('type', 'checkbox')
-                        .attr('value', value2)
+                        .attr('value', cohort_covariance_variables[key])
                         .addClass('cohort')
                         .addClass('cohort-'+i)
-                      ).append(value2)
+                      ).append(cohort_covariance_variables[key])
                 )
               );
-          });
-        }
-      }
-      else if(control_data.input_type=="csv")
-      {
-        if(typeof  cohort_covariance_variables[key]=='number'|| typeof cohort_covariance_variables[key]=="string")
-        {
-          $("#cohort-"+i)
-            .append(
-              $('<div>').addClass('checkbox')
-                .append($('<label>')
-                  .append($('<input>')
-                      .attr('type', 'checkbox')
-                      .attr('value', cohort_covariance_variables[key])
-                      .addClass('cohort')
-                      .addClass('cohort-'+i)
-                    ).append(cohort_covariance_variables[key])
-              )
-            );
-        }
-        for(var j=0;j<cohort_covariance_variables[key].length;j++) {
-          $("#cohort-"+i)
-            .append(
-              $('<div>').addClass('checkbox')
-                .append($('<label>')
-                  .append($('<input>')
-                      .attr('type', 'checkbox')
-                      .attr('value', cohort_covariance_variables[key][j])
-                      .addClass('cohort')
-                      .addClass('cohort-'+i)
-                    ).append(cohort_covariance_variables[key][j])
-              )
-            );
-        }
-        
+          }
 
+          for(var j=0;j<cohort_covariance_variables[key].length;j++) {
+            $("#cohort-"+i)
+              .append(
+                $('<div>').addClass('checkbox')
+                  .append($('<label>')
+                    .append($('<input>')
+                        .attr('type', 'checkbox')
+                        .attr('value', cohort_covariance_variables[key][j])
+                        .addClass('cohort')
+                        .addClass('cohort-'+i)
+                      ).append(cohort_covariance_variables[key][j])
+                )
+              );
+          }
+
+        }
+        $("#cohort-"+i).find('input').filter(":first").prop('checked', true);
+        i++;
       }
-      $("#cohort-"+i).find('input').filter(":first").prop('checked', true);
-      i++;
   
     });
     
@@ -2432,7 +2434,7 @@ var template_string='<div class="modal fade" id="modal" tabindex="-1" role="dial
                       +'<option>50</option>'
                       +'<option>60</option>'
                     +'</select> lines of the data file</br></br>'
-      +'<span>Please map <b><i>all</i></b> required paramaters to the apprpriate columns (see help for details)</span>'
+      +'<span>Please map <b><i>all</i></b> required parameters to the appropriate columns (see help for details)</span>'
       +'<div id="modalContent"><table id="data_table" class="table table-striped" style="height:100px;border-top:none;border-left:none;line-height:0" cellspacing:"0" cellpadding="0px" width="100%"></table>'
       +'</div><button type="button" id="save" class="btn btn-primary btn-sm" style="margin-left:45%;margin-top:1%;display:inline-block" onclick=\"save_params()\" >Save</button></button><button type="button" id="cancel" class="btn btn-primary btn-sm" style="display:inline-block;margin-left:5%;margin-top:1%"">Cancel</button>'
       +'</div></div></div></div>';
@@ -2584,7 +2586,7 @@ function save_params() {
     jpsurvData.passed=true
 
        for (var i=0;i<params.length;i++){
-          if(jpsurvData.mapping[params[i]]==undefined || jpsurvData.mapping.cohorts.length==0){
+          if(jpsurvData.mapping[params[i]]==undefined){
             alert("Please choose all necessary paramaters to continue")
             //console.log("Please choose all necessary paramaters to continue")
             passed=false;
@@ -2729,7 +2731,7 @@ $(document).ready(function(){
     template: '<div class="popover" stylle="width:100%"><div class="arrow"></div><div class="popover-inner"><h3 class="popover-title"></h3><div class="popover-content"><p></p></div></div></div>' 
   }); 
  // $('a[rel=popover]').addClass('custom_popover'); 
- 
+
  
 }); 
  
