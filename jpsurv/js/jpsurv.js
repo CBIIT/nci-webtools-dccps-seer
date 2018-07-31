@@ -1622,6 +1622,7 @@ function getSessionOptionInfo(var_name) {
 
 function get_cohort_covariance_variable_names() {
   var cohort_covariance_variable_names = [];
+  var yearOfDiagnosisTitle = jpsurvData.calculate.static.yearOfDiagnosisTitle;
 
   if(control_data.input_type==undefined){
     var form_data = control_data;
@@ -1632,7 +1633,7 @@ function get_cohort_covariance_variable_names() {
     var regex_base = /^Var\d*Base/;
     var regex_name = /^Var\d*Name/;
     var regex_interval = /Interval/;
-    var regex_year = /Year of diagnosis/;
+    var regex_year = new RegExp('Year of diagnosis|'+yearOfDiagnosisTitle);
     //Go through Item Value and look for "Year of diagnosis"
     //Push variable names on to a list called cohort_covariance_variable_names.
     for (var i=0; i<names.length; i++) {
@@ -1641,6 +1642,7 @@ function get_cohort_covariance_variable_names() {
       if (!regex_name.test(names[i])) continue;
       if (values[i] == "Page type") continue; // Skip the Page type
       if (regex_year.test(values[i])) continue; //skips "Year of diagnosis"
+      //if variable has Base for which
       cohort_covariance_variable_names.push(values[i]);
     }
 
