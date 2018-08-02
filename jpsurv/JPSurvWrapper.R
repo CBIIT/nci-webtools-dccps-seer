@@ -299,7 +299,7 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,use_default=TRU
   Selected_Model=getSelectedModel(filePath,jpsurvDataString,com)
   print("Completed getting Selected_Model")
   
-  Full_data=getFullDataDownload(filePath,jpsurvDataString,com)
+  Full_data=getFullDataDownload(filePath,jpsurvDataString,com,first_calc)
   print("Completed getting Full_data")
 
    statistic=jpsurvData$additional$statistic
@@ -456,13 +456,22 @@ getFittedResult <- function (tokenId,filePath, seerFilePrefix, yearOfDiagnosisVa
 
 }
 
-getFullDataDownload <- function(filePath,jpsurvDataString,com) {
+getFullDataDownload <- function(filePath,jpsurvDataString,com,first_calc=FALSE) {
   jpsurvData <<- fromJSON(jpsurvDataString)
   iteration=jpsurvData$plot$static$imageId
   file=paste(filePath, paste("output-", jpsurvData$tokenId,"-",com,".rds", sep=""), sep="/")
+  print(paste("File to read for full data download: ",file," them com value is: ",com))
   outputData=readRDS(file)
-  Full_Data=outputData$fittedResult$fullpredicted
-  
+
+  jpInd=jpsurvData$additional$headerJoinPoints
+  if(first_calc==TRUE||is.null(jpInd))
+  {
+    jpInd=getSelectedModel(filePath,jpsurvDataString,com)-1
+  }
+  print(paste("the combination is com: ",com," the selected joinpoint is: ",jpInd))
+  #Full_Data=outputData$fittedResult$fullpredicted
+  Full_Data=outputData$fittedResult$FitList[[jpInd+1]]$predicted
+
   cohorts=jpsurvData$calculate$form$cohortVars
 
   if(length(cohorts) > 0) {
