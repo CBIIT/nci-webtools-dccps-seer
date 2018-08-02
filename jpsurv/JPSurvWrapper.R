@@ -165,6 +165,7 @@ getFittedResultWrapper <- function (filePath, jpsurvDataString) {
 
   jsonl=list()
   #loops through each combnation in t he matrix and creates a R data file
+  print(paste("MODELS to generate: ",nrow(com_matrix)))
 
   if( nrow(com_matrix) > 0 ) {
     for(i in 1:nrow(com_matrix)){
@@ -280,22 +281,18 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,use_default=TRU
       input_type="dic"
   }
 
-    print("CREATING Year GRAPH")
-    YearGraph=getRelativeSurvivalByYearWrapper(filePath,jpsurvDataString,first_calc,com,interval,observed,use_default)
+  print("CREATING Year GRAPH")
+  YearGraph=getRelativeSurvivalByYearWrapper(filePath,jpsurvDataString,first_calc,com,interval,observed,use_default)
 
-    print("creating IntGraph");
-    IntGraph=getRelativeSurvivalByIntWrapper(filePath,jpsurvDataString,first_calc,com,interval,observed,use_default)
-    print("Int Graph Time:")
-  
+  print("creating IntGraph");
+  IntGraph=getRelativeSurvivalByIntWrapper(filePath,jpsurvDataString,first_calc,com,interval,observed,use_default)
+  print("Int Graph Time:")
   
   ModelSelection=geALLtModelWrapper(filePath,jpsurvDataString,com)
   Coefficients=getcoefficientsWrapper(filePath,jpsurvDataString,first_calc,com)
   print ("header joint point!!")
   print (jpsurvData$additional$headerJoinPoints)
-  
 
-
-  
   JP=getJPWrapper(filePath,jpsurvDataString,first_calc,com)
   print("Completed getting JP")
   
@@ -456,9 +453,9 @@ getFittedResult <- function (tokenId,filePath, seerFilePrefix, yearOfDiagnosisVa
   
   print ("saving RDS")
   saveRDS(outputData, outputFileName)
-  
-  
+
 }
+
 getFullDataDownload <- function(filePath,jpsurvDataString,com) {
   jpsurvData <<- fromJSON(jpsurvDataString)
   iteration=jpsurvData$plot$static$imageId
@@ -467,6 +464,7 @@ getFullDataDownload <- function(filePath,jpsurvDataString,com) {
   Full_Data=outputData$fittedResult$fullpredicted
   
   cohorts=jpsurvData$calculate$form$cohortVars
+
   if(length(cohorts) > 0) {
     for (i in length(cohorts):1)
     {
@@ -633,17 +631,15 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString,first_cal
   graphFile= paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",com,"-",jpInd,"-",iteration,".png", sep=""), sep="/")
   downloadFile = paste(filePath, paste("data_Int-", jpsurvData$tokenId,"-",com,"-",jpInd, "-",iteration, ".csv", sep=""), sep="/") #CSV file to download
   yearOfDiagnosisVarName=getCorrectFormat(yearOfDiagnosisVarName)
-  
 
-
-    survData=data.plot.surv.int(outputData$fittedResult$FitList[[jpInd+1]], 
-      yearvar=yearOfDiagnosisVarName, 
-      year=yearOfDiagnosis,
-      interval=interval_var, 
-      survvar=survar_var);
+  survData=data.plot.surv.int(outputData$fittedResult$FitList[[jpInd+1]],
+    yearvar=yearOfDiagnosisVarName,
+    year=yearOfDiagnosis,
+    interval=interval_var,
+    survvar=survar_var);
       
-    maxint <- max(survData[[1]][[interval_var]])
-#From package, interval graph
+  maxint <- max(survData[[1]][[interval_var]])
+  #From package, interval graph
   ggplot(survData[[1]], aes(x=survData[[1]][[interval_var]])) + 
       geom_line(aes(y=pred_cum, colour="pred_cum")) + 
       geom_point(aes(y=survData[[1]][[survar_var]], colour=survar_var)) +
@@ -671,18 +667,20 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString,first_cal
   results =c("RelSurIntData"=survData,"RelSurIntGraph"=graphFile) #returns 
   cohorts=jpsurvData$calculate$form$cohortVars
   # 
-  if(!is.integer(nrow(survData)) && length(cohorts) > 0){
+  if(!is.integer(nrow(survData))){
     survData=survData[[1]]
-    for (i in length(cohorts):1)
-    {
-      value=gsub("\"",'',jpsurvData$calculate$form$cohortValues[[i]])
-      value=noquote(value)
-      survData[cohorts[[i]]] <- value
-      
-      col_idx=ncol(survData)
-      survData <- survData[, c(col_idx, (1:ncol(survData))[-col_idx])]
-      names(survData)
-    } 
+    if(length(cohorts) > 0) {
+      for (i in length(cohorts):1)
+      {
+        value=gsub("\"",'',jpsurvData$calculate$form$cohortValues[[i]])
+        value=noquote(value)
+        survData[cohorts[[i]]] <- value
+
+        col_idx=ncol(survData)
+        survData <- survData[, c(col_idx, (1:ncol(survData))[-col_idx])]
+        names(survData)
+      }
+    }
   }
   else{
     survData<-rbind("","","","")
