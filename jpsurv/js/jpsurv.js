@@ -2589,8 +2589,8 @@ function save_params() {
 
        for (var i=0;i<params.length;i++){
           if(jpsurvData.mapping[params[i]]==undefined){
-            alert("Please choose all necessary paramaters to continue")
-            //console.log("Please choose all necessary paramaters to continue")
+            alert("Please choose all necessary parameters to continue")
+            //console.log("Please choose all necessary parameters to continue")
             passed=false;
             jpsurvData.passed=false
             break;
