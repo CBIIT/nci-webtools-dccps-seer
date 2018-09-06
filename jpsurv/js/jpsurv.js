@@ -2733,7 +2733,7 @@ $(document).ready(function(){
     template: '<div class="popover" stylle="width:100%"><div class="arrow"></div><div class="popover-inner"><h3 class="popover-title"></h3><div class="popover-content"><p></p></div></div></div>' 
   }); 
  // $('a[rel=popover]').addClass('custom_popover'); 
-
+ $.ajaxSetup({ cache: false });
  
 }); 
  
