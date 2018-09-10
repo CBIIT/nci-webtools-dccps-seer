@@ -1,0 +1,12 @@
+// define 3 theme color
+// mat-palette accepts $palette-name, main, lighter and darker variants
+$rrt-theme-primary: mat-palette($mat-grey, 200, 500, 300);
+$rrt-theme-accent: mat-palette($mat-brown, 200);
+$rrt-theme-warn: mat-palette($mat-deep-purple, 200);
+
+// create theme (use mat-dark-theme for themes with dark backgrounds)
+$rrt-theme: mat-light-theme(
+    $rrt-theme-primary,
+    $rrt-theme-accent,
+    $rrt-theme-warn
+);

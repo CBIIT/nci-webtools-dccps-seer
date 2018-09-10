@@ -1,0 +1,38 @@
+
+.mat-card {
+  margin: 0;
+}
+
+.center-block {
+    display: block;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+ul {
+    text-align: center;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.list-inline {
+    padding-left: 0;
+    margin-left: -5px;
+    list-style: none;
+}
+
+.list-inline>li {
+    display: inline-block;
+    padding-right: 5px;
+    padding-left: 5px;
+}
+
+a {
+ text-decoration: none;
+}
+
+a, a:visited, a:hover, a:active {
+  color: inherit;
+}

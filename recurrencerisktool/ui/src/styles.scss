@@ -1,0 +1,90 @@
+@import 'styles-variables';
+
+@import '~@angular/material/theming';
+@include mat-core();
+
+@import 'rrt-theme.scss';
+
+$foreground: map-get($rrt-theme, foreground);
+$background: map-get($rrt-theme, background);
+
+html, body {
+  padding: 0;
+  margin: 0;
+  height: 100vh;
+}
+
+.rtt-app-theme {
+  @include angular-material-theme($rrt-theme);
+}
+
+.rrt-app {
+  height: 100vh;
+}
+
+.mat-toolbar {
+  z-index: 10;
+}
+
+.rtt-app-theme  .card-form {
+  height: 90%;
+}
+
+.rtt-app-theme .mat-card.card-result {
+  width: 85%;
+  height: 90%;
+  max-width: 1200px;
+  background-color: white;
+}
+
+.rtt-app-theme .mat-card {
+  margin: 20px;
+  background-color : mat-color($background, app-bar);
+}
+
+
+header {
+  margin-bottom: 1vh;
+  width: 95%;
+  max-width: 1600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.main {
+  width: 95%;
+  max-width: 1600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+footer {
+  width: 95%;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 1600px;
+}
+
+.form-label {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.browse-button {
+  margin-right: 0.5vw;
+}
+
+.mat-slider-thumb-label {
+    transform: rotate(45deg) !important;
+    border-radius: 50% 50% 0 !important;
+}
+
+.mat-slider-thumb {
+    transform: scale(0) !important;
+}
+
+.mat-slider-thumb-label-text {
+    opacity: 1 !important;
+}
+
+
