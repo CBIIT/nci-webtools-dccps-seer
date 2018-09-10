@@ -15,7 +15,7 @@
                            (keyup.enter)="dicFileInput.inputElement.click()"
                            (keyup.delete)="dicFileInput.clear()"
                            (keyup.backspace)="dicFileInput.clear()">
-               <input matInput [value]="groupDataForm?.value?.seerDictionaryFile?.name ? groupDataForm?.value?.seerDictionaryFile?.name : 'No file selected' " readonly/>
+               <input matInput placeholder="Select file" [value]="groupDataForm?.value?.seerDictionaryFile?.name ? groupDataForm?.value?.seerDictionaryFile?.name : '' " readonly/>
              </mat-form-field>
 
            </div>
@@ -32,7 +32,7 @@
                              (keyup.enter)="dataFileInput.inputElement.click()"
                              (keyup.delete)="dataFileInput.clear()"
                              (keyup.backspace)="dataFileInput.clear()">
-               <input matInput [value]="groupDataForm?.value?.seerDataFile?.name ? groupDataForm?.value?.seerDataFile?.name : 'No file selected' " readonly/>
+               <input matInput placeholder="Select file" [value]="groupDataForm?.value?.seerDataFile?.name ? groupDataForm?.value?.seerDataFile?.name : '' " readonly/>
              </mat-form-field>
 
            </div>
@@ -49,7 +49,7 @@
                                (keyup.enter)="canSurvFileInput.inputElement.click()"
                                (keyup.delete)="canSurvFileInput.clear()"
                                (keyup.backspace)="canSurvFileInput.clear()">
-                 <input matInput [value]="groupDataForm?.value?.canSurvDataFile?.name ? groupDataForm?.value?.canSurvDataFile?.name : 'No file selected' " readonly/>
+                 <input matInput placeholder="Select file" [value]="groupDataForm?.value?.canSurvDataFile?.name ? groupDataForm?.value?.canSurvDataFile?.name : '' " readonly/>
                </mat-form-field>
 
 
@@ -67,7 +67,7 @@
            <span class="form-label">Distant Stage Value:</span>
            <mat-form-field>
              <mat-select formControlName="stageValue" required>
-               <mat-option *ngFor="let stageVal of stageValues" [value]="stageVal">
+               <mat-option *ngFor="let stageVal of distantStageValues" [value]="stageVal">
                  {{stageVal}}
                </mat-option>
              </mat-select>

@@ -10,8 +10,8 @@ export class GroupComponent implements OnInit {
 
   private groupDataForm: FormGroup;
 
-  private stageVariables: string[] = [];
-  private distantStageValues: string[] = [];
+  private stageVariables: string[] = ['test1','test2'];
+  private distantStageValues: string[] = ['test3','test4'];
 
   private followup: any = {
     max: 30,
@@ -27,7 +27,7 @@ export class GroupComponent implements OnInit {
       canSurvDataFile: new FormControl(''),
       stageVariable: new FormControl(''),
       stageValue: new FormControl(''),
-      adjustmentFactor: new FormControl(''),
+      adjustmentFactor: new FormControl('1'),
       yearsOfFollowUp: new FormControl('25')
     });
   }
