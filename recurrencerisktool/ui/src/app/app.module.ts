@@ -17,12 +17,15 @@ import {
   MatSliderModule,
   MatIconModule,
   MatDividerModule,
-  MatTabsModule
+  MatTabsModule,
+  MatTableModule,
+  MatPaginatorModule
 } from '@angular/material';
 import { AppComponent } from './app.component';
 import { HeaderComponent,FooterComponent } from './common';
 import { GroupComponent } from './group/group.component';
 import { IndividualComponent } from './individual/individual.component';
+import { HelpComponent } from './group/help/help.component';
 
 const appRoutes: Routes = [
   { path: 'individual', component: IndividualComponent },
@@ -36,7 +39,8 @@ const appRoutes: Routes = [
     HeaderComponent,
     FooterComponent,
     GroupComponent,
-    IndividualComponent
+    IndividualComponent,
+    HelpComponent
   ],
   imports: [
     RouterModule.forRoot(
@@ -60,7 +64,9 @@ const appRoutes: Routes = [
     MatSliderModule,
     MatDividerModule,
     MatIconModule,
-    MatTabsModule
+    MatTabsModule,
+    MatTableModule,
+    MatPaginatorModule
   ],
   providers: [],
   bootstrap: [AppComponent]

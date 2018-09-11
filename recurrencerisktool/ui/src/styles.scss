@@ -18,9 +18,6 @@ html, body {
   @include angular-material-theme($rrt-theme);
 }
 
-.rrt-app {
-  height: 100vh;
-}
 
 .mat-toolbar {
   z-index: 10;
@@ -86,5 +83,3 @@ footer {
 .mat-slider-thumb-label-text {
     opacity: 1 !important;
 }
-
-

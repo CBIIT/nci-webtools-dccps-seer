@@ -4,8 +4,8 @@
 
 export const environment = {
   production: false,
-  envName: 'local',
-  apiUrl: 'https://localhost:8080'
+  envName: 'dev',
+  apiUrl: 'https://analysistools-dev.nci.nih.gov/recurrencerisktool'
 };
 
 /*

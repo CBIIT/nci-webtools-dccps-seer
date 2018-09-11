@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "nci-webtools-dccps-recurrence-risk": {
+    "recurrence-risk-tool": {
       "root": "",
       "sourceRoot": "src",
       "projectType": "application",
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/nci-webtools-dccps-recurrence-risk",
+            "outputPath": "dist/recurrence-risk-tool",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -47,24 +47,55 @@
               "extractLicenses": true,
               "vendorChunk": false,
               "buildOptimizer": true
+            },
+            "dev": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.dev.ts"
+                }
+              ]
+            },
+            "qa": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.qa.ts"
+                }
+              ],
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "aot": true,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true
             }
           }
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "nci-webtools-dccps-recurrence-risk:build"
+            "browserTarget": "recurrence-risk-tool:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "nci-webtools-dccps-recurrence-risk:build:production"
+              "browserTarget": "recurrence-risk-tool:build:production"
+            },
+            "qa": {
+              "browserTarget": "recurrence-risk-tool:build:qa"
+            },
+            "production": {
+              "browserTarget": "recurrence-risk-tool:build:dev"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "nci-webtools-dccps-recurrence-risk:build"
+            "browserTarget": "recurrence-risk-tool:build"
           }
         },
         "test": {
@@ -98,7 +129,7 @@
         }
       }
     },
-    "nci-webtools-dccps-recurrence-risk-e2e": {
+    "recurrence-risk-tool-e2e": {
       "root": "e2e/",
       "projectType": "application",
       "architect": {
@@ -106,11 +137,11 @@
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "e2e/protractor.conf.js",
-            "devServerTarget": "nci-webtools-dccps-recurrence-risk:serve"
+            "devServerTarget": "recurrence-risk-tool:serve"
           },
           "configurations": {
             "production": {
-              "devServerTarget": "nci-webtools-dccps-recurrence-risk:serve:production"
+              "devServerTarget": "recurrence-risk-tool:serve:production"
             }
           }
         },
@@ -126,5 +157,5 @@
       }
     }
   },
-  "defaultProject": "nci-webtools-dccps-recurrence-risk"
+  "defaultProject": "recurrence-risk-tool"
 }

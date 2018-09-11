@@ -34,7 +34,6 @@
                              (keyup.backspace)="dataFileInput.clear()">
                <input matInput placeholder="Select file" [value]="groupDataForm?.value?.seerDataFile?.name ? groupDataForm?.value?.seerDataFile?.name : '' " readonly/>
              </mat-form-field>
-
            </div>
 
            <span class="form-label">CanSurv CSV File:</span>
@@ -51,8 +50,6 @@
                                (keyup.backspace)="canSurvFileInput.clear()">
                  <input matInput placeholder="Select file" [value]="groupDataForm?.value?.canSurvDataFile?.name ? groupDataForm?.value?.canSurvDataFile?.name : '' " readonly/>
                </mat-form-field>
-
-
            </div>
 
            <span class="form-label">Stage Variable:</span>
@@ -86,7 +83,6 @@
               [tickInterval]="followup.interval"
               thumbLabel>
            </mat-slider>
-
            <span>
              <button mat-raised-button>Submit</button>
            </span>
@@ -99,56 +95,21 @@
        <mat-card-content>
          <mat-tab-group>
            <mat-tab label="Output">
-             <h1>Not loaded</h1>
-             <p>...</p>
+             <div class="table-container">
+               <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+               <ng-container [matColumnDef]="column" *ngFor="let column of displayedColumns">
+                 <th mat-header-cell *matHeaderCellDef> {{column}} </th>
+                 <td mat-cell *matCellDef="let element"> {{element[column]}} </td>
+               </ng-container>
+
+               <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
+               <tr mat-row *matRowDef="let row; columns: columnsToDisplay;"></tr>
+               </table>
+             </div>
+             <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
            </mat-tab>
            <mat-tab label="Help">
-             <div class="tab-pane active" data-value="Help" id="tab-3413-2">
-               <br>
-               <p>This web application has been developed to estimate the risk of progressing to distant recurrence using disease-specific survival typically provided by cancer registries.
-                 The disease-specific survival is assessed via cause-specific survival using SEER*Stat software.
-                 The cause-specific survival is assumed to follow a mixture-cure model and the risk of recurrence is inferred from the survival among the non-cured fraction.
-                 The cure fraction and parametric survival distribution among those not cured are estimated using CanSurv software.
-                 The current version can handle Weibull and log-logistic distributions for the non-cured survival.</p>
-               <br>
-               <b>Input</b>
-               <ul><li> <b>SEER*Stat Dic File</b>: the dictionary file exported from SEER*Stat software with .dic extension which contains the information describing the layout of the export data file.
-               </li><li> <b>SEER*Stat Data File</b>: the cause-specific survival data generated from SEER*Stat in .txt format.
-               </li><li> <b>CanSurv CSV File</b>: the CSV format output from CanSurv software including parameters for the mixture cure survival model.
-               </li><li> <b>Stage Variable</b>: the stage variable defined in SEER*Stat data. All variable names in the data set will be listed after uploading the SEER*Stat files. If there are more than 1 stage variable, the user will need to select the one which contains the distant stage or input the stage variable name manually.
-               </li><li> <b>Distant Stage Value</b>: the user will need to select the numeric value of distant stage from the listed values of Stage Variable or enter the value manually.
-               </li><li> <b>Adjustment Factor r</b>: the factor used to adjust the registry-based survival curves for sensitivity analysis. The user may click the up and down arrows to change the value or type in any value. The default value is 1.
-               </li><li> <b>Years of Follow-up</b>: the range of follow-up years in the output. The default number is 25. If the maximum number of follow-up years (max.num.year) in the SEER*Stat data is less than 25, then the default number will be updated to the max.num.year.
-               </li></ul>
-               <b>Output</b>
-               <ul><li> <b>link</b>: the parametric survival distribution among those not cured specified in CanSurv.
-               </li><li> <b>cure</b>: the cure fraction estimated from the mixture cure survival model.
-               </li><li> <b>lambda/k</b>: the estimated parameters of the survival distribution for those not cured.
-               </li><li> <b>theta</b>: the exponential hazard of the time from recurrence to cancer death.
-               </li><li> <b>surv_curemodel</b>: the survival estimated from the mixture cure survival model.
-               </li><li> <b>surv_notcure</b>: the estimated survival for the non-cured fraction.
-               </li><li> <b>median_surv_notcured</b>: the median survival time for the non-cured fraction.
-               </li><li> <b>s1_numerical</b>: the numerical estimated survival to recurrence (recurrence-free survival) for the non-cured fraction.
-               </li><li> <b>G_numerical</b>: the numerical estimated survival to recurrence.
-               </li><li> <b>CI_numerical</b>: 1-G_numerical, the numerical estimated cumulative incidence of recurrence which is the probability of progressing to cancer recurrence.
-               </li><li> <b>s1_analytical</b>: the analytical estimated survival to recurrence (recurrence-free survival) for the non-cured fraction.
-               </li><li> <b>G_analytical</b>: the analytical estimated survival to recurrence.
-               </li><li> <b>CI_analytical</b>: 1- G_analytical, the analytical estimated cumulative incidence of recurrence.
-               </li><li> <b>se_CI_analytical</b>: the standard error of CI_analytical.
-               </li><li> <b>obs_surv</b>: the observed survival from SEER*Stat.
-               </li><li> <b>obs_dist_surv</b>: the observed survival for distant stage from SEER*Stat.
-               </li></ul>
-               <div><br>Example available at <a href="https://github.com/recurrencerisk/recurrence/archive/example.zip" target="_blank" download="shinyapp_recurrence_example">shinyapp_recurrence_example</a>.</div>
-               <br>
-               <br>
-               <p>References</p>
-               <h5>1. Yu B, Tiwari RC, Cronin KA, McDonald C, Feuer EJ. CANSURV: A Windows program for population-based cancer survival analysis. Comput.Methods Programs Biomed. 2005;80(3):195-203.</h5>
-               <h5>2. Yu B, Tiwari RC, Cronin KA, Feuer EJ. Cure fraction estimation from the mixture cure models for grouped survival data. Stat.Med. 2004;23(11):1733-47.</h5>
-               <h5>3. De Angelis R, Capocaccia R, Hakulinen T, Soderman B, Verdecchia A. Mixture models for cancer survival analysis: application to population-based data with covariates. Stat.Med. 1999;18(4):441-54.</h5>
-               <h5>4. Capocaccia R. Relationships between incidence and mortality in non-reversible diseases. Stat Med. 1993;12(24):2395-415.</h5>
-               <h5>5. Li CS, Taylor JMG, Sy JP. Identifiability of cure models. Statistics &amp; Probability Letters. 2001;54(4):389-95.</h5>
-               <h5>6. Howlader N, Ries LA, Mariotto AB, Reichman ME, Ruhl J, Cronin KA. Improved estimates of cancer-specific survival rates from population-based data. J Natl Cancer Inst. 2010;102(20):1584-98.</h5>
-             </div>
+             <rrt-help></rrt-help>
            </mat-tab>
          </mat-tab-group>
        </mat-card-content>
