@@ -105,6 +105,7 @@ export class GroupComponent implements OnInit {
     if(file) {
       console.log("Dictionary changed");
       console.log(file);
+      this.loadSeerFormData();
     }
   }
 
@@ -112,20 +113,30 @@ export class GroupComponent implements OnInit {
     if(file) {
       console.log("Data file changed");
       console.log(file);
+      this.loadSeerFormData();
     }
   }
 
   loadSeerFormData() {
-     //upload files and get back metadata to fill in forms
-     //also update form controls with new data
-     //let options: IUploadOptions = {
-     //      url: 'https://url.to/API',
-     //      method: 'post',
-     //      file: file
-     //    };
-     //    this.fileService.upload(options).subscribe((response) => {
-     //      ...
-     //    });
+    //upload files and get back metadata to fill in form inputs
+    let dicFile = this.groupDataForm.get('seerDictionaryFile').value;
+    let dataFile = this.groupDataForm.get('seerDataFile').value;
+    let formData: FormData = new FormData();
+
+    if( dicFile && dataFile) {
+      formData.append('seerDictionaryFile', dicFile, dicFile.name);
+      formData.append('seerDataFile', dataFile, dataFile.name);
+
+      let options: IUploadOptions = {
+        url: `${environment.apiUrl}/recurrence/groupMetadata`,
+        method: 'post',
+        formData: formData
+       };
+
+       this.fileUploadService.upload(options).subscribe((response) => {
+         console.log(response);
+       });
+     }
   }
 
 }

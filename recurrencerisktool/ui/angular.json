@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "recurrence-risk-tool": {
+    "recurrence-risk-tool-ui": {
       "root": "",
       "sourceRoot": "src",
       "projectType": "application",
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/recurrence-risk-tool",
+            "outputPath": "dist/recurrence-risk-tool-ui",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -78,24 +78,24 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "recurrence-risk-tool:build"
+            "browserTarget": "recurrence-risk-tool-ui:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "recurrence-risk-tool:build:production"
+              "browserTarget": "recurrence-risk-tool-ui:build:production"
             },
             "qa": {
-              "browserTarget": "recurrence-risk-tool:build:qa"
+              "browserTarget": "recurrence-risk-tool-ui:build:qa"
             },
             "production": {
-              "browserTarget": "recurrence-risk-tool:build:dev"
+              "browserTarget": "recurrence-risk-tool-ui:build:dev"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "recurrence-risk-tool:build"
+            "browserTarget": "recurrence-risk-tool-ui:build"
           }
         },
         "test": {
@@ -129,7 +129,7 @@
         }
       }
     },
-    "recurrence-risk-tool-e2e": {
+    "recurrence-risk-tool-ui-e2e": {
       "root": "e2e/",
       "projectType": "application",
       "architect": {
@@ -137,11 +137,11 @@
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "e2e/protractor.conf.js",
-            "devServerTarget": "recurrence-risk-tool:serve"
+            "devServerTarget": "recurrence-risk-tool-ui:serve"
           },
           "configurations": {
             "production": {
-              "devServerTarget": "recurrence-risk-tool:serve:production"
+              "devServerTarget": "recurrence-risk-tool-ui:serve:production"
             }
           }
         },
@@ -157,5 +157,5 @@
       }
     }
   },
-  "defaultProject": "recurrence-risk-tool"
+  "defaultProject": "recurrence-risk-tool-ui"
 }

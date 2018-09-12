@@ -1,7 +1,9 @@
-<section class="flex-container" fxLayout="column" fxLayoutAlign="start stretch">
-<rrt-header defaultSelection="group"></rrt-header>
-<section class="main" fxFlex>
-  <router-outlet></router-outlet>
-</section>
-<rrt-footer></rrt-footer>
+<section class="page-container">
+  <div class="content" fxLayout="column" fxLayoutAlign="start stretch">
+    <rrt-header defaultSelection="group"></rrt-header>
+    <main fxFlex="1 0 auto">
+      <router-outlet></router-outlet>
+    </main>
+    <rrt-footer></rrt-footer>
+  </div>
 </section>
