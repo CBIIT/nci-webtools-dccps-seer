@@ -19,7 +19,8 @@ import {
   MatDividerModule,
   MatTabsModule,
   MatTableModule,
-  MatPaginatorModule
+  MatPaginatorModule,
+  MatProgressBarModule
 } from '@angular/material';
 import { AppComponent } from './app.component';
 import { HeaderComponent,FooterComponent } from './common';
@@ -66,7 +67,8 @@ const appRoutes: Routes = [
     MatIconModule,
     MatTabsModule,
     MatTableModule,
-    MatPaginatorModule
+    MatPaginatorModule,
+    MatProgressBarModule
   ],
   providers: [],
   bootstrap: [AppComponent]

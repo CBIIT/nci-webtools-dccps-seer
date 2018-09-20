@@ -1,7 +1,22 @@
-table {
-  width: 150%;
+.table-container {
+  overflow-x: auto;
+  padding: 5px;
 }
 
-.table-container {
-  overflow: auto;
+.mat-table {
+  margin-right: 5px;
+  display: inline-table;
+  width: 99%;
+  th, td {
+    padding: 10px;
+  }
+}
+
+.card-form {
+  height: 100%;
+}
+
+.card-result {
+  height: 100%;
+  background-color: white;
 }

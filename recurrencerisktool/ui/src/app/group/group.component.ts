@@ -11,25 +11,7 @@ import { environment } from '../../environments/environment';
 })
 export class GroupComponent implements OnInit {
 
-  dataSource = new MatTableDataSource<any>([{
-   link: 0.67,
-   cure: 0.67,
-   lambda: 0.67,
-   theta:0.67,
-   surv_curemodel:0.67,
-   surv_notcure:0.45,
-   median_surv_notcured:0.67,
-   s1_numerical:0.67,
-   G_numerical:0.67,
-   CI_numerical:0.67,
-   s1_analytical:0.67,
-   G_analytical:0.67,
-   CI_analytical:0.67,
-   se_CI_analytical:0.67,
-   obs_surv:0.67,
-   obs_dist_surv:0.67
-
-  }]);
+  dataSource = new MatTableDataSource<any>([]);
 
   displayedColumns: string[] = [
     'link',
@@ -37,7 +19,7 @@ export class GroupComponent implements OnInit {
     'lambda',
     'theta',
     'surv_curemodel',
-    'surv_notcure',
+    'surv_notcured',
     'median_surv_notcured',
     's1_numerical',
     'G_numerical',
@@ -52,8 +34,8 @@ export class GroupComponent implements OnInit {
   columnsToDisplay: string[] = this.displayedColumns.slice();
   groupDataForm: FormGroup;
 
-  stageVariables: string[] = ['test1','test2'];
-  distantStageValues: string[] = ['test3','test4'];
+  stageVariables: string[] = [];
+  distantStageValues: string[] = [];
 
   followup: any = {
     max: 30,
@@ -61,6 +43,10 @@ export class GroupComponent implements OnInit {
     step: 1,
     interval: 1
   };
+
+  groupMetadata: any;
+
+  isGroupDataLoading: boolean = false;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
@@ -83,39 +69,65 @@ export class GroupComponent implements OnInit {
        this.handleSeerDataFileChange(file);
     });
 
+    this.groupDataForm.get('stageVariable').valueChanges.subscribe( stageVar => {
+       this.distantStageValues = this.groupMetadata['values'][stageVar];
+    })
+
   }
 
   ngOnInit() {
     this.dataSource.paginator = this.paginator;
   }
 
-  onSubmit() {
-    //submit everything
-    console.log(this.groupDataForm);
-    if(this.groupDataForm.invalid) {
-      console.log("Form is invalid")
-      return;
-    }
-
-    console.log("Form submitted");
-    console.log(this.groupDataForm);
-  }
-
   handleSeerDictionaryFileChange(file: File) {
     if(file) {
-      console.log("Dictionary changed");
-      console.log(file);
-      this.loadSeerFormData();
+        this.loadSeerFormData();
+      }
     }
-  }
 
   handleSeerDataFileChange(file: File) {
     if(file) {
-      console.log("Data file changed");
-      console.log(file);
       this.loadSeerFormData();
     }
   }
+
+  onDownload() {
+    console.log("download");
+  }
+
+  onSubmit() {
+    //submit everything
+    if(this.groupDataForm.invalid) {
+      console.log("Form is invalid")
+      return;
+    } else {
+
+      let formData: FormData = new FormData();
+      Object.keys(this.groupDataForm.controls).forEach(key => {
+        formData.append(key,this.groupDataForm.get(key).value);
+      });
+
+      let options: IUploadOptions = {
+        url: `${environment.apiUrl}/recurrence/groupData`,
+        method: 'post',
+        formData: formData
+      };
+
+      this.isGroupDataLoading = true;
+      this.fileUploadService.upload(options).subscribe(
+        (response) => {
+          this.isGroupDataLoading = false;
+          let data = JSON.parse(response);
+          this.dataSource.data = data;
+        },
+        (err) => {
+          console.log(err);
+          this.isGroupDataLoading = false;
+          this.dataSource.data = [];
+      });
+    }
+  }
+
 
   loadSeerFormData() {
     //upload files and get back metadata to fill in form inputs
@@ -133,9 +145,19 @@ export class GroupComponent implements OnInit {
         formData: formData
        };
 
-       this.fileUploadService.upload(options).subscribe((response) => {
-         console.log(response);
-       });
+       this.fileUploadService.upload(options).subscribe(
+         (response) => {
+           let metadata = JSON.parse(response);
+           this.groupMetadata = metadata;
+           this.stageVariables = this.groupMetadata.variables;
+           this.followup.max = this.groupMetadata.maxFollowUp[0];
+         },
+         (err) => {
+           this.groupMetadata = {};
+           this.stageVariables = [];
+           this.distantStageValues = [];
+           this.followup.max = 30;
+         });
      }
   }
 

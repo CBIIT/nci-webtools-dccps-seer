@@ -23,8 +23,9 @@ html, body {
   @extend %page-full;
 }
 
-.content {
+.app-container {
   @extend %page-full;
+  max-width: 1200px;
 }
 
 .rtt-app-theme {
@@ -35,25 +36,15 @@ html, body {
   z-index: 10;
 }
 
-.rtt-app-theme .card-form {
-  height: 100%;
-}
-
-.rtt-app-theme .mat-card.card-result {
-  width: 100%;
-  height: 100%;
-  background-color: white;
-}
-
 .rtt-app-theme .mat-card {
   margin: 20px;
   background-color : mat-color($background, app-bar);
 }
 
-
 .form-label {
     font-size: 14px;
     font-weight: 700;
+    padding-bottom: 0.2vh;
 }
 
 .browse-button {
