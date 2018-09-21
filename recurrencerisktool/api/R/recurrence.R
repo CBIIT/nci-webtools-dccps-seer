@@ -5,6 +5,7 @@
 
 #this will eventually be a compiled library
 source("R/app_functions_Rconsole.R")
+library(jsonlite)
 
 handleInterface <- function() {
   cat("Handle interface called","\n", file = stdout())
@@ -42,7 +43,18 @@ handleRecurrenceRiskGroup <- function() {
   canSurvData = read.csv(canSurvDataFile,stringsAsFactors=F,check.names=F)
   dataTable = recurrencerisk.group(seerData,canSurvData,stageVariable,stageValue,as.numeric(adjustmentFactor),
     as.numeric(yearsOfFollowUp))
-  return(dataTable)
+
+  resultFilePath = "";
+
+  if ( "text/csv" == mimeType ) {
+    resultFilePath = file.path(workingDirectory,paste0(requestId,"_result.csv"))
+    write.csv(dataTable,resultFilePath,row.names=FALSE)
+  } else {
+    resultFilePath = file.path(workingDirectory,paste0(requestId,"_result.json"))
+    write_json(dataTable,resultFilePath, flatten = T, digits = NA, auto_unbox = T, dataframe = "rows")
+  }
+
+  return(resultFilePath)
 }
 
 stopifnot(exists("input"))

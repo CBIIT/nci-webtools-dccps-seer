@@ -1,8 +1,9 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
-import {MatPaginator, MatTableDataSource} from '@angular/material';
+import { MatPaginator, MatTableDataSource} from '@angular/material';
 import { TdFileService, IUploadOptions } from '@covalent/core/file';
 import { environment } from '../../environments/environment';
+import * as FileSaver from 'file-saver';
 
 @Component({
   selector: 'rrt-group',
@@ -14,7 +15,7 @@ export class GroupComponent implements OnInit {
   dataSource = new MatTableDataSource<any>([]);
 
   displayedColumns: string[] = [
-    'link',
+    //'link',
     'cure',
     'lambda',
     'theta',
@@ -27,7 +28,7 @@ export class GroupComponent implements OnInit {
     's1_analytical',
     'G_analytical',
     'CI_analytical',
-    'se_CI_analytical',
+    //'se_CI_analytical',
     'obs_surv',
     'obs_dist_surv'];
 
@@ -91,43 +92,45 @@ export class GroupComponent implements OnInit {
     }
   }
 
-  onDownload() {
-    console.log("download");
+  handleSubmitData(downloadFlag: boolean) {
+    let formData: FormData = new FormData();
+    Object.keys(this.groupDataForm.controls).forEach(key => {
+      formData.append(key,this.groupDataForm.get(key).value);
+    });
+
+    let headers = { 'accept': downloadFlag ?
+      'text/csv' : 'application/json' }
+
+    let options: IUploadOptions = {
+      url: `${environment.apiUrl}/recurrence/groupData`,
+      method: 'post',
+      formData: formData,
+      headers: headers
+    };
+
+    this.isGroupDataLoading = true;
+    this.fileUploadService.upload(options).subscribe(
+      (response) => {
+        this.isGroupDataLoading = false;
+        downloadFlag ?
+          this.saveData(response) : this.displayData(response);
+      },
+      (err) => {
+        console.log(err);
+        this.isGroupDataLoading = false;
+        this.dataSource.data = [];
+    });
   }
 
-  onSubmit() {
+  onSubmit(downloadFlag: boolean = false) {
     //submit everything
     if(this.groupDataForm.invalid) {
-      console.log("Form is invalid")
+      console.log("Form is invalid");
       return;
     } else {
-
-      let formData: FormData = new FormData();
-      Object.keys(this.groupDataForm.controls).forEach(key => {
-        formData.append(key,this.groupDataForm.get(key).value);
-      });
-
-      let options: IUploadOptions = {
-        url: `${environment.apiUrl}/recurrence/groupData`,
-        method: 'post',
-        formData: formData
-      };
-
-      this.isGroupDataLoading = true;
-      this.fileUploadService.upload(options).subscribe(
-        (response) => {
-          this.isGroupDataLoading = false;
-          let data = JSON.parse(response);
-          this.dataSource.data = data;
-        },
-        (err) => {
-          console.log(err);
-          this.isGroupDataLoading = false;
-          this.dataSource.data = [];
-      });
+      this.handleSubmitData(downloadFlag);
     }
   }
-
 
   loadSeerFormData() {
     //upload files and get back metadata to fill in form inputs
@@ -159,6 +162,16 @@ export class GroupComponent implements OnInit {
            this.followup.max = 30;
          });
      }
+  }
+
+  displayData(response) {
+    const data = JSON.parse(response);
+    this.dataSource.data = data;
+  }
+
+  saveData(response) {
+    const blob = new Blob([response], { type: 'text/csv' });
+    FileSaver.saveAs(blob, 'groupData.csv');
   }
 
 }

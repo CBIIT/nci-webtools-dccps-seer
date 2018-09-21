@@ -31,11 +31,26 @@ var upload = multer({storage: multer.diskStorage({
     })
 });
 
+var groupMetadataFileUpload = upload.fields([
+  { name: SEER_DICTIONARY_FIELD_NAME, maxCount: 1 },
+  { name: SEER_DATA_FIELD_NAME, maxCount: 1 }
+]);
 
-router.post('/groupMetadata',
-  upload.fields([{ name: SEER_DICTIONARY_FIELD_NAME, maxCount: 1 }, { name: SEER_DATA_FIELD_NAME, maxCount: 1 }]) ,
-  function(req, res, next) {
+var groupDataFileUpload = upload.fields([
+  {name: SEER_DICTIONARY_FIELD_NAME, maxCount: 1},
+  {name: SEER_DATA_FIELD_NAME, maxCount: 1},
+  {name: CANSURV_DATA_FIELD_NAME, maxCount: 1 }
+]);
 
+var resolveWorkingDestination = (req,res,next) => {
+  upload.storage.getDestination(req,null, (err,directory) => {
+    if (err) return next(err);
+    req.workingDirectory = directory;
+    next();
+  });
+}
+
+router.post('/groupMetadata', groupMetadataFileUpload, (req, res, next) => {
   console.log(req.requestId);
 
   var input = {
@@ -53,11 +68,7 @@ router.post('/individualMetadata', function(req, res, next) {
   res.send('respond with a resource');
 });
 
-router.post('/groupData', upload.fields( [{name: SEER_DICTIONARY_FIELD_NAME, maxCount: 1},
-  {name: SEER_DATA_FIELD_NAME, maxCount: 1}, {name: CANSURV_DATA_FIELD_NAME, maxCount: 1 }] ),
-  function(req, res, next) {
-
-  console.log(req.requestId);
+router.post('/groupData', groupDataFileUpload, resolveWorkingDestination, (req, res, next) => {
   var input = {
       'requestId': req.requestId,
       'seerDictionaryFile': req.files['seerDictionaryFile'][0]['path'],
@@ -67,10 +78,12 @@ router.post('/groupData', upload.fields( [{name: SEER_DICTIONARY_FIELD_NAME, max
       'stageValue': req.body['stageValue'],
       'adjustmentFactor': req.body['adjustmentFactor'],
       'yearsOfFollowUp': req.body['yearsOfFollowUp'],
+      'workingDirectory': req.workingDirectory,
+      'mimeType': req.headers['accept'],
       'method': 'handleRecurrenceRiskGroup'
     };
   var result = R("R/recurrence.R").data(input).callSync();
-  res.send(result);
+  res.download(result.pop());
 });
 
 module.exports = router;
