@@ -1,11 +1,32 @@
 import { TestBed, async } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+import { Component } from '@angular/core';
 import { AppComponent } from './app.component';
+
+@Component({
+  selector: 'rrt-header',
+  template: '<h1>Welcome to nci-webtools-dccps-recurrence-risk!</h1>'
+})
+class MockHeaderComponent { }
+
+
+@Component({
+  selector: 'rrt-footer',
+  template: ''
+})
+class MockFooterComponent { }
+
 describe('AppComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [
-        AppComponent
+        AppComponent,
+        MockHeaderComponent,
+        MockFooterComponent
       ],
+      imports: [
+        RouterTestingModule
+      ]
     }).compileComponents();
   }));
   it('should create the app', async(() => {

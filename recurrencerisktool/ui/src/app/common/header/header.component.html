@@ -1,8 +1,10 @@
 <header>
   <mat-toolbar color="primary" class="mat-elevation-z10">
-    <mat-toolbar-row><h2>Recurrence Risk</h2></mat-toolbar-row>
+    <mat-toolbar-row fxLayout="column" fxLayoutAlign="start stretch">
+      <h2>Recurrence Risk</h2>
+      <mat-divider></mat-divider>
+    </mat-toolbar-row>
     <mat-toolbar-row fxLayoutAlign="start" fxLayout="row" fxLayout.xs="column" fxFlexFill>
-      <span>Data Type:</span>
       <mat-button-toggle-group fxLayout="row" fxLayout.xs="column" name="Navigation" aria-label="Navigation" value="{{defaultSelection}}">
         <mat-button-toggle value="group" routerLink="/group" routerLinkActive="selected">Group Data</mat-button-toggle>
         <mat-button-toggle value="individual" routerLink="/individual" routerLinkActive="selected">Individual Data</mat-button-toggle>

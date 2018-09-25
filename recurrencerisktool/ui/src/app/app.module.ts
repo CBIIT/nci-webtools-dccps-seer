@@ -20,7 +20,8 @@ import {
   MatTabsModule,
   MatTableModule,
   MatPaginatorModule,
-  MatProgressBarModule
+  MatProgressBarModule,
+  MatSortModule
 } from '@angular/material';
 import { AppComponent } from './app.component';
 import { HeaderComponent,FooterComponent } from './common';
@@ -68,7 +69,8 @@ const appRoutes: Routes = [
     MatTabsModule,
     MatTableModule,
     MatPaginatorModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    MatSortModule
   ],
   providers: [],
   bootstrap: [AppComponent]

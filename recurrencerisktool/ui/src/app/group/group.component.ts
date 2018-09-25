@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
-import { MatPaginator, MatTableDataSource} from '@angular/material';
+import { MatPaginator, MatTableDataSource, MatSort} from '@angular/material';
 import { TdFileService, IUploadOptions } from '@covalent/core/file';
 import { environment } from '../../environments/environment';
 import * as FileSaver from 'file-saver';
@@ -12,10 +12,10 @@ import * as FileSaver from 'file-saver';
 })
 export class GroupComponent implements OnInit {
 
-  dataSource = new MatTableDataSource<any>([]);
+  dataSource = new MatTableDataSource<any>([{},{},{}]);
 
   displayedColumns: string[] = [
-    //'link',
+    'link',
     'cure',
     'lambda',
     'theta',
@@ -28,7 +28,7 @@ export class GroupComponent implements OnInit {
     's1_analytical',
     'G_analytical',
     'CI_analytical',
-    //'se_CI_analytical',
+    'se_CI_analytical',
     'obs_surv',
     'obs_dist_surv'];
 
@@ -50,6 +50,8 @@ export class GroupComponent implements OnInit {
   isGroupDataLoading: boolean = false;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
+
+  @ViewChild(MatSort) sort: MatSort;
 
   constructor(private fileUploadService: TdFileService,private formBuilder: FormBuilder) {
     this.groupDataForm = formBuilder.group({
@@ -78,6 +80,7 @@ export class GroupComponent implements OnInit {
 
   ngOnInit() {
     this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
   }
 
   handleSeerDictionaryFileChange(file: File) {
@@ -173,5 +176,22 @@ export class GroupComponent implements OnInit {
     const blob = new Blob([response], { type: 'text/csv' });
     FileSaver.saveAs(blob, 'groupData.csv');
   }
+
+  applyFilter(filterValue: string) {
+      this.dataSource.filter = filterValue.trim().toLowerCase();
+    }
+
+  isNumber(value:any) {
+    return !isNaN(value);
+  }
+
+  unboxNumber(value:any) {
+    if( Array.isArray(value) ) {
+      return (value.length > 0) ? value[0] : 'NA';
+    } else {
+      return value;
+    }
+  }
+
 
 }

@@ -1,18 +1,5 @@
 @import 'styles-variables';
 
-@import '~@angular/material/theming';
-@include mat-core();
-
-@import 'rrt-theme.scss';
-
-$foreground: map-get($rrt-theme, foreground);
-$background: map-get($rrt-theme, background);
-
-%page-full {
-  min-height: 100vh;
-  height: 100%;
-}
-
 html, body {
   box-sizing: border-box;
   height: 100vh;
@@ -21,11 +8,14 @@ html, body {
 
 .page-container {
   @extend %page-full;
+  max-width: 1440px;
+  margin: 0 auto !important;
+  float: none !important;
 }
 
 .app-container {
   @extend %page-full;
-  max-width: 1200px;
+  padding: 0.5em;
 }
 
 .rtt-app-theme {
@@ -36,19 +26,35 @@ html, body {
   z-index: 10;
 }
 
+
+.rtt-app-theme footer .mat-card {
+  background-color: mat-color($primary);
+}
+
 .rtt-app-theme .mat-card {
   margin: 20px;
-  background-color : mat-color($background, app-bar);
 }
 
 .form-label {
-    font-size: 14px;
-    font-weight: 700;
-    padding-bottom: 0.2vh;
+    padding-bottom: 0.5vh;
 }
 
 .browse-button {
   margin-right: 0.5vw;
+}
+
+.rtt-app-theme .mat-button-toggle-group {
+  margin: 10px;
+}
+
+.rtt-app-theme .mat-button-toggle {
+  background-color: mat-color($primary);
+  color: mat-color($primary, default-contrast);
+}
+
+.rtt-app-theme .mat-button-toggle-checked {
+  background-color: mat-color($accent);
+  color: mat-color($accent, default-contrast);
 }
 
 .mat-slider-thumb-label {

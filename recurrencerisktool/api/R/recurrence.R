@@ -7,15 +7,18 @@
 source("R/app_functions_Rconsole.R")
 library(jsonlite)
 
-handleInterface <- function() {
+methods <- c("handleGroupMetadata","handleIndividualMetadata","handleRecurrenceRiskGroup")
+
+handleInterface <- function(args) {
   cat("Handle interface called","\n", file = stdout())
-  methods = c("handleGroupMetadata","handleIndividualMetadata",
-    "handleRecurrenceRiskGroup")
+  method = args$method
   stopifnot( exists("method"), match(method,methods) > 0 )
-  do.call(method,list())
+  args$method = NULL
+  do.call(method,args)
 }
 
-handleGroupMetadata <- function() {
+handleGroupMetadata <- function(requestId,seerDictionaryFile,seerDataFile) {
+  cat("handleGroupMetadata() ",requestId,"\n", file = stdout())
   stopifnot(exists("seerDictionaryFile"),exists("seerDataFile"),
   file.exists(seerDictionaryFile),file.exists(seerDataFile))
   seerData = read.SeerStat(seerDictionaryFile,seerDataFile)
@@ -36,7 +39,9 @@ handleGroupMetadata <- function() {
 
 handleIndividualMetadata <- function() { }
 
-handleRecurrenceRiskGroup <- function() {
+handleRecurrenceRiskGroup <- function(requestId, seerDictionaryFile, seerDataFile, canSurvDataFile,
+  stageVariable, stageValue, adjustmentFactor, yearsOfFollowUp, workingDirectory, mimeType) {
+  cat("handleRecurrenceRiskGroup() ",requestId,"\n", file = stdout())
   stopifnot(exists("seerDictionaryFile"),exists("seerDataFile"),exists('canSurvDataFile'),
     file.exists(seerDictionaryFile),file.exists(seerDataFile),file.exists(canSurvDataFile))
   seerData = read.SeerStat(seerDictionaryFile,seerDataFile)
@@ -51,13 +56,12 @@ handleRecurrenceRiskGroup <- function() {
     write.csv(dataTable,resultFilePath,row.names=FALSE)
   } else {
     resultFilePath = file.path(workingDirectory,paste0(requestId,"_result.json"))
-    write_json(dataTable,resultFilePath, flatten = T, digits = NA, auto_unbox = T, dataframe = "rows")
+    write_json(dataTable,resultFilePath,na = "string", digits = NA, auto_unbox = T, dataframe = "rows")
   }
-
   return(resultFilePath)
 }
 
 stopifnot(exists("input"))
+args = input[[1]]
 cat("Interface: input exists","\n", file = stdout())
-attach(input[[1]])
-handleInterface()
+handleInterface(args)
