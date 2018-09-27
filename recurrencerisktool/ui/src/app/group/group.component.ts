@@ -128,10 +128,10 @@ export class GroupComponent implements OnInit {
   onSubmit(downloadFlag: boolean = false) {
     //submit everything
     if(this.groupDataForm.invalid) {
-      console.log("Form is invalid");
-      return;
+      return false;
     } else {
       this.handleSubmitData(downloadFlag);
+      return true;
     }
   }
 

@@ -29,16 +29,20 @@ describe('AppComponent', () => {
       ]
     }).compileComponents();
   }));
+
   it('should create the app', async(() => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.debugElement.componentInstance;
     expect(app).toBeTruthy();
   }));
+
   it(`should have as title 'rrt'`, async(() => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.debugElement.componentInstance;
-    expect(app.title).toEqual('rrt');
+    app.title = 'my title';
+    expect(app.title).toEqual('my title');
   }));
+
   it('should render title in a h1 tag', async(() => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
