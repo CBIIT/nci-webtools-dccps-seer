@@ -9,7 +9,7 @@
                <mat-icon>folder</mat-icon>
                <span>Browse...</span>
              </td-file-input>
-              <mat-form-field appearance="legacy" floatLabel="never" tdFileDrop
+              <mat-form-field style="overflow: hide;" appearance="legacy" floatLabel="never" tdFileDrop
                            (fileDrop)="groupDataForm.value.seerDictionaryFile = $event"
                            (click)="dicFileInput.inputElement.click()"
                            (keyup.enter)="dicFileInput.inputElement.click()"
@@ -55,7 +55,7 @@
            <span class="form-label">Stage Variable:</span>
            <mat-form-field appearance="legacy">
                <mat-select formControlName="stageVariable" required>
-                 <mat-option *ngFor="let stageVar of stageVariables" [value]="stageVar">
+                 <mat-option *ngFor="let stageVar of groupMetadata?.variables" [value]="stageVar">
                    {{stageVar}}
                  </mat-option>
                </mat-select>
@@ -64,7 +64,7 @@
            <span class="form-label">Distant Stage Value:</span>
            <mat-form-field appearance="legacy">
              <mat-select formControlName="stageValue" required>
-               <mat-option *ngFor="let stageVal of distantStageValues" [value]="stageVal">
+               <mat-option *ngFor="let stageVal of valuesForVariable()" [value]="stageVal">
                  {{stageVal}}
                </mat-option>
              </mat-select>
@@ -72,7 +72,7 @@
 
            <span class="form-label">Adjustment Factor r:</span>
            <mat-form-field  appearance="legacy">
-             <input matInput type="number" formControlName="adjustmentFactor" value="1" min="1" max="2" step="0.05">
+             <input matInput type="number" formControlName="adjustmentFactor" min="1" max="2" step="0.05">
            </mat-form-field>
 
            <span class="form-label">Years of Follow-up:</span>
@@ -84,10 +84,10 @@
               thumbLabel>
            </mat-slider>
            <span>
-             <button type="submit">Submit</button>
+             <button type="submit" mat-raised-button>Submit</button>
            </span>
            <div><mat-divider></mat-divider></div>
-           <span><button type="button" (click)="onSubmit(true)" mat-raised-button>
+           <span><button color="accent" type="button" (click)="onSubmit(true)" mat-raised-button>
              <mat-icon>file_download</mat-icon>Download results</button>
            </span>
          </form>
@@ -95,7 +95,7 @@
      </mat-card>
 
      <mat-card class="card-result mat-elevation-z10" fxFlex="1 1 calc(35%)" fxFlex.xs="1 1 auto">
-       <mat-card-content>
+       <mat-card-content  >
          <mat-tab-group>
            <mat-tab label="Output">
              <mat-form-field appearance="standard" fxLayout="row" fxLayoutAlign="start stretch">

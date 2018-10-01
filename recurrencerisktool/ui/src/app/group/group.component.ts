@@ -1,8 +1,10 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { Router, NavigationStart } from '@angular/router';
 import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { MatPaginator, MatTableDataSource, MatSort} from '@angular/material';
 import { TdFileService, IUploadOptions } from '@covalent/core/file';
 import { environment } from '../../environments/environment';
+import { RecurrenceRiskService } from '../../shared/services/recurrenceRisk.service';
 import * as FileSaver from 'file-saver';
 
 @Component({
@@ -35,9 +37,6 @@ export class GroupComponent implements OnInit {
   columnsToDisplay: string[] = this.displayedColumns.slice();
   groupDataForm: FormGroup;
 
-  stageVariables: string[] = [];
-  distantStageValues: string[] = [];
-
   followup: any = {
     max: 30,
     min: 1,
@@ -45,7 +44,7 @@ export class GroupComponent implements OnInit {
     interval: 1
   };
 
-  groupMetadata: any;
+  groupMetadata: any = {};
 
   isGroupDataLoading: boolean = false;
 
@@ -53,7 +52,8 @@ export class GroupComponent implements OnInit {
 
   @ViewChild(MatSort) sort: MatSort;
 
-  constructor(private fileUploadService: TdFileService,private formBuilder: FormBuilder) {
+  constructor(private fileUploadService: TdFileService,private formBuilder: FormBuilder,
+    private riskService: RecurrenceRiskService,private router: Router) {
     this.groupDataForm = formBuilder.group({
       seerDictionaryFile: new FormControl(''),
       seerDataFile: new FormControl(''),
@@ -65,29 +65,35 @@ export class GroupComponent implements OnInit {
     });
 
     this.groupDataForm.get('seerDictionaryFile').valueChanges.subscribe( file => {
-       this.handleSeerDictionaryFileChange(file);
+      this.handleSeerDictionaryFileChange(file);
     });
 
     this.groupDataForm.get('seerDataFile').valueChanges.subscribe( file => {
-       this.handleSeerDataFileChange(file);
+      this.handleSeerDataFileChange(file);
     });
 
-    this.groupDataForm.get('stageVariable').valueChanges.subscribe( stageVar => {
-       this.distantStageValues = this.groupMetadata['values'][stageVar];
-    })
-
+	  router.events.subscribe( (event) => {
+      if (event instanceof NavigationStart) {
+        this.riskService.data = this.dataSource.data;
+	  	  this.riskService.metadata = this.groupMetadata;
+	  	  this.riskService.form = this.groupDataForm.value;
+	  	}
+	  });
   }
 
   ngOnInit() {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+	  this.dataSource.data = this.riskService.data;
+	  this.groupMetadata = this.riskService.metadata;
+	  this.groupDataForm.patchValue(this.riskService.form, {emitEvent: false});
   }
 
   handleSeerDictionaryFileChange(file: File) {
     if(file) {
-        this.loadSeerFormData();
-      }
+      this.loadSeerFormData();
     }
+  }
 
   handleSeerDataFileChange(file: File) {
     if(file) {
@@ -155,13 +161,10 @@ export class GroupComponent implements OnInit {
          (response) => {
            let metadata = JSON.parse(response);
            this.groupMetadata = metadata;
-           this.stageVariables = this.groupMetadata.variables;
            this.followup.max = this.groupMetadata.maxFollowUp[0];
          },
          (err) => {
            this.groupMetadata = {};
-           this.stageVariables = [];
-           this.distantStageValues = [];
            this.followup.max = 30;
          });
      }
@@ -192,6 +195,14 @@ export class GroupComponent implements OnInit {
       return value;
     }
   }
-
-
+  
+  valuesForVariable() : any[] {
+    let variable = this.groupDataForm.get('stageVariable').value;	  
+	  let values = this.groupMetadata['values'];
+	  if(values) {
+	  	return values[variable];
+	  } else {
+	  	return [];
+	  }
+  }
 }

@@ -7,7 +7,6 @@ import { RouterModule, Routes } from '@angular/router';
 import { CovalentFileModule } from '@covalent/core/file';
 import {
   MatToolbarModule,
-  MatListModule,
   MatButtonModule,
   MatCardModule,
   MatButtonToggleModule,
@@ -57,7 +56,6 @@ const appRoutes: Routes = [
     CovalentFileModule,
     MatToolbarModule,
     MatCardModule,
-    MatListModule,
     MatButtonModule,
     MatButtonToggleModule,
     MatFormFieldModule,

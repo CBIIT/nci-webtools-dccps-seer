@@ -1,14 +1,16 @@
 import { inject, async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+import { Router,NavigationStart } from '@angular/router';
 
 import { GroupComponent } from './group.component';
 
 import { ReactiveFormsModule,FormsModule } from '@angular/forms';
 import { FlexLayoutModule } from '@angular/flex-layout';
-import { DebugElement } from '@angular/core';
+import { DebugElement, Component } from '@angular/core';
 
 import { CovalentFileModule, TdFileInputComponent, TdFileService } from '@covalent/core/file';
 import { HelpComponent } from './help/help.component';
-
+import { RecurrenceRiskService } from '../../shared/services/recurrenceRisk.service';
 import { BrowserModule, By } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
@@ -32,6 +34,13 @@ import {
   MatSortModule
 } from '@angular/material';
 
+@Component({
+  selector: 'mock-component',
+  template: ''
+})
+class MockComponent {
+}
+
 describe('GroupComponent', () => {
   let component: GroupComponent;
   let fixture: ComponentFixture<GroupComponent>;
@@ -39,7 +48,7 @@ describe('GroupComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ GroupComponent, HelpComponent ],
+      declarations: [ GroupComponent, HelpComponent, MockComponent ],
       imports: [
         BrowserModule,
         NoopAnimationsModule,
@@ -61,8 +70,14 @@ describe('GroupComponent', () => {
         MatTableModule,
         MatPaginatorModule,
         MatProgressBarModule,
-        MatSortModule
-      ]
+        MatSortModule,
+		RouterTestingModule.withRoutes([
+         { 'path':'group', component: MockComponent},
+         { 'path':'individual',component: MockComponent}]) 
+      ],
+	  providers: [
+	    RecurrenceRiskService
+	  ]
     })
     .compileComponents();
   }));
@@ -87,6 +102,17 @@ describe('GroupComponent', () => {
     expect(component.groupDataForm.valid).toBeFalsy();
     expect(component.onSubmit(true)).toBeFalsy();
   });
+  
+  it('should save state before navigate',async( inject([Router,RecurrenceRiskService],
+    (router:Router,riskService:RecurrenceRiskService) => {
+	  component.groupDataForm.patchValue({yearsOfFollowUp: '7'},{emitEvent: false});
+	  fixture.detectChanges();
+	  router.navigate(['/']);
+	  fixture.detectChanges();
+	  fixture.whenStable().then( () => {
+		expect(riskService.form.yearsOfFollowUp).toBe('7');
+	  });
+  })));
 
   it('should set seer dictionary input file field' , async( () => {
     let loadSeerFormDataSpy = spyOn(component,'loadSeerFormData').and.callThrough();
@@ -182,8 +208,6 @@ describe('GroupComponent', () => {
     })) );
 
     it('should update stage variable and in return update stage values', async( inject( [], () => {
-      component.stageVariables = ['var1','var2'];
-      component.distantStageValues = ['1','2','3'];
       component.groupMetadata = {
         values : { 'var1': [ '1','2','3'] ,'var2': ['a','b','c'] },
         variables: ['var1','var2']
@@ -209,8 +233,7 @@ describe('GroupComponent', () => {
     })) );
 
     it('should submit group data form correctly', async( inject( [TdFileService],(mockFileService: TdFileService) => {
-      component.stageVariables = ['var1','var2'];
-      component.distantStageValues = ['1','2','3'];
+     
       component.groupMetadata = {
         values : { 'var1': [ '1','2','3'] ,'var2': ['a','b','c'] },
         variables: ['var1','var2']
@@ -247,8 +270,7 @@ describe('GroupComponent', () => {
 
     it('should submit group data form correctly but server error',
       async( inject( [TdFileService],(mockFileService: TdFileService) => {
-      component.stageVariables = ['var1','var2'];
-      component.distantStageValues = ['1','2','3'];
+     
       component.groupMetadata = {
         values : { 'var1': [ '1','2','3'] ,'var2': ['a','b','c'] },
         variables: ['var1','var2']
@@ -283,8 +305,6 @@ describe('GroupComponent', () => {
 
     it('should submit group data form correctly for download',
      async( inject( [TdFileService],(mockFileService: TdFileService) => {
-      component.stageVariables = ['var1','var2'];
-      component.distantStageValues = ['1','2','3'];
       component.groupMetadata = {
         values : { 'var1': [ '1','2','3'] ,'var2': ['a','b','c'] },
         variables: ['var1','var2']
