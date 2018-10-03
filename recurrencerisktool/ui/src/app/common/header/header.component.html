@@ -5,9 +5,9 @@
       <mat-divider></mat-divider>
     </mat-toolbar-row>
     <mat-toolbar-row fxLayoutAlign="start" fxLayout="row" fxLayout.xs="column" fxFlexFill>
-      <mat-button-toggle-group fxLayout="row" fxLayout.xs="column" name="Navigation" aria-label="Navigation" value="{{defaultSelection}}">
-        <mat-button-toggle value="group" routerLink="/group" routerLinkActive="selected">Group Data</mat-button-toggle>
-        <mat-button-toggle value="individual" routerLink="/individual" routerLinkActive="selected">Individual Data</mat-button-toggle>
+      <mat-button-toggle-group fxLayout="row" fxLayout.xs="column" name="Navigation" aria-label="Navigation">
+        <mat-button-toggle value="group" routerLink="/group" routerLinkActive="mat-button-toggle-checked">Group Data</mat-button-toggle>
+        <mat-button-toggle value="individual" routerLink="/individual" routerLinkActive="mat-button-toggle-checked">Individual Data</mat-button-toggle>
       </mat-button-toggle-group>
     </mat-toolbar-row>
   </mat-toolbar>

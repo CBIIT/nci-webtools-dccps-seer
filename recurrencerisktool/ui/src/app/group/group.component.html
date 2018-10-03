@@ -2,20 +2,20 @@
      <mat-card class="card-form mat-elevation-z10">
        <mat-card-header></mat-card-header>
        <mat-card-content>
-         <form [formGroup]="groupDataForm" (ngSubmit)="onSubmit()" fxLayout="column" fxLayoutGap="1vh" >
+         <form [formGroup]="groupDataForm" (ngSubmit)="onSubmit()" fxLayout="column" >
            <span class="form-label">SEER*Stat Dic File:</span>
            <div fxLayout="row">
              <td-file-input class="browse-button" #dicFileInput formControlName="seerDictionaryFile" accept=".dic" required>
                <mat-icon>folder</mat-icon>
                <span>Browse...</span>
              </td-file-input>
-              <mat-form-field style="overflow: hide;" appearance="legacy" floatLabel="never" tdFileDrop
+              <mat-form-field style="overflow: hide;" appearance="outline" floatLabel="never" tdFileDrop
                            (fileDrop)="groupDataForm.value.seerDictionaryFile = $event"
                            (click)="dicFileInput.inputElement.click()"
                            (keyup.enter)="dicFileInput.inputElement.click()"
                            (keyup.delete)="dicFileInput.clear()"
                            (keyup.backspace)="dicFileInput.clear()">
-               <input matInput placeholder="Select file" [value]="groupDataForm?.value?.seerDictionaryFile?.name ? groupDataForm?.value?.seerDictionaryFile?.name : '' " readonly/>
+               <input matInput placeholder="Select file" [value]="groupDataForm?.value?.seerDictionaryFile?.name ? groupDataForm?.value?.seerDictionaryFile?.name : '' " required readonly/>
              </mat-form-field>
 
            </div>
@@ -26,13 +26,13 @@
                <mat-icon>folder</mat-icon>
                <span>Browse...</span>
              </td-file-input>
-             <mat-form-field appearance="legacy" floatLabel="never" tdFileDrop
+             <mat-form-field appearance="outline" floatLabel="never" tdFileDrop
                              (fileDrop)="groupDataForm.value.seerDataFile = $event"
                              (click)="dataFileInput.inputElement.click()"
                              (keyup.enter)="dataFileInput.inputElement.click()"
                              (keyup.delete)="dataFileInput.clear()"
                              (keyup.backspace)="dataFileInput.clear()">
-               <input matInput placeholder="Select file" [value]="groupDataForm?.value?.seerDataFile?.name ? groupDataForm?.value?.seerDataFile?.name : '' " readonly/>
+               <input matInput placeholder="Select file" [value]="groupDataForm?.value?.seerDataFile?.name ? groupDataForm?.value?.seerDataFile?.name : '' "  required readonly/>
              </mat-form-field>
            </div>
 
@@ -42,7 +42,7 @@
                  <mat-icon>folder</mat-icon>
                  <span>Browse...</span>
                </td-file-input>
-               <mat-form-field appearance="legacy" floatLabel="never" tdFileDrop
+               <mat-form-field appearance="outline" floatLabel="never" tdFileDrop
                                (fileDrop)="groupDataForm.value.canSurvDataFile = $event"
                                (click)="canSurvFileInput.inputElement.click()"
                                (keyup.enter)="canSurvFileInput.inputElement.click()"
@@ -53,7 +53,7 @@
            </div>
 
            <span class="form-label">Stage Variable:</span>
-           <mat-form-field appearance="legacy">
+           <mat-form-field appearance="outline">
                <mat-select formControlName="stageVariable" required>
                  <mat-option *ngFor="let stageVar of groupMetadata?.variables" [value]="stageVar">
                    {{stageVar}}
@@ -62,7 +62,7 @@
            </mat-form-field>
 
            <span class="form-label">Distant Stage Value:</span>
-           <mat-form-field appearance="legacy">
+           <mat-form-field appearance="outline">
              <mat-select formControlName="stageValue" required>
                <mat-option *ngFor="let stageVal of valuesForVariable()" [value]="stageVal">
                  {{stageVal}}
@@ -71,11 +71,11 @@
            </mat-form-field>
 
            <span class="form-label">Adjustment Factor r:</span>
-           <mat-form-field  appearance="legacy">
-             <input matInput type="number" formControlName="adjustmentFactor" min="1" max="2" step="0.05">
+           <mat-form-field  appearance="outline">
+             <input matInput type="number" formControlName="adjustmentFactor" min="1" max="2" step="0.05" required>
            </mat-form-field>
 
-           <span class="form-label">Years of Follow-up:</span>
+           <span class="normal-form-spacing">Years of Follow-up:</span>
            <mat-slider formControlName="yearsOfFollowUp" color="accent"
               [max]="followup.max"
               [min]="followup.min"
@@ -83,10 +83,10 @@
               [tickInterval]="followup.interval"
               thumbLabel>
            </mat-slider>
-           <span>
+           <span class="normal-form-spacing">
              <button type="submit" mat-raised-button>Submit</button>
            </span>
-           <div><mat-divider></mat-divider></div>
+           <div class="normal-form-spacing"><mat-divider></mat-divider></div>
            <span><button color="accent" type="button" (click)="onSubmit(true)" mat-raised-button>
              <mat-icon>file_download</mat-icon>Download results</button>
            </span>
@@ -98,7 +98,9 @@
        <mat-card-content  >
          <mat-tab-group>
            <mat-tab label="Output">
+             <mat-error *ngIf="groupDataForm.invalid">{{getErrorMessage()}}</mat-error>
              <mat-form-field appearance="standard" fxLayout="row" fxLayoutAlign="start stretch">
+               <mat-label></mat-label>
                <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Search Filter">
              </mat-form-field>
              <div class="table-container">
@@ -120,7 +122,7 @@
              </div>
            </mat-tab>
            <mat-tab label="Help">
-             <rrt-help></rrt-help>
+             <rrt-group-help></rrt-group-help>
            </mat-tab>
          </mat-tab-group>
        </mat-card-content>

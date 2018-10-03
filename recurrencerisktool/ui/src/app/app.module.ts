@@ -26,7 +26,8 @@ import { AppComponent } from './app.component';
 import { HeaderComponent,FooterComponent } from './common';
 import { GroupComponent } from './group/group.component';
 import { IndividualComponent } from './individual/individual.component';
-import { HelpComponent } from './group/help/help.component';
+import { GroupHelpComponent } from './group/group-help/group-help.component';
+import { IndividualHelpComponent } from './individual/individual-help/individual-help.component';
 
 const appRoutes: Routes = [
   { path: 'individual', component: IndividualComponent },
@@ -41,7 +42,8 @@ const appRoutes: Routes = [
     FooterComponent,
     GroupComponent,
     IndividualComponent,
-    HelpComponent
+    GroupHelpComponent,
+    IndividualHelpComponent
   ],
   imports: [
     RouterModule.forRoot(

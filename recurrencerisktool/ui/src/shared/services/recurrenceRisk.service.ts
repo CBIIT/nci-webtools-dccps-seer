@@ -4,38 +4,20 @@ import { Injectable } from '@angular/core';
  providedIn: 'root',
 })
 export class RecurrenceRiskService {
-	
-	private _form: any;
-	private _data: any[];
-	private _metadata: any;
-	
+
+	private _currentState: any = {
+	  group: { form: {}, metadata: {}, data: [{},{},{}]  } ,
+	  individual: { form: {}, metadata: {}, data: [{},{},{}] }
+	 };
+
 	constructor() {
-		this._metadata = {};
-		this._form = {};
-		this._data = [{},{},{}];
 	}
-	
-	get form(): any {
-		return this._form;
+
+	setCurrentState(key: string,state: any) {
+    this._currentState[key] = state;
 	}
-	
-	set form(form:any) {
-	  this._form = form;	
-	}
-	
-	get data(): any[] {
-		return this._data;
-	}
-	
-	set data(data:any[]) {
-		this._data = data;
-	}
-	
-	get metadata(): any {
-		return this._metadata;
-	}
-	
-	set metadata(metadata:any) {
-		this._metadata = metadata;
+
+  getCurrentState(key: string) {
+    return this._currentState[key];
 	}
 }

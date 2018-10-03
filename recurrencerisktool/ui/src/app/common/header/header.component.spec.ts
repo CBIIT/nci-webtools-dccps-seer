@@ -57,16 +57,6 @@ describe('HeaderComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should be able to handle default selection', () => {
-    let mockFixture = TestBed.createComponent(MockComponent);
-    let mockComponent = mockFixture.componentInstance;
-    mockComponent.headerComponent.defaultSelection = 'individual';
-    mockFixture.detectChanges();
-    let checkedButtonToggleDebugElement = mockFixture.debugElement.query(By.css('.mat-button-toggle-checked'));
-    expect(checkedButtonToggleDebugElement.attributes['value']).toEqual('individual');
-
-  });
-
   it('should be able to navigate to Individual', async( inject([Router, Location], (router: Router, location: Location) => {
       let buttonToggleDebugElements = fixture.debugElement.queryAll(By.directive(MatButtonToggle));
       let buttonToggleNativeElements = buttonToggleDebugElements.map( (debugEl) => debugEl.nativeElement);

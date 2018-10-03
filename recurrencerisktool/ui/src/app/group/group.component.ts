@@ -52,6 +52,8 @@ export class GroupComponent implements OnInit {
 
   @ViewChild(MatSort) sort: MatSort;
 
+  errorMsg: string = "";
+
   constructor(private fileUploadService: TdFileService,private formBuilder: FormBuilder,
     private riskService: RecurrenceRiskService,private router: Router) {
     this.groupDataForm = formBuilder.group({
@@ -74,9 +76,11 @@ export class GroupComponent implements OnInit {
 
 	  router.events.subscribe( (event) => {
       if (event instanceof NavigationStart) {
-        this.riskService.data = this.dataSource.data;
-	  	  this.riskService.metadata = this.groupMetadata;
-	  	  this.riskService.form = this.groupDataForm.value;
+        this.riskService.setCurrentState('group', {
+          data: this.dataSource.data,
+          metadata: this.groupMetadata,
+          form: this.groupDataForm.value
+        });
 	  	}
 	  });
   }
@@ -84,9 +88,10 @@ export class GroupComponent implements OnInit {
   ngOnInit() {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
-	  this.dataSource.data = this.riskService.data;
-	  this.groupMetadata = this.riskService.metadata;
-	  this.groupDataForm.patchValue(this.riskService.form, {emitEvent: false});
+	  let state = this.riskService.getCurrentState('group');
+	  this.dataSource.data = state.data;
+	  this.groupMetadata = state.metadata;
+	  this.groupDataForm.patchValue(state.form, {emitEvent: false});
   }
 
   handleSeerDictionaryFileChange(file: File) {
@@ -125,7 +130,8 @@ export class GroupComponent implements OnInit {
           this.saveData(response) : this.displayData(response);
       },
       (err) => {
-        console.log(err);
+        this.errorMsg = err;
+        this.groupDataForm.setErrors({'invalid':true});
         this.isGroupDataLoading = false;
         this.dataSource.data = [];
     });
@@ -134,6 +140,7 @@ export class GroupComponent implements OnInit {
   onSubmit(downloadFlag: boolean = false) {
     //submit everything
     if(this.groupDataForm.invalid) {
+      this.errorMsg = "All form fields are required."
       return false;
     } else {
       this.handleSubmitData(downloadFlag);
@@ -166,6 +173,7 @@ export class GroupComponent implements OnInit {
          (err) => {
            this.groupMetadata = {};
            this.followup.max = 30;
+           this.errorMsg = "An error occurred with the submitted data, please make sure the form data is correct."
          });
      }
   }
@@ -205,4 +213,9 @@ export class GroupComponent implements OnInit {
 	  	return [];
 	  }
   }
+
+  getErrorMessage(): String {
+    return this.errorMsg;
+  }
+
 }

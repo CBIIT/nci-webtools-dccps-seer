@@ -1,3 +1,143 @@
-<mat-card>
-  Individual content
-</mat-card>
+<div fxLayout="row" fxLayout.xs="column">
+  <mat-card class="card-form mat-elevation-z10">
+    <mat-card-header></mat-card-header>
+    <mat-card-content>
+      <form  [formGroup]="individualDataForm" (ngSubmit)="onSubmit()" fxLayout="column">
+        <span class="form-label">CSV Data File:</span>
+        <div fxLayout="row">
+          <td-file-input class="browse-button" #dataFileInput formControlName="seerDataFile"  accept=".csv" required>
+            <mat-icon>folder</mat-icon>
+            <span>Browse...</span>
+          </td-file-input>
+          <mat-form-field style="overflow: hide;" appearance="outline" floatLabel="never" tdFileDrop
+                          (fileDrop)="$event"
+                          (click)="dataFileInput.inputElement.click()"
+                          (keyup.enter)="dataFileInput.inputElement.click()"
+                          (keyup.delete)="dicFileInput.clear()"
+                          (keyup.backspace)="dicFileInput.clear()">
+            <input matInput placeholder="Select file"
+               [value]="individualDataForm?.value?.seerDataFile?.name ? individualDataForm?.value?.seerDataFile?.name : '' " readonly/>
+          </mat-form-field>
+        </div>
+
+        <span class="form-label">Strata:</span>
+        <mat-form-field appearance="outline">
+          <mat-select formControlName="strata" multiple required>
+            <mat-option *ngFor="let strataVar of individualMetadata?.variables" [value]="strataVar">
+              {{strataVar}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <span class="form-label">Covariates:</span>
+        <mat-form-field appearance="outline">
+          <mat-select formControlName="covariates" multiple required>
+            <mat-option *ngFor="let covariatesVar of individualMetadata?.variables" [value]="covariatesVar">
+              {{covariatesVar}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <span class="form-label">Time Variable:</span>
+        <mat-form-field appearance="outline">
+          <mat-select formControlName="timeVariable" required>
+            <mat-option *ngFor="let timeVar of individualMetadata?.variables" [value]="timeVar">
+              {{timeVar}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <span class="form-label">Event Variable:</span>
+        <mat-form-field appearance="outline">
+          <mat-select formControlName="eventVariable" required>
+            <mat-option *ngFor="let eventVar of individualMetadata?.variables" [value]="eventVar">
+              {{eventVar}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <span class="form-label">Distribution:</span>
+        <mat-form-field appearance="outline">
+          <mat-select formControlName="distribution" required>
+            <mat-option *ngFor="let distributionVar of distributionList" [value]="distributionVar">
+              {{distributionVar}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <span class="form-label">Stage Variable:</span>
+        <mat-form-field appearance="outline">
+          <mat-select formControlName="stageVariable" required>
+            <mat-option *ngFor="let stageVar of individualMetadata?.variables" [value]="stageVar">
+              {{stageVar}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <span class="form-label">Distant Stage Value:</span>
+        <mat-form-field appearance="outline">
+          <mat-select formControlName="distantStageValue" required>
+            <mat-option *ngFor="let stageValueVar of valuesForVariable()" [value]="stageValueVar">
+              {{stageValueVar}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <span class="form-label">Adjustment Factor r:</span>
+        <mat-form-field  appearance="outline">
+          <input matInput type="number" formControlName="adjustmentFactor" min="1" max="2" step="0.05" required>
+        </mat-form-field>
+
+        <span class="normal-form-spacing">Years of Follow-up:</span>
+        <mat-slider formControlName="yearsOfFollowUp" color="accent"
+                    [max]="followup.max"
+                    [min]="followup.min"
+                    [step]="followup.step"
+                    [tickInterval]="followup.interval"
+                    thumbLabel>
+        </mat-slider>
+
+        <span class="normal-form-spacing">
+          <button type="submit" mat-raised-button>Submit</button>
+        </span>
+        <div class="normal-form-spacing"><mat-divider></mat-divider></div>
+        <span><button color="accent" type="button" (click)="onSubmit(true)" mat-raised-button>
+             <mat-icon>file_download</mat-icon>Download results</button>
+           </span>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="card-result mat-elevation-z10" fxFlex="1 1 calc(35%)" fxFlex.xs="1 1 auto">
+    <mat-card-content  >
+      <mat-tab-group>
+        <mat-tab label="Output">
+          <mat-form-field appearance="standard" fxLayout="row" fxLayoutAlign="start stretch">
+            <mat-label></mat-label>
+            <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Search Filter">
+          </mat-form-field>
+          <div class="table-container">
+            <table mat-table matSort [dataSource]="dataSource" class="mat-elevation-z8">
+              <ng-container [matColumnDef]="column" *ngFor="let column of displayedColumns">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> <b>{{column}}</b> </th>
+                <td mat-cell *matCellDef="let element">
+                  {{ isNumber(element[column]) ?
+                  ( unboxNumber(element[column]) | number:'1.1-9' ) : element[column]  }} </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
+              <tr mat-row *matRowDef="let row; columns: columnsToDisplay;"></tr>
+            </table>
+          </div>
+          <mat-paginator #paginator [pageSizeOptions]="[10, 15, 20]"></mat-paginator>
+          <div *ngIf="isGroupDataLoading">
+            <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+          </div>
+        </mat-tab>
+        <mat-tab label="Help">
+          <rrt-individual-help></rrt-individual-help>
+        </mat-tab>
+      </mat-tab-group>
+    </mat-card-content>
+  </mat-card>
+</div>

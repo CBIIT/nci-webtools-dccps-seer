@@ -82,8 +82,14 @@ router.post('/groupData', groupDataFileUpload, resolveWorkingDestination, (req, 
       'mimeType': req.headers['accept'],
       'method': 'handleRecurrenceRiskGroup'
     };
-  var result = R("R/recurrence.R").data(input).callSync();
-  res.download(result.pop());
+
+  try {
+    var result = R("R/recurrence.R").data(input).callSync();
+    res.download(result.pop());
+  } catch(error) {
+    errors = error.split('\n');
+    res.status(400).send(errors.pop());
+  }
 });
 
 module.exports = router;
