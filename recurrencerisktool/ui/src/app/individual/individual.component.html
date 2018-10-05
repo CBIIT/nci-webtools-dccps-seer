@@ -5,24 +5,24 @@
       <form  [formGroup]="individualDataForm" (ngSubmit)="onSubmit()" fxLayout="column">
         <span class="form-label">CSV Data File:</span>
         <div fxLayout="row">
-          <td-file-input class="browse-button" #dataFileInput formControlName="seerDataFile"  accept=".csv" required>
+          <td-file-input class="browse-button" #dataFileInput formControlName="seerCSVDataFile"  accept=".csv" required>
             <mat-icon>folder</mat-icon>
             <span>Browse...</span>
           </td-file-input>
-          <mat-form-field style="overflow: hide;" appearance="outline" floatLabel="never" tdFileDrop
-                          (fileDrop)="$event"
+          <mat-form-field appearance="outline" floatLabel="never" tdFileDrop
+                          (fileDrop)="individualDataForm.value.seerCSVDataFile = $event"
                           (click)="dataFileInput.inputElement.click()"
                           (keyup.enter)="dataFileInput.inputElement.click()"
-                          (keyup.delete)="dicFileInput.clear()"
-                          (keyup.backspace)="dicFileInput.clear()">
+                          (keyup.delete)="dataFileInput.clear()"
+                          (keyup.backspace)="dataFileInput.clear()">
             <input matInput placeholder="Select file"
-               [value]="individualDataForm?.value?.seerDataFile?.name ? individualDataForm?.value?.seerDataFile?.name : '' " readonly/>
+               [value]="individualDataForm?.value?.seerCSVDataFile?.name ? individualDataForm?.value?.seerCSVDataFile?.name : '' " readonly/>
           </mat-form-field>
         </div>
 
         <span class="form-label">Strata:</span>
         <mat-form-field appearance="outline">
-          <mat-select formControlName="strata" multiple required>
+          <mat-select formControlName="strata" multiple>
             <mat-option *ngFor="let strataVar of individualMetadata?.variables" [value]="strataVar">
               {{strataVar}}
             </mat-option>
@@ -31,7 +31,7 @@
 
         <span class="form-label">Covariates:</span>
         <mat-form-field appearance="outline">
-          <mat-select formControlName="covariates" multiple required>
+          <mat-select formControlName="covariates" multiple>
             <mat-option *ngFor="let covariatesVar of individualMetadata?.variables" [value]="covariatesVar">
               {{covariatesVar}}
             </mat-option>
@@ -112,6 +112,7 @@
     <mat-card-content  >
       <mat-tab-group>
         <mat-tab label="Output">
+          <mat-error *ngIf="individualDataForm.invalid">{{getErrorMessage()}}</mat-error>
           <mat-form-field appearance="standard" fxLayout="row" fxLayoutAlign="start stretch">
             <mat-label></mat-label>
             <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Search Filter">
@@ -130,7 +131,7 @@
             </table>
           </div>
           <mat-paginator #paginator [pageSizeOptions]="[10, 15, 20]"></mat-paginator>
-          <div *ngIf="isGroupDataLoading">
+          <div *ngIf="isDataLoading">
             <mat-progress-bar mode="indeterminate"></mat-progress-bar>
           </div>
         </mat-tab>

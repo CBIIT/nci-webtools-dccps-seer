@@ -7,7 +7,8 @@
 source("R/app_functions_Rconsole.R")
 library(jsonlite)
 
-methods <- c("handleGroupMetadata","handleIndividualMetadata","handleRecurrenceRiskGroup")
+methods <- c("handleGroupMetadata","handleIndividualMetadata",
+  "handleRecurrenceRiskGroup", "handleRecurrenceRiskIndividual")
 
 handleInterface <- function(args) {
   cat("Handle interface called","\n", file = stdout())
@@ -37,7 +38,17 @@ handleGroupMetadata <- function(requestId,seerDictionaryFile,seerDataFile) {
   return(metadata)
 }
 
-handleIndividualMetadata <- function() { }
+handleIndividualMetadata <- function(requestId,seerCSVDataFile) {
+  cat("handleIndividualMetadata() ",requestId,"\n", file = stdout())
+  stopifnot(exists("seerCSVDataFile"),file.exists(seerCSVDataFile))
+  seerData = fread(seerCSVDataFile)
+  seerVars = choices.vars(seerData)
+
+  metadata = c()
+  metadata$variables = seerVars
+  metadata$values = lapply(seerData,function(x) sort(unique(x)))
+  return(metadata)
+}
 
 handleRecurrenceRiskGroup <- function(requestId, seerDictionaryFile, seerDataFile, canSurvDataFile,
   stageVariable, stageValue, adjustmentFactor, yearsOfFollowUp, workingDirectory, mimeType) {
@@ -48,6 +59,32 @@ handleRecurrenceRiskGroup <- function(requestId, seerDictionaryFile, seerDataFil
   canSurvData = read.csv(canSurvDataFile,stringsAsFactors=F,check.names=F)
   dataTable = recurrencerisk.group(seerData,canSurvData,stageVariable,stageValue,as.numeric(adjustmentFactor),
     as.numeric(yearsOfFollowUp))
+
+  resultFilePath = "";
+
+  if ( "text/csv" == mimeType ) {
+    resultFilePath = file.path(workingDirectory,paste0(requestId,"_result.csv"))
+    write.csv(dataTable,resultFilePath,row.names=FALSE)
+  } else {
+    resultFilePath = file.path(workingDirectory,paste0(requestId,"_result.json"))
+    write_json(dataTable,resultFilePath,na = "string", digits = NA, auto_unbox = T, dataframe = "rows")
+  }
+  return(resultFilePath)
+}
+
+
+handleRecurrenceRiskIndividual <- function(requestId, seerCSVDataFile, strata,
+  covariates, timeVariable, eventVariable, distribution, stageVariable, distantStageValue,
+  adjustmentFactor, yearsOfFollowUp, workingDirectory, mimeType) {
+  cat("handleRecurrenceRiskIndividual() ",requestId,"\n", file = stdout())
+  stopifnot(exists("seerCSVDataFile"),file.exists(seerCSVDataFile))
+  seerData = fread(seerCSVDataFile)
+
+  cstrata = unlist(strsplit(strata, ","))
+  ccovariate = unlist(strsplit(covariates, ","))
+
+  dataTable = recurrencerisk.individual(seerData,cstrata,ccovariate,timeVariable,eventVariable,stageVariable,
+    distantStageValue,as.numeric(adjustmentFactor),distribution,as.numeric(yearsOfFollowUp))
 
   resultFilePath = "";
 

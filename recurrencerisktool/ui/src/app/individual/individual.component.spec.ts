@@ -53,6 +53,7 @@ function findMatOptionFromSelectElement(matSelects: DebugElement[],key:string) {
 describe('IndividualComponent', () => {
   let component: IndividualComponent;
   let fixture: ComponentFixture<IndividualComponent>;
+  let debugElement: DebugElement;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -91,11 +92,22 @@ describe('IndividualComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(IndividualComponent);
     component = fixture.componentInstance;
+    debugElement = fixture.debugElement;
     fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should submit an invalid form for display' , () => {
+    expect(component.individualDataForm.valid).toBeFalsy();
+    expect(component.onSubmit()).toBeFalsy();
+  });
+
+  it('should submit an invalid form for download' , () => {
+    expect(component.individualDataForm.valid).toBeFalsy();
+    expect(component.onSubmit(true)).toBeFalsy();
   });
 
   it('should update stage variable and in return update stage values', async( inject( [RecurrenceRiskService],
@@ -124,5 +136,138 @@ describe('IndividualComponent', () => {
        expect(component.individualDataForm.get('stageVariable').value).toBe('var2');
      });
   })) );
+
+  it('should load seer form meta data from csv' , async( inject( [TdFileService],(mockFileService: TdFileService) => {
+    let loadSeerFormDataSpy = spyOn(component,'loadSeerFormData').and.callThrough();
+    let uploadSpy = spyOn(mockFileService,'upload').and.returnValue(
+      of('{ "variables": [ "var1"] }'));
+    let fileInputComponents = debugElement.queryAll(By.directive(TdFileInputComponent));
+    let dataFileInputComponent = fileInputComponents.find( (iel) => iel.attributes.formControlName == 'seerCSVDataFile' );
+
+    expect(dataFileInputComponent).toBeTruthy();
+
+    dataFileInputComponent.componentInstance.handleSelect([{}]);
+
+    fixture.detectChanges();
+    fixture.whenStable().then( () => {
+      expect(loadSeerFormDataSpy).toHaveBeenCalled();
+      expect(uploadSpy).toHaveBeenCalled();
+      expect(component.individualMetadata.variables[0]).toBe('var1');
+     });
+  })) );
+
+  it('should submit individual data form correctly', async( inject( [TdFileService],(mockFileService: TdFileService) => {
+    component.individualMetadata = {
+      values : { 'var1': [ '1','2','3'] ,'var2': ['a','b','c'] },
+      variables: ['var1','var2']
+    };
+    fixture.detectChanges();
+
+    let uploadSpy = spyOn(mockFileService,'upload').and.returnValue(
+            of('[{ "link" : "testlink","cure":"1","lambda":"2"}]'));
+    spyOn(component,'loadSeerFormData').and.callFake( () => true);
+
+    component.individualDataForm.setValue(
+      {
+        seerCSVDataFile: new File([],'data'),
+        strata: ['a','b','c'],
+        covariates: ['d','e','f'],
+        timeVariable: 'var1',
+        eventVariable: 'event',
+        distribution: 'link',
+        stageVariable: 'stagevar',
+        distantStageValue: 'distantval',
+        adjustmentFactor: '1.06',
+        yearsOfFollowUp: '2'
+      }
+    );
+
+    fixture.detectChanges();
+    component.onSubmit(false);
+    fixture.detectChanges();
+    fixture.whenStable().then( () => {
+      expect(component.dataSource.data.length).toBe(1);
+      expect(component.dataSource.data[0]['link']).toBe('testlink');
+      expect(component.dataSource.data[0]['cure']).toBe('1');
+      expect(component.dataSource.data[0]['lambda']).toBe('2');
+    });
+
+  })));
+
+  it('should submit group data form correctly but server error',
+    async( inject( [TdFileService],(mockFileService: TdFileService) => {
+
+    component.individualMetadata = {
+      values : { 'var1': [ '1','2','3'] ,'var2': ['a','b','c'] },
+      variables: ['var1','var2']
+    };
+    fixture.detectChanges();
+
+    let uploadSpy = spyOn(mockFileService,'upload').and.returnValue(
+            throwError(new Error('oops!')));
+    spyOn(component,'loadSeerFormData').and.callFake( () => true);
+
+    component.individualDataForm.setValue(
+      {
+        seerCSVDataFile: new File([],'data'),
+        strata: ['a','b','c'],
+        covariates: ['d','e','f'],
+        timeVariable: 'time',
+        eventVariable: 'event',
+        distribution: 'link',
+        stageVariable: 'stagevar',
+        distantStageValue: 'distantval',
+        adjustmentFactor: '1.06',
+        yearsOfFollowUp: '2'
+      }
+    );
+
+    fixture.detectChanges();
+    component.onSubmit(false);
+    fixture.detectChanges();
+
+    fixture.whenStable().then( () => {
+      expect(component.dataSource.data.length).toBe(0);
+    });
+
+  })));
+
+  it('should submit individual data form correctly for download', async( inject( [TdFileService],(mockFileService: TdFileService) => {
+    component.individualMetadata = {
+      values : { 'var1': [ '1','2','3'] ,'var2': ['a','b','c'] },
+      variables: ['var1','var2']
+    };
+    fixture.detectChanges();
+
+    let uploadSpy = spyOn(mockFileService,'upload').and.returnValue(
+            of('[{ "link" : "testlink","cure":"1","lambda":"2"}]'));
+    spyOn(component,'loadSeerFormData').and.callFake( () => true);
+    let saveDataSpy = spyOn(component,'saveData').and.callThrough();
+
+    component.individualDataForm.setValue(
+      {
+        seerCSVDataFile: new File([],'data'),
+        strata: ['a','b','c'],
+        covariates: ['d','e','f'],
+        timeVariable: 'time',
+        eventVariable: 'event',
+        distribution: 'link',
+        stageVariable: 'stagevar',
+        distantStageValue: 'distantval',
+        adjustmentFactor: '1.06',
+        yearsOfFollowUp: '2'
+      }
+    );
+
+    fixture.detectChanges();
+    component.onSubmit(true);
+    fixture.detectChanges();
+    fixture.whenStable().then( () => {
+      //3 is the default table
+      expect(component.dataSource.data.length).toBe(3);
+      expect(saveDataSpy).toHaveBeenCalled();
+    });
+
+  })));
 
 });

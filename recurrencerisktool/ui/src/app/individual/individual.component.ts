@@ -52,7 +52,7 @@ export class IndividualComponent implements OnInit {
   errorMsg: string = "";
 
   followup: any = {
-      max: 30,
+      max: 2,
       min: 1,
       step: 1,
       interval: 1
@@ -61,17 +61,42 @@ export class IndividualComponent implements OnInit {
   constructor(private fileUploadService: TdFileService,private formBuilder: FormBuilder,
     private riskService: RecurrenceRiskService,private router: Router) {
     this.individualDataForm = formBuilder.group({
-          seerDataFile: [''],
-          strata: [''],
-          covariates: [''],
-          timeVariable: [''],
-          eventVariable: [''],
-          distribution: [''],
-          stageVariable: [''],
-          distantStageValue: [''],
-          adjustmentFactor: [''],
-          yearsOfFollowUp: ['2']
+      seerCSVDataFile: [''],
+      strata: [''],
+      covariates: [''],
+      timeVariable: [''],
+      eventVariable: [''],
+      distribution: [''],
+      stageVariable: [''],
+      distantStageValue: [''],
+      adjustmentFactor: [''],
+      yearsOfFollowUp: ['2']
+    });
+
+    this.individualDataForm.get('seerCSVDataFile').valueChanges.subscribe( file => {
+      if(file) {
+        this.loadSeerFormData();
+      }
+    });
+
+    this.individualDataForm.get('timeVariable').valueChanges.subscribe( (timeVar) => {
+      let valuesMap = this.individualMetadata['values'];
+      if(valuesMap && valuesMap[timeVar] && valuesMap[timeVar].length > 0 ) {
+        this.followup.max = valuesMap[timeVar][valuesMap[timeVar].length-1];
+      }
+
+    });
+
+    router.events.subscribe( (event) => {
+      if (event instanceof NavigationStart) {
+        this.riskService.setCurrentState('individual', {
+          data: this.dataSource.data,
+          metadata: this.individualMetadata,
+          form: this.individualDataForm.value
         });
+      }
+    });
+
   }
 
   ngOnInit() {
@@ -80,6 +105,85 @@ export class IndividualComponent implements OnInit {
     let state = this.riskService.getCurrentState('individual');
     this.dataSource.data = state.data;
     this.individualMetadata = state.metadata;
+    this.individualDataForm.patchValue(state.form, {emitEvent: false});
+    this.individualDataForm.patchValue({ timeVariable: state.form.timeVariable }, {emitEvent: true});
+  }
+
+  handleSubmitData(downloadFlag: boolean) {
+    let formData: FormData = new FormData();
+    Object.keys(this.individualDataForm.controls).forEach(key => {
+      formData.append(key,this.individualDataForm.get(key).value);
+    });
+
+    let headers = { 'accept': downloadFlag ?
+      'text/csv' : 'application/json' }
+
+    let options: IUploadOptions = {
+      url: `${environment.apiUrl}/recurrence/individualData`,
+      method: 'post',
+      formData: formData,
+      headers: headers
+    };
+
+    this.isDataLoading = true;
+    this.fileUploadService.upload(options).subscribe( (response) => {
+        this.isDataLoading = false;
+        downloadFlag ?
+          this.saveData(response) : this.displayData(response);
+      },
+      (err) => {
+        this.errorMsg = err;
+        this.individualDataForm.setErrors({'invalid':true});
+        this.isDataLoading = false;
+        this.dataSource.data = [];
+    });
+  }
+
+  onSubmit(downloadFlag: boolean = false) {
+    //submit everything
+    if(this.individualDataForm.invalid) {
+      this.errorMsg = "All form fields are required."
+      return false;
+    } else {
+      this.handleSubmitData(downloadFlag);
+      return true;
+    }
+  }
+
+  loadSeerFormData() {
+    //upload files and get back metadata to fill in form inputs
+    let dataFile = this.individualDataForm.get('seerCSVDataFile').value;
+    let formData: FormData = new FormData();
+
+    if( dataFile) {
+     formData.append('seerCSVDataFile', dataFile, dataFile.name);
+
+     let options: IUploadOptions = {
+       url: `${environment.apiUrl}/recurrence/individualMetadata`,
+       method: 'post',
+       formData: formData
+      };
+
+     this.fileUploadService.upload(options).subscribe(
+       (response) => {
+         let metadata = JSON.parse(response);
+         this.individualMetadata = metadata;
+       },
+       (err) => {
+         this.individualMetadata = {};
+         this.errorMsg = "An error occurred with the submitted data, please make sure the form data is correct."
+       });
+    }
+  }
+
+  displayData(response) {
+    const data = JSON.parse(response);
+    this.dataSource.data = data;
+  }
+
+  saveData(response) {
+    const blob = new Blob([response], { type: 'text/csv' });
+    FileSaver.saveAs(blob, 'individualData.csv');
   }
 
   applyFilter(filterValue: string) {
