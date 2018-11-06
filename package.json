@@ -1,0 +1,28 @@
+{
+  "name": "nci-webtools-dccps-seer-test",
+  "version": "1.0.0",
+  "description": "Environment for testing nci-webtools-dccps-seer test",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test/end-to-end/scripts/ --reporter xunit --reporter-options output=test/end-to-end/scripts/e2e_results.xml"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CBIIT/nci-webtools-dccps-seer.git"
+  },
+  "keywords": [
+    "jpsurv",
+    "dccps",
+    "seer"
+  ],
+  "author": "Charles Stockman",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/CBIIT/nci-webtools-dccps-seer/issues"
+  },
+  "homepage": "https://github.com/CBIIT/nci-webtools-dccps-seer#readme",
+  "devDependencies": {
+    "mocha": "^5.2.0",
+    "selenium-webdriver": "^3.6.0"
+  }
+}
