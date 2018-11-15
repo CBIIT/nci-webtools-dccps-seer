@@ -26,6 +26,9 @@ $(document).ready(function() {
   addMessages();
   loadHelp();
 
+  $("#importButton").on("click", importBackEnd)
+  //$(window).on("hashchange", test)
+
 
 
   if(DEBUG) {
@@ -39,6 +42,8 @@ $(document).ready(function() {
       checkInput(id);
     })
   })
+
+  $(window).on('load', updatePageAfterRefresh)
 
 });
 
@@ -351,7 +356,7 @@ function addInputSection() {
 
 function checkInputFile() {
   var results = $.ajax({
-    url:'/jpsurv/tmp/input_' + jpsurvData.tokenId + '.json',
+    url:'/tmp/input_' + jpsurvData.tokenId + '.json',
     type:'HEAD',
     async: false
   });
@@ -450,7 +455,7 @@ function updateCohortDropdown(){
   dropdownListener();
 }
 
-//populates the inpout json wit hthe desired cohort combination baserd on the cohort dropdown window
+//populates the inpout json with the desired cohort combination based on the cohort dropdown window
 function dropdownListener(){
   var display = document.getElementById("cohort-display");
   display.addEventListener("change", function() {
@@ -472,7 +477,7 @@ function dropdownListener(){
       jpsurvData.additional.Runs=jpsurvData.results.Runs;
       calculate(true);
 
-          //console.log(jpsurvData.results);
+          //console.log(s.results);
   });
 }
 
@@ -799,11 +804,8 @@ function updateGraphs(token_id) {
     var rows=0;
     $.each(yod, function( index, value ) {
       row = "<tr>";
-    /*  $.each(jpsurvData.calculate.form.cohortValues, function(index2, value2) {
-        row += "<td>"+value2.replace(/"/g, "")+"</td>";
-      });*/
 
-        if(jpsurvData.results.Runs.split('jpcom')!=undefined){
+      if(jpsurvData.results.Runs.split('jpcom')!=undefined){
         var cohort_array = jpsurvData.results.Runs.split('jpcom');
         var values= cohort_array[jpsurvData.results.com-1].split(" + ");
         $.each(values, function(index2, value2) {
@@ -1324,11 +1326,11 @@ function retrieveResults(cohort_com,jpInd,switch_cohort) {
         async: false,
         dataType: 'json', // added data type
         success: function(results) {
-    cohort_models=results
-      if(switch_cohort==undefined)
-        cohort_com=1
-      file_name='tmp/results-'+jpsurvData.tokenId+"-"+cohort_com+"-"+results[cohort_com-1]+'.json'; 
-      //console.log(file_name)
+            cohort_models=results
+            if(switch_cohort==undefined)
+                cohort_com=1
+            file_name='tmp/results-'+jpsurvData.tokenId+"-"+cohort_com+"-"+results[cohort_com-1]+'.json';
+            console.log(file_name)
         }
     });
     
@@ -1964,7 +1966,7 @@ function load_ajax(filename) {
   ////console.log(filename);
   var json = (function () {
     var json = null;
-    var url = '/jpsurv/tmp/'+filename;
+    var url = '/tmp/'+filename;
     $.ajax({
           'async': false,
           'global': false,
@@ -2743,3 +2745,101 @@ $(document).click(function (e) {
       $('#max_help').popover('hide'); 
      
 });
+
+
+//
+// Import -- Upload a previous session ( stored in a zip ) , unpack the zip and get back the needed id(s)
+//
+function importBackEnd(event) {
+
+      var formData = new FormData()
+      formData.append("zipData", $("#importFileSelectButton")[0].files[0] )
+
+      $.ajax({
+         'type': "post",
+         'url':  "/jpsurvRest/import",
+         'data': formData,
+         'async': false,
+         'contentType': false,
+         'processData': false,
+         'success': function(data) {
+            importFrontEnd(data.tokenIdForForm, data.tokenIdForRest, data.txtFile, data.dicFile)
+         },
+         'fail' : function(jqXHR, textStatus) {
+            alert('Fail on load_ajax');
+          },
+          'error' : function(jqXHR, textStatus) {
+            console.dir(jqXHR);
+            console.log('Error on load_ajax');
+            console.log(jqXHR.status);
+            console.log(jqXHR.statusText);
+            console.log(textStatus);
+          }
+        })
+}
+
+//
+// Import -- The front End and restore the GUI based on the archvied session
+//
+function importFrontEnd(idOfForm, idOfOthers, txtFile, dicFile ) {
+
+    var url = [ location.protocol, "//", location.host, location.pathname ].join('')
+    console.log(url)
+
+    // The URL that will called causing the input window to appear.  The window for the cohor and the window with the
+    // three tabs ( Survival Graph/Data, Model Estimates, Trends
+    var parameters = { request : false,
+                       file_control_filename : dicFile,
+                       file_data_filename : txtFile,
+                       output_filename: "form-" + idOfForm + ".json",
+                       status: "uploaded",
+                       tokenId: idOfOthers
+                       }
+    var queryString = $.param(parameters)
+
+    url = url + "?" + queryString
+    console.log(url)
+
+    window.location.replace(url)
+
+//    console.log("Does it everuy make it to here")
+//    jpsurvData.stage2completed = true
+//    setIntervalsDefault()
+//    getIntervals()
+//    parse_diagnosis_years()
+//    setCalculateData()
+//    retrieveResults()
+//    calculateFittedResultsCallback()
+//    updateCohortDropdown()
+//
+//    window.location.replace(url)
+
+
+
+}
+
+/**
+ * This section updates the application with the data that saved from a previous sessesion
+ * One of the requirements was that the data not be calculated again, but read from the files
+ * that were created from the previous section.
+ */
+function updatePageAfterRefresh(event) {
+
+    if ( window.location.search === undefined || window.location.search.length === 0 ) return
+
+    jpsurvData.stage2completed = true
+    setIntervalsDefault()
+    getIntervals()
+    parse_diagnosis_years()
+
+    try {
+        setCalculateData()
+    } catch(err) {
+        console.log("This exception is causing calls below it to not be called.  This needs to be fixed.")
+    }
+    retrieveResults()
+    calculateFittedResultsCallback()
+    updateCohortDropdown()
+
+    //addEventListeners()
+}

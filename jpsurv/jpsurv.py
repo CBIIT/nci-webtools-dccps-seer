@@ -2,15 +2,18 @@
 import json
 import os
 import time
-from flask import Flask, request, redirect, current_app
+from flask import Flask, request, redirect, current_app, Response
 from PropertyUtil import PropertyUtil
 from rpy2.robjects import r
 from stompest.config import StompConfig
 from stompest.sync import Stomp
 from werkzeug import secure_filename
-import os.path
-from shutil import copytree, ignore_patterns
-app = Flask(__name__, static_folder='', static_url_path='/')
+from zipfile import ZipFile
+from os.path import dirname
+from shutil import copytree, ignore_patterns, copy2
+import re
+
+app = Flask(__name__, static_folder='', static_url_path='')
 
 if not os.path.exists('tmp'):
     os.makedirs('tmp')
@@ -130,13 +133,14 @@ def stage1_upload():
                     file_control_filename = filename
                     dictionary_name=name
                 if(ext==".txt"):
+
                     file_data_filename_clean=secure_filename(file.filename)
                     filename = tokenId+secure_filename(file.filename)
                     file_data_filename = filename
                     data_name=name
                 file.save(os.path.join(UPLOAD_DIR, filename))
-            print (dictionary_name)
-            print(data_name)
+            print ("Dictionary Name = " + dictionary_name)
+            print("Data Name = " + data_name)
 
             if(dictionary_name!=data_name):
                 os.rename(os.path.join(UPLOAD_DIR, file_data_filename), os.path.join(UPLOAD_DIR, tokenId+dictionary_name+".txt"))
@@ -154,14 +158,14 @@ def stage1_upload():
             fo.close()
             r.getDictionary(file_control_filename, UPLOAD_DIR, tokenId)
             output_filename = "form-%s.json" % tokenId
-
             r_output_file = os.path.join(UPLOAD_DIR, output_filename)
             fo = open(r_output_file, "r+")
             stri = fo.read(500)
             fo.close()
+
+
             status = "uploaded"
-            return_url = "%s/jpsurv?request=false&file_control_filename=%s&file_data_filename=%s&output_filename=%s&status=%s&tokenId=%s" % (request.url_root, file_control_filename_clean, file_data_filename_clean, output_filename, status, tokenId)
-            print(return_url)
+            return_url = "%sindex.html?request=false&file_control_filename=%s&file_data_filename=%s&output_filename=%s&status=%s&tokenId=%s" % (request.url_root, file_control_filename_clean, file_data_filename_clean, output_filename, status, tokenId)
             return redirect(return_url)
     except Exception as e: print(e)
 
@@ -235,6 +239,96 @@ def stage1_upload():
 
 
     #Init the R Source
+
+@app.route('/jpsurvRest/import', methods=['POST'])
+def myImport():
+
+    def uploadFile(uploadArchive):
+
+        ''' Copy the file to correct directory and changes the extension to zip '''
+
+        absoluteFilename = os.path.join(UPLOAD_DIR, uploadArchive.filename.split(".")[0] + ".zip")
+
+        print ("Uploading %s and saving it to %s" % (uploadedArchive.filename, absoluteFilename))
+
+        uploadArchive.save(absoluteFilename)
+
+        return absoluteFilename
+
+    def unzipFile(absoluteFilename):
+
+        ''' Extract all the files to the dirname(absoluteFilename)'''
+
+        print("Unzipping the contents of the zip " + absoluteFilename)
+
+        archive = ZipFile(absoluteFilename)
+        archive.extractall(dirname(absoluteFilename))
+
+    def getTokenFor(searchFileListRegularExpression, searchFilenameRegularExpression, archive):
+
+        ''' Will return the first token found from the zip file ( archive ) for the filename containing the serarchRegularExpression '''
+
+        newList = filter(
+            re.compile(searchFileListRegularExpression).search,
+            ZipFile(archive, 'r').namelist())
+
+        token  = re.search(searchFilenameRegularExpression, newList[0]).group(1)
+
+        print ("Using the regular expression \"%s\" for archive \"%s\" found the following filename match with token \"%s\" " % (searchFileListRegularExpression, archive, token))
+
+        return token
+
+    def getFilename( fileNameRegularExpression, archive):
+
+        ''' Return the first file mathcing the regular expression '''
+        newList = filter(
+            re.compile(fileNameRegularExpression).search,
+            ZipFile(archive, 'r').namelist())
+
+        filename = newList[0]
+
+        print ("For Regular Expression \"%s\" and arhive \"%s\" found %s" % (fileNameRegularExpression, archive, filename))
+
+        return filename
+
+    response = ""
+
+    print("Currently in /jpsurv/import")
+
+    try :
+        uploadedArchive = request.files['zipData']
+
+        if ( uploadedArchive.filename.split('.', 1)[1] in [ 'jpsurv_export'] ):
+            return createErrorResponse("The filename has the wrong extension.  It should end in jpsurv_export", 400, "application/json")
+
+        zipFilename = uploadFile(uploadedArchive)
+        unzipFile(zipFilename)
+
+        # In the zip file itself, I have seen two different token ids used sometimes.  if there were different ids then
+        # the filename starting with "form-" has one id and the rest had the other id.
+        returnParameters = {}
+        returnParameters['tokenIdForForm'] = getTokenFor("form\-", "(\d+)", zipFilename)
+        returnParameters['tokenIdForRest'] = getTokenFor("output\-", "(\d+)", zipFilename)
+        returnParameters['dicFile'] = getFilename("\.dic", zipFilename)
+        returnParameters['txtFile'] = getFilename("\.txt", zipFilename)
+
+        response = Response( response = json.dumps(returnParameters), status=200, mimetype="application/json")
+        return response
+
+    except Exception as e:
+        print str(e)
+        return createErrorResponse("An error happen on the backend see the log file", 400, "application/json")
+
+    print("Leaving /jspruv/import")
+
+    return response
+
+def createErrorResponse(message, statusValue, mimeTypeValue):
+
+    ''' A helper function to create a HTTP Response '''
+    error = {}
+    error["error"] = message
+    return Response( response = json.dumps(message), status = statusValue, mimetype=mimeTypeValue)
 
 
 
@@ -415,3 +509,18 @@ def sendqueue(tokenId):
     client.disconnect()
 
     return
+
+def initialize(port,debug=True):
+    app.run(host='0.0.0.0', port=port, debug=True)
+
+if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-p", dest="port_number", default="9001", help="Sets the Port")
+    parser.add_argument("--debug", action="store_true")
+
+    args = parser.parse_args()
+    port_num = int(args.port_number);
+
+    print("The root path is " + app.root_path)
+    initialize(port_num)

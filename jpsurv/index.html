@@ -250,9 +250,32 @@
               </div>
               <input type='button' id='calculate' value='Calculate' class="btn btn-primary btn-sm pull-right" aria-label="calculate">
               <input type='button' onclick="window.location.href='/jpsurv'" value="Reset" class="btn btn-warning btn-sm pull-right" title="Reset all values" style="margin-right:10px;" aria-label="Reset">
-
               <div style="clear:both;"></div>
+
+              <!-- Code for Handling Import and Export Functionality -->
+              <div class="row form-group" style="margin-top:10px" >
+                <div class="col col-md-12">
+                  <p style="display: inline-block; font-weight: bold; margin-right: 4px; transform: translate(0, 10%)">
+                    Import:
+                  </p>
+                  <input  id="importFileSelectButton"
+                          type='file'
+                          accept='jpsurv'
+                          value="Import"
+                          title="Import"
+                          style="display:inline-block; max-width:40%; transform: translate(0, 10%)"
+                          aria-label="Import">
+
+                  <input  id="importButton"
+                          type="button"
+                          value="Import"
+                          class="btn btn-primary btn-sm pull-right"
+                          title="Import"
+                          aria-label="Import">
+                </div>
+              </div>
             </div>
+
           </div></div>
           <!-- </form> -->
           <!-- Main Menu Tabs -->
