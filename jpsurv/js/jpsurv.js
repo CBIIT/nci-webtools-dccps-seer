@@ -7,7 +7,7 @@ var control_data;
 var cohort_covariance_variables;
 var advfields = ['adv-between','adv-first','adv-last','adv-year'];
 
-var jpsurvData = {"file":{"dictionary":"Breast.dic","data":"something.txt", "form":"form-983832.json"}, "calculate":{"form": {"yearOfDiagnosisRange":[]}, "static":{}}, "plot":{"form": {}, "static":{"imageId":-1} }, "additional":{"headerJoinPoints":0,"yearOfDiagnosis":null,"intervals":[1,4]}, "tokenId":"unknown", "status":"unknown", "stage2completed":0};
+var jpsurvData = {"file":{"dictionary":"Breast.dic","data":"something.txt", "form":"form-983832.json"}, "calculate":{"form": {"yearOfDiagnosisRange":[]}, "static":{}}, "plot":{"form": {}, "static":{"imageId":-1} }, "additional":{"headerJoinPoints":0,"yearOfDiagnosis":null,"intervals":[1,4]}, "tokenId":"unknown", "status":"unknown", "stage2completed":0.};
 jpsurvData.mapping={} 
 var DEBUG = false;
 var maxJP = (DEBUG ? 0 : 2);
@@ -27,8 +27,6 @@ $(document).ready(function() {
   loadHelp();
 
   $("#importButton").on("click", importBackEnd)
-  //$(window).on("hashchange", test)
-
 
 
   if(DEBUG) {
@@ -43,8 +41,7 @@ $(document).ready(function() {
     })
   })
 
-  $(window).on('load', updatePageAfterRefresh)
-
+  setEventHandlerForImports()
 });
 
 function checkInput(id) {
@@ -155,7 +152,8 @@ function addEventListeners() {
   $("#covariate_select").on("change", change_covariate_select);
   $("#precision").on("change", userChangePrecision);
 
-  $("#upload_file_submit").click(function(event) { 
+  $("#upload_file_submit").click(function(event) {
+    setEventHandlerForImports()
     file_submit(event);
   });
 //  $("#year-of-diagnosis").on('change', setCalculateData);
@@ -169,12 +167,13 @@ function addEventListeners() {
   });
 
   $( "#year-of-diagnosis" ).change(function() {
-    //console.log("click event fired, changing to "+ $( "#year-of-diagnosis" ).val() )
+    console.log("click event fired, changing to "+ $( "#year-of-diagnosis" ).val() )
     jpsurvData.additional.use_default="false"
     jpsurvData.additional.recalculate="true"
     setCalculateData();
     jpsurvData.additional.use_default="true"
     $("#year-of-diagnosis").data('changed', true);
+    console.log("Done with clici event fired -- ")
   });
 
 
@@ -1112,6 +1111,18 @@ function formatCell(x) {
 }
 
 function setCalculateData(type) {
+
+    setData(type)
+
+    if(validateVariables()) {
+
+      calculate();
+    } else {
+      //console.log("Not Calculating - validateVariables did not pass");
+    }
+}
+
+function setData(type) {
     type = type || 0;
     if(type == "default") {
     }
@@ -1146,22 +1157,14 @@ function setCalculateData(type) {
     jpsurvData.calculate.static.advanced.advLast = $("#adv-last").val();
     jpsurvData.calculate.static.advanced.advYear = $("#adv-year").val();
 
-    
+
     jpsurvData.additional.yearOfDiagnosis = parseInt($("#year-of-diagnosis").val());
-    jpsurvData.additional.DataTypeVariable = "Relative_Survival_Cum"; 
+    jpsurvData.additional.DataTypeVariable = "Relative_Survival_Cum";
     if(jpsurvData.additional.statistic == "Relative Survival") {
-      jpsurvData.additional.DataTypeVariable = "Relative_Survival_Cum"; 
+      jpsurvData.additional.DataTypeVariable = "Relative_Survival_Cum";
     }
     if(jpsurvData.additional.statistic == "Cause-Specific Survival") {
-      jpsurvData.additional.DataTypeVariable = "CauseSpecific_Survival_Cum"; 
-    }
-
-
-    if(validateVariables()) {
-
-      calculate();
-    } else {
-      //console.log("Not Calculating - validateVariables did not pass");
+      jpsurvData.additional.DataTypeVariable = "CauseSpecific_Survival_Cum";
     }
 }
 
@@ -1233,6 +1236,10 @@ function calculate(run) {
 
   //incrementImageId();
   //Next tokenID
+
+  console.log("Currently in calculate(run)")
+  console.log("jpsurvData.stage2completed is " + jpsurvData.stage2completed)
+  console.log("The value of run is " + run)
 
   if(jpsurvData.stage2completed) {
     if(run!=true) {
@@ -1318,7 +1325,22 @@ function retrieveResults(cohort_com,jpInd,switch_cohort) {
     file_name='tmp/results-'+jpsurvData.tokenId+"-"+cohort_com+"-"+jpInd+'.json';
   else
   {
+    file_name = generateResultsFilename()
+  }
+  $.getJSON(file_name, function (results) {
+    loadResults(results)
+  });
 
+  jpsurvData.switch=false
+  jpsurvData.additional.use_default="true"
+
+
+}
+
+function generateResultsFilename(cohort_com,jpInd,switch_cohort) {
+
+
+    var file_name = ""
 
     $.ajax({
         url: 'tmp/cohort_models-'+jpsurvData.tokenId+'.json',
@@ -1330,13 +1352,13 @@ function retrieveResults(cohort_com,jpInd,switch_cohort) {
             if(switch_cohort==undefined)
                 cohort_com=1
             file_name='tmp/results-'+jpsurvData.tokenId+"-"+cohort_com+"-"+results[cohort_com-1]+'.json';
-            console.log(file_name)
         }
     });
-    
-  }
-  $.getJSON(file_name, function (results) {
 
+    return file_name
+}
+
+function loadResults(results) {
     jpsurvData.results = results;
     if(!jpsurvData.stage2completed) {
       updateCohortDropdown();
@@ -1354,11 +1376,11 @@ function retrieveResults(cohort_com,jpInd,switch_cohort) {
     updateTabs(jpsurvData.tokenId);
     jpsurvData.stage2completed = true;
     jpsurvData.additional.recalculate="false"
-  });
-    jpsurvData.switch=false
-    jpsurvData.additional.use_default="true"
+}
 
-
+function preLoadResults(results) {
+    jpsurvData.results = results
+    updateCohortDropdown()
 }
 
 function getParams() {
@@ -1400,6 +1422,7 @@ function stage2(action) {
 function stage3() {
     //Run initial calculation with setup.
   //console.log("stage3")
+  console.log("Currently in stgage3()")
   $("#jpsurv-message-container").hide();
   jpsurvData.recentTrends = 0;
   $("#year_of_diagnosis_start").val(jpsurvData.calculate.form.yearOfDiagnosisRange[0]);
@@ -2781,7 +2804,9 @@ function importBackEnd(event) {
 //
 // Import -- The front End and restore the GUI based on the archvied session
 //
-function importFrontEnd(idOfForm, idOfOthers, txtFile, dicFile ) {
+function importFrontEnd(idOfForm, idOfOthers, txtFile, dicFile) {
+
+    localStorage.setItem("importing", "YES")
 
     var url = [ location.protocol, "//", location.host, location.pathname ].join('')
     console.log(url)
@@ -2794,28 +2819,14 @@ function importFrontEnd(idOfForm, idOfOthers, txtFile, dicFile ) {
                        output_filename: "form-" + idOfForm + ".json",
                        status: "uploaded",
                        tokenId: idOfOthers
-                       }
+                     }
+
     var queryString = $.param(parameters)
 
     url = url + "?" + queryString
     console.log(url)
 
-    window.location.replace(url)
-
-//    console.log("Does it everuy make it to here")
-//    jpsurvData.stage2completed = true
-//    setIntervalsDefault()
-//    getIntervals()
-//    parse_diagnosis_years()
-//    setCalculateData()
-//    retrieveResults()
-//    calculateFittedResultsCallback()
-//    updateCohortDropdown()
-//
-//    window.location.replace(url)
-
-
-
+    window.location.assign(url)
 }
 
 /**
@@ -2825,21 +2836,71 @@ function importFrontEnd(idOfForm, idOfOthers, txtFile, dicFile ) {
  */
 function updatePageAfterRefresh(event) {
 
-    if ( window.location.search === undefined || window.location.search.length === 0 ) return
-
-    jpsurvData.stage2completed = true
-    setIntervalsDefault()
-    getIntervals()
-    parse_diagnosis_years()
-
     try {
-        setCalculateData()
-    } catch(err) {
-        console.log("This exception is causing calls below it to not be called.  This needs to be fixed.")
-    }
-    retrieveResults()
-    calculateFittedResultsCallback()
-    updateCohortDropdown()
+        if ( window.location.search === undefined || window.location.search.length === 0 ) return
 
-    //addEventListeners()
+        jpsurvData.stage2completed = true
+
+        setIntervalsDefault()
+        getIntervals()
+        parse_diagnosis_years()
+
+        setData()
+
+        load_ajax_with_success_callback(generateResultsFilename(), loadResults)
+        calculateFittedResultsCallback()
+        updateCohortDropdown()
+
+        calculateRecentTrends()
+
+     } finally {
+        localStorage.removeItem("importing")
+        setEventHandlerForImports()
+     }
+}
+
+// Checks and if found then
+
+
+// Initialize the recentTrends value in the jpsurv.  Based on studying the code either all values will calcualted or
+// none will.
+function calculateRecentTrends() {
+    calculateTrendCallback()
+    if ( jpsurvData.results.CS_AAPC === undefined || jpsurvData.results.CS_AAAC === undefined || jpsurvData.results.HAZ_APC === undefined )
+        jpsurvData.recentTrends = 0
+    else
+        jpsurvData.recentTrends = 1
+}
+
+
+// Loads data using ajax and then calls a function.  This routine is needed since the GetJSON is asynchronous and the
+// data is not loaded until after the function returns causing problems with the program.
+function load_ajax_with_success_callback(url, callback) {
+    $.ajax({
+       'async': false,
+       'global': false,
+       'url': url,
+       'dataType': "json",
+       'success': function (data) {
+            callback(data)
+          },
+       'fail' : function(jqXHR, textStatus) {
+        alert('Fail on load_ajax');
+       },
+       'error' : function(jqXHR, textStatus) {
+        //console.dir(jqXHR);
+        //console.warn('Error on load_ajax');
+        //console.log(jqXHR.status);
+        //console.log(jqXHR.statusText);
+        //console.log(textStatus);
+       }
+    })
+}
+
+// Sets the event handler when data is being imported into the system
+function setEventHandlerForImports() {
+    if ( localStorage.getItem("importing") === "YES")
+        $(window).on('load', updatePageAfterRefresh)
+    else
+        $(window).off('load', updatePageAfterRefresh)
 }
