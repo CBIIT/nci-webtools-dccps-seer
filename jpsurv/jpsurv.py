@@ -224,7 +224,7 @@ def stage1_upload():
             stri = fo.read(500)
             fo.close()
             status = "uploaded"
-            return_url = "%s/jpsurv?request=false&file_control_filename=%s&output_filename=%s&status=%s&tokenId=%s" % (request.url_root, file_control_filename_clean, output_filename, status, tokenId)
+            return_url = "%sindex.html?request=false&file_control_filename=%s&output_filename=%s&status=%s&tokenId=%s" % (request.url_root, file_control_filename_clean, output_filename, status, tokenId)
             print(return_url)
             return redirect(return_url)
         except:
@@ -272,7 +272,10 @@ def myImport():
             re.compile(searchFileListRegularExpression).search,
             ZipFile(archive, 'r').namelist())
 
-        token  = re.search(searchFilenameRegularExpression, newList[0]).group(1)
+        if ( len(newList) != None):
+            token = re.search(searchFilenameRegularExpression, newList[0]).group(1)
+        else:
+            token = None
 
         print ("Using the regular expression \"%s\" for archive \"%s\" found the following filename match with token \"%s\" " % (searchFileListRegularExpression, archive, token))
 
@@ -285,7 +288,10 @@ def myImport():
             re.compile(fileNameRegularExpression).search,
             ZipFile(archive, 'r').namelist())
 
-        filename = newList[0]
+        if ( len(newList) > 0 ):
+            filename = newList[0]
+        else:
+            filename = None
 
         print ("For Regular Expression \"%s\" and arhive \"%s\" found %s" % (fileNameRegularExpression, archive, filename))
 
@@ -309,8 +315,14 @@ def myImport():
         returnParameters = {}
         returnParameters['tokenIdForForm'] = getTokenFor("form\-", "(\d+)", zipFilename)
         returnParameters['tokenIdForRest'] = getTokenFor("output\-", "(\d+)", zipFilename)
-        returnParameters['dicFile'] = getFilename("\.dic", zipFilename)
-        returnParameters['txtFile'] = getFilename("\.txt", zipFilename)
+
+        if( getFilename("\.dic", zipFilename) != None):
+            returnParameters['controlFile'] = getFilename("\.dic", zipFilename)
+            returnParameters['txtFile'] = getFilename("\.txt", zipFilename)
+            returnParameters['type'] = "DIC"
+        else:
+            returnParameters['controlFile'] = getFilename("\.csv", zipFilename)
+            returnParameters['type'] = "CSV"
 
         response = Response( response = json.dumps(returnParameters), status=200, mimetype="application/json")
         return response

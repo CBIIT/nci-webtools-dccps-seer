@@ -1075,12 +1075,16 @@ function calculateTrend() {
 
 function calculateTrendCallback() {
   var trendData = load_ajax("trend_results-" + jpsurvData.tokenId + ".json");
-  jpsurvData.results.CS_AAPC = trendData.CS_AAPC;
-  jpsurvData.results.CS_AAAC = trendData.CS_AAAC;
-  jpsurvData.results.HAZ_APC = trendData.HAZ_APC;
-  updateTrend(jpsurvData.tokenId);
-  changePrecision();
-  jpsurvData.recentTrends = 1;
+  if ( trendData != undefined && trendData != null ) {
+    jpsurvData.results.CS_AAPC = trendData.CS_AAPC;
+    jpsurvData.results.CS_AAAC = trendData.CS_AAAC;
+    jpsurvData.results.HAZ_APC = trendData.HAZ_APC;
+    updateTrend(jpsurvData.tokenId);
+    changePrecision();
+    jpsurvData.recentTrends = 1;
+  } else {
+    jpsurvData.recentTrends = 0
+  }
 }
 
 function changePrecision() {
@@ -1248,8 +1252,7 @@ function calculate(run) {
     else{
       jpsurvData.plot.static.imageId=0
     }
-    var dropdown = document.getElementById("cohort-display");
-    jpsurvData.run=dropdown.options[dropdown.selectedIndex].id;
+    setRun()
     stage3();  // This is a recalculation.
   } else {
     jpsurvData.tokenId = renewTokenId(true);
@@ -1280,7 +1283,7 @@ function calculate(run) {
 
     } 
     else if(parseInt($("#max_join_point_select").val())>maxJP && !validateVariables()){
-      //console.log("Not Calculating - validateVariables did not pass");
+      console.log("Not Calculating - validateVariables did not pass");
     }
     else {
       jpsurvData.plot.static.imageId=0
@@ -1292,6 +1295,11 @@ function calculate(run) {
     }
   }
 
+}
+
+function setRun() {
+    var dropdown = document.getElementById("cohort-display");
+    jpsurvData.run=dropdown.options[dropdown.selectedIndex].id;
 }
 
 function file_submit(event) {
@@ -2007,6 +2015,7 @@ function load_ajax(filename) {
         //console.log(jqXHR.status);
         //console.log(jqXHR.statusText);
         //console.log(textStatus);
+        return undefined;
        }
         });
         return json;
@@ -2786,7 +2795,7 @@ function importBackEnd(event) {
          'contentType': false,
          'processData': false,
          'success': function(data) {
-            importFrontEnd(data.tokenIdForForm, data.tokenIdForRest, data.txtFile, data.dicFile)
+            importFrontEnd(data.tokenIdForForm, data.tokenIdForRest, data.txtFile, data.controlFile, data.type)
          },
          'fail' : function(jqXHR, textStatus) {
             alert('Fail on load_ajax');
@@ -2804,22 +2813,27 @@ function importBackEnd(event) {
 //
 // Import -- The front End and restore the GUI based on the archvied session
 //
-function importFrontEnd(idOfForm, idOfOthers, txtFile, dicFile) {
+function importFrontEnd(idOfForm, idOfOthers, txtFile, controlFile, dataType) {
 
     localStorage.setItem("importing", "YES")
 
     var url = [ location.protocol, "//", location.host, location.pathname ].join('')
     console.log(url)
 
+
     // The URL that will called causing the input window to appear.  The window for the cohor and the window with the
     // three tabs ( Survival Graph/Data, Model Estimates, Trends
     var parameters = { request : false,
-                       file_control_filename : dicFile,
+                       file_control_filename : controlFile,
                        file_data_filename : txtFile,
                        output_filename: "form-" + idOfForm + ".json",
                        status: "uploaded",
                        tokenId: idOfOthers
                      }
+
+    if ( dataType == "DIC") {
+        parameters["file_data_filename"] = txtFile
+    }
 
     var queryString = $.param(parameters)
 
@@ -2851,7 +2865,8 @@ function updatePageAfterRefresh(event) {
         calculateFittedResultsCallback()
         updateCohortDropdown()
 
-        calculateRecentTrends()
+        calculateTrendCallback()
+        setRun()
 
      } finally {
         localStorage.removeItem("importing")
@@ -2864,13 +2879,15 @@ function updatePageAfterRefresh(event) {
 
 // Initialize the recentTrends value in the jpsurv.  Based on studying the code either all values will calcualted or
 // none will.
-function calculateRecentTrends() {
-    calculateTrendCallback()
-    if ( jpsurvData.results.CS_AAPC === undefined || jpsurvData.results.CS_AAAC === undefined || jpsurvData.results.HAZ_APC === undefined )
-        jpsurvData.recentTrends = 0
-    else
-        jpsurvData.recentTrends = 1
-}
+//function calculateRecentTrends() {
+//
+//    var trendsExit = 0
+//    calculateTrendCallback()
+//    if ( jpsurvData.results.CS_AAPC === undefined || jpsurvData.results.CS_AAAC === undefined || jpsurvData.results.HAZ_APC === undefined )
+//        jpsurvData.recentTrends = 0
+//    else
+//        jpsurvData.recentTrends = 1
+//}
 
 
 // Loads data using ajax and then calls a function.  This routine is needed since the GetJSON is asynchronous and the
