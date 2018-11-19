@@ -2787,6 +2787,16 @@ function importBackEnd(event) {
       var formData = new FormData()
       formData.append("zipData", $("#importFileSelectButton")[0].files[0] )
 
+      if ($("#importFileSelectButton")[0].files[0] === undefined ) {
+          message = "No file was chose for Import.  Please use the Choose File Select to the left of the Import Button"
+          message_type = 'error';
+          id="jpsurv"
+          showMessage(id, message, message_type);
+          $("#right_panel").hide();
+          $("#help").show();
+          var inputData = load_ajax("input_" + jpsurvData.tokenId + ".json");
+      }
+
       $.ajax({
          'type': "post",
          'url':  "/jpsurvRest/import",
@@ -2825,7 +2835,6 @@ function importFrontEnd(idOfForm, idOfOthers, txtFile, controlFile, dataType) {
     // three tabs ( Survival Graph/Data, Model Estimates, Trends
     var parameters = { request : false,
                        file_control_filename : controlFile,
-                       file_data_filename : txtFile,
                        output_filename: "form-" + idOfForm + ".json",
                        status: "uploaded",
                        tokenId: idOfOthers

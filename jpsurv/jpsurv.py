@@ -9,7 +9,7 @@ from stompest.config import StompConfig
 from stompest.sync import Stomp
 from werkzeug import secure_filename
 from zipfile import ZipFile
-from os.path import dirname
+from os.path import dirname, basename, join
 from shutil import copytree, ignore_patterns, copy2
 import re
 
@@ -297,6 +297,18 @@ def myImport():
 
         return filename
 
+    def fixFilename(absolutePath, tokenId):
+        ''' Removes the Token Id from the file name '''
+        dirName = dirname(absolutePath)
+        baseName = basename(absolutePath)
+        baseName = baseName[ len(tokenId):]
+
+        fixedAbsolutePath = join(dirName, baseName)
+
+        print ( "Removing the token %s for absolutePath %s equates to %s" % (tokenId, absolutePath, fixedAbsolutePath ))
+
+        return fixedAbsolutePath
+
     response = ""
 
     print("Currently in /jpsurv/import")
@@ -321,7 +333,10 @@ def myImport():
             returnParameters['txtFile'] = getFilename("\.txt", zipFilename)
             returnParameters['type'] = "DIC"
         else:
-            returnParameters['controlFile'] = getFilename("\.csv", zipFilename)
+            #returnParameters['controlFile'] = getFilename("\.csv", zipFilename)
+
+            returnParameters['controlFile'] = fixFilename(getFilename("\.csv", zipFilename), returnParameters['tokenIdForForm'])
+            print("Filename = " + returnParameters['controlFile'])
             returnParameters['type'] = "CSV"
 
         response = Response( response = json.dumps(returnParameters), status=200, mimetype="application/json")
