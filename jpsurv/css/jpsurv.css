@@ -700,3 +700,20 @@ fieldset[disabled] .btn-warning.active {
   background-color: #b24d04;
   border-color: #994203;
 }
+
+/*
+ * Import Export
+ */
+
+#importBox {
+    padding-top: 0px;
+    margin-top: 18px;
+}
+
+.importBox-boxTitle {
+    font-weight: bold;
+    text-align: center;
+}
+
+
+

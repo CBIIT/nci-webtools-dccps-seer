@@ -316,7 +316,7 @@ def myImport():
     try :
         uploadedArchive = request.files['zipData']
 
-        if ( uploadedArchive.filename.split('.', 1)[1] in [ 'jpsurv_export'] ):
+        if ( uploadedArchive.filename.split('.', 1)[1] in [ 'jpsurv_export'] == False ):
             return createErrorResponse("The filename has the wrong extension.  It should end in jpsurv_export", 400, "application/json")
 
         zipFilename = uploadFile(uploadedArchive)
@@ -329,14 +329,11 @@ def myImport():
         returnParameters['tokenIdForRest'] = getTokenFor("output\-", "(\d+)", zipFilename)
 
         if( getFilename("\.dic", zipFilename) != None):
-            returnParameters['controlFile'] = getFilename("\.dic", zipFilename)
+            returnParameters['controlFile'] = fixFilename(getFilename("\.dic", zipFilename), returnParameters['tokenIdForForm'])
             returnParameters['txtFile'] = getFilename("\.txt", zipFilename)
             returnParameters['type'] = "DIC"
         else:
-            #returnParameters['controlFile'] = getFilename("\.csv", zipFilename)
-
             returnParameters['controlFile'] = fixFilename(getFilename("\.csv", zipFilename), returnParameters['tokenIdForForm'])
-            print("Filename = " + returnParameters['controlFile'])
             returnParameters['type'] = "CSV"
 
         response = Response( response = json.dumps(returnParameters), status=200, mimetype="application/json")

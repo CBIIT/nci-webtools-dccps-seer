@@ -2787,7 +2787,8 @@ function importBackEnd(event) {
       var formData = new FormData()
       formData.append("zipData", $("#importFileSelectButton")[0].files[0] )
 
-      if ($("#importFileSelectButton")[0].files[0] === undefined ) {
+      var checkForFalsy = $("#importFileSelectButton")[0].files[0]
+      if ( checkForFalsy === undefined || checkForFalsy === null  ) {
           message = "No file was chose for Import.  Please use the Choose File Select to the left of the Import Button"
           message_type = 'error';
           id="jpsurv"
