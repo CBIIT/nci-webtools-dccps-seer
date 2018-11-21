@@ -2,7 +2,7 @@
 import json
 import os
 import time
-from flask import Flask, request, redirect, current_app, Response
+from flask import Flask, request, redirect, current_app, Response, send_from_directory, jsonify
 from PropertyUtil import PropertyUtil
 from rpy2.robjects import r
 from stompest.config import StompConfig
@@ -11,9 +11,13 @@ from werkzeug import secure_filename
 from zipfile import ZipFile
 from os.path import dirname, basename, join
 from shutil import copytree, ignore_patterns, copy2
+from glob import glob
 import re
+import logging
+from urllib import pathname2url
 
 app = Flask(__name__, static_folder='', static_url_path='')
+app.logger.setLevel(logging.DEBUG)
 
 if not os.path.exists('tmp'):
     os.makedirs('tmp')
@@ -21,7 +25,7 @@ if not os.path.exists('tmp'):
 QUEUE_NAME = 'queue.name'
 QUEUE_URL = 'queue.url'
 jpsurvConfig = PropertyUtil(r"config.ini")
-UPLOAD_DIR = os.path.join(os.getcwd(), 'tmp')
+UPLOAD_DIR = 'tmp' #os.path.join(os.getcwd(), 'tmp')
 
 print 'JPSurv is starting...'
 
@@ -249,7 +253,7 @@ def myImport():
 
         absoluteFilename = os.path.join(UPLOAD_DIR, uploadArchive.filename.split(".")[0] + ".zip")
 
-        print ("Uploading %s and saving it to %s" % (uploadedArchive.filename, absoluteFilename))
+        app.logger.debug("\tUploading %s and saving it to %s" % (uploadedArchive.filename, absoluteFilename))
 
         uploadArchive.save(absoluteFilename)
 
@@ -259,7 +263,7 @@ def myImport():
 
         ''' Extract all the files to the dirname(absoluteFilename)'''
 
-        print("Unzipping the contents of the zip " + absoluteFilename)
+        app.logger.debug("\tUnzipping the contents of the zip " + absoluteFilename)
 
         archive = ZipFile(absoluteFilename)
         archive.extractall(dirname(absoluteFilename))
@@ -277,7 +281,7 @@ def myImport():
         else:
             token = None
 
-        print ("Using the regular expression \"%s\" for archive \"%s\" found the following filename match with token \"%s\" " % (searchFileListRegularExpression, archive, token))
+        app.logger.debug("\tUsing the regular expression \"%s\" for archive \"%s\" found the following filename match with token \"%s\" " % (searchFileListRegularExpression, archive, token))
 
         return token
 
@@ -293,7 +297,7 @@ def myImport():
         else:
             filename = None
 
-        print ("For Regular Expression \"%s\" and arhive \"%s\" found %s" % (fileNameRegularExpression, archive, filename))
+        app.logger.debug ("\tFor Regular Expression \"%s\" and arhive \"%s\" found %s" % (fileNameRegularExpression, archive, filename))
 
         return filename
 
@@ -305,19 +309,19 @@ def myImport():
 
         fixedAbsolutePath = join(dirName, baseName)
 
-        print ( "Removing the token %s for absolutePath %s equates to %s" % (tokenId, absolutePath, fixedAbsolutePath ))
+        app.logger.debug ("\tRemoving the token %s for absolutePath %s equates to %s" % (tokenId, absolutePath, fixedAbsolutePath ))
 
         return fixedAbsolutePath
 
     response = ""
 
-    print("Currently in /jpsurv/import")
+    app.logger.debug("Currently in /jpsurv/import")
 
     try :
         uploadedArchive = request.files['zipData']
 
         if ( uploadedArchive.filename.split('.', 1)[1] in [ 'jpsurv_export'] == False ):
-            return createErrorResponse("The filename has the wrong extension.  It should end in jpsurv_export", 400, "application/json")
+            return jsonify("The filename has the wrong extension.  It should end in jpsurv_export"), 400
 
         zipFilename = uploadFile(uploadedArchive)
         unzipFile(zipFilename)
@@ -336,24 +340,88 @@ def myImport():
             returnParameters['controlFile'] = fixFilename(getFilename("\.csv", zipFilename), returnParameters['tokenIdForForm'])
             returnParameters['type'] = "CSV"
 
-        response = Response( response = json.dumps(returnParameters), status=200, mimetype="application/json")
-        return response
+        return jsonify(returnParameters)
 
     except Exception as e:
         print str(e)
-        return createErrorResponse("An error happen on the backend see the log file", 400, "application/json")
+        return jsonify("An error happen on the backend see the log file"), 400
 
-    print("Leaving /jspruv/import")
+    app.logger.debug("Leaving /jspruv/import")
 
     return response
 
-def createErrorResponse(message, statusValue, mimeTypeValue):
+@app.route('/jpsurvRest/export', methods=['GET'])
+def myExport():
 
-    ''' A helper function to create a HTTP Response '''
-    error = {}
-    error["error"] = message
-    return Response( response = json.dumps(message), status = statusValue, mimetype=mimeTypeValue)
+    ''' Exports the JPSurv Data from the application to a file that is download to the user's computer '''
 
+    def gatherFileNames():
+        ''' Gather the files that will be zipped into a file '''
+        fileNameSet = set()
+        fileNameSet.add(os.path.join(UPLOAD_DIR, getFileBySubstringSearch(dictionary)[0]))
+        fileNameSet.add(os.path.join(UPLOAD_DIR, form))
+        if txtFile:
+            fileNameSet.add(os.path.join(UPLOAD_DIR,txtFile))
+
+        for filename in getFileBySubstringSearch(tokenId):
+            fileNameSet.add(os.path.join(UPLOAD_DIR, filename))
+
+        app.logger.debug("\tThe set of names to be zipped are: " + str(fileNameSet))
+
+        return fileNameSet
+
+
+    def addFilesTozip(zip, files):
+        ''' Add a file using an absolute path to the zip archive '''
+
+        if not zip:
+            zipName = os.path.join(UPLOAD_DIR, request.args['filename'])
+            zip = ZipFile( zipName ,"w")
+
+        for file in files:
+            zip.write(file, basename(file))
+
+        zip.write(file, os.path.basename(file))
+        app.logger.debug("\tThe files were written to zip file ")
+
+        return zip
+
+
+    def getFileBySubstringSearch(subString):
+        '''
+            A function that matches a substring to a filename in the UPLOAD_DIR
+            Using the chdir so that I can change the directory back to the application root when I am done.
+        '''
+        saveDirectory = os.getcwd()
+        os.chdir(UPLOAD_DIR)
+        fileList = glob("*" + subString + "*")
+        os.chdir(saveDirectory)
+
+        return fileList
+
+    try:
+
+        app.logger.debug("Currently in myExport")
+
+        type        = request.args['type']
+        dictionary  = request.args['dictionary']
+        form        = request.args['form']
+        tokenId     = request.args['tokenId']
+        txtFile     = request.args['txtFile'] if type == 'dlc' else ''
+
+        zip = addFilesTozip(None, gatherFileNames())
+        zip.close()
+
+        app.logger.debug("\tLeaving my Export")
+        app.logger.debug("\tThe return value is " + pathname2url(os.path.join(UPLOAD_DIR, request.args['filename'])))
+        return pathname2url(os.path.join(UPLOAD_DIR, request.args['filename']))
+
+        # return send_from_directory(UPLOAD_DIR, request.args['filename'], as_attachment = True )
+
+
+    except Exception as e:
+        print str(e)
+        return jsonify("An error happen on the backend see the log file"), 400
 
 
 @app.route('/jpsurvRest/stage2_calculate', methods=['GET'])

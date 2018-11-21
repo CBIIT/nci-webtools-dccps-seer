@@ -27,6 +27,7 @@ $(document).ready(function() {
   loadHelp();
 
   $("#importButton").on("click", importBackEnd)
+  $("#exportButton").on("click", exportBackEnd)
 
 
   if(DEBUG) {
@@ -2787,16 +2788,7 @@ function importBackEnd(event) {
       var formData = new FormData()
       formData.append("zipData", $("#importFileSelectButton")[0].files[0] )
 
-      var checkForFalsy = $("#importFileSelectButton")[0].files[0]
-      if ( checkForFalsy === undefined || checkForFalsy === null  ) {
-          message = "No file was chose for Import.  Please use the Choose File Select to the left of the Import Button"
-          message_type = 'error';
-          id="jpsurv"
-          showMessage(id, message, message_type);
-          $("#right_panel").hide();
-          $("#help").show();
-          var inputData = load_ajax("input_" + jpsurvData.tokenId + ".json");
-      }
+      checkForNoFileSelected("No file was chosen for Import. Please use the Choose File Select to select a file and then click the Import Button")
 
       $.ajax({
          'type': "post",
@@ -2809,9 +2801,9 @@ function importBackEnd(event) {
             importFrontEnd(data.tokenIdForForm, data.tokenIdForRest, data.txtFile, data.controlFile, data.type)
          },
          'fail' : function(jqXHR, textStatus) {
-            alert('Fail on load_ajax');
-          },
-          'error' : function(jqXHR, textStatus) {
+            handleBackendError()
+         },
+         'error' : function(jqXHR, textStatus) {
             console.dir(jqXHR);
             console.log('Error on load_ajax');
             console.log(jqXHR.status);
@@ -2819,6 +2811,51 @@ function importBackEnd(event) {
             console.log(textStatus);
           }
         })
+}
+
+//
+// Export Back End
+//
+function exportBackEnd(event) {
+    var form_data = new FormData()
+
+    if ( jpsurvData.stage2completed == false ) handleError("No Analysis is currently running.  Pleas either import or select files to analyze")
+
+    function isCSV(inString) {
+        return ( inString.match("\.dic$")) ? "dic" : "csv"
+    }
+
+    var data = {};
+    data.type = isCSV(jpsurvData.file.dictionary)
+    data.dictionary = jpsurvData.file.dictionary
+    data.form = jpsurvData.file.form
+    data.tokenId = jpsurvData.tokenId
+    data.filename = generateToken(12) + ".jpsurv_export"
+    if ( data.type == "dic") data.txtFile = jpsurvData.file.data
+
+    console.log(data)
+
+    $.ajax({
+        type: 'get',
+        url: '/jpsurvRest/export',
+        contenType: 'application/json',
+        data: data,
+        'success': function(response) {
+            createInvisibleDownloadLink(response)
+        },
+        'fail' : function(jqXHR, textStatus) {
+            handleBackendError()
+        },
+        'error' : function(jqXHR, textStatus) {
+            console.log("Currently in error")
+            console.dir(jqXHR);
+            console.log('Error on load_ajax');
+            console.log(jqXHR.status);
+            console.log(jqXHR.statusText);
+            console.log(textStatus);
+        }
+
+    })
 }
 
 //
@@ -2884,22 +2921,6 @@ function updatePageAfterRefresh(event) {
      }
 }
 
-// Checks and if found then
-
-
-// Initialize the recentTrends value in the jpsurv.  Based on studying the code either all values will calcualted or
-// none will.
-//function calculateRecentTrends() {
-//
-//    var trendsExit = 0
-//    calculateTrendCallback()
-//    if ( jpsurvData.results.CS_AAPC === undefined || jpsurvData.results.CS_AAAC === undefined || jpsurvData.results.HAZ_APC === undefined )
-//        jpsurvData.recentTrends = 0
-//    else
-//        jpsurvData.recentTrends = 1
-//}
-
-
 // Loads data using ajax and then calls a function.  This routine is needed since the GetJSON is asynchronous and the
 // data is not loaded until after the function returns causing problems with the program.
 function load_ajax_with_success_callback(url, callback) {
@@ -2930,4 +2951,47 @@ function setEventHandlerForImports() {
         $(window).on('load', updatePageAfterRefresh)
     else
         $(window).off('load', updatePageAfterRefresh)
+}
+
+function handleError(error) {
+
+    message = error
+    message_type = 'error';
+    id="jpsurv"
+    showMessage(id, message, message_type);
+    $("#right_panel").hide();
+    $("#help").show();
+    var inputData = load_ajax("input_" + jpsurvData.tokenId + ".json");
+}
+
+function handleBackendError() {
+    handleError("A problem happen on the back end.  Please have the administrator review the log files")
+}
+
+
+function checkForNoFileSelected(message) {
+    var checkForFalsy = $("#importFileSelectButton")[0].files[0]
+    if ( checkForFalsy === undefined || checkForFalsy === null  ) {
+        handleError(message)
+    }
+}
+
+/* Create an invisble anchor to allow the user to download the file.  Note that anchorTag is local to this function   */
+/* and should be delete when the function is completed                                                                */
+function  createInvisibleDownloadLink(filename) {
+
+    var anchorTag = document.createElement("a")
+    anchorTag.href = filename
+    anchorTag.download = 'my-jpsurv-workspace.jpsurv_export';
+    anchorTag.click()
+}
+
+/* Copied from https://stackoverflow.com/questions/8532406/create-a-random-token-in-javascript-based-on-user-details */
+function generateToken(n) {
+    var chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    var token = '';
+    for(var i = 0; i < n; i++) {
+        token += chars[Math.floor(Math.random() * chars.length)];
+    }
+    return token;
 }

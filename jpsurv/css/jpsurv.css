@@ -705,12 +705,14 @@ fieldset[disabled] .btn-warning.active {
  * Import Export
  */
 
-#importBox {
+#importBox,
+#exportBox {
     padding-top: 0px;
     margin-top: 18px;
 }
 
-.importBox-boxTitle {
+.importBox-boxTitle,
+.exportBox-boxTitle{
     font-weight: bold;
     text-align: center;
 }
