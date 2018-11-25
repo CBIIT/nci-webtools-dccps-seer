@@ -8,13 +8,14 @@ from rpy2.robjects import r
 from stompest.config import StompConfig
 from stompest.sync import Stomp
 from werkzeug import secure_filename
-from zipfile import ZipFile
+from zipfile import ZipFile, ZIP_DEFLATED
 from os.path import dirname, basename, join
 from shutil import copytree, ignore_patterns, copy2
 from glob import glob
 import re
 import logging
 from urllib import pathname2url
+import zlib
 
 app = Flask(__name__, static_folder='', static_url_path='')
 app.logger.setLevel(logging.DEBUG)
@@ -357,6 +358,13 @@ def myExport():
 
     def gatherFileNames():
         ''' Gather the files that will be zipped into a file '''
+
+        type        = request.args['type']
+        dictionary  = request.args['dictionary']
+        form        = request.args['form']
+        tokenId     = request.args['tokenId']
+        txtFile     = request.args['txtFile'] if type == 'dlc' else ''
+
         fileNameSet = set()
         fileNameSet.add(os.path.join(UPLOAD_DIR, getFileBySubstringSearch(dictionary)[0]))
         fileNameSet.add(os.path.join(UPLOAD_DIR, form))
@@ -379,9 +387,8 @@ def myExport():
             zip = ZipFile( zipName ,"w")
 
         for file in files:
-            zip.write(file, basename(file))
+            zip.write(file, basename(file), compress_type = ZIP_DEFLATED)
 
-        zip.write(file, os.path.basename(file))
         app.logger.debug("\tThe files were written to zip file ")
 
         return zip
@@ -403,21 +410,12 @@ def myExport():
 
         app.logger.debug("Currently in myExport")
 
-        type        = request.args['type']
-        dictionary  = request.args['dictionary']
-        form        = request.args['form']
-        tokenId     = request.args['tokenId']
-        txtFile     = request.args['txtFile'] if type == 'dlc' else ''
-
         zip = addFilesTozip(None, gatherFileNames())
         zip.close()
 
         app.logger.debug("\tLeaving my Export")
         app.logger.debug("\tThe return value is " + pathname2url(os.path.join(UPLOAD_DIR, request.args['filename'])))
         return pathname2url(os.path.join(UPLOAD_DIR, request.args['filename']))
-
-        # return send_from_directory(UPLOAD_DIR, request.args['filename'], as_attachment = True )
-
 
     except Exception as e:
         print str(e)
