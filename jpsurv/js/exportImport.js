@@ -1,7 +1,12 @@
 $(document).ready(function() {
   $("#importButton").on("click", importBackEnd)
   $("#exportButton").on("click", exportBackEnd)
+  $("#exportChoice").on("change", showSpecificOperationSection)
+  $("#importChoice").on("change", showSpecificOperationSection)
+
+  showSpecificOperationSection()
   setEventHandlerForImports()
+
 })
 
 //
@@ -10,7 +15,7 @@ $(document).ready(function() {
 function importBackEnd(event) {
 
       var formData = new FormData()
-      formData.append("zipData", $("#importFileSelectButton")[0].files[0] )
+      formData.append("zipData", $("#fileSelect")[0].files[0] )
 
       checkForNoFileSelected("No file was chosen for Import. Please use the Choose File Select to select a file and then click the Import Button")
 
@@ -44,7 +49,10 @@ function importBackEnd(event) {
 function exportBackEnd(event) {
     var form_data = new FormData()
 
-    if ( jpsurvData.stage2completed == false ) handleError("No Analysis is currently running.  Pleas either import or select files to analyze")
+    if ( jpsurvData.stage2completed == false ) {
+        handleError("No Analysis is currently running.  Pleas either import or select files to analyze")
+        return
+    }
 
     function isCSV(inString) {
         return ( inString.match("\.dic$")) ? "dic" : "csv"
@@ -60,27 +68,9 @@ function exportBackEnd(event) {
 
     console.log(data)
 
-    $.ajax({
-        type: 'get',
-        url: '/jpsurvRest/export',
-        contenType: 'application/json',
-        data: data,
-        'success': function(response) {
-            createInvisibleDownloadLink(response)
-        },
-        'fail' : function(jqXHR, textStatus) {
-            handleBackendError()
-        },
-        'error' : function(jqXHR, textStatus) {
-            console.log("Currently in error")
-            console.dir(jqXHR);
-            console.log('Error on load_ajax');
-            console.log(jqXHR.status);
-            console.log(jqXHR.statusText);
-            console.log(textStatus);
-        }
-
-    })
+    var anchorTag = document.createElement("a")
+    anchorTag.href = "/jpsurvRest/export" + generateQueryParameterStr(data)
+    anchorTag.click()
 }
 
 //
@@ -106,10 +96,7 @@ function importFrontEnd(idOfForm, idOfOthers, txtFile, controlFile, dataType) {
         parameters["file_data_filename"] = txtFile
     }
 
-    var queryString = $.param(parameters)
-
-    url = url + "?" + queryString
-
+    url = url + generateQueryParameterStr(parameters)
     window.location.assign(url)
 }
 
@@ -121,6 +108,7 @@ function importFrontEnd(idOfForm, idOfOthers, txtFile, controlFile, dataType) {
 function updatePageAfterRefresh(event) {
 
     try {
+
         if ( window.location.search === undefined || window.location.search.length === 0 ) return
 
         jpsurvData.stage2completed = true
@@ -141,6 +129,7 @@ function updatePageAfterRefresh(event) {
      } finally {
         localStorage.removeItem("importing")
         setEventHandlerForImports()
+
      }
 }
 
@@ -193,7 +182,7 @@ function handleBackendError() {
 
 
 function checkForNoFileSelected(message) {
-    var checkForFalsy = $("#importFileSelectButton")[0].files[0]
+    var checkForFalsy = $("#fileSelect")[0].files[0]
     if ( checkForFalsy === undefined || checkForFalsy === null  ) {
         handleError(message)
     }
@@ -205,7 +194,7 @@ function  createInvisibleDownloadLink(filename) {
 
     var anchorTag = document.createElement("a")
     anchorTag.href = filename
-    anchorTag.download = 'my-jpsurv-workspace.jpsurv_export';
+    //anchorTag.download = 'my-jpsurv-workspace.jpsurv_export';
     anchorTag.click()
 }
 
@@ -218,3 +207,28 @@ function generateToken(n) {
     }
     return token;
 }
+
+/**
+ * Show the input section or output section
+ */
+function showSpecificOperationSection() {
+    var operation = $("[name='importExport']:checked").val()
+    console.log(operation)
+    if ( operation === "export") {
+        $("#exportBox").show()
+        $("#importBox").hide()
+    } else {
+        $("#exportBox").hide()
+        $("#importBox").show()
+
+    }
+}
+
+// Returns a String that can be attached to a URL
+//
+// Input : An object literal
+// Output ; The query string including the "?" to start the section
+function generateQueryParameterStr(data) {
+    return "?" + $.param(data)
+}
+

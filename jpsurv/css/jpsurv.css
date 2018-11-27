@@ -705,16 +705,34 @@ fieldset[disabled] .btn-warning.active {
  * Import Export
  */
 
-#importBox,
-#exportBox {
-    padding-top: 0px;
+#importBox {
     margin-top: 18px;
 }
 
-.importBox-boxTitle,
-.exportBox-boxTitle{
+.importBox_extensionNote {
     font-weight: bold;
-    text-align: center;
+    text-align: left;
+    display: inline-block;
+    margin-bottom: 4%;
+}
+
+#importBox_fileSelectDiv {
+    display: flex;
+    align-items: center;
+
+}
+
+.importBox_importButton {
+    margin-left:auto;
+}
+
+#importBox .importBox_fileSelect {
+    width: 70%;
+    display: inline-block;
+}
+
+.button_group_separator {
+    margin-right:10px;
 }
 
 

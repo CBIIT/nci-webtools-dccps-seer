@@ -132,8 +132,9 @@
                       <button type="button" class=" btn pull-right btn-xs" id="Adv_input" style="margin-top:2%;display:inline;margin-bottom:2%" disabled>Configure CSV</button>
                       </br>
                     </div>
-                    
                   </div>
+
+
           <div id="data_type_container" class="form-group"></div>
                   <div class="row">
                     <div id="upload_file_submit_container" class="jpsurv-button pull-right">
@@ -248,39 +249,37 @@
 
                 </div>
               </div>
-              <input type='button' id='calculate' value='Calculate' class="btn btn-primary btn-sm pull-right" aria-label="calculate">
-              <input type='button' onclick="window.location.href='/jpsurv'" value="Reset" class="btn btn-warning btn-sm pull-right" title="Reset all values" style="margin-right:10px;" aria-label="Reset">
+              <input type="button" id="exportButton" value="Export" class="btn btn-info btn-sm pull-right button_group_separator" title="Export"  aria-label="Export">
+              <input type='button' id='calculate' value='Calculate' class="btn btn-primary btn-sm pull-right button_group_separator" aria-label="calculate">
+              <input type='button' onclick="window.location.href='/jpsurv'" value="Reset" class="btn btn-warning btn-sm pull-right button_group_separator" title="Reset all values" aria-label="Reset">
 
-              <!-- Section for importing files -->
               <div id="importBox" class="box col-md-12">
-                <p class="importBox-boxTitle">Import files with extension: jpsurv_export</p>
+                <p class="importBox_extensionNote">All Files imported/exported use the &quot;.jpsurv_export&quot; extension</p>
                 <hr class="stage-separator">
-                <input id="importFileSelectButton"
-                       type="file"
-                       accept=".jpsurv_export"
-                       value="Import"
-                       title="Import"
-                       aria-label="Import">
 
-                <input  id="importButton"
-                        type="button"
-                        value="Import"
-                        class="btn btn-primary btn-sm pull-right"
-                        title="Import"
-                        aria-label="Import">
+                <div id="importBox_fileSelectDiv">
+                  <input id="fileSelect"
+                         type="file"
+                         accept=".jpsurv_export"
+                         value="Import"
+                         title="Import"
+                         class="importBox_fileSelect"
+                         aria-label="Import">
+
+                  <input  id="importButton"
+                          type="button"
+                          value="Import"
+                          class="btn btn-primary btn-sm pull-right importBox_importButton"
+                          title="Import"
+                          aria-label="Import">
+
+                </div>
+
+
+
               </div>
 
-              <!-- Section for exporting files -->
-              <div id="exportBox" class="box col-md-12">
-                <p class="exportBox-boxTitle">Export files with extension: jpsurv_export</p>
-                <hr class="stage-separator">
-                <input  id="exportButton"
-                        type="button"
-                        value="Export"
-                        class="btn btn-primary btn-sm pull-right"
-                        title="Export"
-                        aria-label="Export">
-              </div>
+
 
 
               <div style="clear:both;"></div>

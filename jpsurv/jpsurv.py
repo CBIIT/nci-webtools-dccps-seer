@@ -397,7 +397,8 @@ def myExport():
     def getFileBySubstringSearch(subString):
         '''
             A function that matches a substring to a filename in the UPLOAD_DIR
-            Using the chdir so that I can change the directory back to the application root when I am done.
+            Using the chdir so that I can change the directory back to the application root when I am done.  I just
+            want the filename and no directory information.
         '''
         saveDirectory = os.getcwd()
         os.chdir(UPLOAD_DIR)
@@ -414,8 +415,8 @@ def myExport():
         zip.close()
 
         app.logger.debug("\tLeaving my Export")
-        app.logger.debug("\tThe return value is " + pathname2url(os.path.join(UPLOAD_DIR, request.args['filename'])))
-        return pathname2url(os.path.join(UPLOAD_DIR, request.args['filename']))
+
+        return send_from_directory(UPLOAD_DIR, request.args['filename'],  as_attachment = True , attachment_filename="my-jpsurv-workspace.jpsurv_export" )
 
     except Exception as e:
         print str(e)
