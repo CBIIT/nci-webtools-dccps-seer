@@ -2,10 +2,7 @@ $(document).ready(function() {
   $("#importButton").on("click", importBackEnd)
   $("#exportButton").on("click", exportBackEnd)
   $("#fileSelect").on("change", handleImportFileSelectChange)
-  //$("#exportChoice").on("change", showSpecificOperationSection)
-  //$("#importChoice").on("change", showSpecificOperationSection)
 
-  //showSpecificOperationSection()
   setEventHandlerForImports()
   handleImportFileSelectChange()
 
@@ -209,22 +206,6 @@ function generateToken(n) {
     }
     return token;
 }
-
-///**
-// * Show the input section or output section
-// */
-//function showSpecificOperationSection() {
-//    var operation = $("[name='importExport']:checked").val()
-//    console.log(operation)
-//    if ( operation === "export") {
-//        $("#exportBox").show()
-//        $("#importBox").hide()
-//    } else {
-//        $("#exportBox").hide()
-//        $("#importBox").show()
-//
-//    }
-//}
 
 // Returns a String that can be attached to a URL
 //

@@ -166,7 +166,7 @@ function addEventListeners() {
   });
 
   $( "#year-of-diagnosis" ).change(function() {
-    console.log("click event fired, changing to "+ $( "#year-of-diagnosis" ).val() )
+    //console.log("click event fired, changing to "+ $( "#year-of-diagnosis" ).val() )
     jpsurvData.additional.use_default="false"
     jpsurvData.additional.recalculate="true"
     setCalculateData();
@@ -354,7 +354,7 @@ function addInputSection() {
 
 function checkInputFile() {
   var results = $.ajax({
-    url:'/tmp/input_' + jpsurvData.tokenId + '.json',
+    url:'/jpsurv/tmp/input_' + jpsurvData.tokenId + '.json',
     type:'HEAD',
     async: false
   });
@@ -1345,7 +1345,7 @@ function generateResultsFilename(cohort_com,jpInd,switch_cohort) {
     var file_name = ""
 
     $.ajax({
-        url: 'tmp/cohort_models-'+jpsurvData.tokenId+'.json',
+        url: '/jpsurv/tmp/cohort_models-'+jpsurvData.tokenId+'.json',
         type: 'GET',
         async: false,
         dataType: 'json', // added data type
@@ -1424,7 +1424,7 @@ function stage2(action) {
 function stage3() {
     //Run initial calculation with setup.
   //console.log("stage3")
-  console.log("Currently in stgage3()")
+  //console.log("Currently in stgage3()")
   $("#jpsurv-message-container").hide();
   jpsurvData.recentTrends = 0;
   $("#year_of_diagnosis_start").val(jpsurvData.calculate.form.yearOfDiagnosisRange[0]);
@@ -1991,7 +1991,7 @@ function load_ajax(filename) {
   ////console.log(filename);
   var json = (function () {
     var json = null;
-    var url = '/tmp/'+filename;
+    var url = '/jpsruv/tmp/'+filename;
     $.ajax({
           'async': false,
           'global': false,

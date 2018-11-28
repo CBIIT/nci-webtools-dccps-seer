@@ -229,7 +229,7 @@ def stage1_upload():
             stri = fo.read(500)
             fo.close()
             status = "uploaded"
-            return_url = "%sindex.html?request=false&file_control_filename=%s&output_filename=%s&status=%s&tokenId=%s" % (request.url_root, file_control_filename_clean, output_filename, status, tokenId)
+            return_url = "%sjpsurv?request=false&file_control_filename=%s&output_filename=%s&status=%s&tokenId=%s" % (request.url_root, file_control_filename_clean, output_filename, status, tokenId)
             print(return_url)
             return redirect(return_url)
         except:
