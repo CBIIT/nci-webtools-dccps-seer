@@ -170,7 +170,7 @@ def stage1_upload():
 
 
             status = "uploaded"
-            return_url = "%sindex.html?request=false&file_control_filename=%s&file_data_filename=%s&output_filename=%s&status=%s&tokenId=%s" % (request.url_root, file_control_filename_clean, file_data_filename_clean, output_filename, status, tokenId)
+            return_url = "%s/jpsurv?request=false&file_control_filename=%s&file_data_filename=%s&output_filename=%s&status=%s&tokenId=%s" % (request.url_root, file_control_filename_clean, file_data_filename_clean, output_filename, status, tokenId)
             return redirect(return_url)
     except Exception as e: print(e)
 
