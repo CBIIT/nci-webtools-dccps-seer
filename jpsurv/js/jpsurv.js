@@ -1991,7 +1991,7 @@ function load_ajax(filename) {
   ////console.log(filename);
   var json = (function () {
     var json = null;
-    var url = '/jpsruv/tmp/'+filename;
+    var url = '/jpsurv/tmp/'+filename;
     $.ajax({
           'async': false,
           'global': false,
