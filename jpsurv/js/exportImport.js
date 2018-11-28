@@ -1,11 +1,13 @@
 $(document).ready(function() {
   $("#importButton").on("click", importBackEnd)
   $("#exportButton").on("click", exportBackEnd)
-  $("#exportChoice").on("change", showSpecificOperationSection)
-  $("#importChoice").on("change", showSpecificOperationSection)
+  $("#fileSelect").on("change", handleImportFileSelectChange)
+  //$("#exportChoice").on("change", showSpecificOperationSection)
+  //$("#importChoice").on("change", showSpecificOperationSection)
 
-  showSpecificOperationSection()
+  //showSpecificOperationSection()
   setEventHandlerForImports()
+  handleImportFileSelectChange()
 
 })
 
@@ -208,21 +210,21 @@ function generateToken(n) {
     return token;
 }
 
-/**
- * Show the input section or output section
- */
-function showSpecificOperationSection() {
-    var operation = $("[name='importExport']:checked").val()
-    console.log(operation)
-    if ( operation === "export") {
-        $("#exportBox").show()
-        $("#importBox").hide()
-    } else {
-        $("#exportBox").hide()
-        $("#importBox").show()
-
-    }
-}
+///**
+// * Show the input section or output section
+// */
+//function showSpecificOperationSection() {
+//    var operation = $("[name='importExport']:checked").val()
+//    console.log(operation)
+//    if ( operation === "export") {
+//        $("#exportBox").show()
+//        $("#importBox").hide()
+//    } else {
+//        $("#exportBox").hide()
+//        $("#importBox").show()
+//
+//    }
+//}
 
 // Returns a String that can be attached to a URL
 //
@@ -230,5 +232,17 @@ function showSpecificOperationSection() {
 // Output ; The query string including the "?" to start the section
 function generateQueryParameterStr(data) {
     return "?" + $.param(data)
+}
+
+// if the Input[File] for the import has no files then disable the button, has files then enable the button
+function handleImportFileSelectChange() {
+
+    if ( $("#fileSelect")[0].files.length == 0 ) {
+        $("#importButton").attr("disabled", true)
+        $("#importButton").attr("aria-disabled", true)
+    } else {
+        $("#importButton").attr("disabled", false)
+        $("#importButton").attr("aria-disabled", false)
+    }
 }
 
