@@ -20,7 +20,7 @@ function importBackEnd(event) {
 
       $.ajax({
          'type': "post",
-         'url':  "/jpsurvRest/import",
+         'url':  "jpsurv/jpsurvRest/import",
          'data': formData,
          'async': false,
          'contentType': false,
@@ -68,7 +68,7 @@ function exportBackEnd(event) {
     console.log(data)
 
     var anchorTag = document.createElement("a")
-    anchorTag.href = "/jpsurvRest/export" + generateQueryParameterStr(data)
+    anchorTag.href = "jpsurv/jpsurvRest/export" + generateQueryParameterStr(data)
     anchorTag.click()
 }
 
