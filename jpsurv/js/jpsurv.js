@@ -1310,12 +1310,12 @@ function file_submit(event) {
     headers=headers.substring(0,headers.length-1)
     jpsurvData.additional.statistic=$("#data_type").val()
     jpsurvData.mapping.has_headers=String($('#has_headers').is(':checked'));
-    $("#upload-form").attr('action', 'jpsurv/jpsurvRest/stage1_upload?tokenId='+jpsurvData.tokenId+'&input_type='+jpsurvData.input_type+'&map='+JSON.stringify(jpsurvData)+'&has_headers='+jpsurvData.mapping.has_headers+'&headers='+headers);
+    $("#upload-form").attr('action', 'jpsurvRest/stage1_upload?tokenId='+jpsurvData.tokenId+'&input_type='+jpsurvData.input_type+'&map='+JSON.stringify(jpsurvData)+'&has_headers='+jpsurvData.mapping.has_headers+'&headers='+headers);
   }
 
   else{
     jpsurvData.input_type="dic";
-    $("#upload-form").attr('action', 'jpsurv/jpsurvRest/stage1_upload?tokenId='+jpsurvData.tokenId+'&input_type='+jpsurvData.input_type);
+    $("#upload-form").attr('action', 'jpsurvRest/stage1_upload?tokenId='+jpsurvData.tokenId+'&input_type='+jpsurvData.input_type);
   }
 
   getRestServerStatus();
