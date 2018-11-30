@@ -172,7 +172,6 @@ function addEventListeners() {
     setCalculateData();
     jpsurvData.additional.use_default="true"
     $("#year-of-diagnosis").data('changed', true);
-    console.log("Done with clici event fired -- ")
   });
 
 
@@ -180,7 +179,7 @@ function addEventListeners() {
   //
   // Set click listeners
   //
-  $("#calculate").on("click", function() { 
+  $("#calculate").on("click", function() {
     //Reset main calculation.  This forces a rebuild R Database
     jpsurvData.stage2completed = false;
     setCalculateData("default");
@@ -193,9 +192,6 @@ function addEventListeners() {
   $( "#upload-form" ).on("submit", function( event ) {
 ;
   });
-
-
-
 }
 
 function userChangePrecision() {
@@ -331,6 +327,10 @@ function addInputSection() {
     $("#right_panel").hide();
     $("#help").show();
 
+  }
+  else if ( status=="failed_import")
+  {
+    handleError("An unexpected error occured. Please ensure the input file(s) is in the correct format and/or correct parameters were chosen. <br>")
   }
   calc_status=getUrlParameter('calculation')
   if(calc_status=="failed"){
@@ -1053,6 +1053,7 @@ function calculateFittedResultsCallback() {
   $("#help").hide();
   $("#icon").css('visibility', 'visible');
 
+  enableHTMLObject("#exportButton")
   $("#year-of-diagnosis").empty();
   for (year=jpsurvData.calculate.form.yearOfDiagnosisRange[0];year<=jpsurvData.calculate.form.yearOfDiagnosisRange[1];year++) {
     $("#year-of-diagnosis").append("<OPTION>"+year+"</OPTION>\n");
@@ -1345,7 +1346,8 @@ function generateResultsFilename(cohort_com,jpInd,switch_cohort) {
     var file_name = ""
 
     $.ajax({
-        url: '/jpsurv/tmp/cohort_models-'+jpsurvData.tokenId+'.json',
+        // // url: '/jpsurv/tmp/cohort_models-'+jpsurvData.tokenId+'.json',
+        url: 'tmp/cohort_models-'+jpsurvData.tokenId+'.json',
         type: 'GET',
         async: false,
         dataType: 'json', // added data type
@@ -1370,6 +1372,7 @@ function loadResults(results) {
     }
     else{
       setupModel();
+      createModelSelection();
       createModelSelection();
     }
     if(certifyResults() == false){
@@ -1991,7 +1994,8 @@ function load_ajax(filename) {
   ////console.log(filename);
   var json = (function () {
     var json = null;
-    var url = '/jpsurv/tmp/'+filename;
+    // // var url = '/jpsruv/tmp/'+filename;
+    var url = 'tmp/'+filename;
     $.ajax({
           'async': false,
           'global': false,
@@ -2771,6 +2775,13 @@ $(document).click(function (e) {
       $('#max_help').popover('hide'); 
      
 });
+
+// A routine to determine if there is a calcuation in the system.  This is done by verifying that stage2 is complete
+// meaning the calculations are done and the panel that contains the calculations is visible.
+function analysisDisplayed() {
+    console.log("Result is " + jpsurvData.stage2completed && $("#right_panel:visible").length == 1 )
+    return  ( jpsurvData.stage2completed && $("#right_panel:visible").length == 1) ? true : false
+}
 
 
 

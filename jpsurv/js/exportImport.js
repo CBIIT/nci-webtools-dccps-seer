@@ -1,15 +1,17 @@
 $(document).ready(function() {
   $("#importButton").on("click", importBackEnd)
-  $("#exportButton").on("click", exportBackEnd)
   $("#fileSelect").on("change", handleImportFileSelectChange)
+
+  $("#exportButton").on("click", exportBackEnd)
 
   setEventHandlerForImports()
   handleImportFileSelectChange()
+  handleExportFileButton()
 
 })
 
 //
-// Import -- Upload a previous session ( stored in a zip with the extension .jpsurv_export  )
+// Import -- Upload a previous session ( stored in a zip with the extension .jpsurv  )
 //
 function importBackEnd(event) {
 
@@ -43,7 +45,7 @@ function importBackEnd(event) {
 
 //
 // Export the data to a file by sending a request to the backend to zip the files for the current session into a file
-// with the extension .jpsurv_export
+// with the extension .jpsurv
 //
 function exportBackEnd(event) {
     var form_data = new FormData()
@@ -57,15 +59,18 @@ function exportBackEnd(event) {
         return ( inString.match("\.dic$")) ? "dic" : "csv"
     }
 
+    // Get the token for the input files from the form.
+    var inputTokenId = jpsurvData.file.form.split("-")[1]
+    inputTokenId = inputTokenId.split(".")[0]
+
     var data = {};
     data.type = isCSV(jpsurvData.file.dictionary)
     data.dictionary = jpsurvData.file.dictionary
     data.form = jpsurvData.file.form
+    data.inputTokenId = inputTokenId
     data.tokenId = jpsurvData.tokenId
-    data.filename = generateToken(12) + ".jpsurv_export"
+    data.filename = generateToken(12) + ".jpsurv"
     if ( data.type == "dic") data.txtFile = jpsurvData.file.data
-
-    console.log(data)
 
     var anchorTag = document.createElement("a")
     anchorTag.href = "jpsurvRest/export" + generateQueryParameterStr(data)
@@ -125,9 +130,17 @@ function updatePageAfterRefresh(event) {
         calculateTrendCallback()
         setRun()
 
+        jpsurvData.stage2completed = true
+
+     } catch(err) {
+
+        console.log("An exception happen.  The error is " + err.message)
+        jpsurvData.stage2completed = 0
+
      } finally {
         localStorage.removeItem("importing")
         setEventHandlerForImports()
+        handleExportFileButton()
 
      }
 }
@@ -193,7 +206,6 @@ function  createInvisibleDownloadLink(filename) {
 
     var anchorTag = document.createElement("a")
     anchorTag.href = filename
-    //anchorTag.download = 'my-jpsurv-workspace.jpsurv_export';
     anchorTag.click()
 }
 
@@ -218,12 +230,33 @@ function generateQueryParameterStr(data) {
 // if the Input[File] for the import has no files then disable the button, has files then enable the button
 function handleImportFileSelectChange() {
 
+    var button = "#importButton"
+
     if ( $("#fileSelect")[0].files.length == 0 ) {
-        $("#importButton").attr("disabled", true)
-        $("#importButton").attr("aria-disabled", true)
+        disableHTMLObject(button)
     } else {
-        $("#importButton").attr("disabled", false)
-        $("#importButton").attr("aria-disabled", false)
+        enableHTMLObject(button)
     }
+}
+
+// If there is an analysis being shown then set the export button to true
+function handleExportFileButton() {
+
+    var button ="#exportButton"
+
+    if ( analysisDisplayed() )
+        enableHTMLObject(button)
+    else
+        disableHTMLObject(button)
+}
+
+function disableHTMLObject(selector) {
+    $(selector).attr("disabled", true)
+    $(selector).attr("aria-disabled", true)
+}
+
+function enableHTMLObject(selector) {
+    $(selector).attr("disabled", false)
+    $(selector).attr("aria-disabled", false)
 }
 

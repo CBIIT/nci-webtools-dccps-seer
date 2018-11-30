@@ -2,7 +2,7 @@
 import json
 import os
 import time
-from flask import Flask, request, redirect, current_app, Response, send_from_directory, jsonify
+from flask import Flask, request, redirect, current_app, Response, send_from_directory, jsonify, send_file
 from PropertyUtil import PropertyUtil
 from rpy2.robjects import r
 from stompest.config import StompConfig
@@ -168,9 +168,19 @@ def stage1_upload():
             stri = fo.read(500)
             fo.close()
 
+            # look at Href from werkzeug
+            # http://werkzeug.pocoo.org/docs/0.14/urls/
+            params = {
+                 'request': 'false',
+                 'file_control_filename': file_control_filename_clean,
+                 'file_data_filename': file_data_filename_clean,
+                 'output_filename': output_filename,
+                 'status': 'uploaded',
+                 'tokenId': tokenId
+            }
 
             status = "uploaded"
-            return_url = "%s/jpsurv?request=false&file_control_filename=%s&file_data_filename=%s&output_filename=%s&status=%s&tokenId=%s" % (request.url_root, file_control_filename_clean, file_data_filename_clean, output_filename, status, tokenId)
+            return_url = "?request=false&file_control_filename=%s&file_data_filename=%s&output_filename=%s&status=%s&tokenId=%s" % (file_control_filename_clean, file_data_filename_clean, output_filename, status, tokenId)
             return redirect(return_url)
     except Exception as e: print(e)
 
@@ -229,13 +239,13 @@ def stage1_upload():
             stri = fo.read(500)
             fo.close()
             status = "uploaded"
-            return_url = "%sjpsurv?request=false&file_control_filename=%s&output_filename=%s&status=%s&tokenId=%s" % (request.url_root, file_control_filename_clean, output_filename, status, tokenId)
+            return_url = "?request=false&file_control_filename=%s&output_filename=%s&status=%s&tokenId=%s" % (file_control_filename_clean, output_filename, status, tokenId)
             print(return_url)
             return redirect(return_url)
         except:
             status = "failed_upload"
             print "FAILED"
-            return_url = "/jpsurv?request=false&status=failed_upload"
+            return_url = "?request=false&status=failed_upload"
             print(return_url)
             return redirect(return_url)
 
@@ -321,8 +331,8 @@ def myImport():
     try :
         uploadedArchive = request.files['zipData']
 
-        if ( uploadedArchive.filename.split('.', 1)[1] in [ 'jpsurv_export'] == False ):
-            return jsonify("The filename has the wrong extension.  It should end in jpsurv_export"), 400
+        if ( uploadedArchive.filename.split('.', 1)[1] in [ 'jpsurv'] == False ):
+            return jsonify("The filename has the wrong extension.  It should end in jpsurv"), 400
 
         zipFilename = uploadFile(uploadedArchive)
         unzipFile(zipFilename)
@@ -345,7 +355,8 @@ def myImport():
 
     except Exception as e:
         print str(e)
-        return jsonify("An error happen on the backend see the log file"), 400
+        return_url = "?request=false&status=failed_import"
+        return redirect(return_url)
 
     app.logger.debug("Leaving /jspruv/import")
 
@@ -359,17 +370,19 @@ def myExport():
     def gatherFileNames():
         ''' Gather the files that will be zipped into a file '''
 
-        type        = request.args['type']
-        dictionary  = request.args['dictionary']
-        form        = request.args['form']
-        tokenId     = request.args['tokenId']
-        txtFile     = request.args['txtFile'] if type == 'dlc' else ''
+        type            = request.args['type']
+        dictionary      = request.args['dictionary']
+        form            = request.args['form']
+        tokenForInput   = request.args['inputTokenId']
+        tokenId         = request.args['tokenId']
+        txtFile         = request.args['txtFile'] if type == 'dic' else ''
 
         fileNameSet = set()
-        fileNameSet.add(os.path.join(UPLOAD_DIR, getFileBySubstringSearch(dictionary)[0]))
+        fileNameSet.add(os.path.join(UPLOAD_DIR, tokenForInput + dictionary))
         fileNameSet.add(os.path.join(UPLOAD_DIR, form))
+
         if txtFile:
-            fileNameSet.add(os.path.join(UPLOAD_DIR,txtFile))
+            fileNameSet.add(os.path.join(UPLOAD_DIR, tokenForInput + txtFile ))
 
         for filename in getFileBySubstringSearch(tokenId):
             fileNameSet.add(os.path.join(UPLOAD_DIR, filename))
@@ -416,11 +429,12 @@ def myExport():
 
         app.logger.debug("\tLeaving my Export")
 
-        return send_from_directory(UPLOAD_DIR, request.args['filename'],  as_attachment = True , attachment_filename="my-jpsurv-workspace.jpsurv_export" )
+        return send_from_directory(UPLOAD_DIR, request.args['filename'],  as_attachment = True , attachment_filename="my-jpsurv-workspace.jpsurv" )
 
     except Exception as e:
         print str(e)
-        return jsonify("An error happen on the backend see the log file"), 400
+        return_url = "?request=false&status=failed_import"
+        return redirect(return_url)
 
 
 @app.route('/jpsurvRest/stage2_calculate', methods=['GET'])
@@ -612,6 +626,14 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     port_num = int(args.port_number);
+
+    # @app.route('/error')
+    # def error():
+    #     raise()
+
+    @app.route('/', strict_slashes=False)
+    def index():
+        return send_file('index.html')
 
     print("The root path is " + app.root_path)
     initialize(port_num)
