@@ -354,7 +354,7 @@ function addInputSection() {
 
 function checkInputFile() {
   var results = $.ajax({
-    url:'/jpsurv/tmp/input_' + jpsurvData.tokenId + '.json',
+    url:'tmp/input_' + jpsurvData.tokenId + '.json',
     type:'HEAD',
     async: false
   });

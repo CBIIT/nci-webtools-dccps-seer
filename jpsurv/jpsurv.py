@@ -345,7 +345,7 @@ def myImport():
 
         if( getFilename("\.dic", zipFilename) != None):
             returnParameters['controlFile'] = fixFilename(getFilename("\.dic", zipFilename), returnParameters['tokenIdForForm'])
-            returnParameters['txtFile'] = getFilename("\.txt", zipFilename)
+            returnParameters['txtFile'] = fixFilename(getFilename("\.txt", zipFilename), returnParameters['tokenIdForForm'])
             returnParameters['type'] = "DIC"
         else:
             returnParameters['controlFile'] = fixFilename(getFilename("\.csv", zipFilename), returnParameters['tokenIdForForm'])
