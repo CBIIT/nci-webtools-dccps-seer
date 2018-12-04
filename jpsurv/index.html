@@ -109,7 +109,8 @@
                   <label>File Format:</label>
                     <input type="radio" name="data" value="dic" checked id="dic" aria-label="dictionary"> Dictionary/Data Files    
                     <input type="radio" id="csv" name="data" value="csv" aria-label="csv"> CSV Files
-              </div>
+                    <input type="radio" id="importRadioButton" name="data" value="importRadioButton" aria-label="importRadioButton"> Workspace
+                </div>
                   
                   
                   <hr class="stage-separator">
@@ -124,7 +125,7 @@
                       <div id="file_data_container" class="form-group"></div>
                   </div>
 
-                    <div id="csv_container" style="display:none">
+                  <div id="csv_container" style="display:none">
                     <div id="file_control_container_csv" class= "form-group"> <label for='file_control_csv'>CSV File:</label>
                       <a style='font-size:small;color:#3273ab' href='./data/Breast_RelativeSurvival_Head_NA0.csv' download='Breast_RelativeSurvival_Head_NA0.csv'>(example)</a></br>
                       <input type="file" id="file_control_csv" name="file_control_csv" style="padding-bottom:5px;max-width: 60%;display:inline" accept=".csv, .txt" aria-label="csv file chooser" >
@@ -134,12 +135,26 @@
                     </div>
                   </div>
 
+                  <div id="import_container" style="display:none">
+
+                      <input id="fileSelect"
+                               type="file"
+                               accept=".jpsurv"
+                               value="Import"
+                               title="Import"
+                               class="importContainer_fileSelect"
+                               aria-label="Import">
+
+                      <p class="importContainer_extensionNote">All Files imported/exported use the &quot;.jpsurv&quot; extension</p>
+
+                  </div>
+
 
           <div id="data_type_container" class="form-group"></div>
                   <div class="row">
                     <div id="upload_file_submit_container" class="jpsurv-button pull-right">
                       <!--<INPUT type='submit' id='upload_file_submit' value='Upload Files' > -->
-                      <button id='upload_file_submit' type="submit"class="btn btn-primary btn-sm" title="Please attach both input files to enable upload."disabled>Upload Input Files</button>
+                      <button id='upload_file_submit' type="button"class="btn btn-primary btn-sm" title="Please attach both input files to enable upload."disabled>Upload Input Files</button>
                     </div>
                   </div>
                 </form>
@@ -251,36 +266,7 @@
               </div>
               <input type="button" id="exportButton" value="Export" class="btn btn-primary btn-sm pull-right button_group_separator" aria-label="Export">
               <input type='button' id='calculate' value='Calculate' class="btn btn-primary btn-sm pull-right button_group_separator" aria-label="calculate">
-              <input type='button' onclick="window.location.href='/jpsurv'" value="Reset" class="btn btn-warning btn-sm pull-right button_group_separator" title="Reset all values" aria-label="Reset">
-
-              <div id="importBox" class="box col-md-12">
-                <p class="importBox_extensionNote">All Files imported/exported use the &quot;.jpsurv&quot; extension</p>
-                <hr class="stage-separator">
-
-                <div id="importBox_fileSelectDiv">
-                  <input id="fileSelect"
-                         type="file"
-                         accept=".jpsurv"
-                         value="Import"
-                         title="Import"
-                         class="importBox_fileSelect"
-                         aria-label="Import">
-
-                  <input  id="importButton"
-                          type="button"
-                          value="Import"
-                          class="btn btn-primary btn-sm pull-right importBox_importButton"
-                          title="Import"
-                          aria-label="Import">
-
-                </div>
-
-
-
-              </div>
-
-
-
+              <input type='button' onclick="window.location.href='/jpsurv/'" value="Reset" class="btn btn-warning btn-sm pull-right button_group_separator" title="Reset all values" aria-label="Reset">
 
               <div style="clear:both;"></div>
             </div>

@@ -41,6 +41,10 @@ $(document).ready(function() {
     })
   })
 
+  $([name='data']).prop("checked", true)
+
+  $("[name='data']:checked").click()
+
 });
 
 function checkInput(id) {
@@ -152,10 +156,10 @@ function addEventListeners() {
   $("#precision").on("change", userChangePrecision);
 
   $("#upload_file_submit").click(function(event) {
+    console.log("currently in the click for #uload_file_submit")
     setEventHandlerForImports()
     file_submit(event);
   });
-//  $("#year-of-diagnosis").on('change', setCalculateData);
 
 
   $( "#recalculate" ).click(function() {
@@ -188,9 +192,18 @@ function addEventListeners() {
   $("#file_data").on("change", checkInputFiles);
   $("#file_control").on("change", checkInputFiles);
   $("#file_control_csv").on("change", checkInputFiles);
+  $("#fileSelect").on("change", checkInputFiles)
 
   $( "#upload-form" ).on("submit", function( event ) {
 ;
+  });
+}
+
+/* The Original Code for submitting the a (Dictionary/Data Files) and CSV */
+function submitDicOrCsv(event) {
+  $("#upload_file_submit").click(function(event) {
+    setEventHandlerForImports()
+    file_submit(event);
   });
 }
 
@@ -207,6 +220,8 @@ function addMessages() {
 
 function addInputSection() {
 
+  console.log("Currently in addInputSeciton")
+
   var status = getUrlParameter('status');
   if(status == "uploaded") {
     
@@ -217,6 +232,7 @@ function addInputSection() {
 
     if( control_data.input_type==undefined){
       jpsurvData.additional.input_type="dic"
+      $("#import_container").remove();
       $('#csv_container').remove();
       $('#dic_container').show();
 
@@ -270,6 +286,7 @@ function addInputSection() {
       jpsurvData.additional.input_type="csv"
       $('#csv_container').show();
       $('#dic_container').remove();
+      $("#import_container").remove()
 
       $('#file_control_container_csv')
       .empty()
@@ -647,6 +664,10 @@ function checkInputFiles() {
       var has_txt=false
       var error_msg="Please choose 1 dictionary file and one text file"
       $("#file_display").empty();
+
+      $("#upload_file_submit").attr('title', 'Upload Input Files');
+      $("#upload_file_submit").text('Upload Input Files');
+
       if($("#file_control").prop("files").length>2)
         $("#file_display").html('<span style="color:red">'+error_msg+'</span></br>');
       else{
@@ -668,22 +689,42 @@ function checkInputFiles() {
       if(file_control.length > 0 && has_dic==true &&  has_txt==true) {
         $("#upload_file_submit").removeAttr('disabled');
         $("#upload_file_submit").attr('title', 'Upload Input Files');
+        $("#upload_file_submit").text('Upload Input Files');
+        $("#upload_file_submit").on("click", submitDicOrCsv)
       }
       else
         $("#file_display").html('<span style="color:red">'+error_msg+'</span></br>');
     }
 
     else if($('#csv').is(':checked')){
+
+      $("#upload_file_submit").attr('title', 'Upload Input Files');
+      $("#upload_file_submit").text('Upload Input Files');
+
       if(file_control_csv.length > 0 &&jpsurvData.passed==true) {
         $("#upload_file_submit").removeAttr('disabled');
-        $("#upload_file_submit").attr('title', 'Upload Input Files');
+
+        $("#upload_file_submit").on("click", submitDicOrCsv)
+
       }
       else{
         $("#upload_file_submit").prop('disabled', true);
       }
     }
-  
+    else if ( $("#importRadioButton").is(":checked")) {
 
+        $("#upload_file_submit").attr('title', 'Import Workspace');
+        $("#upload_file_submit").text('Import Workspace');
+
+        if ( $("#fileSelect")[0].files.length == 1 ) {
+            $("#upload_file_submit").removeAttr('disabled');
+
+
+            $("#upload_file_submit").off()
+            $("#upload_file_submit").on("click", importBackEnd)
+        }
+  
+    }
 }
 
 // set Data after STAGE 1
@@ -1308,9 +1349,9 @@ function file_submit(event) {
       headers+=header+del;
     }
     headers=headers.substring(0,headers.length-1)
-    jpsurvData.additional.statistic=$("#data_type").val()
+    jpsurvData.additional.statistic=$("#datastage1_upload_type").val()
     jpsurvData.mapping.has_headers=String($('#has_headers').is(':checked'));
-    $("#upload-form").attr('action', 'jpsurvRest/stage1_upload?tokenId='+jpsurvData.tokenId+'&input_type='+jpsurvData.input_type+'&map='+JSON.stringify(jpsurvData)+'&has_headers='+jpsurvData.mapping.has_headers+'&headers='+headers);
+    $("#upload-form").attr('action', 'jpsurvRest/?tokenId='+jpsurvData.tokenId+'&input_type='+jpsurvData.input_type+'&map='+JSON.stringify(jpsurvData)+'&has_headers='+jpsurvData.mapping.has_headers+'&headers='+headers);
   }
 
   else{
@@ -2380,6 +2421,7 @@ function getCookie(cname) {
 $( "#csv" ).click(function() {
   jpsurvData.input_type="csv";
   $("#dic_container").hide();
+  $("#import_container").hide()
   $("#csv_container").show();
   $('#upload_file_submit').prop("disabled",true);
   checkInputFiles();
@@ -2389,12 +2431,22 @@ $( "#csv" ).click(function() {
 $( "#dic" ).click(function() {
   jpsurvData.input_type="dic";
   $("#csv_container").hide();
+  $("#import_container").hide()
   $("#dic_container").show();
     $('#upload_file_submit').prop("disabled",true);
 
   checkInputFiles();
 
 });
+
+$("#importRadioButton").click(function() {
+  $("#csv_container").hide();
+  $("#dic_container").hide();
+  $("#import_container").show()
+
+  enableHTMLObject("#import_container > #fileSelect")
+  checkInputFiles()
+})
 
 
 //MODAL CONTENT BELOW!!/////////////////

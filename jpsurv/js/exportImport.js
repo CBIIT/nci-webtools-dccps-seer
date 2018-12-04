@@ -1,11 +1,13 @@
 $(document).ready(function() {
   $("#importButton").on("click", importBackEnd)
-  $("#fileSelect").on("change", handleImportFileSelectChange)
+
+  $("#fileSelect").on("change",  handleImportFileSelectChange)
 
   $("#exportButton").on("click", exportBackEnd)
 
   setEventHandlerForImports()
   handleImportFileSelectChange()
+
   handleExportFileButton()
 
 })
@@ -17,8 +19,6 @@ function importBackEnd(event) {
 
       var formData = new FormData()
       formData.append("zipData", $("#fileSelect")[0].files[0] )
-
-      checkForNoFileSelected("No file was chosen for Import. Please use the Choose File Select to select a file and then click the Import Button")
 
       $.ajax({
          'type': "post",
@@ -48,6 +48,7 @@ function importBackEnd(event) {
 // with the extension .jpsurv
 //
 function exportBackEnd(event) {
+
     var form_data = new FormData()
 
     if ( jpsurvData.stage2completed == false ) {
@@ -101,6 +102,7 @@ function importFrontEnd(idOfForm, idOfOthers, txtFile, controlFile, dataType) {
     }
 
     url = url + generateQueryParameterStr(parameters)
+
     window.location.assign(url)
 }
 
@@ -228,9 +230,29 @@ function generateQueryParameterStr(data) {
 }
 
 // if the Input[File] for the import has no files then disable the button, has files then enable the button
-function handleImportFileSelectChange() {
+function handleImportFileSelectChangeOld() {
 
     var button = "#importButton"
+
+    if ( $("#fileSelect2").length === 0 ) {
+        return
+    }
+
+    if ( $("#fileSelect2")[0].files.length == 0 ) {
+        disableHTMLObject(button)
+    } else {
+        enableHTMLObject(button)
+    }
+}
+
+// if the Input[File] for the import has no files then disable the button, has files then enable the button
+function handleImportFileSelectChange() {
+
+    var button = "#upload_file_submit"
+
+    if ( $("#fileSelect").length === 0 ) {
+        return
+    }
 
     if ( $("#fileSelect")[0].files.length == 0 ) {
         disableHTMLObject(button)

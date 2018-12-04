@@ -706,30 +706,16 @@ fieldset[disabled] .btn-warning.active {
  * Import Export
  */
 
-#importBox {
-    margin-top: 18px;
-}
 
-.importBox_extensionNote {
+.importContainer_extensionNote {
     font-weight: bold;
     text-align: left;
     display: inline-block;
     margin-bottom: 4%;
 }
 
-#importBox_fileSelectDiv {
-    display: flex;
-    align-items: center;
-
-}
-
-.importBox_importButton {
-    margin-left:auto;
-}
-
-#importBox .importBox_fileSelect {
-    width: 70%;
-    display: inline-block;
+#fileSelect.importContainer_fileSelect {
+    width: 100%;
 }
 
 .button_group_separator {
