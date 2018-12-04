@@ -26,9 +26,6 @@ $(document).ready(function() {
   addMessages();
   loadHelp();
 
-
-
-
   if(DEBUG) {
     //console.warn("%cDEBUG is on", "color:white; background-color:red");
     $("#year_of_diagnosis_start").val("1975");
@@ -156,7 +153,6 @@ function addEventListeners() {
   $("#precision").on("change", userChangePrecision);
 
   $("#upload_file_submit").click(function(event) {
-    console.log("currently in the click for #uload_file_submit")
     setEventHandlerForImports()
     file_submit(event);
   });
@@ -220,15 +216,12 @@ function addMessages() {
 
 function addInputSection() {
 
-  console.log("Currently in addInputSeciton")
-
   var status = getUrlParameter('status');
   if(status == "uploaded") {
     
     setUploadData();
 
     control_data = load_ajax(jpsurvData.file.form);
-
 
     if( control_data.input_type==undefined){
       jpsurvData.additional.input_type="dic"
@@ -1349,9 +1342,9 @@ function file_submit(event) {
       headers+=header+del;
     }
     headers=headers.substring(0,headers.length-1)
-    jpsurvData.additional.statistic=$("#datastage1_upload_type").val()
+    jpsurvData.additional.statistic=$("#data_type").val()
     jpsurvData.mapping.has_headers=String($('#has_headers').is(':checked'));
-    $("#upload-form").attr('action', 'jpsurvRest/?tokenId='+jpsurvData.tokenId+'&input_type='+jpsurvData.input_type+'&map='+JSON.stringify(jpsurvData)+'&has_headers='+jpsurvData.mapping.has_headers+'&headers='+headers);
+    $("#upload-form").attr('action', 'jpsurvRest/stage1_upload?tokenId='+jpsurvData.tokenId+'&input_type='+jpsurvData.input_type+'&map='+JSON.stringify(jpsurvData)+'&has_headers='+jpsurvData.mapping.has_headers+'&headers='+headers);
   }
 
   else{
@@ -1448,7 +1441,6 @@ function incrementImageId() {
 }
 
 function stage2(action) {
-
 
   $("#jpsurv-message-container").hide();
   jpsurvData.recentTrends = 0;
@@ -2831,7 +2823,6 @@ $(document).click(function (e) {
 // A routine to determine if there is a calcuation in the system.  This is done by verifying that stage2 is complete
 // meaning the calculations are done and the panel that contains the calculations is visible.
 function analysisDisplayed() {
-    console.log("Result is " + jpsurvData.stage2completed && $("#right_panel:visible").length == 1 )
     return  ( jpsurvData.stage2completed && $("#right_panel:visible").length == 1) ? true : false
 }
 
