@@ -42,6 +42,26 @@ $(document).ready(function() {
 
   $("[name='data']:checked").click()
 
+  $('[data-toggle="tooltip"]').tooltip({
+    delay: "500",
+    title: txtForInputButtonToolTip,
+    placement: "left"
+  });
+
+  //$("#upload_file_submit").on("show.bs.tooltip", function() {
+  //  $(this).tooltip('hide')
+  //})
+
+  //$("#upload_file_submit").on("hover", function() {
+  //  $(this).tooltip('hide')
+  //})
+
+  $("#upload_file_submit").hover(function() {
+    if ( $(this).attr("id") === "upload_file_submit" ) {
+         var selectedOption =  ( $("[name='data']:checked").val())
+         if ( selectedOption != "importRadioButton") $(this).tooltip('hide')
+    }
+  })
 });
 
 function checkInput(id) {
@@ -152,10 +172,10 @@ function addEventListeners() {
   $("#covariate_select").on("change", change_covariate_select);
   $("#precision").on("change", userChangePrecision);
 
-  $("#upload_file_submit").click(function(event) {
-    setEventHandlerForImports()
-    file_submit(event);
-  });
+  //$("#upload_file_submit").click(function(event) {
+  //  setEventHandlerForImports()
+  //  file_submit(event);
+  //});
 
 
   $( "#recalculate" ).click(function() {
@@ -648,6 +668,7 @@ $('#file_control_csv').change(function(){
 });
 function checkInputFiles() {
   //If both files are filed out then enable the Upload Files Button
+
   var file_control = $("#file_control").val();
   var file_data = $("#file_data").val();
   var file_control_csv = $("#file_control_csv").val();
@@ -658,7 +679,6 @@ function checkInputFiles() {
       var error_msg="Please choose 1 dictionary file and one text file"
       $("#file_display").empty();
 
-      $("#upload_file_submit").attr('title', 'Upload Input Files');
       $("#upload_file_submit").text('Upload Input Files');
 
       if($("#file_control").prop("files").length>2)
@@ -681,7 +701,6 @@ function checkInputFiles() {
       }
       if(file_control.length > 0 && has_dic==true &&  has_txt==true) {
         $("#upload_file_submit").removeAttr('disabled');
-        $("#upload_file_submit").attr('title', 'Upload Input Files');
         $("#upload_file_submit").text('Upload Input Files');
         $("#upload_file_submit").on("click", submitDicOrCsv)
       }
@@ -691,7 +710,7 @@ function checkInputFiles() {
 
     else if($('#csv').is(':checked')){
 
-      $("#upload_file_submit").attr('title', 'Upload Input Files');
+      $("#upload_file_submit").attr('title', 'Upload Data from CSV File');
       $("#upload_file_submit").text('Upload Input Files');
 
       if(file_control_csv.length > 0 &&jpsurvData.passed==true) {
@@ -706,17 +725,16 @@ function checkInputFiles() {
     }
     else if ( $("#importRadioButton").is(":checked")) {
 
-        $("#upload_file_submit").attr('title', 'Import Workspace');
+        $("#upload_file_submit").attr('title', 'Import Workspace from file');
         $("#upload_file_submit").text('Import Workspace');
 
         if ( $("#fileSelect")[0].files.length == 1 ) {
             $("#upload_file_submit").removeAttr('disabled');
-
-
-            $("#upload_file_submit").off()
+            $("#upload_file_submit").off("click", "#upload_file_submit", submitDicOrCsv)
             $("#upload_file_submit").on("click", importBackEnd)
+        } else {
+            disableHTMLObject("#upload_file_submit")
         }
-  
     }
 }
 
@@ -2825,6 +2843,21 @@ $(document).click(function (e) {
 function analysisDisplayed() {
     return  ( jpsurvData.stage2completed && $("#right_panel:visible").length == 1) ? true : false
 }
+
+
+// Provides the help text for the button that will upload the file
+// The problem is that the upload button handles three different types of upload ( dic/txt, csv, file exported)git
+function txtForInputButtonToolTip() {
+    var helpTxt = "Help String not defined for this object"
+
+    if ( $(this).attr("id") === "upload_file_submit" ) {
+       var selectedOption =  ( $("[name='data']:checked").val())
+       if ( selectedOption == "importRadioButton" ) helpTxt = "Importing a saved workspace"
+    }
+
+    return helpTxt
+}
+
 
 
 
