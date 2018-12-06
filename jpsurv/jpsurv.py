@@ -172,7 +172,7 @@ def stage1_upload():
             # look at Href from werkzeug
             # http://werkzeug.pocoo.org/docs/0.14/urls/
             app.logger.debug(request.url_root + '/jpsurv/')
-            url = Href(request.url_root + 'jpsurv/')(
+            url = Href('/jpsurv/')(
                  request='false',
                  file_control_filename=file_control_filename_clean,
                  file_data_filename=file_data_filename_clean,
