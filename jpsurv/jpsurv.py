@@ -14,6 +14,7 @@ from shutil import copytree, ignore_patterns, copy2
 from glob import glob
 import re
 import logging
+from werkzeug.urls import Href
 from urllib import pathname2url
 import zlib
 
@@ -170,18 +171,20 @@ def stage1_upload():
 
             # look at Href from werkzeug
             # http://werkzeug.pocoo.org/docs/0.14/urls/
-            params = {
-                 'request': 'false',
-                 'file_control_filename': file_control_filename_clean,
-                 'file_data_filename': file_data_filename_clean,
-                 'output_filename': output_filename,
-                 'status': 'uploaded',
-                 'tokenId': tokenId
-            }
+            app.logger.debug(request.url_root + '/jpsurv/')
+            url = Href(request.url_root + 'jpsurv/')(
+                 request='false',
+                 file_control_filename=file_control_filename_clean,
+                 file_data_filename=file_data_filename_clean,
+                 output_filename=output_filename,
+                 status='uploaded',
+                 tokenId=tokenId
+            )
 
-            status = "uploaded"
-            return_url = "jpsurv/?request=false&file_control_filename=%s&file_data_filename=%s&output_filename=%s&status=%s&tokenId=%s" % (file_control_filename_clean, file_data_filename_clean, output_filename, status, tokenId)
-            return redirect(return_url)
+            app.logger.debug(url)
+
+            # return_url = "?request=false&file_control_filename=%s&file_data_filename=%s&output_filename=%s&status=%s&tokenId=%s" % (file_control_filename_clean, file_data_filename_clean, output_filename, status, tokenId)
+            return redirect(url)
     except Exception as e: print(e)
 
     if(input_type=="csv"):
