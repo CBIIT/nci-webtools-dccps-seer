@@ -217,10 +217,10 @@ function addEventListeners() {
 
 /* The Original Code for submitting the a (Dictionary/Data Files) and CSV */
 function submitDicOrCsv(event) {
-  $("#upload_file_submit").click(function(event) {
+  //$("#upload_file_submit").click(function(event) {
     setEventHandlerForImports()
     file_submit(event);
-  });
+  //});
 }
 
 function userChangePrecision() {

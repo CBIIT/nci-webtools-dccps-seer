@@ -169,8 +169,6 @@ def stage1_upload():
             stri = fo.read(500)
             fo.close()
 
-            # look at Href from werkzeug
-            # http://werkzeug.pocoo.org/docs/0.14/urls/
             app.logger.debug(request.url_root + '/jpsurv/')
             url = Href('/jpsurv/')(
                  request='false',
@@ -181,9 +179,8 @@ def stage1_upload():
                  tokenId=tokenId
             )
 
-            app.logger.debug(url)
+            app.logger.debug("***" + url)
 
-            # return_url = "?request=false&file_control_filename=%s&file_data_filename=%s&output_filename=%s&status=%s&tokenId=%s" % (file_control_filename_clean, file_data_filename_clean, output_filename, status, tokenId)
             return redirect(url)
     except Exception as e: print(e)
 
@@ -241,10 +238,20 @@ def stage1_upload():
             fo = open(r_output_file, "r+")
             stri = fo.read(500)
             fo.close()
-            status = "uploaded"
-            return_url = "jpsurv/?request=false&file_control_filename=%s&output_filename=%s&status=%s&tokenId=%s" % (file_control_filename_clean, output_filename, status, tokenId)
-            print(return_url)
-            return redirect(return_url)
+
+            app.logger.debug(request.url_root + '/jpsurv/')
+            url = Href('/jpsurv/')(
+                request='false',
+                file_control_filename=file_control_filename_clean,
+                output_filename=output_filename,
+                status='uploaded',
+                tokenId=tokenId
+            )
+
+            app.logger.debug("***" + url)
+
+            return redirect(url)
+
         except:
             status = "failed_upload"
             print "FAILED"
