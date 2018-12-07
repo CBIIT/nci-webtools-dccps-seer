@@ -27,7 +27,8 @@ if not os.path.exists('tmp'):
 QUEUE_NAME = 'queue.name'
 QUEUE_URL = 'queue.url'
 jpsurvConfig = PropertyUtil(r"config.ini")
-UPLOAD_DIR = 'tmp' #os.path.join(os.getcwd(), 'tmp')
+#UPLOAD_DIR = 'tmp' #os.path.join(os.getcwd(), 'tmp')
+UPLOAD_DIR = os.path.join(os.getcwd(), "tmp")
 
 print 'JPSurv is starting...'
 

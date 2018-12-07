@@ -83,7 +83,6 @@
 
         <!-- Upload FORM - STAGE 1 -->
         <div id="slideoutTab" class="col-md-4 col-lg-4 col-sm-12">
-
           <i id ="icon" class="fa fa-caret-left fa-2x hidden-xs hidden-sm" onclick="Slide_menu_Horz()" style="visibility:hidden;margin-left:100%"></i>
         <div  id="slideoutForm">
           <span  class="jpsurv-title col-md-6 hidden-xs hidden-sm" ><img  src="./images/jpsurv.png" style="height:60%;width:60%" alt="JPSurv (Joint Point Survival Model)"></img></span>
@@ -111,8 +110,6 @@
                     <input type="radio" id="csv" name="data" value="csv" aria-label="csv"> CSV Files
                     <input type="radio" id="importRadioButton" name="data" value="importRadioButton" aria-label="importRadioButton"> Workspace
                 </div>
-                  
-                  
                   <hr class="stage-separator">
                   <div id="dic_container" >
                     <div id="file_control_container" class= "form-group" > <label for='file_control'>SEER Stat Dictionary/Data Files:</label>
@@ -298,7 +295,9 @@
               <div class="col-md-12">
                 <strong style="float:left;margin-right:5px;margin-bottom:5px;">Cohort</strong>&nbsp;
                 <select id="cohort-display" aria-label="cohort display"></select>
-                <input type="button" id="exportButton" data-toggle="tooltip" title="Export a Workspace to a file" value="Export" class="btn btn-primary btn-sm pull-right button_group_separator" aria-label="Export">
+                <a id="exportButton" data-toggle="tooltip" title="Export Cohort and Model specification and results to model" class="btn btn-primary btn-sm pull-right button_group_separator" aria-label="Export">
+                  Export
+                </a>
               </div>
             </div>
             <div class="row model-select-row">

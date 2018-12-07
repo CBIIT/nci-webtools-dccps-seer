@@ -2852,7 +2852,7 @@ function txtForInputButtonToolTip() {
 
     if ( $(this).attr("id") === "upload_file_submit" ) {
        var selectedOption =  ( $("[name='data']:checked").val())
-       if ( selectedOption == "importRadioButton" ) helpTxt = "Importing a saved workspace"
+       if ( selectedOption == "importRadioButton" ) helpTxt = "Import Workspace exported previously"
     }
 
     return helpTxt

@@ -73,9 +73,11 @@ function exportBackEnd(event) {
     data.filename = generateToken(12) + ".jpsurv"
     if ( data.type == "dic") data.txtFile = jpsurvData.file.data
 
-    var anchorTag = document.createElement("a")
-    anchorTag.href = "jpsurvRest/export" + generateQueryParameterStr(data)
-    anchorTag.click()
+    $('#exportButton').attr("href", "jpsurvRest/export" + generateQueryParameterStr(data))
+
+//    var anchorTag = document.createElement("a")
+//    anchorTag.href = "jpsurvRest/export" + generateQueryParameterStr(data)
+//    anchorTag.click()
 }
 
 //
