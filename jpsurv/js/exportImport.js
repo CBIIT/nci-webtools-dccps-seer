@@ -73,7 +73,11 @@ function exportBackEnd(event) {
     data.filename = generateToken(12) + ".jpsurv"
     if ( data.type == "dic") data.txtFile = jpsurvData.file.data
 
-    $('#exportButton').attr("href", "jpsurvRest/export" + generateQueryParameterStr(data))
+    try {
+        $('#exportButton').attr("href", "jpsurvRest/export" + generateQueryParameterStr(data))
+    } catch(error) {
+        console.log(error)
+    }
 
 //    var anchorTag = document.createElement("a")
 //    anchorTag.href = "jpsurvRest/export" + generateQueryParameterStr(data)
@@ -190,18 +194,11 @@ function handleError(error) {
     $("#right_panel").hide();
     $("#help").show();
     var inputData = load_ajax("input_" + jpsurvData.tokenId + ".json");
+    preloadValues()
 }
 
 function handleBackendError() {
     handleError("A problem happen on the back end.  Please have the administrator review the log files")
-}
-
-
-function checkForNoFileSelected(message) {
-    var checkForFalsy = $("#fileSelect")[0].files[0]
-    if ( checkForFalsy === undefined || checkForFalsy === null  ) {
-        handleError(message)
-    }
 }
 
 /* Create an invisble anchor to allow the user to download the file.  Note that anchorTag is local to this function   */

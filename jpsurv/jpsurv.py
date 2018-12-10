@@ -376,17 +376,23 @@ def myImport():
 @app.route('/jpsurvRest/export', methods=['GET'])
 def myExport():
 
+    ''' Retrieves the arguments from request '''
+
     ''' Exports the JPSurv Data from the application to a file that is download to the user's computer '''
-
-    def gatherFileNames():
-        ''' Gather the files that will be zipped into a file '''
-
+    def extractParameters():
         type            = request.args['type']
         dictionary      = request.args['dictionary']
         form            = request.args['form']
         tokenForInput   = request.args['inputTokenId']
         tokenId         = request.args['tokenId']
         txtFile         = request.args['txtFile'] if type == 'dic' else ''
+
+        return ( type, dictionary, form, tokenForInput, tokenId, txtFile )
+
+
+    def gatherFileNames():
+        ''' Gather the files that will be zipped into a file '''
+        ( type, dictionary, form, tokenForInput, tokenId, txtFile ) = extractParameters()
 
         fileNameSet = set()
         fileNameSet.add(os.path.join(UPLOAD_DIR, tokenForInput + dictionary))
@@ -446,7 +452,6 @@ def myExport():
         print str(e)
         return_url = "?request=false&status=failed_import"
         return redirect(return_url)
-
 
 @app.route('/jpsurvRest/stage2_calculate', methods=['GET'])
 def stage2_calculate():
