@@ -28,7 +28,7 @@ function importBackEnd(event) {
          'contentType': false,
          'processData': false,
          'success': function(data) {
-            importFrontEnd(data.tokenIdForForm, data.tokenIdForRest, data.txtFile, data.controlFile, data.type)
+            importFrontEnd(data.tokenIdForForm, data.tokenIdForRest, data.txtFile, data.controlFile, data.type, data.imageIdStartCount, data.delimiter)
          },
          'fail' : function(jqXHR, textStatus) {
             handleBackendError()
@@ -88,9 +88,11 @@ function exportBackEnd(event) {
 // Import -- Once the backend has unarchvied the data and restored the files the front end will need to call the
 // query string and
 //
-function importFrontEnd(idOfForm, idOfOthers, txtFile, controlFile, dataType) {
+function importFrontEnd(idOfForm, idOfOthers, txtFile, controlFile, dataType, imageIdStartCount, delimiter) {
 
     localStorage.setItem("importing", "YES")
+    localStorage.setItem("initialIdCnt", imageIdStartCount.toString())
+    localStorage.setItem("delimiter", delimiter)
 
     var url = [ location.protocol, "//", location.host, location.pathname ].join('')
 
@@ -138,6 +140,9 @@ function updatePageAfterRefresh(event) {
         calculateTrendCallback()
         setRun()
 
+        jpsurvData.plot.static.imageId = parseInt(localStorage.getItem("initialIdCnt")) - 1
+        jpsurvData.additional.del = localStorage.getItem("delimiter")
+
         jpsurvData.stage2completed = true
 
      } catch(err) {
@@ -147,6 +152,8 @@ function updatePageAfterRefresh(event) {
 
      } finally {
         localStorage.removeItem("importing")
+        localStorage.removeItem("initialIdCnt")
+        localStorage.removeItem("delimiter")
         setEventHandlerForImports()
         handleExportFileButton()
 

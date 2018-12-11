@@ -273,6 +273,7 @@ def myImport():
 
         ''' Copy the file to correct directory and changes the extension to zip '''
 
+        # Replace .jpsurv with .zip
         absoluteFilename = os.path.join(UPLOAD_DIR, uploadArchive.filename.split(".")[0] + ".zip")
 
         app.logger.debug("\tUploading %s and saving it to %s" % (uploadedArchive.filename, absoluteFilename))
@@ -307,12 +308,19 @@ def myImport():
 
         return token
 
-    def getFilename( fileNameRegularExpression, archive):
-
+    def getFilenames(fileNameRegularExpression, archive):
         ''' Return the first file mathcing the regular expression '''
         newList = filter(
             re.compile(fileNameRegularExpression).search,
             ZipFile(archive, 'r').namelist())
+
+        app.logger.debug ("\tFor Regular Expression \"%s\" and arhive \"%s\" found %d" % (fileNameRegularExpression, archive, len(newList)))
+
+        return newList
+
+    def getFilename( fileNameRegularExpression, archive):
+
+        newList = getFilenames(fileNameRegularExpression, archive)
 
         if ( len(newList) > 0 ):
             filename = newList[0]
@@ -322,6 +330,21 @@ def myImport():
         app.logger.debug ("\tFor Regular Expression \"%s\" and arhive \"%s\" found %s" % (fileNameRegularExpression, archive, filename))
 
         return filename
+
+    # Get the first line of the file, and determine the sepaarator.  The algorithm for the code was originally found in
+    # the jpsurv.js.
+    #
+    # When moving to python 3 there is a cvs_sniffer
+    def getDelimiter(inputFile):
+
+        line = ""
+        with open(inputFile, 'r') as inputFile:
+           line = inputFile.readline()
+
+        separator = re.search("[,;\s\t]",line).group()
+
+        app.logger.debug("\tThe separator is '%s' for line --> %s" % (separator, line))
+        return separator if separator != None else ""
 
     def fixFilename(absolutePath, tokenId):
         ''' Removes the Token Id from the file name '''
@@ -353,14 +376,18 @@ def myImport():
         returnParameters = {}
         returnParameters['tokenIdForForm'] = getTokenFor("form\-", "(\d+)", zipFilename)
         returnParameters['tokenIdForRest'] = getTokenFor("output\-", "(\d+)", zipFilename)
+        returnParameters['imageIdStartCount'] = len(getFilenames("plot_Year", zipFilename))
 
         if( getFilename("\.dic", zipFilename) != None):
             returnParameters['controlFile'] = fixFilename(getFilename("\.dic", zipFilename), returnParameters['tokenIdForForm'])
             returnParameters['txtFile'] = fixFilename(getFilename("\.txt", zipFilename), returnParameters['tokenIdForForm'])
             returnParameters['type'] = "DIC"
+            returnParameters['delimiter'] = "NA"
         else:
-            returnParameters['controlFile'] = fixFilename(getFilename("\.csv", zipFilename), returnParameters['tokenIdForForm'])
+            fileNameInZipFile = getFilename("\.csv", zipFilename)
+            returnParameters['controlFile'] = fixFilename(fileNameInZipFile, returnParameters['tokenIdForForm'])
             returnParameters['type'] = "CSV"
+            returnParameters['delimiter'] = getDelimiter(os.path.join(UPLOAD_DIR, fileNameInZipFile))
 
         return jsonify(returnParameters)
 
@@ -523,9 +550,6 @@ def stage3_recalculate():
 
     print("USE_DEFAULT")
     print(use_default)
-
-
-
 
     if (switch==True):
         with open('tmp/cohort_models-'+jpsurvData["tokenId"]+'.json') as data_file:
