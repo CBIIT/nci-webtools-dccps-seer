@@ -24,7 +24,7 @@ function importBackEnd(event) {
          'type': "post",
          'url':  "jpsurvRest/import",
          'data': formData,
-         'async': false,
+         'async': true,
          'contentType': false,
          'processData': false,
          'success': function(data) {
@@ -71,7 +71,22 @@ function exportBackEnd(event) {
     data.inputTokenId = inputTokenId
     data.tokenId = jpsurvData.tokenId
     data.filename = generateToken(12) + ".jpsurv"
+
+    /* Saving the Form Variables */
+    data.yearOfDiagnosisRangeStart = jpsurvData.calculate.form.yearOfDiagnosisRange[0]
+    data.yearOfDiagnosisRangeEnd   = jpsurvData.calculate.form.yearOfDiagnosisRange[1]
+    data.cohortVariables = jpsurvData.results.Runs
+    data.maxJoinPoints = jpsurvData.calculate.form.maxjoinPoints
+    data.advBetween = jpsurvData.calculate.static.advanced.advBetween
+    data.advDelInterval = jpsurvData.calculate.static.advanced.advDeleteInterval
+    data.advFirst = jpsurvData.calculate.static.advanced.advFirst
+    data.advLast = jpsurvData.calculate.static.advanced.advLast
+    data.advYear = jpsurvData.calculate.static.advanced.advYear
+    data.controlFilename = jpsurvData.file.dictionary
+    data.email = jpsurvData.queue.email
+
     if ( data.type == "dic") data.txtFile = jpsurvData.file.data
+
 
     try {
         $('#exportButton').attr("href", "jpsurvRest/export" + generateQueryParameterStr(data))
@@ -145,6 +160,8 @@ function updatePageAfterRefresh(event) {
 
         jpsurvData.stage2completed = true
 
+        load_ajax_with_success_callback(createFormValuesFilename(), loadUserInput)
+
      } catch(err) {
 
         console.log("An exception happen.  The error is " + err.message)
@@ -158,6 +175,62 @@ function updatePageAfterRefresh(event) {
         handleExportFileButton()
 
      }
+}
+
+function loadUserInput(data) {
+
+    function modifyForm(data) {
+        $("e-mail").val(data.email)
+        $("#year_of_diagnosis_start").val(data.yearOfDiagnosisRangeStart)
+        $("#year_of_diagnosis_end").val(data.yearOfDiagnosisRangeEnd)
+        $("#max_join_point_select").val(data.maxJoinPoints)
+
+        $("#cohort-variables").find(":checkbox").prop("checked", false)
+        var cohorts = data.cohortVariables.split("+")
+
+        $.each(cohorts, function(index, element) {
+            element = element.trim()
+
+            var selector = "div#cohort-variables label:contains('" + element + "')"
+            $(selector).children("input").prop("checked", true)
+        })
+
+
+        if ( data.advDelInterval === 'T')
+            $("#del-int-yes").prop("checked", true)
+        else
+            $("#del-int-no").prop("checked", true)
+
+        $("#adv-between").val(parseInt(data.advBetween))
+        $("#adv-first").val(parseInt(data.advFirst))
+        $("#adv-last").val(parseInt(data.advLast))
+        $("#adv-year").val(parseInt(data.advYear))
+    }
+
+    function modifyJPSurv(data ) {
+        jpsurvData.queue.email = data.email
+        jpsurvData.calculate.form.yearOfDiagnosisRange[0] = parseInt(data.yearOfDiagnosisRangeStart)
+        jpsurvData.calculate.form.yearOfDiagnosisRange[1] = parseInt(data.yearOfDiagnosisRangeEnd)
+        jpsurvData.calculate.form.maxJoinPoints = parseInt(data.maxjoinPoints)
+
+        jpsurvData.calculate.static.advanced.advDeleteInterval = data.advDelInterval
+        jpsurvData.calculate.static.advanced.advBetween = parseInt(data.advBetween)
+        jpsurvData.calculate.static.advanced.advFirst = parseInt(data.advFirst)
+        jpsurvData.calculate.static.advanced.advLast = parseInt(data.advLast)
+        jpsurvData.calculate.static.advanced.advYear = parseInt(data.advYear)
+
+    }
+
+    console.log(data)
+
+    modifyForm(data)
+    modifyJPSurv(data)
+}
+
+
+// Creates the filename for the storage for the values of the form
+function createFormValuesFilename() {
+    return "tmp/currentState-" + jpsurvData.tokenId + ".json"
 }
 
 // Loads data using ajax and then calls a function.  This routine is needed since the GetJSON is asynchronous and the

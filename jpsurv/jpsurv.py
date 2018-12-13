@@ -358,6 +358,18 @@ def myImport():
 
         return fixedAbsolutePath
 
+    def getControlFilename(tokenId):
+        filename = "currentState-" + tokenId + ".json"
+        controlFile = ""
+        with open( os.path.join(UPLOAD_DIR, filename), 'r') as inFile:
+            data = json.load(inFile)
+            controlFile = data["controlFilename"]
+
+        print("The control file name is " + controlFile)
+
+        return controlFile
+
+
     response = ""
 
     app.logger.debug("Currently in /jpsurv/import")
@@ -385,7 +397,7 @@ def myImport():
             returnParameters['delimiter'] = "NA"
         else:
             fileNameInZipFile = getFilename("\.csv", zipFilename)
-            returnParameters['controlFile'] = fixFilename(fileNameInZipFile, returnParameters['tokenIdForForm'])
+            returnParameters['controlFile'] = getControlFilename(returnParameters['tokenIdForRest'])
             returnParameters['type'] = "CSV"
             returnParameters['delimiter'] = getDelimiter(os.path.join(UPLOAD_DIR, fileNameInZipFile))
 
@@ -464,9 +476,33 @@ def myExport():
 
         return fileList
 
+    def writeApplicationStateToFile():
+
+        data = {}
+
+        data['yearOfDiagnosisRangeStart'] = request.args['yearOfDiagnosisRangeStart']
+        data['yearOfDiagnosisRangeEnd']   = request.args['yearOfDiagnosisRangeEnd']
+        data['cohortVariables']           = request.args['cohortVariables']
+        data['maxJoinPoints']             = request.args['maxJoinPoints']
+        data['advBetween']                = request.args['advBetween']
+        data['advDelInterval']            = request.args['advDelInterval']
+        data['advFirst']                  = request.args['advFirst']
+        data['advLast']                   = request.args['advLast']
+        data['advYear']                   = request.args['advYear']
+        data['controlFilename']           = request.args['controlFilename']
+        data['email']                     = request.args['email']
+
+        filename = "currentState-" + request.args['tokenId'] + ".json"
+        with open( os.path.join(UPLOAD_DIR,filename), 'w+') as outFile:
+            json.dump(data,outFile)
+
+        app.logger.debug("Written Current state of the form to " + filename)
+
     try:
 
         app.logger.debug("Currently in myExport")
+
+        writeApplicationStateToFile()
 
         zip = addFilesTozip(None, gatherFileNames())
         zip.close()
