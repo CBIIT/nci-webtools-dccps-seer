@@ -732,8 +732,6 @@ function checkInputFiles() {
             $("#upload_file_submit").removeAttr('disabled');
             $("#upload_file_submit").off("click", "#upload_file_submit", submitDicOrCsv)
             $("#upload_file_submit").on("click", importBackEnd)
-        } else {
-            disableHTMLObject("#upload_file_submit")
         }
     }
 }
@@ -1105,7 +1103,6 @@ function calculateFittedResultsCallback() {
   $("#help").hide();
   $("#icon").css('visibility', 'visible');
 
-  enableHTMLObject("#exportButton")
   $("#year-of-diagnosis").empty();
   for (year=jpsurvData.calculate.form.yearOfDiagnosisRange[0];year<=jpsurvData.calculate.form.yearOfDiagnosisRange[1];year++) {
     $("#year-of-diagnosis").append("<OPTION>"+year+"</OPTION>\n");
@@ -2454,7 +2451,6 @@ $("#importRadioButton").click(function() {
   $("#dic_container").hide();
   $("#import_container").show()
 
-  enableHTMLObject("#import_container > #fileSelect")
   checkInputFiles()
 })
 

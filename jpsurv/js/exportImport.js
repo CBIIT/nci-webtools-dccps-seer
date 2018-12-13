@@ -1,15 +1,8 @@
 $(document).ready(function() {
   $("#importButton").on("click", importBackEnd)
-
-  $("#fileSelect").on("change",  handleImportFileSelectChange)
-
   $("#exportButton").on("click", exportBackEnd)
 
   setEventHandlerForImports()
-  handleImportFileSelectChange()
-
-  handleExportFileButton()
-
 })
 
 //
@@ -84,6 +77,8 @@ function exportBackEnd(event) {
     data.advYear = jpsurvData.calculate.static.advanced.advYear
     data.controlFilename = jpsurvData.file.dictionary
     data.email = jpsurvData.queue.email
+    data.intervals = jpsurvData.additional.intervals.toString()
+    data.diagnosisYear = jpsurvData.results.yod
 
     if ( data.type == "dic") data.txtFile = jpsurvData.file.data
 
@@ -93,10 +88,6 @@ function exportBackEnd(event) {
     } catch(error) {
         console.log(error)
     }
-
-//    var anchorTag = document.createElement("a")
-//    anchorTag.href = "jpsurvRest/export" + generateQueryParameterStr(data)
-//    anchorTag.click()
 }
 
 //
@@ -172,14 +163,12 @@ function updatePageAfterRefresh(event) {
         localStorage.removeItem("initialIdCnt")
         localStorage.removeItem("delimiter")
         setEventHandlerForImports()
-        handleExportFileButton()
-
      }
 }
 
 function loadUserInput(data) {
 
-    function modifyForm(data) {
+    function modifyForm(data, intervals) {
         $("e-mail").val(data.email)
         $("#year_of_diagnosis_start").val(data.yearOfDiagnosisRangeStart)
         $("#year_of_diagnosis_end").val(data.yearOfDiagnosisRangeEnd)
@@ -195,7 +184,6 @@ function loadUserInput(data) {
             $(selector).children("input").prop("checked", true)
         })
 
-
         if ( data.advDelInterval === 'T')
             $("#del-int-yes").prop("checked", true)
         else
@@ -205,9 +193,13 @@ function loadUserInput(data) {
         $("#adv-first").val(parseInt(data.advFirst))
         $("#adv-last").val(parseInt(data.advLast))
         $("#adv-year").val(parseInt(data.advYear))
+
+        $("#interval-years").val(intervals)
+        $("#year-of-diagnosis").val(data.diagnosisYear)
+
     }
 
-    function modifyJPSurv(data ) {
+    function modifyJPSurv(data, intervals ) {
         jpsurvData.queue.email = data.email
         jpsurvData.calculate.form.yearOfDiagnosisRange[0] = parseInt(data.yearOfDiagnosisRangeStart)
         jpsurvData.calculate.form.yearOfDiagnosisRange[1] = parseInt(data.yearOfDiagnosisRangeEnd)
@@ -218,13 +210,18 @@ function loadUserInput(data) {
         jpsurvData.calculate.static.advanced.advFirst = parseInt(data.advFirst)
         jpsurvData.calculate.static.advanced.advLast = parseInt(data.advLast)
         jpsurvData.calculate.static.advanced.advYear = parseInt(data.advYear)
+        jpsurvData.additional.intervals = intervals
+        jpsurvData.results.yod = data.diagnosisYear
 
     }
 
     console.log(data)
 
-    modifyForm(data)
-    modifyJPSurv(data)
+    // Convert a comma separated string of numbers into an array of actual number
+    var intervals = data.intervals.split(",").map(Number)
+
+    modifyForm(data, intervals)
+    modifyJPSurv(data, intervals)
 }
 
 
@@ -266,7 +263,6 @@ function setEventHandlerForImports() {
 }
 
 function handleError(error) {
-
     message = error
     message_type = 'error';
     id="jpsurv"
@@ -274,20 +270,11 @@ function handleError(error) {
     $("#right_panel").hide();
     $("#help").show();
     var inputData = load_ajax("input_" + jpsurvData.tokenId + ".json");
-    preloadValues()
+    preLoadValues()
 }
 
 function handleBackendError() {
     handleError("A problem happen on the back end.  Please have the administrator review the log files")
-}
-
-/* Create an invisble anchor to allow the user to download the file.  Note that anchorTag is local to this function   */
-/* and should be delete when the function is completed                                                                */
-function  createInvisibleDownloadLink(filename) {
-
-    var anchorTag = document.createElement("a")
-    anchorTag.href = filename
-    anchorTag.click()
 }
 
 /* Copied from https://stackoverflow.com/questions/8532406/create-a-random-token-in-javascript-based-on-user-details */
@@ -306,58 +293,5 @@ function generateToken(n) {
 // Output ; The query string including the "?" to start the section
 function generateQueryParameterStr(data) {
     return "?" + $.param(data)
-}
-
-// if the Input[File] for the import has no files then disable the button, has files then enable the button
-function handleImportFileSelectChangeOld() {
-
-    var button = "#importButton"
-
-    if ( $("#fileSelect2").length === 0 ) {
-        return
-    }
-
-    if ( $("#fileSelect2")[0].files.length == 0 ) {
-        disableHTMLObject(button)
-    } else {
-        enableHTMLObject(button)
-    }
-}
-
-// if the Input[File] for the import has no files then disable the button, has files then enable the button
-function handleImportFileSelectChange() {
-
-    var button = "#upload_file_submit"
-
-    if ( $("#fileSelect").length === 0 ) {
-        return
-    }
-
-    if ( $("#fileSelect")[0].files.length == 0 ) {
-        disableHTMLObject(button)
-    } else {
-        enableHTMLObject(button)
-    }
-}
-
-// If there is an analysis being shown then set the export button to true
-function handleExportFileButton() {
-
-    var button ="#exportButton"
-
-    if ( analysisDisplayed() )
-        enableHTMLObject(button)
-    else
-        disableHTMLObject(button)
-}
-
-function disableHTMLObject(selector) {
-    $(selector).attr("disabled", true)
-    $(selector).attr("aria-disabled", true)
-}
-
-function enableHTMLObject(selector) {
-    $(selector).attr("disabled", false)
-    $(selector).attr("aria-disabled", false)
 }
 

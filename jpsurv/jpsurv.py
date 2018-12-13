@@ -491,6 +491,8 @@ def myExport():
         data['advYear']                   = request.args['advYear']
         data['controlFilename']           = request.args['controlFilename']
         data['email']                     = request.args['email']
+        data['intervals']                 = request.args['intervals']
+        data['diagnosisYear']             = request.args['diagnosisYear']
 
         filename = "currentState-" + request.args['tokenId'] + ".json"
         with open( os.path.join(UPLOAD_DIR,filename), 'w+') as outFile:
