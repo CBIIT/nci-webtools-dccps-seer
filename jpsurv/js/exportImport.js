@@ -166,8 +166,15 @@ function updatePageAfterRefresh(event) {
      }
 }
 
+/*
+ * From the JPSurv applicaiton the user can make certain selections.  This code will the user selections into the newly
+ * impoprted from and datastructure
+ */
 function loadUserInput(data) {
 
+    /*
+     * Import the user input into the HTML Form itself
+     */
     function modifyForm(data, intervals) {
         $("e-mail").val(data.email)
         $("#year_of_diagnosis_start").val(data.yearOfDiagnosisRangeStart)
@@ -199,6 +206,9 @@ function loadUserInput(data) {
 
     }
 
+    /*
+     * Import the user input into the datastructure itslef.
+     */
     function modifyJPSurv(data, intervals ) {
         jpsurvData.queue.email = data.email
         jpsurvData.calculate.form.yearOfDiagnosisRange[0] = parseInt(data.yearOfDiagnosisRangeStart)
