@@ -2,15 +2,24 @@
 import json
 import os
 import time
-from flask import Flask, request, redirect, current_app
+from flask import Flask, request, redirect, current_app, Response, send_from_directory, jsonify, send_file
 from PropertyUtil import PropertyUtil
 from rpy2.robjects import r
 from stompest.config import StompConfig
 from stompest.sync import Stomp
 from werkzeug import secure_filename
-import os.path
-from shutil import copytree, ignore_patterns
-app = Flask(__name__, static_folder='', static_url_path='/')
+from zipfile import ZipFile, ZIP_DEFLATED
+from os.path import dirname, basename, join
+from shutil import copytree, ignore_patterns, copy2
+from glob import glob
+import re
+import logging
+from werkzeug.urls import Href
+from urllib import pathname2url
+import zlib
+
+app = Flask(__name__, static_folder='', static_url_path='')
+app.logger.setLevel(logging.DEBUG)
 
 if not os.path.exists('tmp'):
     os.makedirs('tmp')
@@ -18,7 +27,8 @@ if not os.path.exists('tmp'):
 QUEUE_NAME = 'queue.name'
 QUEUE_URL = 'queue.url'
 jpsurvConfig = PropertyUtil(r"config.ini")
-UPLOAD_DIR = os.path.join(os.getcwd(), 'tmp')
+#UPLOAD_DIR = 'tmp' #os.path.join(os.getcwd(), 'tmp')
+UPLOAD_DIR = os.path.join(os.getcwd(), "tmp")
 
 print 'JPSurv is starting...'
 
@@ -130,13 +140,14 @@ def stage1_upload():
                     file_control_filename = filename
                     dictionary_name=name
                 if(ext==".txt"):
+
                     file_data_filename_clean=secure_filename(file.filename)
                     filename = tokenId+secure_filename(file.filename)
                     file_data_filename = filename
                     data_name=name
                 file.save(os.path.join(UPLOAD_DIR, filename))
-            print (dictionary_name)
-            print(data_name)
+            print ("Dictionary Name = " + dictionary_name)
+            print("Data Name = " + data_name)
 
             if(dictionary_name!=data_name):
                 os.rename(os.path.join(UPLOAD_DIR, file_data_filename), os.path.join(UPLOAD_DIR, tokenId+dictionary_name+".txt"))
@@ -154,15 +165,24 @@ def stage1_upload():
             fo.close()
             r.getDictionary(file_control_filename, UPLOAD_DIR, tokenId)
             output_filename = "form-%s.json" % tokenId
-
             r_output_file = os.path.join(UPLOAD_DIR, output_filename)
             fo = open(r_output_file, "r+")
             stri = fo.read(500)
             fo.close()
-            status = "uploaded"
-            return_url = "%s/jpsurv?request=false&file_control_filename=%s&file_data_filename=%s&output_filename=%s&status=%s&tokenId=%s" % (request.url_root, file_control_filename_clean, file_data_filename_clean, output_filename, status, tokenId)
-            print(return_url)
-            return redirect(return_url)
+
+            app.logger.debug(request.url_root + '/jpsurv/')
+            url = Href('/jpsurv/')(
+                 request='false',
+                 file_control_filename=file_control_filename_clean,
+                 file_data_filename=file_data_filename_clean,
+                 output_filename=output_filename,
+                 status='uploaded',
+                 tokenId=tokenId
+            )
+
+            app.logger.debug("***" + url)
+
+            return redirect(url)
     except Exception as e: print(e)
 
     if(input_type=="csv"):
@@ -219,14 +239,24 @@ def stage1_upload():
             fo = open(r_output_file, "r+")
             stri = fo.read(500)
             fo.close()
-            status = "uploaded"
-            return_url = "%s/jpsurv?request=false&file_control_filename=%s&output_filename=%s&status=%s&tokenId=%s" % (request.url_root, file_control_filename_clean, output_filename, status, tokenId)
-            print(return_url)
-            return redirect(return_url)
+
+            app.logger.debug(request.url_root + '/jpsurv/')
+            url = Href('/jpsurv/')(
+                request='false',
+                file_control_filename=file_control_filename_clean,
+                output_filename=output_filename,
+                status='uploaded',
+                tokenId=tokenId
+            )
+
+            app.logger.debug("***" + url)
+
+            return redirect(url)
+
         except:
             status = "failed_upload"
             print "FAILED"
-            return_url = "/jpsurv?request=false&status=failed_upload"
+            return_url = "?request=false&status=failed_upload"
             print(return_url)
             return redirect(return_url)
 
@@ -236,7 +266,257 @@ def stage1_upload():
 
     #Init the R Source
 
+@app.route('/jpsurvRest/import', methods=['POST'])
+def myImport():
 
+    def uploadFile(uploadArchive):
+
+        ''' Copy the file to correct directory and changes the extension to zip '''
+
+        # Replace .jpsurv with .zip
+        absoluteFilename = os.path.join(UPLOAD_DIR, uploadArchive.filename.split(".")[0] + ".zip")
+
+        app.logger.debug("\tUploading %s and saving it to %s" % (uploadedArchive.filename, absoluteFilename))
+
+        uploadArchive.save(absoluteFilename)
+
+        return absoluteFilename
+
+    def unzipFile(absoluteFilename):
+
+        ''' Extract all the files to the dirname(absoluteFilename)'''
+
+        app.logger.debug("\tUnzipping the contents of the zip " + absoluteFilename)
+
+        archive = ZipFile(absoluteFilename)
+        archive.extractall(dirname(absoluteFilename))
+
+    def getTokenFor(searchFileListRegularExpression, searchFilenameRegularExpression, archive):
+
+        ''' Will return the first token found from the zip file ( archive ) for the filename containing the serarchRegularExpression '''
+
+        newList = filter(
+            re.compile(searchFileListRegularExpression).search,
+            ZipFile(archive, 'r').namelist())
+
+        if ( len(newList) != None):
+            token = re.search(searchFilenameRegularExpression, newList[0]).group(1)
+        else:
+            token = None
+
+        app.logger.debug("\tUsing the regular expression \"%s\" for archive \"%s\" found the following filename match with token \"%s\" " % (searchFileListRegularExpression, archive, token))
+
+        return token
+
+    def getFilenames(fileNameRegularExpression, archive):
+        ''' Return the first file mathcing the regular expression '''
+        newList = filter(
+            re.compile(fileNameRegularExpression).search,
+            ZipFile(archive, 'r').namelist())
+
+        app.logger.debug ("\tFor Regular Expression \"%s\" and arhive \"%s\" found %d" % (fileNameRegularExpression, archive, len(newList)))
+
+        return newList
+
+    def getFilename( fileNameRegularExpression, archive):
+
+        newList = getFilenames(fileNameRegularExpression, archive)
+
+        if ( len(newList) > 0 ):
+            filename = newList[0]
+        else:
+            filename = None
+
+        app.logger.debug ("\tFor Regular Expression \"%s\" and arhive \"%s\" found %s" % (fileNameRegularExpression, archive, filename))
+
+        return filename
+
+    # Get the first line of the file, and determine the sepaarator.  The algorithm for the code was originally found in
+    # the jpsurv.js.
+    #
+    # When moving to python 3 there is a cvs_sniffer
+    def getDelimiter(inputFile):
+
+        line = ""
+        with open(inputFile, 'r') as inputFile:
+           line = inputFile.readline()
+
+        separator = re.search("[,;\s\t]",line).group()
+
+        app.logger.debug("\tThe separator is '%s' for line --> %s" % (separator, line))
+        return separator if separator != None else ""
+
+    def fixFilename(absolutePath, tokenId):
+        ''' Removes the Token Id from the file name '''
+        dirName = dirname(absolutePath)
+        baseName = basename(absolutePath)
+        baseName = baseName[ len(tokenId):]
+
+        fixedAbsolutePath = join(dirName, baseName)
+
+        app.logger.debug ("\tRemoving the token %s for absolutePath %s equates to %s" % (tokenId, absolutePath, fixedAbsolutePath ))
+
+        return fixedAbsolutePath
+
+    def getControlFilename(tokenId):
+        filename = "currentState-" + tokenId + ".json"
+        controlFile = ""
+        with open( os.path.join(UPLOAD_DIR, filename), 'r') as inFile:
+            data = json.load(inFile)
+            controlFile = data["controlFilename"]
+
+        print("The control file name is " + controlFile)
+
+        return controlFile
+
+
+    response = ""
+
+    app.logger.debug("Currently in /jpsurv/import")
+
+    try :
+        uploadedArchive = request.files['zipData']
+
+        if ( uploadedArchive.filename.split('.', 1)[1] in [ 'jpsurv'] == False ):
+            return jsonify("The filename has the wrong extension.  It should end in jpsurv"), 400
+
+        zipFilename = uploadFile(uploadedArchive)
+        unzipFile(zipFilename)
+
+        # In the zip file itself, I have seen two different token ids used sometimes.  if there were different ids then
+        # the filename starting with "form-" has one id and the rest had the other id.
+        returnParameters = {}
+        returnParameters['tokenIdForForm'] = getTokenFor("form\-", "(\d+)", zipFilename)
+        returnParameters['tokenIdForRest'] = getTokenFor("output\-", "(\d+)", zipFilename)
+        returnParameters['imageIdStartCount'] = len(getFilenames("plot_Year", zipFilename))
+
+        if( getFilename("\.dic", zipFilename) != None):
+            returnParameters['controlFile'] = fixFilename(getFilename("\.dic", zipFilename), returnParameters['tokenIdForForm'])
+            returnParameters['txtFile'] = fixFilename(getFilename("\.txt", zipFilename), returnParameters['tokenIdForForm'])
+            returnParameters['type'] = "DIC"
+            returnParameters['delimiter'] = "NA"
+        else:
+            fileNameInZipFile = getFilename("\.csv", zipFilename)
+            returnParameters['controlFile'] = getControlFilename(returnParameters['tokenIdForRest'])
+            returnParameters['type'] = "CSV"
+            returnParameters['delimiter'] = getDelimiter(os.path.join(UPLOAD_DIR, fileNameInZipFile))
+
+        return jsonify(returnParameters)
+
+    except Exception as e:
+        print str(e)
+        return_url = "?request=false&status=failed_import"
+        return redirect(return_url)
+
+    app.logger.debug("Leaving /jspruv/import")
+
+    return response
+
+@app.route('/jpsurvRest/export', methods=['GET'])
+def myExport():
+
+    ''' Retrieves the arguments from request '''
+
+    ''' Exports the JPSurv Data from the application to a file that is download to the user's computer '''
+    def extractParameters():
+        type            = request.args['type']
+        dictionary      = request.args['dictionary']
+        form            = request.args['form']
+        tokenForInput   = request.args['inputTokenId']
+        tokenId         = request.args['tokenId']
+        txtFile         = request.args['txtFile'] if type == 'dic' else ''
+
+        return ( type, dictionary, form, tokenForInput, tokenId, txtFile )
+
+
+    def gatherFileNames():
+        ''' Gather the files that will be zipped into a file '''
+        ( type, dictionary, form, tokenForInput, tokenId, txtFile ) = extractParameters()
+
+        fileNameSet = set()
+        fileNameSet.add(os.path.join(UPLOAD_DIR, tokenForInput + dictionary))
+        fileNameSet.add(os.path.join(UPLOAD_DIR, form))
+
+        if txtFile:
+            fileNameSet.add(os.path.join(UPLOAD_DIR, tokenForInput + txtFile ))
+
+        for filename in getFileBySubstringSearch(tokenId):
+            fileNameSet.add(os.path.join(UPLOAD_DIR, filename))
+
+        app.logger.debug("\tThe set of names to be zipped are: " + str(fileNameSet))
+
+        return fileNameSet
+
+
+    def addFilesTozip(zip, files):
+        ''' Add a file using an absolute path to the zip archive '''
+
+        if not zip:
+            zipName = os.path.join(UPLOAD_DIR, request.args['filename'])
+            zip = ZipFile( zipName ,"w")
+
+        for file in files:
+            zip.write(file, basename(file), compress_type = ZIP_DEFLATED)
+
+        app.logger.debug("\tThe files were written to zip file ")
+
+        return zip
+
+
+    def getFileBySubstringSearch(subString):
+        '''
+            A function that matches a substring to a filename in the UPLOAD_DIR
+            Using the chdir so that I can change the directory back to the application root when I am done.  I just
+            want the filename and no directory information.
+        '''
+        saveDirectory = os.getcwd()
+        os.chdir(UPLOAD_DIR)
+        fileList = glob("*" + subString + "*")
+        os.chdir(saveDirectory)
+
+        return fileList
+
+    def writeApplicationStateToFile():
+
+        data = {}
+
+        data['yearOfDiagnosisRangeStart'] = request.args['yearOfDiagnosisRangeStart']
+        data['yearOfDiagnosisRangeEnd']   = request.args['yearOfDiagnosisRangeEnd']
+        data['cohortVariables']           = request.args['cohortVariables']
+        data['maxJoinPoints']             = request.args['maxJoinPoints']
+        data['advBetween']                = request.args['advBetween']
+        data['advDelInterval']            = request.args['advDelInterval']
+        data['advFirst']                  = request.args['advFirst']
+        data['advLast']                   = request.args['advLast']
+        data['advYear']                   = request.args['advYear']
+        data['controlFilename']           = request.args['controlFilename']
+        data['email']                     = request.args['email']
+        data['intervals']                 = request.args['intervals']
+        data['diagnosisYear']             = request.args['diagnosisYear']
+
+        filename = "currentState-" + request.args['tokenId'] + ".json"
+        with open( os.path.join(UPLOAD_DIR,filename), 'w+') as outFile:
+            json.dump(data,outFile)
+
+        app.logger.debug("Written Current state of the form to " + filename)
+
+    try:
+
+        app.logger.debug("Currently in myExport")
+
+        writeApplicationStateToFile()
+
+        zip = addFilesTozip(None, gatherFileNames())
+        zip.close()
+
+        app.logger.debug("\tLeaving my Export")
+
+        return send_from_directory(UPLOAD_DIR, request.args['filename'],  as_attachment = True , attachment_filename="my-jpsurv-workspace.jpsurv" )
+
+    except Exception as e:
+        print str(e)
+        return_url = "?request=false&status=failed_import"
+        return redirect(return_url)
 
 @app.route('/jpsurvRest/stage2_calculate', methods=['GET'])
 def stage2_calculate():
@@ -308,9 +588,6 @@ def stage3_recalculate():
 
     print("USE_DEFAULT")
     print(use_default)
-
-
-
 
     if (switch==True):
         with open('tmp/cohort_models-'+jpsurvData["tokenId"]+'.json') as data_file:
@@ -415,3 +692,26 @@ def sendqueue(tokenId):
     client.disconnect()
 
     return
+
+def initialize(port,debug=True):
+    app.run(host='0.0.0.0', port=port, debug=True)
+
+if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-p", dest="port_number", default="9001", help="Sets the Port")
+    parser.add_argument("--debug", action="store_true")
+
+    args = parser.parse_args()
+    port_num = int(args.port_number);
+
+    # @app.route('/error')
+    # def error():
+    #     raise()
+
+    @app.route('/', strict_slashes=False)
+    def index():
+        return send_file('index.html')
+
+    print("The root path is " + app.root_path)
+    initialize(port_num)
