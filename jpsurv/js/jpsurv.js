@@ -8,7 +8,7 @@ var cohort_covariance_variables;
 var advfields = ['adv-between','adv-first','adv-last','adv-year'];
 
 var jpsurvData = {"file":{"dictionary":"Breast.dic","data":"something.txt", "form":"form-983832.json"}, "calculate":{"form": {"yearOfDiagnosisRange":[]}, "static":{}}, "plot":{"form": {}, "static":{"imageId":-1} }, "additional":{"headerJoinPoints":0,"yearOfDiagnosis":null,"intervals":[1,4]}, "tokenId":"unknown", "status":"unknown", "stage2completed":0.};
-jpsurvData.mapping={} 
+jpsurvData.mapping={}
 var DEBUG = false;
 var maxJP = (DEBUG ? 0 : 2);
 var first_modal=true
@@ -68,7 +68,7 @@ function checkInput(id) {
   var element = $('#' + id);
   var min=element.attr('min');
 
-  if(parseInt(element.val())<parseInt(min)){  
+  if(parseInt(element.val())<parseInt(min)){
       element.val(min);
   }
 
@@ -120,7 +120,7 @@ function check_multiple(){
   return multiple
 }
 function hide_display_email(){
-  
+
   if(parseInt($("#max_join_point_select").val())>maxJP ||check_multiple()==true) {
       $(".e-mail-grp").fadeIn();
       $("#calculate").val("Submit");
@@ -132,7 +132,7 @@ function hide_display_email(){
     }
 }
 function addEventListeners() {
-  
+
   $('#e-mail').on('keydown', function(e) {
     if (e.which == 13) {
       e.preventDefault();
@@ -143,24 +143,24 @@ function addEventListeners() {
 
   $("#cohort-variables").on('change', function(e){
     hide_display_email();
-    
+
   });
 
   $("#max_join_point_select").on('change', function(e){
     hide_display_email();
-    
+
   });
   $("#trends-tab-anchor").click(function(e) {
   if(jpsurvData.stage2completed && jpsurvData.recentTrends == 0) {
       calculateTrend();
     }
   });
-  
+
   $("#icon").on('click', slideToggle);
 
   $(document).on('click', '#model-selection-table tbody tr', function(e) {
     e.stopPropagation();
-    $(this).addClass('info').siblings().removeClass('info'); 
+    $(this).addClass('info').siblings().removeClass('info');
     if(jpsurvData.additional.headerJoinPoints == this.rowIndex - 1) {
       return;
     }
@@ -238,7 +238,7 @@ function addInputSection() {
 
   var status = getUrlParameter('status');
   if(status == "uploaded") {
-    
+
     setUploadData();
 
     control_data = load_ajax(jpsurvData.file.form);
@@ -293,7 +293,7 @@ function addInputSection() {
           .addClass('jpsurv-label-content')
         )
       );
-      
+
     }
     else if( control_data.input_type=="csv"){
       jpsurvData.additional.input_type="csv"
@@ -322,7 +322,7 @@ function addInputSection() {
       $("#csv_label_headers").remove();
       $("#data_type").remove();
       $("#Adv_input").remove();
-    
+
     load_form();
     $('#data_type_container')
       .empty()
@@ -343,10 +343,10 @@ function addInputSection() {
 
     $('#upload_file_submit_container').remove();
 
-  
-    
 
-  
+
+
+
   }
   else if (status=="failed_upload")
   {
@@ -412,7 +412,7 @@ function preLoadValues() {
 
   //Set jpsurvData and update everything....
   jpsurvData = inputData;
-  
+
   setIntervalsDefault();
   getIntervals();
   stage2("no calculate"); // This is the initial calculation and setup.
@@ -437,8 +437,8 @@ function load_input_form(inputData){
             for(var i=0;i<value.length;i++){
                 if(value[i].substr(1,value[i].length-2) == $(element2).val()&&element2.className.indexOf(key) > -1) {
               $(element2).prop('checked', true);
-              } 
-  
+              }
+
             }
         });
     });
@@ -496,7 +496,7 @@ function dropdownListener(){
           for(var j=0;j<cohorts.length;j++){
             jpsurvData.calculate.form.cohortValues.push('"'+cohorts[j]+'"');
           }
-          //resets the image id 
+          //resets the image id
           jpsurvData.plot.static.imageId=0
 
       jpsurvData.switch=true
@@ -522,7 +522,7 @@ function updateCohortDisplay() {
       if($(element2).prop('checked')){
         checked=true;
         cohort_message +=' "'+$(element2).val()+'"';
-        if(!jpsurvData.calculate.form.AllcohortValues[index].includes('"'+$(element2).val()+'"')){ 
+        if(!jpsurvData.calculate.form.AllcohortValues[index].includes('"'+$(element2).val()+'"')){
           jpsurvData.calculate.form.AllcohortValues[index].push('"'+$(element2).val()+'"');
         }
       }
@@ -532,14 +532,14 @@ function updateCohortDisplay() {
        $.each(inputs, function(index2, element2) {
     //if checked add to ALL cohorts to be used for populating the drop down (if at least one checkbox is selected)
         cohort_message +=' "'+$(element2).val()+'"';
-        if(!jpsurvData.calculate.form.AllcohortValues[index].includes('"'+$(element2).val()+'"')){ 
+        if(!jpsurvData.calculate.form.AllcohortValues[index].includes('"'+$(element2).val()+'"')){
           jpsurvData.calculate.form.AllcohortValues[index].push('"'+$(element2).val()+'"');
         }
-      
+
     });
     //if none was checked lopp back through and add all cohort values for that cohort
       cohort_message += " and "
-  
+
   });
   //inserts the first cohort combination based on all the cohorts slected (1st value of each cohort)
   keys=Object.keys(jpsurvData.calculate.form.AllcohortValues)
@@ -548,7 +548,7 @@ function updateCohortDisplay() {
     element=jpsurvData.calculate.form.AllcohortValues[key[0]][0];
     jpsurvData.calculate.form.cohortValues.push(element);
   }
-  
+
 
   $("#cohort-variables fieldset").each(function(index,element) {
   });
@@ -557,7 +557,7 @@ function updateCohortDisplay() {
   var html = "";
   $("#something").empty();
   $.each(cohort_covariance_variables, function(key, value) {
-    
+
     $('#something').append(value+" and");
     i++;
   });
@@ -648,9 +648,9 @@ function addCohortVariables() {
         $("#cohort-"+i).find('input').filter(":first").prop('checked', true);
         i++;
       }
-  
+
     });
-    
+
   updateCohortDisplay();
 }
 
@@ -699,13 +699,15 @@ function checkInputFiles() {
 
         }
       }
-      if(file_control.length > 0 && has_dic==true &&  has_txt==true) {
+      var numberOfFiles = $("#file_control").prop("files").length
+      if(numberOfFiles == 2 && has_dic==true &&  has_txt==true) {
         $("#upload_file_submit").removeAttr('disabled');
         $("#upload_file_submit").text('Upload Input Files');
         $("#upload_file_submit").on("click", submitDicOrCsv)
-      }
-      else
+      } else if (numberOfFiles == 1) {
         $("#file_display").html('<span style="color:red">'+error_msg+'</span></br>');
+      }
+
     }
 
     else if($('#csv').is(':checked')){
@@ -761,7 +763,7 @@ function setupModel() {
   }
 
   jpsurvData.additional.headerJoinPoints = jpsurvData.results.jpInd;
-  
+
 }
 
 function createModelSelection() {
@@ -783,7 +785,7 @@ function createModelSelection() {
     $("#model-selection-table > tbody").append(row);
     jp++;
   });
-  $("#jp_"+jpsurvData.additional.headerJoinPoints).addClass('info').siblings().removeClass('info'); 
+  $("#jp_"+jpsurvData.additional.headerJoinPoints).addClass('info').siblings().removeClass('info');
   $("#jp_"+(jpsurvData.results.SelectedModel-1)).find('td.model-number').text(jpsurvData.results.SelectedModel+" (final selected model)");
 
 
@@ -819,7 +821,7 @@ function updateGraphs(token_id) {
 
 
   var row;
-  
+
 
   var header = [];
   var newVars = [];
@@ -872,7 +874,7 @@ function updateGraphs(token_id) {
       }
       var type = Object.keys(jpsurvData.results.IntData.RelSurIntData)[2];
       row += "<td>"+value+"</td>";
-      
+
       if(jpsurvData.results.input_type=="dic"){
         row += formatCell(jpsurvData.results.YearData.RelSurvYearData.Interval[index]);
         row += formatCell(jpsurvData.results.YearData.RelSurvYearData.Died[index]);
@@ -896,12 +898,12 @@ function updateGraphs(token_id) {
       rows++;
     });
     $("#year-tab-rows").html("Total Row Count: "+rows)
-      
+
   }
   else{
       $("#graph-year-table > tbody").empty();
   }
-  
+
   //Add the Time Table
   if(jpsurvData.results.IntData.RelSurIntData!=undefined){
     yod = jpsurvData.results.IntData.RelSurIntData[yodVarName];
@@ -912,10 +914,10 @@ function updateGraphs(token_id) {
     var data_type = jpsurvData.results.statistic
     var Cumulative_header=""
     if(data_type=="CauseSpecific_Survival_Cum")
-      Cumulative_header="Cumulative CauseSpecific Survival" 
+      Cumulative_header="Cumulative CauseSpecific Survival"
     if(data_type=="Relative_Survival_Cum")
-      Cumulative_header="Cumulative Relative Survival"    
-    
+      Cumulative_header="Cumulative Relative Survival"
+
     var timeHeader = ["Year of Diagnosis", "Interval", Cumulative_header, "Predicted Cumulative Relative Survival"];
     header.push.apply(header, timeHeader);
     //Create the header
@@ -931,10 +933,10 @@ function updateGraphs(token_id) {
     var rows=0;
     $.each(yod, function( index, value ) {
       row = "<tr>";
-  
+
       if(jpsurvData.results.Runs.split('jpcom')!=undefined){
         var cohort_array = jpsurvData.results.Runs.split('jpcom');
-        var values= cohort_array[jpsurvData.results.com-1].split(" + "); 
+        var values= cohort_array[jpsurvData.results.com-1].split(" + ");
         $.each(values, function(index2, value2) {
           if(value2) {
             row += "<td>"+value2.replace(/"/g, "")+"</td>";
@@ -948,7 +950,7 @@ function updateGraphs(token_id) {
         row += "<td>"+value2.replace(/"/g, "")+"</td>";
         });
       }
-  
+
 
 
 
@@ -965,15 +967,15 @@ function updateGraphs(token_id) {
       row += formatCell(jpsurvData.results.IntData.RelSurIntData.pred_cum[index])+"</tr>/n";
       $("#graph-time-table > tbody").append(row);
       rows++;
-    
+
     });
-    
+
     if(!$('#year-of-diagnosis').data('changed')) {
       $('#year-of-diagnosis').val(jpsurvData.results.yod);
       //console.log("setting to "+jpsurvData.results.yod+" from json")
     }
     $("#year-of-diagnosis").data('changed', false);
-    
+
     $("#time-tab-rows").html("Total Row Count: "+rows)
 
   }
@@ -992,7 +994,7 @@ function updateEstimates(token_id) {
   else{
     Model=jpsurvData.results.SelectedModel
   }
-  
+
   $("#estimates-jp > tbody").empty();
   row = "<tr>";
   row += "<td>Bayesian Information Criterion (BIC)</td>"+formatCell(jointpoints["joinpoint"+Model].bic)+"</tr>";
@@ -1158,7 +1160,7 @@ function formatCell(x) {
   if(isNaN(parseFloat(x))) {
     return "<td>"+x+"</td>";
   } else {
-    return "<td data-float='"+x+"'><i>float</i></td>"; 
+    return "<td data-float='"+x+"'><i>float</i></td>";
   }
 }
 
@@ -1247,13 +1249,13 @@ function validateRule1() {
   }
   var minYear = jpsurvData.calculate.form.yearOfDiagnosisRange[0];
   var maxYear = jpsurvData.calculate.form.yearOfDiagnosisRange[1];
-  var rightside = minYear 
+  var rightside = minYear
     + parseInt(jpsurvData.calculate.static.advanced.advFirst)
     + ((parseInt(jpsurvData.calculate.form.maxjoinPoints)-1)
       * (parseInt(jpsurvData.calculate.static.advanced.advBetween)+1))
     + parseInt(jpsurvData.calculate.static.advanced.advLast);
 
-  if(maxYear >= minYear 
+  if(maxYear >= minYear
     + parseInt(jpsurvData.calculate.static.advanced.advFirst)
     + ((parseInt(jpsurvData.calculate.form.maxjoinPoints)-1)
       * (parseInt(jpsurvData.calculate.static.advanced.advBetween)+1))
@@ -1325,7 +1327,7 @@ function calculate(run) {
         okAlert("Your submission has been queued.  You will receive an e-mail when calculation is completed.", "Calculation in Queue");
       }
 
-    } 
+    }
     else if(parseInt($("#max_join_point_select").val())>maxJP && !validateVariables()){
       console.log("Not Calculating - validateVariables did not pass");
     }
@@ -1525,7 +1527,7 @@ function load_form() {
   addCohortVariables();
   addSessionVariables();
   build_parameter_column();
-  
+
   if(control_data.input_type=="csv"){
     get_column_values()
   }
@@ -1645,7 +1647,7 @@ jpsurvData.additional.intervals_default = [];
     } else if (intervals < 5) {
       years = [1];
       jpsurvData.additional.intervals_default=years
-    } 
+    }
 
     for (var i = 1; i <= intervals; i++) {
       if($.inArray(i, years) >= 0) {
@@ -1715,7 +1717,7 @@ function get_cohort_covariance_variable_names() {
     //Go through Item Value and look for "Year of diagnosis"
     //Push variable names on to a list called cohort_covariance_variable_names.
     for (var i=0; i<names.length; i++) {
-    
+
       if (regex_interval.test(values[i])) break; //stops at a value with "Interval" in it
       if (!regex_name.test(names[i])) continue;
       if (values[i] == "Page type") continue; // Skip the Page type
@@ -1739,7 +1741,7 @@ function get_cohort_covariance_variable_values(name) {
 }
 
 function find_year_of_diagnosis_row() {
-  
+
   if(control_data.input_type==undefined){
     var vals = control_data.VarAllInfo.ItemValueInDic;
     for (var i=0; i< vals.length; i++) {
@@ -1814,7 +1816,7 @@ function change_cohort_select() {
   if (all_selected != null) {
     for (var i=0;i<all_selected.length;i++) {
       for (var j=0;j<keys.length;j++) {
-        if (all_selected[i] == keys[j]) 
+        if (all_selected[i] == keys[j])
           add_cohort_covariance_variable_select($("#cohort_sub_select"), "cohort_value_"+i, keys[j], cohort_covariance_variables[keys[j]]);
       }
     }
@@ -2170,7 +2172,7 @@ function Slide_menu_Horz(action) {
        $('#icon').removeClass("fa fa-caret-left fa-2x");
        $('#icon').addClass("fa fa-caret-right fa-2x");
        $("#slideoutForm").fadeOut(300);
-       
+
 
        $("#icon").animate({
         marginLeft: '1%',
@@ -2187,12 +2189,12 @@ function Slide_menu_Horz(action) {
     $("#right_panel").removeClass("col-lg-8");
     $("#right_panel").removeClass("col-md-8");
 
-    
+
 
     $("#right_panel").addClass("col-lg-12");
     $("#right_panel").addClass("col-md-12");
     }, 300);
-    
+
 
 
     }
@@ -2239,7 +2241,7 @@ function decimalPlaces(num) {
 
 
   var match = (''+num).match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
-  if (!match) { 
+  if (!match) {
     return 0;
   }
 
@@ -2409,7 +2411,7 @@ function setCookie(cname, cvalue, exdays) {
     d.setTime(d.getTime() + (exdays*24*60*60*1000));
     var expires = "expires="+ d.toUTCString();
     document.cookie = cname + "=" + cvalue + "; " + expires;
-} 
+}
 
 function getCookie(cname) {
     var name = cname + "=";
@@ -2422,9 +2424,9 @@ function getCookie(cname) {
         if (c.indexOf(name) == 0) {
             return c.substring(name.length,c.length);
         }
-    } 
+    }
     return "";
-} 
+}
 $( "#csv" ).click(function() {
   jpsurvData.input_type="csv";
   $("#dic_container").hide();
@@ -2478,7 +2480,7 @@ function Read_csv_file(){
   if(first_modal==true){
     lines=19
     has_headers=true
-  
+
 }
 
   filereader.onload = function(event) { create_table(event.currentTarget.result,lines,has_headers)}
@@ -2501,7 +2503,7 @@ var template_string='<div class="modal fade" id="modal" tabindex="-1" role="dial
       +'<fieldset style="padding:0 0 .75em"><legend   style="font-size: 12px;margin-bottom:12px"><h4><span style="margin-right:80%">Delimiters</span></h4></legend>'
         +'<div id="dels" class="row" style="padding-left:12.5%">'
             +'<div style="width:25%; display:inline-block"><input type="radio" id="comma" name="del" value="," aria-label="comma" checked/>Comma</div>'
-            +'<div style="width:25% ;display:inline-block"><input type="radio" id="tab"   name="del" value=" " aria-label="tab"/>Tab</div>'    
+            +'<div style="width:25% ;display:inline-block"><input type="radio" id="tab"   name="del" value=" " aria-label="tab"/>Tab</div>'
             +'<div style="width:25%; display:inline-block"><input type="radio" id="colan" name="del" value=";" aria-label="colan"/>Semi-Colon</div>'
             +'<div style="width:25%; display:inline-block"><input type="radio" id="space" name="del" value=" " aria-label="sapce"/>Space</div>'
         +'</div>'
@@ -2511,12 +2513,12 @@ var template_string='<div class="modal fade" id="modal" tabindex="-1" role="dial
       +'<input type="checkbox" name="has_headers" id="has_headers" value="yes" checked></br>'
       +'<label for="data_type" id="csv_label_data">Data Type:  </label>'
                +'<select id="data_type" class="jpsurv-label-content" name="data_type" aria-label="data_type" style="margin-bottom:1%">'
-                +'<option>Relative Survival</option>'    
+                +'<option>Relative Survival</option>'
                 +'<option>Cause-Specific Survival</option>'
                +'</select>'
       +'<label for="rates_display" id="csv_label_rates" style="margin-left:1%">Rates Displayed As:  </label>'
                +'<select id="rates_display" class="jpsurv-label-content" name="rates_display" aria-label="rates_display" style="margin-bottom:1%">'
-                +'<option>Percents</option>'    
+                +'<option>Percents</option>'
                 +'<option>Proportions</option>'
                +'</select></br>'
       +'Displaying <select id="lines_displayed" class="jpsurv-label-content" name="lines_displayed" aria-label="display lines">'
@@ -2532,8 +2534,8 @@ var template_string='<div class="modal fade" id="modal" tabindex="-1" role="dial
       +'</div></div></div></div>';
 
 var selector= '<select id="column_values" class="jpsurv-label-content" name="data_type" aria-label="column values">'
-                      +'<option></option>'    
-                      +'<option>Cohort</option>'    
+                      +'<option></option>'
+                      +'<option>Cohort</option>'
                       +'<option>Year</option>'
                       +'<option>Interval</option>'
                       +'<option>Number.Dead</option>'
@@ -2556,11 +2558,11 @@ function createModal() {
   });
 
 
-  $('#modal').modal({backdrop: 'static', keyboard: false}) 
+  $('#modal').modal({backdrop: 'static', keyboard: false})
   setTimeout(function(){ Read_csv_file() }, 1);
 
 
-  
+
   $('#cancel').click(function() {
     checkInputFiles();
       $('#modal').modal('hide');
@@ -2586,42 +2588,42 @@ Read_csv_file()
       {
         $('#type_'+i+' select').val("Year")
       }
-      
+
       else if (jpsurvData.mapping.interval==i+1)
       {
         $('#type_'+i+' select').val("Interval")
       }
-      
+
       else if (jpsurvData.mapping.died==i+1)
       {
         $('#type_'+i+' select').val("Number.Dead")
       }
-      
+
       else if ( jpsurvData.mapping.alive_at_start==i+1)
       {
         $('#type_'+i+' select').val("Number.Alive")
       }
-      
+
       else if (jpsurvData.mapping.lost_to_followup==i+1)
       {
         $('#type_'+i+' select').val("Number.Lost")
       }
-      
+
       else if (jpsurvData.mapping.exp_int==i+1)
       {
         $('#type_'+i+' select').val("Expected.Survival")
       }
-      
+
       else if (jpsurvData.mapping.observed==i+1)
       {
         var type=$('#data_type').val()
         $('#type_'+i+' select').val(type)
       }
 
-    }  
-    
+    }
+
   }
-  
+
   $('#modal').modal('show')
 
 
@@ -2641,32 +2643,32 @@ function save_params() {
       {
         jpsurvData.mapping.year=i+1
       }
-      
+
       else if (value=="Interval")
       {
         jpsurvData.mapping.interval=i+1
       }
-      
+
       else if (value=="Number.Dead")
       {
         jpsurvData.mapping.died=i+1
       }
-      
+
       else if (value=="Number.Alive")
       {
         jpsurvData.mapping.alive_at_start=i+1
       }
-      
+
       else if (value=="Number.Lost")
       {
         jpsurvData.mapping.lost_to_followup=i+1
       }
-      
+
       else if (value=="Expected.Survival")
       {
         jpsurvData.mapping.exp_int=i+1
       }
-      
+
       else if (value==type)
       {
         jpsurvData.mapping.observed=i+1
@@ -2692,7 +2694,7 @@ function save_params() {
           $('#modal').modal('hide');
        }
 
-   
+
   }
 function create_table(content,rows,has_headers){
   if(first_modal==true)
@@ -2714,7 +2716,7 @@ function create_table(content,rows,has_headers){
     $("#space").prop("checked", true)
     var matrix=arr.map(function(line) { return line.split(' ') })
   }
-  
+
   //reads csv file headers to be placed in text box and reads he first row to act as the "headers" ofthe datatable
   if(has_headers==true){
     var headers=matrix[0].map(function(header) {
@@ -2731,7 +2733,7 @@ function create_table(content,rows,has_headers){
     });
 
   }
-    //reads csv file if no headers are present and places a generic V1, V2 etc as the editable header row. 
+    //reads csv file if no headers are present and places a generic V1, V2 etc as the editable header row.
 
   else{
     counter=0;
@@ -2752,7 +2754,7 @@ function create_table(content,rows,has_headers){
   //console.log(headers);
   //console.log(matrix);
 
-data_table(matrix,first_row,rows)  
+data_table(matrix,first_row,rows)
 var html=""
 
 if(first_modal==true){
@@ -2810,28 +2812,28 @@ function data_table(matrix,headers,rows){
     scrollY: '150px',
     scrollX: true,
 
-   
+
   })
 
 }
 
-$(document).ready(function(){ 
-  $("#max_help").popover({ 
-    html: true, 
-    content: "Most common situation is to have 0 or 1 joinpoint since survival trends change gradually. Begin with small number of joinpoints. Increase the number if thier is not a good fit or to be sure you capture all joinpoints. Computation time increases exponentially eith number of joinpoints tested.", 
-    title:'Maximum Joinpoints<a class="close" href="#");">&times;</a>', 
-    template: '<div class="popover" stylle="width:100%"><div class="arrow"></div><div class="popover-inner"><h3 class="popover-title"></h3><div class="popover-content"><p></p></div></div></div>' 
-  }); 
- // $('a[rel=popover]').addClass('custom_popover'); 
+$(document).ready(function(){
+  $("#max_help").popover({
+    html: true,
+    content: "Most common situation is to have 0 or 1 joinpoint since survival trends change gradually. Begin with small number of joinpoints. Increase the number if thier is not a good fit or to be sure you capture all joinpoints. Computation time increases exponentially eith number of joinpoints tested.",
+    title:'Maximum Joinpoints<a class="close" href="#");">&times;</a>',
+    template: '<div class="popover" stylle="width:100%"><div class="arrow"></div><div class="popover-inner"><h3 class="popover-title"></h3><div class="popover-content"><p></p></div></div></div>'
+  });
+ // $('a[rel=popover]').addClass('custom_popover');
  $.ajaxSetup({ cache: false });
- 
-}); 
- 
-$(document).click(function (e) { 
- 
-    if ($(e.target).is('.close'))  
-      $('#max_help').popover('hide'); 
-     
+
+});
+
+$(document).click(function (e) {
+
+    if ($(e.target).is('.close'))
+      $('#max_help').popover('hide');
+
 });
 
 // A routine to determine if there is a calcuation in the system.  This is done by verifying that stage2 is complete
