@@ -167,8 +167,8 @@ function updatePageAfterRefresh(event) {
 }
 
 /*
- * From the JPSurv applicaiton the user can make certain selections.  This code will the user selections into the newly
- * impoprted from and datastructure
+ * From the JPSurv applicaiton the user can make certain selections.  This code load the user selections from the
+ * jpsurv file imported
  */
 function loadUserInput(data) {
 
@@ -176,18 +176,50 @@ function loadUserInput(data) {
      * Import the user input into the HTML Form itself
      */
     function modifyForm(data, intervals) {
+
+        function returnSelectorWithExactText(selectorArray, text) {
+           var selectorWithExactText = undefined
+
+           $.each($(selectorArray), function(index, element) {
+                if ( $(element).text() === text ) {
+                    selectorWithExactText = element
+                    return false;
+                 }
+           })
+
+           return selectorWithExactText
+        }
+
         $("e-mail").val(data.email)
         $("#year_of_diagnosis_start").val(data.yearOfDiagnosisRangeStart)
         $("#year_of_diagnosis_end").val(data.yearOfDiagnosisRangeEnd)
         $("#max_join_point_select").val(data.maxJoinPoints)
 
         $("#cohort-variables").find(":checkbox").prop("checked", false)
-        var cohorts = data.cohortVariables.split("+")
+
+        // The cohort Stirng which contains (site recode/ARN), Sex ( Male, Female) , Seer Stage A
+        // The data.cohoretVaribles.replace  two split tokens : jpcom and + where jpcom splits the
+        // string into rows.  For each the + divide the stinrg into individual parts ( ARN, Sex, Seer Stage A).
+        //
+        // For the purpose of this code, we do not have to worry about rows , so we will convert the jpcom to + so
+        // that we get the individual columns ( selections).  The text will match the text to the right of the checkboxes
+        // in the "Cohort and Model Specifications.  This array returned will have duplicate elements
+        var cohortAndModelSpecificatiosSelection = data.cohortVariables.replace(/jpcom/g, "+")
+        var cohorts = cohortAndModelSpecificatiosSelection.split("+")
 
         $.each(cohorts, function(index, element) {
             element = element.trim()
 
             var selector = "div#cohort-variables label:contains('" + element + "')"
+
+            // Problem : If the user is male or female then the text will found in two places.
+            // Solution : Create function that returns the selector with the exact text.
+            if ( $(selector).length > 1 ) {
+                selector = returnSelectorWithExactText(selector, element)
+            }
+
+            console.log("Function loadUserInput.modifyForm : In the Cohort Model and Specifications Panel currently selecting checkbox with text : " + element)
+
             $(selector).children("input").prop("checked", true)
         })
 
