@@ -191,7 +191,7 @@ input[type="file"] {
 }
 .hide{
  background:#000000;
- z-index:9999999999999999999; 
+ z-index:9999999999999999999;
  height:100%;
  width:100%;
 }
@@ -206,7 +206,7 @@ input[type="file"] {
   padding-left:0px;
 }
 .fa{
-    color: #337ab7;   
+    color: #337ab7;
    /* border-style: solid;
     border-radius: 114px;
     border-width: 2px;
@@ -221,7 +221,7 @@ input[type="file"] {
   transform: translate(1px, 1px);
   text-shadow: 1px 1px #ddd;
  cursor: pointer;
-  
+
 }
 .slide {
   -webkit-transform: translate(-400px, 0px);
@@ -273,9 +273,9 @@ input[type="file"] {
   text-decoration: underline;
   font-weight: bold;
   float:right;
-  padding-left:5px; 
+  padding-left:5px;
   padding-top:15px;
-  padding-bottom:15px; 
+  padding-bottom:15px;
   cursor: pointer;
   margin-right:10px;
 }
@@ -303,7 +303,7 @@ input[type="file"] {
   transform: translate(1px, 1px);
   text-shadow: 1px 1px #ddd;
  cursor: pointer;
-  
+
 }
 
 
@@ -379,12 +379,12 @@ input[type="file"] {
   border: 1px;
   padding: 0px;
   margin: 0px;
-  line-height: 1;  
+  line-height: 1;
 }
 #cohort-variables > div > div > fieldset > legend {
   font-size: 1em;
   font-weight:bold;
-  margin-bottom: 0px;  
+  margin-bottom: 0px;
   color: #666;
 }
 .form-horizontal .checkbox {
@@ -432,7 +432,7 @@ input[type="file"] {
 /* Tooltip */
 div.tooltip-inner {
     background-color: #505050;
-    color: #FFFFFF; 
+    color: #FFFFFF;
     font-size: 14px;
     padding: 15px;
     width:500px;
@@ -457,7 +457,7 @@ input:required:valid, input:focus:valid {
 }
 
 @media (min-width: 768px) {
-    .form-inline .radio input[type="radio"], 
+    .form-inline .radio input[type="radio"],
     .form-inline .checkbox input[type="checkbox"] {
         float: left;
         margin-right: 5px;
@@ -552,16 +552,16 @@ input[type="radio"] {
 }
 
 h4 {
-   width: 100%; 
-   text-align: center; 
-   border-bottom: 1px solid silver; 
+   width: 100%;
+   text-align: center;
+   border-bottom: 1px solid silver;
    line-height: 0.1em;
-   margin: 10px 0 20px; 
-} 
+   margin: 10px 0 20px;
+}
 
-h4 span { 
-    background:#fff; 
-    padding:0 10px; 
+h4 span {
+    background:#fff;
+    padding:0 10px;
 }
 
 
@@ -571,22 +571,22 @@ h4 span {
 }
 
 #data_table_wrapper th:nth-child(1) {
-    border-left: 1px solid #ddd; 
+    border-left: 1px solid #ddd;
 }
 
 #data_table_wrapper th:last-child {
-    border-right: 1px solid #ddd; 
+    border-right: 1px solid #ddd;
 }
 
 #data_table td:nth-child(1)  {
-    border-left: 1px solid #ddd; 
+    border-left: 1px solid #ddd;
 
 }
 
 #data_table td:last-child {
-    border-right: 1px solid #ddd; 
+    border-right: 1px solid #ddd;
 }
-#modalContent thead th, 
+#modalContent thead th,
 #modalContent thead td{
     max-width: 100px !important;
     min-width: 100px !important;
@@ -629,7 +629,7 @@ h4 span {
     .col-lg-9{
     width:82%;
     max-width:1040px;
-  
+
   }
   .col-md-12 {
     width: 100%;
@@ -646,7 +646,7 @@ h4 span {
 
 @media(max-width: 993px){
 .col-sm-12 {
-    padding-right:0px;   
+    padding-right:0px;
   }
 .container {
     width: 98%;
@@ -732,15 +732,28 @@ fieldset[disabled] .btn-warning.active {
 .tooltip {
   font-size: 10px;
   font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
-  border: 1px solid blue;
+  border: 1px solid black;
+  opacity: 1;
+
 }
 
 div.tooltip-inner {
     font-size: 10px;
-    padding: 0px;
+    padding-right: 2px;
+    padding-left: 2px;
+    padding-top: 0px;
+    padding-bottom: 0px;
     width: auto;
     color: #666666;
     background-color: #FFFFFF;
+    opacity: 1;
+}
+
+/**********************************************/
+/* Styling the File Format Radio Button Div   */
+/**********************************************/
+.file_format_selection_section {
+    display: inline;
 }
 
 

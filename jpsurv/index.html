@@ -87,7 +87,7 @@
         <div  id="slideoutForm">
           <span  class="jpsurv-title col-md-6 hidden-xs hidden-sm" ><img  src="./images/jpsurv.png" style="height:60%;width:60%" alt="JPSurv (Joint Point Survival Model)"></img></span>
           <span  class="jpsurv-title col-md-12 visible-xs visible-sm" ><img  src="./images/jpsurv.png" style="height:60%;width:40%" alt="JPSurv (Joint Point Survival Model)"></img></span>
-          
+
           <div id="slideout">
             <div class="well ">
             <h2>
@@ -103,12 +103,19 @@
               <div class="box col-md-12" style="overflow:hidden;width:100%">
 
                 <form id="upload-form" class="form-horizontal" role="form" method="post" enctype="multipart/form-data" action="jpsurvRest/stage1_upload">
-                
+
                 <div id="input_type_select" style="margin-bottom:2%">
                   <label>File Format:</label>
-                    <input type="radio" name="data" value="dic" checked id="dic" aria-label="dictionary"> Dictionary/Data Files    
-                    <input type="radio" id="csv" name="data" value="csv" aria-label="csv"> CSV Files
-                    <input type="radio" id="importRadioButton" name="data" value="importRadioButton" aria-label="importRadioButton"> Workspace
+                  <div class="file_format_selection_section">
+                    <input type="radio" name="data" value="dic" checked id="dic" aria-label="dictionary"><span>&nbsp;Dictionary/Data Files</span>
+                  </div>
+                  <div class="file_format_selection_section" >
+                    <input type="radio" id="csv" name="data" value="csv" aria-label="csv"><span>&nbsp;CSV Files</span>
+                  </div>
+                  <div class="file_format_selection_section">
+                    <input type="radio" id="importRadioButton" name="data" value="importRadioButton" aria-label="importRadioButton"><span>&nbsp;Workspace</span
+                  </div>
+                  </div>
                 </div>
                   <hr class="stage-separator">
                   <div id="dic_container" >
@@ -150,7 +157,6 @@
           <div id="data_type_container" class="form-group"></div>
                   <div class="row">
                     <div id="upload_file_submit_container" class="jpsurv-button pull-right">
-                      <!--<INPUT type='submit' id='upload_file_submit' value='Upload Files' > -->
                       <button
                               id='upload_file_submit'
                               type="button"
@@ -199,10 +205,10 @@
                       <option>3</option>
                       <option>4</option>
                       <option>5</option>
-                   
+
                     </select>
-                     <span class="pull-right col-md-7 help_container"> 
-                      <i class="glyphicon glyphicon-question-sign glyphicon-blue cursor" aria-label="Help" id='max_help' ></i></a> 
+                     <span class="pull-right col-md-7 help_container">
+                      <i class="glyphicon glyphicon-question-sign glyphicon-blue cursor" aria-label="Help" id='max_help' ></i></a>
                     </span>
                     <div class="row">
                       <div id="e-mail-msg" class="e-mail-grp" style="padding:5px 15px;display:none;">
@@ -353,7 +359,7 @@
           </div>
 
               <!-- Message Panel for Error or Warning-->
-      
+
           <ul id="jpsurv-tabs" class="nav nav-tabs responsive">
             <li class="active"><a href="#home" data-toggle="tab">Survival Graph/Data</a></li>
             <li><a href="#estimates-tab" data-toggle="tab">Model Estimates</a></li>
@@ -398,7 +404,7 @@
                     <div class="row">
                       <div class="col-md-offset-2" style="margin-top:1%">
                         <img src="" style="display:none;" alt="graph-year">
-                        
+
                       </div>
                     </div>
                      <b><span id="year-tab-rows" style="display:inline-block;padding-bottom:1%;padding-top:1%"></span></b>
@@ -510,7 +516,7 @@
                       <th scope="col">Standard Error</th>
                       <th scope="col">Lower Limit 95% C.I.</th>
                       <th scope="col">Upper Limit 95% C.I.</th>
-                      <th scope="col">Significance</th> 
+                      <th scope="col">Significance</th>
                     </tr>
                   </thead>
                   <tbody>

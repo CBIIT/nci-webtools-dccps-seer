@@ -42,19 +42,29 @@ $(document).ready(function() {
 
   $("[name='data']:checked").click()
 
-  $('[data-toggle="tooltip"]').tooltip({
-    delay: "500",
-    title: txtForInputButtonToolTip,
-    placement: "left"
-  });
+  /* Needed when the user hovers over the radio button without clicking the section for the File Formats,the tooltips */
+  /* will not work                                                                                                    */
+  $("#upload-form").hover(function(event) {
+    //$(this).focus()
+    $("#upload-form").focus()
+  })
 
-  //$("#upload_file_submit").on("show.bs.tooltip", function() {
-  //  $(this).tooltip('hide')
-  //})
+  /* Hovering over the radio or the text for each file format will produce a tooltip                                  */
+  $('#input_type_select [class="file_format_selection_section"] ').hover(
+    function(event) {
 
-  //$("#upload_file_submit").on("hover", function() {
-  //  $(this).tooltip('hide')
-  //})
+        if ( event.type === "click") return
+
+          $('#input_type_select [class="file_format_selection_section"]').tooltip({
+              delay: "1500",
+              title: txtForInputButtonToolTip,
+              placement: "bottom",
+          });
+    },
+
+    function(event) {
+        $('#input_type_select [class="file_format_selection_section"]').tooltip("hide")
+    })
 
   $("#upload_file_submit").hover(function() {
     if ( $(this).attr("id") === "upload_file_submit" ) {
@@ -2848,10 +2858,13 @@ function analysisDisplayed() {
 function txtForInputButtonToolTip() {
     var helpTxt = "Help String not defined for this object"
 
-    if ( $(this).attr("id") === "upload_file_submit" ) {
-       var selectedOption =  ( $("[name='data']:checked").val())
-       if ( selectedOption == "importRadioButton" ) helpTxt = "Import Workspace exported previously"
-    }
+    var selectedOption = $(this).children("input").prop("id")
+    if ( selectedOption == "importRadioButton" )
+        helpTxt = "Workspace: Import JPSurv results exported previously"
+    else if ( selectedOption == "csv")
+        helpTxt = "CSV Files: SEER Data File"
+    else if ( selectedOption == "dic")
+        helpTxt = "Dictionary/Data Files: SEER*Stat survival text and dictionary files"
 
     return helpTxt
 }
