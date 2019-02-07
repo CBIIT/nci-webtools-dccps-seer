@@ -732,7 +732,7 @@ fieldset[disabled] .btn-warning.active {
 .tooltip {
   font-size: 10px;
   font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
-  border: 1px solid black;
+  border: 1px solid lightgrey;
   opacity: 1;
 
 }

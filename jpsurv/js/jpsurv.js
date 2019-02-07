@@ -49,17 +49,19 @@ $(document).ready(function() {
     $("#upload-form").focus()
   })
 
+   $('#input_type_select [class="file_format_selection_section"] :radio ').click( function(event) {
+        $('#input_type_select [class="file_format_selection_section"]').tooltip("hide")
+   })
+
   /* Hovering over the radio or the text for each file format will produce a tooltip                                  */
   $('#input_type_select [class="file_format_selection_section"] ').hover(
     function(event) {
 
-        if ( event.type === "click") return
-
-          $('#input_type_select [class="file_format_selection_section"]').tooltip({
-              delay: "1500",
-              title: txtForInputButtonToolTip,
-              placement: "bottom",
-          });
+       $('#input_type_select [class="file_format_selection_section"]').tooltip({
+            delay: "1500",
+            title: txtForInputButtonToolTip,
+            placement: "bottom",
+       });
     },
 
     function(event) {
@@ -2860,11 +2862,11 @@ function txtForInputButtonToolTip() {
 
     var selectedOption = $(this).children("input").prop("id")
     if ( selectedOption == "importRadioButton" )
-        helpTxt = "Workspace: Import JPSurv results exported previously"
+        helpTxt = "Import JPSurv results exported previously"
     else if ( selectedOption == "csv")
-        helpTxt = "CSV Files: SEER Data File"
+        helpTxt = "SEER Data File"
     else if ( selectedOption == "dic")
-        helpTxt = "Dictionary/Data Files: SEER*Stat survival text and dictionary files"
+        helpTxt = "SEER*Stat survival text and dictionary files"
 
     return helpTxt
 }
