@@ -1,5 +1,8 @@
 .skip a,.skip a:hover,.skip a:visited{position:absolute;left:-999px}.skip a:active,.skip a:focus{display:block;left:0;z-index:999;background:#fff;border:1px solid #000;padding:5px 5px 5px 5px}
 
+
+
+
 table {
   border-collapse:collapse;
 }
@@ -146,7 +149,7 @@ body {
 }
 
 hr.stage-separator{
-  margin-top:-10px;
+  margin-top:10px;
 }
 
 .plot-container {
@@ -723,7 +726,9 @@ fieldset[disabled] .btn-warning.active {
 }
 
 
-/***************/
+/*****************/
+/* ToolTips      */
+/*****************/
 
 .tooltip-arrow {
     display: none
@@ -753,7 +758,52 @@ div.tooltip-inner {
 /* Styling the File Format Radio Button Div   */
 /**********************************************/
 .file_format_selection_section {
-    display: inline;
+    /* display: inline; */
 }
+
+/**********************************************/
+/* Input Type Selection                       */
+/**********************************************/
+
+#input_type_select label {
+    padding-left:18px;
+    padding-right:0
+}
+
+#input_type_select div {
+    padding-left:0;
+    padding-right:0
+}
+
+#input_type_select > div:nth-child(2)  {
+    padding-left:0;
+    white-space:nowrap;
+}
+
+#dic {
+    white-space: nowrap;
+    margin-left:0;
+    margin-top:0;
+}
+
+#csv {
+    margin-left:0;
+    margin-top:0
+}
+
+#importRadioButton {
+    margin-left: 0;
+    margin-top: 0;
+}
+
+@media (max-width: 767px) {
+
+    #input_type_select > div:nth-child(2) {
+        white-space:normal;
+    }
+}
+
+
+
 
 

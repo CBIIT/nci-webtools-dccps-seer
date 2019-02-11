@@ -49,15 +49,20 @@ $(document).ready(function() {
     $("#upload-form").focus()
   })
 
-   $('#input_type_select [class="file_format_selection_section"] :radio ').click( function(event) {
-        $('#input_type_select [class="file_format_selection_section"]').tooltip("hide")
-   })
+  var fileFormatDiv = $('#input_type_select [class~="file_format_selection_section"]')
+  var exportButton = $('#exportButton')
+
+  // Clicking on the radio button will force the tooltip to disappear.
+  $('#input_type_select [class~="file_format_selection_section"]').children(":radio").click( function(event) {
+    console.log(("Made it into this section"))
+    $(this).parent().tooltip("hide")
+  })
 
   /* Hovering over the radio or the text for each file format will produce a tooltip                                  */
-  $('#input_type_select [class="file_format_selection_section"] ').hover(
+  $(fileFormatDiv).hover(
     function(event) {
 
-       $('#input_type_select [class="file_format_selection_section"]').tooltip({
+       $(this).tooltip({
             delay: "1500",
             title: txtForInputButtonToolTip,
             placement: "bottom",
@@ -65,15 +70,9 @@ $(document).ready(function() {
     },
 
     function(event) {
-        $('#input_type_select [class="file_format_selection_section"]').tooltip("hide")
+        $(this).tooltip("hide")
     })
 
-  $("#upload_file_submit").hover(function() {
-    if ( $(this).attr("id") === "upload_file_submit" ) {
-         var selectedOption =  ( $("[name='data']:checked").val())
-         if ( selectedOption != "importRadioButton") $(this).tooltip('hide')
-    }
-  })
 });
 
 function checkInput(id) {
@@ -145,7 +144,7 @@ function hide_display_email(){
 }
 function addEventListeners() {
 
-  $('#e-mail').on('keydown', function(e) {
+  $('#e-mail').on('keydown change', function(e) {
     if (e.which == 13) {
       e.preventDefault();
     }
@@ -290,6 +289,8 @@ function addInputSection() {
         )
       );
       $( "#input_type_select" ).remove();
+      $(" #upload-form #seperator").remove();
+      $(" #input_type")
       load_form();
        $('#data_type_container')
       .empty()
@@ -328,6 +329,7 @@ function addInputSection() {
         )
       );
       $("#input_type_select").remove();
+      $("#upload-form #seperator").remove();
       $("#upload_file_submit").remove();
       $( "#has_headers" ).remove();
       $("#csv_label_data").remove();
@@ -2867,6 +2869,9 @@ function txtForInputButtonToolTip() {
         helpTxt = "SEER Data File"
     else if ( selectedOption == "dic")
         helpTxt = "SEER*Stat survival text and dictionary files"
+    else if ( selectedOption == "exportButton") {
+        helpTxt = "Export Cohort and Model specification and results to model"
+    }
 
     return helpTxt
 }
