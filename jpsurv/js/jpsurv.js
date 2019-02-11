@@ -2221,8 +2221,8 @@ function Slide_menu_Horz(action) {
         $("#right_panel").animate({
       }, 300);
 
-    $("#right_panel").removeClass("col-lg-8");
-    $("#right_panel").removeClass("col-md-8");
+    $("#right_panel").removeClass("col-lg-7");
+    $("#right_panel").removeClass("col-md-7");
 
 
 
@@ -2241,8 +2241,8 @@ function Slide_menu_Horz(action) {
        $("#right_panel").removeClass("col-lg-12");
        $("#right_panel").removeClass("col-md-12");
 
-       $("#right_panel").addClass("col-lg-8");
-       $("#right_panel").addClass("col-md-8");
+       $("#right_panel").addClass("col-lg-7");
+       $("#right_panel").addClass("col-md-7");
        left_panel_width=$("#slideoutTab").width();
 
        $("#icon").animate({
