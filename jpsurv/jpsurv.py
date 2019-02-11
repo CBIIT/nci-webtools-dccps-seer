@@ -171,8 +171,7 @@ def stage1_upload():
             fo.close()
 
             app.logger.debug(request.url_root + '/jpsurv/')
-            url = Href('/') (
-            # url = Href('/jpsurv/')(
+            url = Href('/jpsurv/')(
                  request='false',
                  file_control_filename=file_control_filename_clean,
                  file_data_filename=file_data_filename_clean,
@@ -242,8 +241,7 @@ def stage1_upload():
             fo.close()
 
             app.logger.debug(request.url_root + '/jpsurv/')
-            url = Href('/')(
-            #url = Href('/jpsurv/')(
+            url = Href('/jpsurv/')(
                 request='false',
                 file_control_filename=file_control_filename_clean,
                 output_filename=output_filename,
@@ -697,7 +695,6 @@ def sendqueue(tokenId):
 
 def initialize(port,debug=True):
     app.run(host='0.0.0.0', port=port, debug=True)
-
 
 if __name__ == '__main__':
     import argparse
