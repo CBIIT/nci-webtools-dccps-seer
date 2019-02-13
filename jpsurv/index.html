@@ -82,12 +82,12 @@
       <div class="row">
 
         <!-- Upload FORM - STAGE 1 -->
-        <div id="slideoutTab" class="col-md-4 col-lg-4 col-sm-12">
+        <div id="slideoutTab" class="col-md-5 col-lg-5 col-sm-12">
           <i id ="icon" class="fa fa-caret-left fa-2x hidden-xs hidden-sm" onclick="Slide_menu_Horz()" style="visibility:hidden;margin-left:100%"></i>
         <div  id="slideoutForm">
           <span  class="jpsurv-title col-md-6 hidden-xs hidden-sm" ><img  src="./images/jpsurv.png" style="height:60%;width:60%" alt="JPSurv (Joint Point Survival Model)"></img></span>
           <span  class="jpsurv-title col-md-12 visible-xs visible-sm" ><img  src="./images/jpsurv.png" style="height:60%;width:40%" alt="JPSurv (Joint Point Survival Model)"></img></span>
-          
+
           <div id="slideout">
             <div class="well ">
             <h2>
@@ -100,17 +100,27 @@
                 </span>
             </h2>
               <!-- Upload FORM - STAGE 1 -->
-              <div class="box col-md-12" style="overflow:hidden;width:100%">
+              <div class="box col-xs-12" style="overflow:hidden;width:100%">
 
                 <form id="upload-form" class="form-horizontal" role="form" method="post" enctype="multipart/form-data" action="jpsurvRest/stage1_upload">
-                
-                <div id="input_type_select" style="margin-bottom:2%">
-                  <label>File Format:</label>
-                    <input type="radio" name="data" value="dic" checked id="dic" aria-label="dictionary"> Dictionary/Data Files    
-                    <input type="radio" id="csv" name="data" value="csv" aria-label="csv"> CSV Files
-                    <input type="radio" id="importRadioButton" name="data" value="importRadioButton" aria-label="importRadioButton"> Workspace
+
+                <div id="input_type_select" style="margin-bottom:2%" class="row row-no-gutters">
+                  <label class="col-xs-3">File Format:</label>
+                  <div id="dic_section" class="file_format_selection_section col-xs-3" >
+                    <input type="radio" name="data" value="dic" checked id="dic" aria-label="dictionary" ><span>&nbsp;Dic/Data Files</span>
+                  </div>
+                  <div id="csv_section" class="file_format_selection_section col-xs-3">
+                    <span>&nbsp;</span>
+                    <input type="radio" id="csv" name="data" value="csv" aria-label="csv"><span>&nbsp;CSV Files</span>
+                  </div>
+                  <div id="import_section" class="file_format_selection_section col-xs-3">
+                    <input type="radio" id="importRadioButton" name="data" value="importRadioButton" aria-label="importRadioButton"><span>&nbsp;Workspace</span
+                  </div>
+                  </div>
                 </div>
+                <div id="seperator" class="row row-no-gutters">
                   <hr class="stage-separator">
+                </div>
                   <div id="dic_container" >
                     <div id="file_control_container" class= "form-group" > <label for='file_control'>SEER Stat Dictionary/Data Files:</label>
                       <a style='font-size:small;color:#3273ab' href='./data/SEER9_Survival_6CancerSitesByStage_1975_2007.dic' download='SEER9_Survival_6CancerSitesByStage_1975_2007.dic'>(dic example)</a>
@@ -150,7 +160,6 @@
           <div id="data_type_container" class="form-group"></div>
                   <div class="row">
                     <div id="upload_file_submit_container" class="jpsurv-button pull-right">
-                      <!--<INPUT type='submit' id='upload_file_submit' value='Upload Files' > -->
                       <button
                               id='upload_file_submit'
                               type="button"
@@ -165,7 +174,7 @@
                 </form>
               </div>
               <!-- Calculate - STAGE 2 -->
-              <div id="stage2-calculate" class="box col-md-12" style="display:none;">
+              <div id="stage2-calculate" class="box col-xs-12" style="display:none;">
                 <form id='parameters' class="form-horizontal" role="form">
                   <h2 class="stage-header">Cohort and Model Specifications</h2>
                   <hr class="stage-separator">
@@ -199,10 +208,10 @@
                       <option>3</option>
                       <option>4</option>
                       <option>5</option>
-                   
+
                     </select>
-                     <span class="pull-right col-md-7 help_container"> 
-                      <i class="glyphicon glyphicon-question-sign glyphicon-blue cursor" aria-label="Help" id='max_help' ></i></a> 
+                     <span class="pull-right col-md-7 help_container">
+                      <i class="glyphicon glyphicon-question-sign glyphicon-blue cursor" aria-label="Help" id='max_help' ></i></a>
                     </span>
                     <div class="row">
                       <div id="e-mail-msg" class="e-mail-grp" style="padding:5px 15px;display:none;">
@@ -279,7 +288,7 @@
           <!-- </form> -->
           <!-- Main Menu Tabs -->
         </div>
-        <div id="help" class="well col-md-8 col-lg-8 col-sm-12" style="margin-top:2%">
+        <div id="help" class="well col-md-7 col-lg-7 col-sm-12" style="margin-top:2%">
           <div class="row">
             <div class="col-sm-7 col-sm-offset-2" id="jpsurv-help-message-container" style="display:none;margin-top:2%">
               <div class="panel panel-danger">
@@ -289,7 +298,7 @@
             </div>
           </div>
         </div>
-        <div id="right_panel" class="col-md-8 col-lg-8 col-sm-12" style="display:none;margin-top:2%">
+        <div id="right_panel" class="col-md-7 col-lg-7 col-sm-12" style="display:none;margin-top:2%">
           <div id="cohort-join-points" class="box">
             <div class="row model-select-row" style="padding-bottom:15px;">
               <div class="col-md-12">
@@ -353,7 +362,7 @@
           </div>
 
               <!-- Message Panel for Error or Warning-->
-      
+
           <ul id="jpsurv-tabs" class="nav nav-tabs responsive">
             <li class="active"><a href="#home" data-toggle="tab">Survival Graph/Data</a></li>
             <li><a href="#estimates-tab" data-toggle="tab">Model Estimates</a></li>
@@ -398,7 +407,7 @@
                     <div class="row">
                       <div class="col-md-offset-2" style="margin-top:1%">
                         <img src="" style="display:none;" alt="graph-year">
-                        
+
                       </div>
                     </div>
                      <b><span id="year-tab-rows" style="display:inline-block;padding-bottom:1%;padding-top:1%"></span></b>
@@ -510,7 +519,7 @@
                       <th scope="col">Standard Error</th>
                       <th scope="col">Lower Limit 95% C.I.</th>
                       <th scope="col">Upper Limit 95% C.I.</th>
-                      <th scope="col">Significance</th> 
+                      <th scope="col">Significance</th>
                     </tr>
                   </thead>
                   <tbody>

@@ -42,27 +42,59 @@ $(document).ready(function() {
 
   $("[name='data']:checked").click()
 
-  $('[data-toggle="tooltip"]').tooltip({
-    delay: "500",
-    title: txtForInputButtonToolTip,
-    placement: "left"
-  });
-
-  //$("#upload_file_submit").on("show.bs.tooltip", function() {
-  //  $(this).tooltip('hide')
-  //})
-
-  //$("#upload_file_submit").on("hover", function() {
-  //  $(this).tooltip('hide')
-  //})
-
-  $("#upload_file_submit").hover(function() {
-    if ( $(this).attr("id") === "upload_file_submit" ) {
-         var selectedOption =  ( $("[name='data']:checked").val())
-         if ( selectedOption != "importRadioButton") $(this).tooltip('hide')
-    }
+  /* Needed when the user hovers over the radio button without clicking the section for the File Formats,the tooltips */
+  /* will not work                                                                                                    */
+  $("#upload-form").hover(function(event) {
+    //$(this).focus()
+    $("#upload-form").focus()
   })
+
+  //var fileFormatDiv = $('#input_type_select [class~="file_format_selection_section"] :radio, span')
+  var fileFormatDiv = $('#input_type_select [class~="file_format_selection_section"] :radio, #input_type_select [class~="file_format_selection_section"] span')
+  var exportButton = $('#exportButton')
+
+  // Clicking on the radio button will force the tooltip to disappear.
+  $('#input_type_select [class~="file_format_selection_section"] :radio').click( function(event) {
+    $(this).tooltip("hide")
+  })
+
+  /* Hovering over the radio or the text for each file format will produce a tooltip                                  */
+  $(fileFormatDiv).hover(
+    function(event) {
+
+       $(this).tooltip({
+            delay: "1500",
+            title: txtForInputButtonToolTip,
+            placement: "bottom",
+       });
+    },
+
+    function(event) {
+        $(this).tooltip("hide")
+    })
+
 });
+
+
+// Provides the help text for the button that will upload the file
+// The problem is that the upload button handles three different types of upload ( dic/txt, csv, file exported)git
+function txtForInputButtonToolTip() {
+    var helpTxt = "Help String not defined for this object"
+
+    var selectedOption = $(this).parent().attr("id")
+    if ( selectedOption == "import_section" )
+        helpTxt = "Import JPSurv results exported previously"
+    else if ( selectedOption == "csv_section")
+        helpTxt = "SEER Data File"
+    else if ( selectedOption == "dic_section")
+        helpTxt = "SEER*Stat survival text and dictionary files"
+    else if ( selectedOption == "exportButton") {
+        helpTxt = "Export Cohort and Model specification and results to model"
+    }
+
+    return helpTxt
+}
+
 
 function checkInput(id) {
   var element = $('#' + id);
@@ -133,7 +165,7 @@ function hide_display_email(){
 }
 function addEventListeners() {
 
-  $('#e-mail').on('keydown', function(e) {
+  $('#e-mail').on('keydown change', function(e) {
     if (e.which == 13) {
       e.preventDefault();
     }
@@ -278,6 +310,8 @@ function addInputSection() {
         )
       );
       $( "#input_type_select" ).remove();
+      $(" #upload-form #seperator").remove();
+      $(" #input_type")
       load_form();
        $('#data_type_container')
       .empty()
@@ -316,6 +350,7 @@ function addInputSection() {
         )
       );
       $("#input_type_select").remove();
+      $("#upload-form #seperator").remove();
       $("#upload_file_submit").remove();
       $( "#has_headers" ).remove();
       $("#csv_label_data").remove();
@@ -2186,8 +2221,8 @@ function Slide_menu_Horz(action) {
         $("#right_panel").animate({
       }, 300);
 
-    $("#right_panel").removeClass("col-lg-8");
-    $("#right_panel").removeClass("col-md-8");
+    $("#right_panel").removeClass("col-lg-7");
+    $("#right_panel").removeClass("col-md-7");
 
 
 
@@ -2206,8 +2241,8 @@ function Slide_menu_Horz(action) {
        $("#right_panel").removeClass("col-lg-12");
        $("#right_panel").removeClass("col-md-12");
 
-       $("#right_panel").addClass("col-lg-8");
-       $("#right_panel").addClass("col-md-8");
+       $("#right_panel").addClass("col-lg-7");
+       $("#right_panel").addClass("col-md-7");
        left_panel_width=$("#slideoutTab").width();
 
        $("#icon").animate({
@@ -2842,19 +2877,6 @@ function analysisDisplayed() {
     return  ( jpsurvData.stage2completed && $("#right_panel:visible").length == 1) ? true : false
 }
 
-
-// Provides the help text for the button that will upload the file
-// The problem is that the upload button handles three different types of upload ( dic/txt, csv, file exported)git
-function txtForInputButtonToolTip() {
-    var helpTxt = "Help String not defined for this object"
-
-    if ( $(this).attr("id") === "upload_file_submit" ) {
-       var selectedOption =  ( $("[name='data']:checked").val())
-       if ( selectedOption == "importRadioButton" ) helpTxt = "Import Workspace exported previously"
-    }
-
-    return helpTxt
-}
 
 
 
