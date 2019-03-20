@@ -511,7 +511,8 @@ def myExport():
 
         app.logger.debug("\tLeaving my Export")
 
-        txtFile = request.args['txtFile'] if type == 'dic' else ''
+        type = request.args['type']
+        txtFile = request.args['txtFile'] if type == 'dic' else 'my-jpsurv-workspace.txt'
         file_name = '.'.join(txtFile.split('.')[:-1])
         timestamp = time.strftime('%Y%m%d', time.localtime())
         file_name += '-{}.jpsurv'.format(timestamp)
