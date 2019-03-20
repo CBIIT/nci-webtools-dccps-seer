@@ -79,17 +79,17 @@ $(document).ready(function() {
 // Provides the help text for the button that will upload the file
 // The problem is that the upload button handles three different types of upload ( dic/txt, csv, file exported)git
 function txtForInputButtonToolTip() {
-    var helpTxt = "Help String not defined for this object"
+    var helpTxt = "Help String not defined for this object";
 
-    var selectedOption = $(this).parent().attr("id")
+    var selectedOption = $(this).parent().attr("id");
     if ( selectedOption == "import_section" )
-        helpTxt = "Import JPSurv results exported previously"
+        helpTxt = "Import a JPSurv workspace exported previously.";
     else if ( selectedOption == "csv_section")
-        helpTxt = "SEER Data File"
+        helpTxt = "SEER Data File";
     else if ( selectedOption == "dic_section")
-        helpTxt = "SEER*Stat survival text and dictionary files"
+        helpTxt = "SEER*Stat survival text and dictionary files";
     else if ( selectedOption == "exportButton") {
-        helpTxt = "Export Cohort and Model specification and results to model"
+        helpTxt = "Export cohort, model specification and results to a workspace file.";
     }
 
     return helpTxt
