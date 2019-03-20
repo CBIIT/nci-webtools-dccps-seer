@@ -511,7 +511,11 @@ def myExport():
 
         app.logger.debug("\tLeaving my Export")
 
-        return send_from_directory(UPLOAD_DIR, request.args['filename'],  as_attachment = True , attachment_filename="my-jpsurv-workspace.jpsurv" )
+        txtFile = request.args['txtFile'] if type == 'dic' else ''
+        file_name = '.'.join(txtFile.split('.')[:-1])
+        timestamp = time.strftime('%Y%m%d', time.localtime())
+        file_name += '-{}.jpsurv'.format(timestamp)
+        return send_from_directory(UPLOAD_DIR, request.args['filename'],  as_attachment = True , attachment_filename = file_name )
 
     except Exception as e:
         print str(e)
