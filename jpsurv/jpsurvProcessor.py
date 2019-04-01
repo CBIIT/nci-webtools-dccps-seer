@@ -124,7 +124,7 @@ class jpsurvProcessor(DisconnectListener):
                       1. Yu BB, Huang L, Tiwari RC, Feuer EJ, Johnson KA. Modelling population-based cancer survival trends by using join point models for grouped survival data. Journal of the Royal Statistical Society Series a-Statistics in Society. 2009;172:405-25.
                       <br>
                       <strong>For more information, visit
-                        <a target="_blank" style="color:#888888" href="http://analysistools.nci.nih.gov/jpsurv">analysistools.nci.nih.gov/jpsurv</a>
+                        <a target="_blank" style="color:#888888" href="https://analysistools.nci.nih.gov/jpsurv">analysistools.nci.nih.gov/jpsurv</a>
                       </strong>
                   </p>
                   <p style="font-size:11px;color:#b0b0b0">If you did not request a calculation please ignore this email.
