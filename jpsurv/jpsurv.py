@@ -512,8 +512,8 @@ def myExport():
         app.logger.debug("\tLeaving my Export")
 
         type = request.args['type']
-        txtFile = request.args['txtFile'] if type == 'dic' else 'my-jpsurv-workspace.txt'
-        file_name = '.'.join(txtFile.split('.')[:-1])
+        dictFile = request.args['dictionary']
+        file_name = '.'.join(dictFile.split('.')[:-1])
         timestamp = time.strftime('%Y%m%d', time.localtime())
         file_name += '-{}.jpsurv'.format(timestamp)
         return send_from_directory(UPLOAD_DIR, request.args['filename'],  as_attachment = True , attachment_filename = file_name )
