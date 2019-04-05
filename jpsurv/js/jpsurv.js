@@ -626,6 +626,7 @@ function addCohortVariables() {
                           .addClass('cohort')
                           .addClass('cohort-'+i)
                         ).append(control_data.VarFormatSecList[key].ItemValueInDic)
+                        .addClass('cohort-'+i)
                   )
                 );
           }
@@ -641,6 +642,7 @@ function addCohortVariables() {
                           .addClass('cohort')
                           .addClass('cohort-'+i)
                         ).append(value2)
+                        .addClass('cohort-'+i)
                   )
                 );
             });
@@ -660,6 +662,7 @@ function addCohortVariables() {
                         .addClass('cohort')
                         .addClass('cohort-'+i)
                       ).append(cohort_covariance_variables[key])
+                      .addClass('cohort-'+i)
                 )
               );
           }
@@ -675,6 +678,7 @@ function addCohortVariables() {
                         .addClass('cohort')
                         .addClass('cohort-'+i)
                       ).append(cohort_covariance_variables[key][j])
+                      .addClass('cohort-'+i)
                 )
               );
           }

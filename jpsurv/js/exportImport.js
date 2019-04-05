@@ -200,28 +200,27 @@ function loadUserInput(data) {
         // The cohort Stirng which contains (site recode/ARN), Sex ( Male, Female) , Seer Stage A
         // The data.cohoretVaribles.replace  two split tokens : jpcom and + where jpcom splits the
         // string into rows.  For each the + divide the stinrg into individual parts ( ARN, Sex, Seer Stage A).
-        //
-        // For the purpose of this code, we do not have to worry about rows , so we will convert the jpcom to + so
-        // that we get the individual columns ( selections).  The text will match the text to the right of the checkboxes
-        // in the "Cohort and Model Specifications.  This array returned will have duplicate elements
-        var cohortAndModelSpecificatiosSelection = data.cohortVariables.replace(/jpcom/g, "+")
-        var cohorts = cohortAndModelSpecificatiosSelection.split("+")
 
-        $.each(cohorts, function(index, element) {
-            element = element.trim()
+        // Split cohort string into a matrix, each row contains a combination of cohort values
+        var cohortLines = data.cohortVariables.split('jpcom');
+        var cohortArrays = cohortLines.map( function(line){
+            return line.trim().split('+').map( function(value){
+                return value.trim();
+            });
+        });
 
-            var selector = "div#cohort-variables label:contains('" + element + "')"
-
-            // Problem : If the user is male or female then the text will found in two places.
-            // Solution : Create function that returns the selector with the exact text.
-            if ( $(selector).length > 1 ) {
-                selector = returnSelectorWithExactText(selector, element)
+        // Go through cohort matrix to set checkboxes for each value selected
+        for (var i = 0; i < cohortArrays.length; ++i) {
+            var cohortArray = cohortArrays[i];
+            for (var j = 0; j < cohortArray.length; ++j) {
+                var selector = "div#cohort-variables label[class=cohort-" + j + "]:contains('" + cohortArray[j] + "')";
+                $(selector).each( function(index, element) {
+                    if (element.textContent === cohortArray[j]) {
+                        $(element).find('input').prop('checked', true);
+                    }
+                });
             }
-
-            console.log("Function loadUserInput.modifyForm : In the Cohort Model and Specifications Panel currently selecting checkbox with text : " + element)
-
-            $(selector).children("input").prop("checked", true)
-        })
+        }
 
         if ( data.advDelInterval === 'T')
             $("#del-int-yes").prop("checked", true)
