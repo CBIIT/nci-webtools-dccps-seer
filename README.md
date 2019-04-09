@@ -7,13 +7,13 @@ After cloning this repository, build the jpsurv development image (`cbiitss/jpsu
     npm run build:image
 ```
 
-To start the development server on a non-windows machine, use:
+To start the development server on Linux/macOS, use:
 
 ```bash
     npm run start:dev
 ```
 
-For windows-based machines, run the following in a non-powershell command prompt:
+To start the development server on Windows, run the following in a non-powershell command prompt:
 
 ```bash
     npm run start:msdev
