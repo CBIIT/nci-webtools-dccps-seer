@@ -4,8 +4,9 @@
   "description": "Environment for testing nci-webtools-dccps-seer test",
   "main": "index.js",
   "scripts": {
-    "start:dev": "cd docker && sh run.sh",
-    "build:image": "cd docker && docker build -t cbiitss/jpsurv .",
+    "build:image": "cd docker && docker build -t cbiitss/jpsurv:dev .",
+    "start:dev": "echo \"Go to: http://localhost:9000/jpsurv\" && docker run -it -p 9000:8000 -v \"$PWD/jpsurv\":/deploy/jpsurv cbiitss/jpsurv:dev",
+    "start:msdev": "echo \"Go to: http://localhost:9000/jpsurv\" && docker run -it -p 9000:8000 -v \"%CD%\\jpsurv\":/deploy/jpsurv cbiitss/jpsurv:dev",
     "test": "mocha test/end-to-end/scripts/ --reporter xunit --reporter-options output=test/end-to-end/scripts/e2e_results.xml"
   },
   "repository": {
