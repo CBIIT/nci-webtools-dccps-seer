@@ -32,32 +32,33 @@ RUN pip install --upgrade \
  && pip install \
         flask \
         mod_wsgi \
-        rpy2==2.8.6
+        rpy2==2.8.6 \
+        stompest \
+        stompest.async \
+        twisted
 
-COPY jpsurv.tar.gz /tmp/jpsurv.tar.gz
+COPY JPSurv_2.0.31.tar.gz /tmp/jpsurv.tar.gz
 
-RUN pushd /tmp \
- && R -e "install.packages(c(\
-    'ggplot2', \
-    'rjson', \
-    'jpsurv.tar.gz' ))"
+RUN R -e "install.packages(c('ggplot2', 'rjson'))" \
+ && R -e "install.packages('/tmp/jpsurv.tar.gz', repos = NULL)"
 
-RUN mkdir /app
-
-WORKDIR /deploy
+RUN mkdir -p /deploy/jpsurv
 
 # ensure jpsurv code is mounted under the /app directory
-# eg: docker run -it -p 9000:8000 -v $PWD/jpsurv:/app cbiitss/jpsurv
-CMD mod_wsigi-express start-server /app/jpsurv.wsgi \
+# eg: docker run -it -p 9000:8000 -v $PWD/deploy/jpsurv:/app cbiitss/jpsurv
+CMD mod_wsgi-express start-server /deploy/jpsurv/jpsurv.wsgi \
     --port 8000 \
     --user apache \
     --group apache \
-    --document-root /app \
-    --working-directory /app \
+    --document-root /deploy \
+    --working-directory /deploy/jpsurv \
     --directory-index index.html \
-    --processes 4 \
+    --processes 1 \
     --threads 1 \
     --request-timeout 900 \
     --queue-timeout 900 \
     --compress-responses \
+    --mount-point /jpsurv \
+    --access-log \
+    --reload-on-changes \
     --log-to-terminal
