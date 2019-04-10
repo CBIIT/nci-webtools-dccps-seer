@@ -684,7 +684,7 @@ function addCohortVariables() {
           }
 
         }
-        $("#cohort-"+i).find('input').filter(":first").prop('checked', true);
+        // $("#cohort-"+i).find('input').filter(":first").prop('checked', true);
         i++;
       }
 
@@ -865,6 +865,7 @@ function updateGraphs(token_id) {
   var header = [];
   var newVars = [];
   var yodVarName = jpsurvData.calculate.static.yearOfDiagnosisVarName.replace(/\(|\)|-/g, "");
+  yodVarName = yodVarName.replace(/__/g, '_');
 
   //Add the Year Table
   if(jpsurvData.results.YearData.RelSurvYearData!=undefined){
