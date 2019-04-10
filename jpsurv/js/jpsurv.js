@@ -684,7 +684,7 @@ function addCohortVariables() {
           }
 
         }
-        $("#cohort-"+i).find('input').filter(":first").prop('checked', true);
+        // $("#cohort-"+i).find('input').filter(":first").prop('checked', true);
         i++;
       }
 
