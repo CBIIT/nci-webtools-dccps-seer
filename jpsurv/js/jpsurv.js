@@ -1975,9 +1975,9 @@ function jpsurvRest2(action, callback) {
 }
 
 function displayCommFail(id, jqXHR, textStatus) {
-  //console.log(textStatus);
-  //console.dir(jqXHR);
-  //console.warn("CommFail\n"+"Status: "+textStatus);
+  console.log("textrStatus", textStatus);
+  console.dir("jqXHR", jqXHR);
+  console.warn("CommFail\n"+"Status: "+textStatus);
   var message;
   var errorThrown = "";
   console.warn("header: " + jqXHR
