@@ -351,15 +351,7 @@ input[type="file"] {
 #cohort-variables > div {
   padding-bottom:10px;
 }
-#cohort-display {
-  border: 1px solid #ddd;
-  padding:5px;
-  display:block;
-  max-width:650px;
-  float:left;
-  position:relative;
-  top:-5px;
-}
+
 .model-select-row {
   padding-left:15px;
 }
@@ -742,6 +734,11 @@ fieldset[disabled] .btn-warning.active {
     #input_type_select > div:nth-child(2) {
         white-space:normal;
     }
+}
+
+.my-5 {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
 }
 
 

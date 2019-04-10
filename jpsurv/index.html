@@ -19,7 +19,6 @@
   <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
   <link rel="stylesheet" href="css/jpsurv.css">
-  <link rel="stylesheet" href="css/header.css">
 </head>
 
 <body role="document">
@@ -303,7 +302,7 @@
         <div id="cohort-join-points" class="box">
           <div class="row model-select-row" style="padding-bottom:15px;">
             <div class="col-md-12">
-              <strong style="float:left;margin-right:5px;margin-bottom:5px;">Cohort</strong>&nbsp;
+              <strong>Cohort</strong>&nbsp;
               <select id="cohort-display" aria-label="cohort display"></select>
               <a id="exportButton" data-toggle="tooltip"
                 title="Export cohort, model specification and results to a workspace file."
@@ -336,13 +335,7 @@
             </div>
           </div>
           <div class="row model-select-row">
-            <div class="col-md-10" style="padding-bottom:15px;">
-              <strong>Display Options</strong>
-            </div>
-            <div class="col-md-10">
-
-              <div style="padding-bottom:15px;">
-                <form style="padding-right:10px;">
+              <h4>Display Options</h4>
                   <label title="Rounded to decimal places." style="margin-left:10px;">Number of Decimal Places</label>
                   <select name="abcselect" id="precision" aria-label="Round">
                     <option>1</option>
@@ -355,13 +348,7 @@
                     <option>8</option>
                     <option selected>9</option>
                   </select>
-                </form>
-              </div>
-
-
-            </div>
-          </div>
-
+      </div>
         </div>
 
         <!-- Message Panel for Error or Warning-->
@@ -579,7 +566,7 @@
     </div>
   </div>
   <!-- FOOTER Section -->
-  <footer class="footer form-group">
+  <footer class="footer my-5">
     <div class="center-block text-center">
       <ul class="list-inline">
         <li><a href="https://www.cancer.gov/" title="Home" target="_blank">Home</a></li>
@@ -618,7 +605,7 @@
     <div class="modal-dialog modal-sm">
       <div class="modal-content">
         <div class="modal-header">
-          <h2 class="modal-title">Calculating</h2>
+          <h2 class="modal-title h4">Calculating</h2>
         </div>
         <div class="modal-body">
           <div class="row col-md-offset-4">
