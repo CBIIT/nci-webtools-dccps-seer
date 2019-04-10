@@ -29,9 +29,6 @@
   height:auto;
 }
 
-.sub_select {
-}
-
 .table_title {
   padding:0px;
   margin:0px;
@@ -40,15 +37,6 @@
 #banners {
     margin-top:15px;
     height:110px;
-}
-
-.jumbotron {
-  background-color: white;
-}
-
-.well {
-  padding: 10px;
-  overflow: auto;
 }
 
 .form-horizontal .control-label {
@@ -180,17 +168,8 @@ input[type="file"] {
 
 #slideout #slideoutTab {
   position: relative;
-  -webkit-transform: rotate(180deg);
-  -moz-transform: rotate(180deg);
-  -ms-transform: rotate(180deg);
-  -o-transform: rotate(180deg);
   transform: rotate(180deg);
-  -webkit-transform-origin: 0% 0%;
-  -moz-transform-origin: 0% 0%;
-  -ms-transform-origin: 0% 0%;
-  -o-transform-origin: 0% 0%;
   transform-origin: 0% 0%;
-  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=1);
   float:right;
   display: block;
   transition: .300s ease-in;
@@ -200,15 +179,8 @@ input[type="file"] {
   position: fixed;
   height: auto;
   font-weight: bold;
-  -moz-border-radius-topleft: 9px;
-  -webkit-border-top-left-radius: 9px;
   border-top-left-radius: 9px;
-  -moz-border-radius-topright: 9px;
-  -webkit-border-top-right-radius: 9px;
   border-top-right-radius: 9px;
-  -webkit-transition-duration: 0.1s;
-  -moz-transition-duration: 0.1s;
-  -o-transition-duration: 0.1s;
   transition-duration: 0.1s;
 }
 
@@ -267,15 +239,6 @@ input[type="file"] {
   background-color: #F2F2F2;
 }
 
-.col-md-4{
-  z-index:0;
-  overflow: visible;
-}
-.well{
-  z-index:0;
-  overflow: visible;
-  min-height:0px;
-}
 #help-tab {
   height:600px;
   overflow-y: scroll;
@@ -301,21 +264,7 @@ input[type="file"] {
 .form-inline {
   padding-bottom: 10px;
 }
-/*
-#stage2b-advanced {
-  display: block;
-  height: 250px;
-  opacity: 1;
-  overflow-y: hidden;
-}
-*/
-#graph-year-table, #graph-time-table {
-  /*
-  height: 400px;
-  overflow: auto;
-  */
 
-}
 .model-number {
   white-space:nowrap;
 }
@@ -374,16 +323,6 @@ div.tooltip-inner {
     width:500px;
     text-align:left;
 }
-/*
-input:required:invalid, input:focus:invalid {
-  background-position: right top;
-  background-repeat: no-repeat;
-}
-input:required:valid, input:focus:valid {
-  background-position: right top;
-  background-repeat: no-repeat;
-}
-*/
 
 .jpsurv-title {
   float: left;
@@ -430,77 +369,9 @@ input:required:valid, input:focus:valid {
     width: 60%;
 }
 
-/*
-#data_table th, #data_table td { white-space: nowrap; }
-
-#table_wrapper {
-        width: 800px;
-        margin: 0 auto;
-    }
-*/
-/*#data_table,#data_table_headers td:first-child {
-  border-left:1px solid #ddd;
-
-}
-#data_table,#data_table_headers th{
-  border-right:1px solid #ddd;
-  line-height: 0;
-  min-width:100px !important;
-
-}
-#data_table,#data_table_headers td{
-  line-height: 0;
-  border-top:0;
-}
-#data_table,#data_table_headers{
-      border-top: none;
-    border-left: none;
-    line-height: 0;
-    display: inline-block;
-    width: 100%;
-    overflow-y: scroll;
-    overflow-x: scroll;
-    height: 150px;
-}
-#data_table th{
-  display:none;
-}
-
-#data_table t{
-  display:none;
-}
-
-#data_table thead, #data_table tbody, #data_table tr, #data_table, #data_table th {
-  display: block;
-}
-#data_table tbody td, #data_table thead > tr> th {
-  float: left;
-  border-bottom-width: 0;
-}
-#data_table tbody {
-  height: 230px;
-  overflow-y: auto;
-  width: 100%;
-}*/
-
 input[type="radio"] {
     margin-left:10px;
 }
-
-h4 {
-   width: 100%;
-   text-align: center;
-   border-bottom: 1px solid silver;
-   line-height: 0.1em;
-   margin: 10px 0 20px;
-}
-
-h4 span {
-    background:#fff;
-    padding:0 10px;
-}
-
-
 
 #data_table_wrapper th {
     font-weight: normal;
@@ -554,39 +425,6 @@ h4 span {
   text-align:left;
   padding-left:0;
   font-size: 18px
-}
-@media(min-width: 1440px){
-.container {
-    width: 1440px;
-  }
-    .col-lg-3{
-    max-width: 400px !important;
-  }
-    .col-lg-9{
-    width:82%;
-    max-width:1040px;
-
-  }
-  .col-md-12 {
-    width: 100%;
-}
-
-}
-
-@media(max-width: 1439px) and (min-width: 994px){
-.container {
-    width: 98%;
-  }
-}
-
-
-@media(max-width: 993px){
-.col-sm-12 {
-    padding-right:0px;
-  }
-.container {
-    width: 98%;
-  }
 }
 
 /** Bootstrap button overrides that are WCAG AA compliant  ***/
@@ -688,13 +526,6 @@ fieldset[disabled] .btn-warning.active {
 }
 
 /**********************************************/
-/* Styling the File Format Radio Button Div   */
-/**********************************************/
-.file_format_selection_section {
-    /* display: inline; */
-}
-
-/**********************************************/
 /* Input Type Selection                       */
 /**********************************************/
 
@@ -734,6 +565,20 @@ fieldset[disabled] .btn-warning.active {
     #input_type_select > div:nth-child(2) {
         white-space:normal;
     }
+}
+
+/** Remove styles after migrating to bootstrap 4 */
+.d-flex {
+  display: flex;
+}
+
+.align-items-start {
+  align-items: start;
+}
+
+.mx-1 {
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
 }
 
 .my-5 {

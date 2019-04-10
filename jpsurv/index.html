@@ -60,7 +60,7 @@
       <!-- Upload FORM - STAGE 1 -->
       <div id="slideoutTab" class="col-md-5 col-lg-5 col-sm-12">
         <i id="icon" class="fa fa-caret-left fa-2x hidden-xs hidden-sm" onclick="Slide_menu_Horz()"
-          style="visibility:hidden;margin-left:100%"></i>
+          style="visibility: hidden;margin-left:100%"></i>
         <div id="slideoutForm">
           <span class="jpsurv-title col-md-6 hidden-xs hidden-sm"><img src="./images/jpsurv.png"
               style="height:60%;width:60%" alt="JPSurv (Joint Point Survival Model)"></img></span>
@@ -371,22 +371,21 @@
             <div class="tab-content">
               <div id="graph-year-tab" class="tab-pane fade active in">
                 <div class="row">
-                  <div class="col-md-2 col-md-offset-1">
-                    <b>Interval Years</b>
+                  <div class="col-md-5 d-flex align-items-start">                    
+                      <label for="interval-years" class="mx-1">
+                        <strong>Interval Years</strong>
+                      </label>
+                      <select id="interval-years" class="mx-1" multiple>
+                          <option selected>1</option>
+                          <option>2</option>
+                          <option>3</option>
+                          <option selected>4</option>
+                        </select>
+
+                        <button id="recalculate" class="btn btn-primary btn-sm" type="button">Select</button>
                   </div>
-                  <div class="col-md-1">
-                    <select id="interval-years" multiple aria-label="interval Years">
-                      <option selected>1</option>
-                      <option>2</option>
-                      <option>3</option>
-                      <option selected>4</option>
-                    </select>
-                  </div>
-                  <div class="col-md-1">
-                    <button id="recalculate" class="btn btn-primary btn-sm" type="button">Select</button>
-                  </div>
-                  <div class="col-md-7">
-                    <span class="pull-right">
+                  <div class="col-md-7 text-right">
+                    <span class="">
                       <a id="graph-year-dataset-link" href="#" style="text-decoration: underline;">Download Graph
                         Dataset</a>
                       &nbsp;
