@@ -576,6 +576,14 @@ fieldset[disabled] .btn-warning.active {
   align-items: start;
 }
 
+.align-items-center {
+  align-items: center;
+}
+
+.mt-0 {
+  margin-top:0;
+}
+
 .mx-1 {
   margin-left: 0.5rem;
   margin-right: 0.5rem;
