@@ -762,11 +762,14 @@ getTrendWrapper<- function (filePath,jpsurvDataString,com) {
   jpInd=as.integer(jpsurvData$additional$headerJoinPoints)
   trend_types=c("RelChgHaz","AbsChgSur","RelChgSur")
   outputData=readRDS(file)
+  interval = strtoi(jpsurvData$trendsInterval);
+  print(jpsurvData)
+  print(paste0("aapc interval=", interval))
   
   file=paste(filePath, fileName, sep="/" )
-  trend1=toJSON(aapc(outputData$fittedResult$FitList[[jpInd+1]],type="RelChgSur"))
-  trend2=toJSON(aapc(outputData$fittedResult$FitList[[jpInd+1]],type="AbsChgSur"))
-  trend3=toJSON(aapc(outputData$fittedResult$FitList[[jpInd+1]],type="RelChgHaz"))
+  trend1=toJSON(aapc(outputData$fittedResult$FitList[[jpInd+1]],type="RelChgSur", interval=interval))
+  trend2=toJSON(aapc(outputData$fittedResult$FitList[[jpInd+1]],type="AbsChgSur", interval=interval))
+  trend3=toJSON(aapc(outputData$fittedResult$FitList[[jpInd+1]],type="RelChgHaz", interval=interval))
   jsonl =c("CS_AAPC"=trend1,"CS_AAAC"=trend2,"HAZ_APC"=trend3)
   
   return(jsonl)
