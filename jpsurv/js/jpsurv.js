@@ -1164,6 +1164,7 @@ function calculateFittedResultsCallback() {
 }
 
 function calculateTrend() {
+  window.jpsurvData.trendsInterval = $('#trends-interval-years').val();
   jpsurvRest2('stage4_trends_calculate', "calculateTrendCallback");
 }
 
