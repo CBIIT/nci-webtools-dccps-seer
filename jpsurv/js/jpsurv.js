@@ -2276,7 +2276,7 @@ function Slide_menu_Vert(Id,action){
     {
         document.getElementById(Id).style.display="block";
         $("#"+Id).animate({
-        height: "300px",
+        height: "400px",
         opacity:1
       }, 300);
     }

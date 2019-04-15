@@ -569,6 +569,11 @@ fieldset[disabled] .btn-primary.active {
   margin-bottom: 2rem;
 }
 
+@media(min-width: 1440px){
+  .container {
+      width: 1440px;
+    }
+  }
 
 
 
