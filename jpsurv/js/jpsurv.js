@@ -1682,6 +1682,7 @@ jpsurvData.additional.intervals_default = [];
   var intervals = getNumberOfIntervals();
     var selectedRange = jpsurvData.calculate.form.yearOfDiagnosisRange[1] - jpsurvData.calculate.form.yearOfDiagnosisRange[0];
     $("#interval-years").empty();
+    $("#trends-interval-years").empty();
     if(control_data.input_type==undefined){
     intervals = (selectedRange < intervals ? selectedRange : intervals);
     ////console.log(intervals+" : "+selectedRange);
@@ -1704,6 +1705,12 @@ jpsurvData.additional.intervals_default = [];
       } else {
         $("#interval-years").append($("<option>").text(i));
       }
+      if ((intervals < 5 && i === intervals) ||
+           i === 5) {
+        $("#trends-interval-years").append($("<option>").attr("selected", "selected").text(i));
+      } else {
+        $("#trends-interval-years").append($("<option>").text(i));
+      }
     }
 
   }
@@ -1713,11 +1720,17 @@ jpsurvData.additional.intervals_default = [];
       jpsurvData.additional.intervals_default=years
 
       for (var i = 0; i < intervals.length; i++) {
-      if($.inArray(intervals[i], years) >= 0) {
-        $("#interval-years").append($("<option>").attr("selected", "selected").text(intervals[i]));
-      } else {
-        $("#interval-years").append($("<option>").text(intervals[i]));
-      }
+        if($.inArray(intervals[i], years) >= 0) {
+          $("#interval-years").append($("<option>").attr("selected", "selected").text(intervals[i]));
+        } else {
+          $("#interval-years").append($("<option>").text(intervals[i]));
+        }
+        if ((intervals[intervals.length -1] < 5 && i === intervals.length -1) ||
+             intervals[i] === 5) {
+          $("#trends-interval-years").append($("<option>").attr("selected", "selected").text(intervals[i]));
+        } else {
+          $("#trends-interval-years").append($("<option>").text(intervals[i]));
+        }
     }
   }
 
