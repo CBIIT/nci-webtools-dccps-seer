@@ -457,6 +457,7 @@ function preLoadValues() {
   stage2("no calculate"); // This is the initial calculation and setup.
   retrieveResults();
   var status = getUrlParameter('status');
+  scrollIntervalYearDropdown();
   //console.log(status)
 }
 
@@ -1719,7 +1720,6 @@ jpsurvData.additional.intervals_default = [];
         $("#trends-interval-years").append($("<option>").text(i));
       }
     }
-    scrollIntervalYearDropdown();
 
   }
 
@@ -1740,7 +1740,6 @@ jpsurvData.additional.intervals_default = [];
           $("#trends-interval-years").append($("<option>").text(intervals[i]));
         }
     }
-    scrollIntervalYearDropdown();
   }
 
 }
