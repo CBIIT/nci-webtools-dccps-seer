@@ -1982,6 +1982,12 @@ function jpsurvRest2(action, callback) {
   ajaxRequest.success(function(data) {
     //console.log("Success");
     window[callback]();
+    var intervalYearDropdown = $("#interval-years");
+    var selectedIntervalYear = intervalYearDropdown.find('option:selected');
+    if (selectedIntervalYear) {
+      var pos = selectedIntervalYear.prop('offsetTop');
+      intervalYearDropdown.scrollTop(pos);
+    }
   });
   ajaxRequest.error(function(jqXHR, textStatus) {
     $("#calculating-spinner").modal('hide');
