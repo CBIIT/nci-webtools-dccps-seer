@@ -1670,7 +1670,14 @@ function parse_cohort_covariance_variables() {
     }
   }
 }
-
+function scrollIntervalYearDropdown() {
+    var intervalYearDropdown = $("#interval-years");
+    var selectedIntervalYear = intervalYearDropdown.find('option:selected');
+    if (selectedIntervalYear) {
+      var pos = selectedIntervalYear.prop('offsetTop');
+      intervalYearDropdown.scrollTop(pos);
+    }
+}
 function setIntervalsDefault() {
 jpsurvData.additional.intervals_default = [];
 
@@ -1712,6 +1719,7 @@ jpsurvData.additional.intervals_default = [];
         $("#trends-interval-years").append($("<option>").text(i));
       }
     }
+    scrollIntervalYearDropdown();
 
   }
 
@@ -1732,6 +1740,7 @@ jpsurvData.additional.intervals_default = [];
           $("#trends-interval-years").append($("<option>").text(intervals[i]));
         }
     }
+    scrollIntervalYearDropdown();
   }
 
 }
@@ -1982,12 +1991,7 @@ function jpsurvRest2(action, callback) {
   ajaxRequest.success(function(data) {
     //console.log("Success");
     window[callback]();
-    var intervalYearDropdown = $("#interval-years");
-    var selectedIntervalYear = intervalYearDropdown.find('option:selected');
-    if (selectedIntervalYear) {
-      var pos = selectedIntervalYear.prop('offsetTop');
-      intervalYearDropdown.scrollTop(pos);
-    }
+    scrollIntervalYearDropdown();
   });
   ajaxRequest.error(function(jqXHR, textStatus) {
     $("#calculating-spinner").modal('hide');
