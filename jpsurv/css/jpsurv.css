@@ -540,6 +540,22 @@ fieldset[disabled] .btn-primary.active {
     margin-top: 5px;
 }
 
+footer.footer {
+    margin-top: 20px;
+    bottom: 0;
+    color: white;
+    padding:25px 0;
+    background-color: #2A71A5;
+}
+
+footer.footer ul {
+    text-align: center;
+}
+
+footer.footer ul li a {
+    color: white;
+}
+
 @media (max-width: 767px) {
 
     #input_type_select > div:nth-child(2) {
