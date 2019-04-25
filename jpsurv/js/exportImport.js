@@ -233,6 +233,7 @@ function loadUserInput(data) {
         $("#adv-year").val(parseInt(data.advYear))
 
         $("#interval-years").val(intervals)
+        updateSelectedIntervalYears();
         $("#year-of-diagnosis").val(data.diagnosisYear)
 
     }
