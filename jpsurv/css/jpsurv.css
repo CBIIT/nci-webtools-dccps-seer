@@ -535,6 +535,11 @@ fieldset[disabled] .btn-primary.active {
     margin-top: 0;
 }
 
+#selected-interval-years {
+    margin-left: 5px;
+    margin-top: 5px;
+}
+
 @media (max-width: 767px) {
 
     #input_type_select > div:nth-child(2) {

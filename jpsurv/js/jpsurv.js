@@ -1741,7 +1741,18 @@ jpsurvData.additional.intervals_default = [];
         }
     }
   }
+  updateSelectedIntervalYears();
+  $('#interval-years').change(updateSelectedIntervalYears);
 
+}
+
+function updateSelectedIntervalYears() {
+  var selectedIntervalYears =  $("#interval-years").val();
+  var selectedText = '';
+  if (selectedIntervalYears && selectedIntervalYears.length > 0) {
+    selectedText = selectedIntervalYears.join(', ');
+  }
+  $('#selected-interval-years').text(selectedText);
 }
 
 function getNumberOfIntervals() {
