@@ -24,6 +24,7 @@ $(document).ready(function() {
   addInputSection();
   addEventListeners();
   addMessages();
+  hide_display_email();
   if (jpsurvData.status === 'uploaded') {
     $('#help').html('<div style="font-size:18px;">Please select Cohort and Model specifications on the left and click on Calculate.</div>');
   } else {
