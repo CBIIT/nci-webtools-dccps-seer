@@ -1691,7 +1691,8 @@ jpsurvData.additional.intervals_default = [];
     var selectedRange = jpsurvData.calculate.form.yearOfDiagnosisRange[1] - jpsurvData.calculate.form.yearOfDiagnosisRange[0];
     $("#interval-years").empty();
     $("#trends-interval-years").empty();
-    if(control_data.input_type==undefined){
+
+  if(control_data.input_type==undefined){
     intervals = (selectedRange < intervals ? selectedRange : intervals);
     ////console.log(intervals+" : "+selectedRange);
     var years = [];
