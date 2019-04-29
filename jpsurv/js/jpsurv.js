@@ -220,6 +220,7 @@ function addEventListeners() {
     jpsurvData.additional.use_default="false"
     setCalculateData();
     jpsurvData.additional.use_default="true"
+    updateSelectedIntervalYears();
   });
 
   $( "#year-of-diagnosis" ).change(function() {
@@ -1744,8 +1745,6 @@ jpsurvData.additional.intervals_default = [];
     }
   }
   updateSelectedIntervalYears();
-  $('#interval-years').change(updateSelectedIntervalYears);
-
 }
 
 function updateSelectedIntervalYears() {
