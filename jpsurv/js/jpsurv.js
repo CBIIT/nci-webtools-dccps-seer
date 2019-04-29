@@ -2041,7 +2041,8 @@ function jpsurvRest(action, params) {
   var json = (function () {
     var json = null;
 
-    var url = 'jpsurvRest/'+action+'?'+encodeURI(params);
+    var url = 'jpsurvRest/' + action + '?jpsurvData=' + encodeURIComponent(params.substring(params.indexOf('{')));
+
 
 
     $.ajax({
