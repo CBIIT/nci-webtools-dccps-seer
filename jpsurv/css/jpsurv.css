@@ -538,6 +538,7 @@ fieldset[disabled] .btn-primary.active {
 #selected-interval-years {
     margin-left: 5px;
     margin-top: 5px;
+    padding-left: 20px;
 }
 
 footer.footer {

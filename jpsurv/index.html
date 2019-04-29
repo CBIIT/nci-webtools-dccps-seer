@@ -370,21 +370,24 @@
             <div class="tab-content">
               <div id="graph-year-tab" class="tab-pane fade active in">
                 <div class="row">
-                  <div class="col-md-5 d-flex align-items-start">                    
-                      <label for="interval-years" class="mx-1">
+                  <div class="col-lg-6 d-flex align-items-start row">
+                      <label for="interval-years" class="mx-1 col-lg-3">
                         <strong>Interval Years</strong>
                       </label>
-                      <select id="interval-years" class="mx-1" multiple>
-                          <option selected>1</option>
-                          <option>2</option>
-                          <option>3</option>
-                          <option selected>4</option>
-                        </select>
-
+                      <div class="col-lg-2">
+                          <select id="interval-years" class="mx-1" multiple>
+                              <option selected>1</option>
+                              <option>2</option>
+                              <option>3</option>
+                              <option selected>4</option>
+                            </select>
+                      </div>
+                      <div class="col-lg-2">
                         <button id="recalculate" class="btn btn-primary btn-sm" type="button">Select</button>
-                    <div id="selected-interval-years"></div>
+                      </div>
+                      <div id="selected-interval-years" class="col-lg-5"></div>
                   </div>
-                  <div class="col-md-7 text-right">
+                  <div class="col-lg-6 text-right">
                     <span class="">
                       <a id="graph-year-dataset-link" href="#" style="text-decoration: underline;">Download Graph
                         Dataset</a>
