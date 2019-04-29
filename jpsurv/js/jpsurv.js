@@ -1993,7 +1993,7 @@ function jpsurvRest2(action, callback) {
   $("#calculating-spinner").modal('show');
   //console.log('jpsurvRest2');
   //console.info(params);
-  var url = 'jpsurvRest/'+action+'?'+encodeURI(params);
+  var url = 'jpsurvRest/' + action + '?jpsurvData=' + encodeURIComponent(params.substring(params.indexOf('{')));
   var ajaxRequest = $.ajax({
     type : 'GET',
     url : url,
