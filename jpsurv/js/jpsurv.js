@@ -1431,7 +1431,7 @@ function retrieveResults(cohort_com,jpInd,switch_cohort) {
     file_name='tmp/results-'+jpsurvData.tokenId+"-"+cohort_com+"-"+jpInd+'.json';
   else
   {
-    file_name = generateResultsFilename()
+    file_name = generateResultsFilename(cohort_com, jpInd, switch_cohort);
   }
   $.getJSON(file_name, function (results) {
     loadResults(results)
