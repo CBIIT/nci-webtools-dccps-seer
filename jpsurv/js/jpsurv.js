@@ -1706,7 +1706,7 @@ jpsurvData.additional.intervals_default = [];
       years = [5];
       jpsurvData.additional.intervals_default=years
     } else if (intervals < 5) {
-      years = [1];
+      years = [intervals];
       jpsurvData.additional.intervals_default=years
     }
 
