@@ -322,7 +322,7 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,use_default=TRU
   inputData = getInputData(filePath, jpsurvDataString, com, statistic, yearVar)
   joinInputFull = joinInputResult(inputData, fullPredicted, yearVar)
   joinInputYear = joinInputResult(inputData, YearGraph$RelSurvYearData, yearVar)
-  joinInputInt = joinInputInt(inputData, IntGraph$RelSurIntData, yearVar)
+  joinInputInt = joinInputResult(inputData, IntGraph$RelSurIntData, yearVar)
 
   jpInd=jpsurvData$additional$headerJoinPoints
   print(jpInd)
@@ -607,7 +607,7 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_ca
     geom_text(aes(label = ifelse(is.na(survData[['diff']]), '', round(survData[['diff']], 2)), 
       x=survData[[yearOfDiagnosisVarName]], y=survData[['pred_cum']]),
       hjust = 0, vjust = -1.9, size = 3) +
-    labs(title="Cumulative Survival - Absolute Change",`
+    labs(title="Cumulative Survival - Absolute Change",
          x="Year of Diagnosis",
          y=paste("Cumulative",type,"Survival", sep=" ")) +
     scale_x_continuous(breaks=seq(0,maxyear,5)) +
@@ -926,10 +926,5 @@ getInputData <- function(filePath, jpsurvDataString, com, statistic, yearVar) {
 }
 
 joinInputResult <- function(input, results, yearVar) {
-  merge(input, results, all.y = TRUE)
-}
-
-# join input with "Survival vs Time" (RelSurInt) results
-joinInputInt <- function(input, results, yearVar) {
   merge(input, results, all.y = TRUE)
 }
