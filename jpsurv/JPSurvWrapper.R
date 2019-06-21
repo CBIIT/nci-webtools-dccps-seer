@@ -1,6 +1,7 @@
 library('rjson')
 library('JPSurv')
-library("ggplot2");
+library("ggplot2")
+library('dplyr');
 
 VERBOSE=TRUE
 
@@ -299,8 +300,8 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,use_default=TRU
   Selected_Model=getSelectedModel(filePath,jpsurvDataString,com)
   print("Completed getting Selected_Model")
   
-  Full_data=getFullDataDownload(filePath,jpsurvDataString,com,first_calc)
-  print("Completed getting Full_data")
+  # Full_data=getFullDataDownload(filePath,jpsurvDataString,com,first_calc)
+  # print("Completed getting Full_data")
 
    statistic=jpsurvData$additional$statistic
   if (statistic=="Relative Survival")
@@ -313,6 +314,15 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,use_default=TRU
     statistic="CauseSpecific_Survival_Cum" 
   }
   
+  # get year column
+  yearVar = getCorrectFormat(jpsurvData$calculate$static$yearOfDiagnosisVarName)  
+
+  # join input and results to show alongside eachother when downloading results
+  fullPredicted = getFullPredicted(filePath, jpsurvDataString, com)
+  inputData = getInputData(filePath, jpsurvDataString, com, statistic, yearVar)
+  joinInputFull = joinInputResult(inputData, fullPredicted, yearVar)
+  joinInputYear = joinInputResult(inputData, YearGraph$RelSurvYearData, yearVar)
+  joinInputInt = joinInputInt(inputData, IntGraph$RelSurIntData, yearVar)
 
   jpInd=jpsurvData$additional$headerJoinPoints
   print(jpInd)
@@ -338,7 +348,28 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,use_default=TRU
 
   print("statistic")
   print(statistic)
-  jsonl =list("IntData"=IntGraph,"YearData"=YearGraph,"Coefficients"=Coefficients,"ModelSelection" = ModelSelection, "JP"=JP,"SelectedModel"=SelectedModel,"Full_Data_Set"=Full_data,"Runs"=runs,"input_type"=input_type,"headers"=headers,"statistic"=statistic,"com"=com,"jpInd"=jpInd,"imageId"=imageId,"yod"=yod,"intervals"=intervals) #returns
+  jsonl =list("IntData" = IntGraph,
+              "YearData" = YearGraph,
+              "Coefficients" = Coefficients,
+              "ModelSelection" = ModelSelection, 
+              "JP" = JP,
+              "SelectedModel" = SelectedModel,
+              "Runs" = runs,
+              "input_type" = input_type,
+              "headers" = headers,
+              "statistic" = statistic,
+              "com" = com,
+              "jpInd" = jpInd,
+              "imageId" = imageId,
+              "yod" = yod,
+              "intervals" = intervals, 
+              "fullPredicted" = fullPredicted,
+              "inputData" = inputData, 
+              "joinFull" = joinInputFull,
+              "joinYear" = joinInputYear,
+              "joinInt" = joinInputInt,
+              "yearVar" = yearVar) #returns
+
   exportJson <- toJSON(jsonl)
   filename = paste(filePath, paste("results-", jpsurvData$tokenId,"-",com,"-",jpInd, ".json", sep=""), sep="/") #CSV file to download
   write(exportJson, filename)
@@ -371,6 +402,7 @@ getFittedResult <- function (tokenId,filePath, seerFilePrefix, yearOfDiagnosisVa
   type=jpsurvData$additional$input_type
   varLabels=getCorrectFormat(allVars)
   
+  intervalRange = as.integer(jpsurvData$calculate$form$interval)
   statistic=jpsurvData$additional$DataTypeVariable
   
   subsetStr=getSubsetStr(yearOfDiagnosisVarName, yearOfDiagnosisRange, cohortVars, cohortValues)
@@ -385,7 +417,9 @@ getFittedResult <- function (tokenId,filePath, seerFilePrefix, yearOfDiagnosisVa
                                   newvarnames=varLabels,
                                   NoFit=T,
                                   UseVarLabelsInData=varLabels)
-    fittedResult=joinpoint(seerdata,
+    # get subset of seerdata containing rows within user defined interval range (Intervals from Diagnosis Range)
+    seerdataSub = subset(seerdata, Interval <= intervalRange)
+    fittedResult=joinpoint(seerdataSub,
                            subset = eval(parse(text=subsetStr)),
                            year=getCorrectFormat(yearOfDiagnosisVarName),
                            observedrelsurv=statistic,
@@ -470,7 +504,7 @@ getFullDataDownload <- function(filePath,jpsurvDataString,com,first_calc=FALSE) 
   }
   print(paste("the combination is com: ",com," the selected joinpoint is: ",jpInd))
   #Full_Data=outputData$fittedResult$fullpredicted
-  Full_Data=outputData$fittedResult$FitList[[jpInd+1]]$predicted
+  Full_Data=outputData$fittedResult$FitList[[jpInd+1]]$fullpredicted
 
   cohorts=jpsurvData$calculate$form$cohortVars
 
@@ -559,11 +593,21 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_ca
 
   maxyear <- max(survData[[yearOfDiagnosisVarName]])
 
+  # calculate difference in cumulative survival between a calendar year and one year prior
+  survData$diff <- survData$pred_cum / lag(survData$pred_cum)
+  # remove every 2 row entries so to not clutter the graph with labels
+  if (length(survData$diff) > 2) {
+    survData$diff[c(T, T, T, T , F)] <- NA
+  } 
+
   #JP Trendgraph
   ggplot(survData, aes(x=survData[[yearOfDiagnosisVarName]], group=survData[[interval_var]], colour=factor(survData[[interval_var]]))) + 
     geom_line(aes(y=pred_cum)) + 
     geom_point(aes(y=survData[[observed]])) +
-    labs(title="Survival by Year of Diagnosis",
+    geom_text(aes(label = ifelse(is.na(survData[['diff']]), '', round(survData[['diff']], 2)), 
+      x=survData[[yearOfDiagnosisVarName]], y=survData[['pred_cum']]),
+      hjust = 0, vjust = -1.9, size = 3) +
+    labs(title="Cumulative Survival - Absolute Change",`
          x="Year of Diagnosis",
          y=paste("Cumulative",type,"Survival", sep=" ")) +
     scale_x_continuous(breaks=seq(0,maxyear,5)) +
@@ -580,31 +624,30 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_ca
   
   ggsave(file=paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",com,"-",jpInd,"-",iteration,".png", sep=""), sep="/"))
   results =list("RelSurYearGraph"=graphFile,"RelSurvYearData"=survData) #returns 
-  cohorts=jpsurvData$calculate$form$cohortVars
-  cols=ncol(survData)
-  print("COLS")
-  print(cols)
+  # cohorts=jpsurvData$calculate$form$cohortVars
+  # cols=ncol(survData)
+  # print("COLS")
+  # print(cols)
 
-  if(length(cohorts) > 0) {
-    for (i in length(cohorts):1)
-    {
-      value=gsub("\"",'',jpsurvData$calculate$form$cohortValues[[i]])
-      print(value)
-      value=noquote(value)
-      survData[cohorts[[i]]] <- value
+  # if(length(cohorts) > 0) {
+  #   for (i in length(cohorts):1)
+  #   {
+  #     value=gsub("\"",'',jpsurvData$calculate$form$cohortValues[[i]])
+  #     print(value)
+  #     value=noquote(value)
+  #     survData[cohorts[[i]]] <- value
 
-      col_idx=ncol(survData)
-      print(ncol(survData))
-        survData <- survData[, c(col_idx, (1:ncol(survData))[-col_idx])]
-      names(survData)
-    }
-  }
+  #     col_idx=ncol(survData)
+  #     print(ncol(survData))
+  #       survData <- survData[, c(col_idx, (1:ncol(survData))[-col_idx])]
+  #     names(survData)
+  #   }
+  # }
 
-  write.csv(survData, downloadFile, row.names=FALSE)
-  return (results)
-  
-   
+  # write.csv(survData, downloadFile, row.names=FALSE)
+  # return (results)  
 }
+
 #Graphs the Survival vs Time graph and saves a
 getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString,first_calc,com,interval_var,survar_var,use_default_year=TRUE) {
   print(first_calc)
@@ -674,29 +717,29 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString,first_cal
 # ggsave(file=paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",com,"-",jpInd,"-",iteration,".png", sep=""), sep="/"))
   print("saved int graph")
   results =c("RelSurIntData"=survData,"RelSurIntGraph"=graphFile) #returns 
-  cohorts=jpsurvData$calculate$form$cohortVars
-  # 
-  if(!is.integer(nrow(survData))){
-    survData=survData[[1]]
-    if(length(cohorts) > 0) {
-      for (i in length(cohorts):1)
-      {
-        value=gsub("\"",'',jpsurvData$calculate$form$cohortValues[[i]])
-        value=noquote(value)
-        survData[cohorts[[i]]] <- value
+  # cohorts=jpsurvData$calculate$form$cohortVars
+  # # 
+  # if(!is.integer(nrow(survData))){
+  #   survData=survData[[1]]
+  #   if(length(cohorts) > 0) {
+  #     for (i in length(cohorts):1)
+  #     {
+  #       value=gsub("\"",'',jpsurvData$calculate$form$cohortValues[[i]])
+  #       value=noquote(value)
+  #       survData[cohorts[[i]]] <- value
 
-        col_idx=ncol(survData)
-        survData <- survData[, c(col_idx, (1:ncol(survData))[-col_idx])]
-        names(survData)
-      }
-    }
-  }
-  else{
-    survData<-rbind("","","","")
-  } 
-  print(survData)
-  write.csv(survData, downloadFile, row.names=FALSE)  
-  return (results)
+  #       col_idx=ncol(survData)
+  #       survData <- survData[, c(col_idx, (1:ncol(survData))[-col_idx])]
+  #       names(survData)
+  #     }
+  #   }
+  # }
+  # else{
+  #   survData<-rbind("","","","")
+  # } 
+  # print(survData)
+  # write.csv(survData, downloadFile, row.names=FALSE)  
+  # return (results)
 }
 
 
@@ -829,4 +872,64 @@ getRunsString<-function(filePath,jpsurvDataString){
     runs=substr(runs, 7, nchar(runs))
   }
   return (runs)
+}
+
+# get full prediction for "Download Full Dataset"
+getFullPredicted <- function(filePath, jpsurvDataString, com) {
+  jpsurvData <<- fromJSON(jpsurvDataString)
+  file = paste(filePath, paste("output-", jpsurvData$tokenId, "-", com, ".rds", sep = ""), sep = "/")
+  outputData = readRDS(file)  
+  jpInd = jpsurvData$additional$headerJoinPoints
+  if (is.null(jpInd)) {
+    jpInd = getSelectedModel(filePath, jpsurvDataString ,com) - 1
+  }
+
+  full = outputData$fittedResult$FitList[[jpInd+1]]$fullpredicted
+}
+
+# get input data to show alongside results
+getInputData <- function(filePath, jpsurvDataString, com, statistic, yearVar) {
+  jpsurvData <<- fromJSON(jpsurvDataString)
+  file = paste(filePath, paste("output-", jpsurvData$tokenId, "-", com, ".rds", sep = ""), sep = "/")
+  outputData = readRDS(file)  
+  jpInd = jpsurvData$additional$headerJoinPoints
+  if (is.null(jpInd)) {
+    jpInd = getSelectedModel(filePath, jpsurvDataString, com) - 1
+  }
+
+  columns = c()
+
+  # get relevant input columns
+  if (statistic == 'Relative_Survival_Cum') {
+    columns = c(yearVar,
+                'Died',
+                'Alive_at_Start',
+                'Lost_to_Followup',
+                'Expected_Survival_Interval',
+                'Relative_Survival_Cum',
+                'Expected_Survival_Cum', 
+                'Observed_Survival_Cum', 
+                'Observed_Survival_Interval', 
+                'Relative_Survival_Interval', 
+                'Relative_SE_Interval',
+                'Relative_SE_Cum')
+  } else {
+    columns = c(yearVar,
+                'Died',
+                'Alive_at_Start',
+                'CauseSpecific_Survival_Interval',
+                'CauseSpecific_Survival_Cum',
+                'CauseSpecific_SE_Interval',
+                'CauseSpecific_SE_Cum')
+  }
+  data = outputData$seerdata[, columns]
+}
+
+joinInputResult <- function(input, results, yearVar) {
+  merge(input, results, all.y = TRUE)
+}
+
+# join input with "Survival vs Time" (RelSurInt) results
+joinInputInt <- function(input, results, yearVar) {
+  merge(input, results, all.y = TRUE)
 }
