@@ -482,7 +482,10 @@ getFittedResult <- function (tokenId,filePath, seerFilePrefix, yearOfDiagnosisVa
   cat(outputFileName)
   print(outputFileName)
   outputData=list("seerdata"=seerdata, "fittedResult"=fittedResult)
-  
+
+  # transform data to percent
+  outputData = toPercent(outputData, statistic)
+
   iteration=jpsurvData$plot$static$imageId
   
   print ("saving RDS")
@@ -606,12 +609,12 @@ getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_ca
     geom_point(aes(y=survData[[observed]])) +
     geom_text(aes(label = ifelse(is.na(survData[['diff']]), '', round(survData[['diff']], 2)), 
       x=survData[[yearOfDiagnosisVarName]], y=survData[['pred_cum']]),
-      hjust = 0, vjust = -1.9, size = 3) +
+      hjust = 0, vjust = -1.9, size = 5) +
     labs(title="Cumulative Survival - Absolute Change",
          x="Year of Diagnosis",
-         y=paste("Cumulative",type,"Survival", sep=" ")) +
+         y=paste("Cumulative",type,"Survival %", sep=" ")) +
     scale_x_continuous(breaks=seq(0,maxyear,5)) +
-    scale_y_continuous(breaks=seq(0,1,0.1),limits = c(0, 1)) +
+    scale_y_continuous(breaks=seq(0,100,10),limits = c(0, 100)) +
     labs(colour=interval_var)+
     theme(legend.position="bottom", 
             legend.title=element_blank(),
@@ -689,7 +692,10 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString,first_cal
     year=yearOfDiagnosis,
     interval=interval_var,
     survvar=survar_var);
-      
+  
+  # multiply first row values by 100
+  survData = fixIntGraph(survData)
+
   maxint <- max(survData[[1]][[interval_var]])
   #From package, interval graph
   ggplot(survData[[1]], aes(x=survData[[1]][[interval_var]])) + 
@@ -699,8 +705,8 @@ getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString,first_cal
            x=interval_var,
            y=paste("Cumulative",type,"Survival", sep=" ")) +
       scale_x_continuous(breaks=seq(0,maxint, if (length(survData[[1]][[interval_var]]) <= 12) 1 else  2)) +
-      coord_cartesian(ylim=c(0,1)) +
-      scale_y_continuous(breaks=seq(0,1,0.1)) +
+      coord_cartesian(ylim=c(0,100)) +
+      scale_y_continuous(breaks=seq(0,100,10)) +
       scale_colour_discrete(breaks=c("pred_cum", survar_var),
                             labels=c(paste("Predicted Cumulative",type,"Survival", sep=" "), paste("Observed Cumulative",type,"Survival", sep=" "))) +
       theme(legend.position="bottom", 
@@ -917,6 +923,7 @@ getInputData <- function(filePath, jpsurvDataString, com, statistic, yearVar) {
     columns = c(yearVar,
                 'Died',
                 'Alive_at_Start',
+                'Expected_Survival_Interval',
                 'CauseSpecific_Survival_Interval',
                 'CauseSpecific_Survival_Cum',
                 'CauseSpecific_SE_Interval',
@@ -927,4 +934,64 @@ getInputData <- function(filePath, jpsurvDataString, com, statistic, yearVar) {
 
 joinInputResult <- function(input, results, yearVar) {
   merge(input, results, all.y = TRUE)
+}
+
+# multiply input data by 100 to display as percentage
+toPercent <- function(data, statistic) {
+  jpInd = jpsurvData$additional$headerJoinPoints
+  if (is.null(jpInd)) {
+    jpInd = getSelectedModel(filePath, jpsurvDataString, com) - 1
+  }
+  
+  columns = c()
+  if (statistic == 'Relative_Survival_Cum') {
+      columns = c('Observed_Survival_Cum', 
+                  'Observed_Survival_Interval', 
+                  'Expected_Survival_Interval',
+                  'Expected_Survival_Cum',
+                  'Relative_Survival_Interval', 
+                  'Relative_Survival_Cum',
+                  'Observed_SE_Interval',
+                  'Observed_SE_Cum',
+                  'Relative_SE_Interval',
+                  'Relative_SE_Cum',
+                  'pred_cum',
+                  'pred_cum_se',
+                  'pred_int',
+                  'pred_int_se')
+  } else {
+      columns = c('CauseSpecific_Survival_Interval',
+                  'CauseSpecific_Survival_Cum',
+                  'CauseSpecific_SE_Interval',
+                  'CauseSpecific_SE_Cum',
+                  'Expected_Survival_Interval',
+                  'pred_cum',
+                  'pred_cum_se',
+                  'pred_int',
+                  'pred_int_se')
+  }
+
+  for (col in columns) {
+    if (!is.null(data$seerdata[[col]])) {
+      data$seerdata[[col]] <- data$seerdata[[col]] * 100
+    }
+    if (!is.null(data$fittedResult$FitList[[jpInd+1]]$predicted[[col]])) {
+      data$fittedResult$FitList[[jpInd+1]]$predicted[[col]] <- data$fittedResult$FitList[[jpInd+1]]$predicted[[col]] * 100
+      data$fittedResult$FitList[[jpInd+1]]$fullpredicted[[col]] <- data$fittedResult$FitList[[jpInd+1]]$fullpredicted[[col]] * 100
+    }
+  }
+  data
+}
+
+# transform first row of int graph to percent from decimal 
+fixIntGraph <- function(graph) {
+  jpInd = jpsurvData$additional$headerJoinPoints
+  if (is.null(jpInd)) {
+    jpInd = getSelectedModel(filePath, jpsurvDataString, com) - 1
+  }
+  print('fda')
+  graph[[jpInd+1]]$Relative_Survival_Cum[1] <- graph[[jpInd+1]]$Relative_Survival_Cum[1] * 100
+  graph[[jpInd+1]]$pred_cum[1] <- graph[[jpInd+1]]$pred_cum[1] * 100
+
+  graph
 }

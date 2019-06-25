@@ -3035,12 +3035,13 @@ function genereateSheet(data) {
               'pred_cum',
               'pred_int_se',
               'pred_cum_se'];
-  } else if (jpsurvData.additional.statistic == 'Cause-Specific Survival') {
+  } else {
     input = [ yearVar,
               'Interval',
               'Died',
               'Alive_at_Start',
               'Lost_to_Followup',
+              'Expected_Survival_Interval',
               'CauseSpecific_Survival_Interval',
               'CauseSpecific_Survival_Cum',
               'CauseSpecific_SE_Interval',
