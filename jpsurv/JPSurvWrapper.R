@@ -90,14 +90,14 @@ getSubsetStr <- function (yearOfDiagnosisVarName, yearOfDiagnosisRange, cohortVa
   yearOfDiagnosisVarName=paste0("`",getCorrectFormat(yearOfDiagnosisVarName), "`")
   startYearStr=paste(yearOfDiagnosisVarName, ">=", yearOfDiagnosisRange[1])
   endYearStr=paste(yearOfDiagnosisVarName, "<=", yearOfDiagnosisRange[2])
-  yearStr=paste(startYearStr, endYearStr, sep='&')
+  yearStr=paste(startYearStr, endYearStr, sep=' & ')
 
   subsetStr = ""
 
   if( length(cohortVars) > 0 ) {
     cohortVars=paste0("`",getCorrectFormat(cohortVars), "`")
-    subsetStr=paste(paste(cohortVars, cohortValues, sep="=="), collapse='&')
-    subsetStr=paste(subsetStr, yearStr, sep='&')
+    subsetStr=paste(paste(cohortVars, cohortValues, sep="=="), collapse=' & ')
+    subsetStr=paste(subsetStr, yearStr, sep=' & ')
   } else {
     subsetStr=paste(subsetStr, yearStr, sep='')
   }
@@ -232,7 +232,7 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,use_default=TRU
   runs=getRunsString(filePath, jpsurvDataString) #gets runs tring
 
   #if input type is a CSV file
-  if(type=="csv"){
+  if (type=="csv") {
     header=as.logical(jpsurvData$additional$has_header) #contains headers?
     seerFilePrefix = jpsurvData$file$dictionary
     print ("FILE NAME")
@@ -240,13 +240,12 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,use_default=TRU
     file_name=paste(jpsurvData$session_tokenId,seerFilePrefix, sep="" )
     file=paste(filePath, file_name, sep="/" )
     del=jpsurvData$additional$del
-    if(del=="\t"||del==" ")
-      {
+    if (del=="\t"||del==" ") {
         del=""
-      }
+    }
     seerdata=read.tabledata(fileName=file,          # fileName: Name of file to use in current directory, or filepath.
-                      hasHeader=TRUE,
-                      dlm=del);    
+                            hasHeader=TRUE,
+                            dlm=del);    
     observed=names(seerdata)[jpsurvData$additional$observed]
     interval=names(seerdata)[as.integer(jpsurvData$additional$interval)]
     print(observed)
@@ -260,26 +259,16 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,use_default=TRU
     interval=names(seerdata)[as.integer(jpsurvData$additional$interval)]
     observed=names(seerdata)[jpsurvData$additional$observed]
     
-
-   statistic=jpsurvData$additional$statistic
-  if (statistic=="Relative Survival")
-  {
-    headers=list("Died"=died,"Alive_at_Start"=alive_at_start,"Lost_to_followup"=lost_to_followup,"Expected_Survival_Interval"=exp_int,"Interval"=interval,"Relative_Survival_Cum"=observed)
-  } 
-  
-  if(statistic=="Cause-Specific Survival")
-  {
-        headers=list("Died"=died,"Alive_at_Start"=alive_at_start,"Lost_to_followup"=lost_to_followup,"Expected_Survival_Interval"=exp_int,"Interval"=interval,"CauseSpecific_Survival_Cum"=observed)
-  }
-
-
-
-  }
-   else 
-  {
-      observed=jpsurvData$additional$DataTypeVariable
-      interval="Interval"
-      input_type="dic"
+    statistic=jpsurvData$additional$statistic
+    if (statistic=="Relative Survival") {
+      headers=list("Died"=died,"Alive_at_Start"=alive_at_start,"Lost_to_followup"=lost_to_followup,"Expected_Survival_Interval"=exp_int,"Interval"=interval,"Relative_Survival_Cum"=observed)
+    } else if (statistic=="Cause-Specific Survival") {
+          headers=list("Died"=died,"Alive_at_Start"=alive_at_start,"Lost_to_followup"=lost_to_followup,"Expected_Survival_Interval"=exp_int,"Interval"=interval,"CauseSpecific_Survival_Cum"=observed)
+    } 
+  } else {
+        observed=jpsurvData$additional$DataTypeVariable
+        interval="Interval"
+        input_type="dic"
   }
 
   print("CREATING Year GRAPH")
@@ -304,37 +293,44 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,use_default=TRU
   # print("Completed getting Full_data")
 
    statistic=jpsurvData$additional$statistic
-  if (statistic=="Relative Survival")
-  {
+  if (statistic=="Relative Survival") {
     statistic="Relative_Survival_Cum"
   } 
   
-  if(statistic=="Cause-Specific Survival")
-  {
+  if (statistic=="Cause-Specific Survival") {
     statistic="CauseSpecific_Survival_Cum" 
   }
   
-  # get year column
+  jpInd=jpsurvData$additional$headerJoinPoints
+  if (is.null(jpInd)) {
+    jpInd = getSelectedModel(filePath, jpsurvDataString, com) - 1
+  }
+  print(jpInd)
+
+ # get year column var name
   yearVar = getCorrectFormat(jpsurvData$calculate$static$yearOfDiagnosisVarName)  
 
-  # join input and results to show alongside eachother when downloading results
-  fullPredicted = getFullPredicted(filePath, jpsurvDataString, com)
-  inputData = getInputData(filePath, jpsurvDataString, com, statistic, yearVar)
-  joinInputFull = joinInputResult(inputData, fullPredicted, yearVar)
-  joinInputYear = joinInputResult(inputData, YearGraph$RelSurvYearData, yearVar)
-  joinInputInt = joinInputResult(inputData, IntGraph$RelSurIntData, yearVar)
+  # download.data params
+  jpsurvData <<- fromJSON(jpsurvDataString)
+  file = paste(filePath, paste("output-", jpsurvData$tokenId, "-", com, ".rds", sep = ""), sep = "/")
+  outputData = readRDS(file)    
+  input = outputData[['seerdata']]
+  fit = outputData[['fittedResult']]
+  yearvar = yearVar  
+  intervals = c()
+  for (i in 1:length(jpsurvData$additional$intervals)) {
+      intervals = c(intervals,jpsurvData$additional$intervals[[i]])
+  } 
 
-  jpInd=jpsurvData$additional$headerJoinPoints
-  print(jpInd)
+  # create datasets for download
+  fullDownload <- download.data(input, fit, nJP=jpInd, yearvar, downloadtype="full")
+  graphDownload <- download.data(input, fit, nJP=jpInd, yearvar, downloadtype="graph", int.col = intervals)
+  
   SelectedModel=getSelectedModel(filePath,jpsurvDataString,com)
-  if(first_calc==TRUE||is.null(jpInd))
-  {
+  if (first_calc==TRUE||is.null(jpInd)) {
     jpInd=SelectedModel-1
     print ("jpInd")
     print(jpInd)
-    
-
-
   }
   yod=jpsurvData$additional$yearOfDiagnosis
   intervals=jpsurvData$additional$intervals
@@ -363,12 +359,9 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,use_default=TRU
               "imageId" = imageId,
               "yod" = yod,
               "intervals" = intervals, 
-              "fullPredicted" = fullPredicted,
-              "inputData" = inputData, 
-              "joinFull" = joinInputFull,
-              "joinYear" = joinInputYear,
-              "joinInt" = joinInputInt,
-              "yearVar" = yearVar) #returns
+              "yearVar" = yearVar,
+              "graphDownload" = graphDownload,
+              "fullDownload" = fullDownload) #returns
 
   exportJson <- toJSON(jsonl)
   filename = paste(filePath, paste("results-", jpsurvData$tokenId,"-",com,"-",jpInd, ".json", sep=""), sep="/") #CSV file to download
@@ -493,42 +486,41 @@ getFittedResult <- function (tokenId,filePath, seerFilePrefix, yearOfDiagnosisVa
 
 }
 
-getFullDataDownload <- function(filePath,jpsurvDataString,com,first_calc=FALSE) {
-  jpsurvData <<- fromJSON(jpsurvDataString)
-  iteration=jpsurvData$plot$static$imageId
-  file=paste(filePath, paste("output-", jpsurvData$tokenId,"-",com,".rds", sep=""), sep="/")
-  print(paste("File to read for full data download: ",file," them com value is: ",com))
-  outputData=readRDS(file)
+# getFullDataDownload <- function(filePath,jpsurvDataString,com,first_calc=FALSE) {
+#   jpsurvData <<- fromJSON(jpsurvDataString)
+#   iteration=jpsurvData$plot$static$imageId
+#   file=paste(filePath, paste("output-", jpsurvData$tokenId,"-",com,".rds", sep=""), sep="/")
+#   print(paste("File to read for full data download: ",file," them com value is: ",com))
+#   outputData=readRDS(file)
 
-  jpInd=jpsurvData$additional$headerJoinPoints
-  if(first_calc==TRUE||is.null(jpInd))
-  {
-    jpInd=getSelectedModel(filePath,jpsurvDataString,com)-1
-  }
-  print(paste("the combination is com: ",com," the selected joinpoint is: ",jpInd))
-  #Full_Data=outputData$fittedResult$fullpredicted
-  Full_Data=outputData$fittedResult$FitList[[jpInd+1]]$fullpredicted
+#   jpInd=jpsurvData$additional$headerJoinPoints
+#   if(first_calc==TRUE||is.null(jpInd))
+#   {
+#     jpInd=getSelectedModel(filePath,jpsurvDataString,com)-1
+#   }
+#   print(paste("the combination is com: ",com," the selected joinpoint is: ",jpInd))
+#   #Full_Data=outputData$fittedResult$fullpredicted
+#   Full_Data=outputData$fittedResult$FitList[[jpInd+1]]$fullpredicted
 
-  cohorts=jpsurvData$calculate$form$cohortVars
+#   cohorts=jpsurvData$calculate$form$cohortVars
 
-  if(length(cohorts) > 0) {
-    for (i in length(cohorts):1)
-    {
-      value=gsub("\"",'',jpsurvData$calculate$form$cohortValues[[i]])
-      value=noquote(value)
-      Full_Data[cohorts[[i]]] <- value
+#   if(length(cohorts) > 0) {
+#     for (i in length(cohorts):1)
+#     {
+#       value=gsub("\"",'',jpsurvData$calculate$form$cohortValues[[i]])
+#       value=noquote(value)
+#       Full_Data[cohorts[[i]]] <- value
 
-      col_idx=ncol(Full_Data)
-      Full_Data <- Full_Data[, c(col_idx, (1:ncol(Full_Data))[-col_idx])]
-      names(Full_Data)
-    }
-  }
-  print ("FULL PREDICTED")
-  downloadFile = paste(filePath, paste("Full_Predicted-", jpsurvData$tokenId,"-",com,"-",iteration, ".csv", sep=""), sep="/") #CSV file to download
-  write.csv(Full_Data, downloadFile, row.names=FALSE)
-  return (downloadFile)
-  
-}
+#       col_idx=ncol(Full_Data)
+#       Full_Data <- Full_Data[, c(col_idx, (1:ncol(Full_Data))[-col_idx])]
+#       names(Full_Data)
+#     }
+#   }
+#   print ("FULL PREDICTED")
+#   downloadFile = paste(filePath, paste("Full_Predicted-", jpsurvData$tokenId,"-",com,"-",iteration, ".csv", sep=""), sep="/") #CSV file to download
+#   write.csv(Full_Data, downloadFile, row.names=FALSE)
+#   return (downloadFile)
+# }
 
 #Graphs the Survival vs year graph and saves a csv file of the data
 getRelativeSurvivalByYearWrapper <- function (filePath,jpsurvDataString,first_calc,com,interval_var,observed,use_default=TRUE) {
@@ -880,61 +872,61 @@ getRunsString<-function(filePath,jpsurvDataString){
   return (runs)
 }
 
-# get full prediction for "Download Full Dataset"
-getFullPredicted <- function(filePath, jpsurvDataString, com) {
-  jpsurvData <<- fromJSON(jpsurvDataString)
-  file = paste(filePath, paste("output-", jpsurvData$tokenId, "-", com, ".rds", sep = ""), sep = "/")
-  outputData = readRDS(file)  
-  jpInd = jpsurvData$additional$headerJoinPoints
-  if (is.null(jpInd)) {
-    jpInd = getSelectedModel(filePath, jpsurvDataString ,com) - 1
-  }
+# # get full prediction for "Download Full Dataset"
+# getFullPredicted <- function(filePath, jpsurvDataString, com) {
+#   jpsurvData <<- fromJSON(jpsurvDataString)
+#   file = paste(filePath, paste("output-", jpsurvData$tokenId, "-", com, ".rds", sep = ""), sep = "/")
+#   outputData = readRDS(file)  
+#   jpInd = jpsurvData$additional$headerJoinPoints
+#   if (is.null(jpInd)) {
+#     jpInd = getSelectedModel(filePath, jpsurvDataString ,com) - 1
+#   }
 
-  full = outputData$fittedResult$FitList[[jpInd+1]]$fullpredicted
-}
+#   full = outputData$fittedResult$FitList[[jpInd+1]]$fullpredicted
+# }
 
-# get input data to show alongside results
-getInputData <- function(filePath, jpsurvDataString, com, statistic, yearVar) {
-  jpsurvData <<- fromJSON(jpsurvDataString)
-  file = paste(filePath, paste("output-", jpsurvData$tokenId, "-", com, ".rds", sep = ""), sep = "/")
-  outputData = readRDS(file)  
-  jpInd = jpsurvData$additional$headerJoinPoints
-  if (is.null(jpInd)) {
-    jpInd = getSelectedModel(filePath, jpsurvDataString, com) - 1
-  }
+# # get input data to show alongside results
+# getInputData <- function(filePath, jpsurvDataString, com, statistic, yearVar) {
+#   jpsurvData <<- fromJSON(jpsurvDataString)
+#   file = paste(filePath, paste("output-", jpsurvData$tokenId, "-", com, ".rds", sep = ""), sep = "/")
+#   outputData = readRDS(file)  
+#   jpInd = jpsurvData$additional$headerJoinPoints
+#   if (is.null(jpInd)) {
+#     jpInd = getSelectedModel(filePath, jpsurvDataString, com) - 1
+#   }
 
-  columns = c()
+#   columns = c()
 
-  # get relevant input columns
-  if (statistic == 'Relative_Survival_Cum') {
-    columns = c(yearVar,
-                'Died',
-                'Alive_at_Start',
-                'Lost_to_Followup',
-                'Expected_Survival_Interval',
-                'Relative_Survival_Cum',
-                'Expected_Survival_Cum', 
-                'Observed_Survival_Cum', 
-                'Observed_Survival_Interval', 
-                'Relative_Survival_Interval', 
-                'Relative_SE_Interval',
-                'Relative_SE_Cum')
-  } else {
-    columns = c(yearVar,
-                'Died',
-                'Alive_at_Start',
-                'Expected_Survival_Interval',
-                'CauseSpecific_Survival_Interval',
-                'CauseSpecific_Survival_Cum',
-                'CauseSpecific_SE_Interval',
-                'CauseSpecific_SE_Cum')
-  }
-  data = outputData$seerdata[, columns]
-}
+#   # get relevant input columns
+#   if (statistic == 'Relative_Survival_Cum') {
+#     columns = c(yearVar,
+#                 'Died',
+#                 'Alive_at_Start',
+#                 'Lost_to_Followup',
+#                 'Expected_Survival_Interval',
+#                 'Relative_Survival_Cum',
+#                 'Expected_Survival_Cum', 
+#                 'Observed_Survival_Cum', 
+#                 'Observed_Survival_Interval', 
+#                 'Relative_Survival_Interval', 
+#                 'Relative_SE_Interval',
+#                 'Relative_SE_Cum')
+#   } else {
+#     columns = c(yearVar,
+#                 'Died',
+#                 'Alive_at_Start',
+#                 'Expected_Survival_Interval',
+#                 'CauseSpecific_Survival_Interval',
+#                 'CauseSpecific_Survival_Cum',
+#                 'CauseSpecific_SE_Interval',
+#                 'CauseSpecific_SE_Cum')
+#   }
+#   data = outputData$seerdata[, columns]
+# }
 
-joinInputResult <- function(input, results, yearVar) {
-  merge(input, results, all.y = TRUE)
-}
+# joinInputResult <- function(input, results, yearVar) {
+#   merge(input, results, all.y = TRUE)
+# }
 
 # multiply input data by 100 to display as percentage
 toPercent <- function(data, statistic) {
@@ -989,9 +981,275 @@ fixIntGraph <- function(graph) {
   if (is.null(jpInd)) {
     jpInd = getSelectedModel(filePath, jpsurvDataString, com) - 1
   }
-  print('fda')
   graph[[jpInd+1]]$Relative_Survival_Cum[1] <- graph[[jpInd+1]]$Relative_Survival_Cum[1] * 100
+  graph[[jpInd+1]]$CauseSpecific_Survival_Cum[1] <- graph[[jpInd+1]]$CauseSpecific_Survival_Cum[1] * 100
   graph[[jpInd+1]]$pred_cum[1] <- graph[[jpInd+1]]$pred_cum[1] * 100
 
   graph
+}
+
+#########################################################################################################
+# download.data: a function that returns a merged data set for download including 
+# - the selected cohort input data
+# - the accompanying data for plot.surv.year/plot.dying.year
+# arguments:
+# input - input dataset read in by function joinpoint.seerdata.
+# fit - joinpoint object containing the model output.
+# nJP - the number of joinpoints in the model.
+# yearvar - the variable name for year of diagnosis used in argument 'year' of the function joinpoint.
+# type - two options for this argument: "graph" for graph data and "full" for full data.
+# subset - an optional string specifying a subset of observations used in the fitting process.
+# interval - the variable name for year since diagnosis. The default is 'Interval'.
+# int.col - the interval values selected for the plot if the downloadtype="graph". The default is NULL.
+#########################################################################################################
+
+download.data<-function(input,fit,nJP,yearvar,downloadtype,subset=NULL,interval="Interval",int.col=NULL){
+  input.sub<-subset(input,eval(parse(text=subsetStr)))
+  if(downloadtype=="graph"){
+    output.sub<-fit$FitList[[nJP+1]]$predicted
+    if(!is.null(int.col)){
+      output.sub<-output.sub[which(output.sub[,interval] %in% int.col),]
+    }
+  }else if(downloadtype=="full"){
+    output.sub<-fit$FitList[[nJP+1]]$fullpredicted
+  }else{
+    print("There is no such type of data for download. Please define the type using either 'graph' or 'full'.")
+    break
+  }
+  yearint.input<-paste(input.sub[,yearvar],input.sub[,interval],sep="_")
+  yearint.output<-paste(output.sub[,yearvar],output.sub[,interval],sep="_")
+  rows.match<-match(yearint.output,yearint.input)
+  cols.input<-colnames(input.sub)
+  del.cols<-c("Page_type","Observed_SE_Interval","Observed_SE_Cum")
+  cols.input<-cols.input[-which(cols.input %in% del.cols)]
+  cols.output<-colnames(output.sub)
+  merge.sub<-output.sub
+  merge.sub[,cols.input]<-input.sub[rows.match,cols.input]
+  merge.data<-merge.sub[,c(cols.input,"pred_int","pred_cum","pred_int_se","pred_cum_se")]
+  pred.cols<-c("Predicted_Int","Predicted_Cum","Predicted_Int_SE","Predicted_Cum_SE")
+  colnames(merge.data)[(length(colnames(merge.data))-3):length(colnames(merge.data))]<-pred.cols
+  if(downloadtype=="full"){
+    merge.data[,yearvar]<-output.sub[,yearvar]
+    merge.data[,interval]<-output.sub[,interval]
+    subsetStr.list<-strsplit(subsetStr, " & ")
+    subsetStr.list[[1]]<-subsetStr.list[[1]][which(grepl("==", subsetStr.list[[1]])==T)]
+    cohort.list<-strsplit(subsetStr.list[[1]], "==")
+    cohort.vars<-sapply(cohort.list, "[", 1)
+    cohort.vars<-gsub(" ","",cohort.vars)
+    cohort.values<-sapply(cohort.list, "[", 2)
+    cohort.values<-gsub(" ","",cohort.values)
+    cohort.vars<-cohort.vars[which(!cohort.vars %in% c(yearvar,interval))]
+    cohort.values<-cohort.values[which(!cohort.vars %in% c(yearvar,interval))]
+    merge.data[,cohort.vars]<-t(replicate(dim(merge.data)[1],cohort.values))
+  }
+  merge.data[,yearvar]<-as.numeric(merge.data[,yearvar])
+  return(merge.data)
+}
+
+#########################################################################################################
+# plot.dying.year.annotate: a function that returns a plot for Percent Change in the Annual Probability of
+# Dying of Cancer by Diagnosis year using ggplot
+# The annotation feature is available for nJP<=3 and the number of multiple intervals selected <=3
+# arguments:
+# plotdata - the graph data returned by function download.data with downloadtype="graph".
+# fit - joinpoint object containing the model output.
+# nJP - the number of joinpoints in the model.
+# yearvar - the variable name for year of diagnosis used in argument 'year' of the function joinpoint.
+# obsintvar - the variable name for observed interval survival. The default is "Relative_Survival_Interval"
+#             for relative survival data. For cause-specific data, it needs to be changed accordingly.
+# predintvar - the variable name for predicted interval survival.
+# interval - the variable name for year since diagnosis. The default is 'Interval'.
+# annotation - the indicator for annotation feature. The default is 0 (no annotation on the plot).
+#########################################################################################################
+
+### define a plot function for Percent Change in the Annual Probability of Dying of Cancer by Diagnosis year with annotations
+plot.dying.year.annotate<-function(plotdata,fit,nJP,yearvar,obsintvar="Relative_Survival_Interval",predintvar="Predicted_Int",interval="Interval",annotation=0){
+  title.rch<-"Percent Change in the Annual Probability of Dying of Cancer \n by Diagnosis Year"
+  interval.values<-as.numeric(unique(plotdata[,"Interval"]))
+  interval.labels<-paste((interval.values-1)," to ",interval.values," years since diagnosis",sep="")
+  if(interval.values[1]==1){
+    interval.labels[1]<-"0 to 1 year since diagnosis"
+  }
+ 
+  if(annotation==1){  
+    if(length(interval.values)<=3 & nJP<=3){
+      ### haz results are the same for all interval values
+      jp.loc<-fit$FitList[[nJP+1]]$jp
+      haz.apc<-aapc(fit$FitList[[nJP+1]], type="RelChgHaz", interval=interval.values[1])
+      annot.strs<-paste(sprintf("%.1f",100*haz.apc$estimate),"%",sep="")
+      x.values<-list()
+      y.values<-list()
+      for(i in 1:length(interval.values)){
+        int.i<-interval.values[i]
+        plotdata.i<-plotdata[which(plotdata[,interval]==int.i),]
+        if(max(plotdata.i[,yearvar])==max(haz.apc$end.year) | nJP==0){
+          end.year<-haz.apc$end.year
+          end.year[length(haz.apc$end.year)]<-max(plotdata.i[,yearvar])
+          y.values.i<-1/2*((1-plotdata.i[which(plotdata.i[,yearvar] %in% haz.apc$start.year),predintvar])+
+                             (1-plotdata.i[which(plotdata.i[,yearvar] %in% end.year),predintvar]))
+          x.values.i<-1/2*(haz.apc$start.year+end.year)
+        }
+        if(max(plotdata.i[,yearvar])<max(haz.apc$end.year)){
+          if(nJP==1){
+            if(max(plotdata.i[,yearvar])>jp.loc){
+              end.year<-haz.apc$end.year
+              end.year[length(haz.apc$end.year)]<-max(plotdata.i[,yearvar])
+              y.values.i<-1/2*((1-plotdata.i[which(plotdata.i[,yearvar] %in% haz.apc$start.year),predintvar])+
+                                 (1-plotdata.i[which(plotdata.i[,yearvar] %in% end.year),predintvar]))
+              x.values.i<-1/2*(haz.apc$start.year+end.year)
+            }else{
+              haz.apc<-haz.apc[1:nJP,]
+              y.values.i<-1/2*((1-plotdata.i[which(plotdata.i[,yearvar] %in% haz.apc$start.year),predintvar])+
+                                 (1-plotdata.i[which(plotdata.i[,yearvar] %in% haz.apc$end.year),predintvar]))
+              x.values.i<-1/2*(haz.apc$start.year+haz.apc$end.year)
+            }
+          } ## nJP=1 end
+          if(nJP==2){
+            if(max(plotdata.i[,yearvar])>max(jp.loc)){
+              end.year<-haz.apc$end.year
+              end.year[length(haz.apc$end.year)]<-max(plotdata.i[,yearvar])
+              y.values.i<-1/2*((1-plotdata.i[which(plotdata.i[,yearvar] %in% haz.apc$start.year),predintvar])+
+                                 (1-plotdata.i[which(plotdata.i[,yearvar] %in% end.year),predintvar]))
+              x.values.i<-1/2*(haz.apc$start.year+end.year)
+            } else if(max(plotdata.i[,yearvar])<=max(jp.loc) & max(plotdata.i[,yearvar])>min(jp.loc)){
+              haz.apc<-haz.apc[1:nJP,]
+              y.values.i<-1/2*((1-plotdata.i[which(plotdata.i[,yearvar] %in% haz.apc$start.year),predintvar])+
+                                 (1-plotdata.i[which(plotdata.i[,yearvar] %in% haz.apc$end.year),predintvar]))
+              x.values.i<-1/2*(haz.apc$start.year+haz.apc$end.year)
+            } else{
+              haz.apc<-haz.apc[1:(nJP-1),]
+              end.year<-haz.apc$end.year
+              end.year[length(haz.apc$end.year)]<-max(plotdata.i[,yearvar])
+              y.values.i<-1/2*((1-plotdata.i[which(plotdata.i[,yearvar] %in% haz.apc$start.year),predintvar])+
+                                 (1-plotdata.i[which(plotdata.i[,yearvar] %in% end.year),predintvar]))
+              x.values.i<-1/2*(haz.apc$start.year+end.year)
+            }
+          } ## nJP=2 end
+          if(nJP==3){
+            if(max(plotdata.i[,yearvar])>max(jp.loc)){
+              end.year<-haz.apc$end.year
+              end.year[length(haz.apc$end.year)]<-max(plotdata.i[,yearvar])
+              y.values.i<-1/2*((1-plotdata.i[which(plotdata.i[,yearvar] %in% haz.apc$start.year),predintvar])+
+                                 (1-plotdata.i[which(plotdata.i[,yearvar] %in% end.year),predintvar]))
+              x.values.i<-1/2*(haz.apc$start.year+end.year)
+            } else if(max(plotdata.i[,yearvar])<=max(jp.loc) & max(plotdata.i[,yearvar])>jp.loc[2]){
+              haz.apc<-haz.apc[1:nJP,]
+              end.year<-haz.apc$end.year
+              end.year[length(haz.apc$end.year)]<-max(plotdata.i[,yearvar])
+              y.values.i<-1/2*((1-plotdata.i[which(plotdata.i[,yearvar] %in% haz.apc$start.year),predintvar])+
+                                 (1-plotdata.i[which(plotdata.i[,yearvar] %in% end.year),predintvar]))
+              x.values.i<-1/2*(haz.apc$start.year+end.year)
+            } else if(max(plotdata.i[,yearvar])<=jp.loc[2] & max(plotdata.i[,yearvar])>=jp.loc[1]){
+              haz.apc<-haz.apc[1:(nJP-1),]
+              end.year<-haz.apc$end.year
+              end.year[length(haz.apc$end.year)]<-max(plotdata.i[,yearvar])
+              y.values.i<-1/2*((1-plotdata.i[which(plotdata.i[,yearvar] %in% haz.apc$start.year),predintvar])+
+                                 (1-plotdata.i[which(plotdata.i[,yearvar] %in% end.year),predintvar]))
+              x.values.i<-1/2*(haz.apc$start.year+end.year)
+            } else {
+              haz.apc<-haz.apc[1:(nJP-2),]
+              end.year<-haz.apc$end.year
+              end.year[length(haz.apc$end.year)]<-max(plotdata.i[,yearvar])
+              y.values.i<-1/2*((1-plotdata.i[which(plotdata.i[,yearvar] %in% haz.apc$start.year),predintvar])+
+                                 (1-plotdata.i[which(plotdata.i[,yearvar] %in% end.year),predintvar]))
+              x.values.i<-1/2*(haz.apc$start.year+end.year)
+            }
+          } ## nJP=3 end
+        } 
+        x.values[[i]]<-x.values.i
+        y.values[[i]]<-y.values.i
+      }## interval.values iteration end
+      if(length(interval.values)==1){
+        hues=seq(15,375,length=length(interval.values)+1)
+        gg_color_hue<-hcl(h=hues,l=65,c=100)[1:length(interval.values)]
+        plot<-ggplot(data=plotdata, aes(x=plotdata[,yearvar], y=1-plotdata[,predintvar],group=as.factor(plotdata[,interval]), colour=as.factor(plotdata[,interval]))) + 
+          geom_line(data=plotdata, aes(x=plotdata[,yearvar], y=1-plotdata[,predintvar],group=as.factor(plotdata[,interval]), colour=as.factor(plotdata[,interval])),linetype="solid")+
+          geom_point(data=plotdata, aes(x=plotdata[,yearvar], y=1-plotdata[,obsintvar], group=as.factor(plotdata[,interval]), colour=as.factor(plotdata[,interval])))+
+          xlab('Year at diagnosis') + ylab('Annual Probability of Cancer Death (%)')+
+          ggtitle(title.rch) +
+          coord_cartesian(ylim=c(0,1))+
+          scale_y_continuous(breaks=seq(0,1,0.1),labels = scales::percent)+
+          scale_x_continuous(breaks=seq(min(plotdata[,yearvar],na.rm=T),max(plotdata[,yearvar],na.rm=T),5))+
+          scale_color_hue(labels = interval.labels)+
+          theme(legend.position="bottom")+
+          theme(legend.title=element_blank())+
+          theme(plot.title = element_text(hjust = 0.5))+
+          annotate("text", x = x.values[[1]][1], y = y.values[[1]][1]+0.03, label = annot.strs[1], colour=gg_color_hue[1])+
+          annotate("text", x = x.values[[1]][2], y = y.values[[1]][2]+0.03, label = annot.strs[2], colour=gg_color_hue[1])+
+          annotate("text", x = x.values[[1]][3], y = y.values[[1]][3]+0.03, label = annot.strs[3], colour=gg_color_hue[1])+
+          annotate("text", x = x.values[[1]][4], y = y.values[[1]][4]+0.03, label = annot.strs[4], colour=gg_color_hue[1])
+      }
+      if(length(interval.values)==2){
+        hues=seq(15,375,length=length(interval.values)+1)
+        gg_color_hue<-hcl(h=hues,l=65,c=100)[1:length(interval.values)]
+        plot<-ggplot(data=plotdata, aes(x=plotdata[,yearvar], y=1-plotdata[,predintvar],group=as.factor(plotdata[,interval]), colour=as.factor(plotdata[,interval]))) + 
+          geom_line(data=plotdata, aes(x=plotdata[,yearvar], y=1-plotdata[,predintvar],group=as.factor(plotdata[,interval]), colour=as.factor(plotdata[,interval])),linetype="solid")+
+          geom_point(data=plotdata, aes(x=plotdata[,yearvar], y=1-plotdata[,obsintvar], group=as.factor(plotdata[,interval]), colour=as.factor(plotdata[,interval])))+
+          xlab('Year at diagnosis') + ylab('Annual Probability of Cancer Death (%)')+
+          ggtitle(title.rch) +
+          coord_cartesian(ylim=c(0,1))+
+          scale_y_continuous(breaks=seq(0,1,0.1),labels = scales::percent)+
+          scale_x_continuous(breaks=seq(min(plotdata[,yearvar],na.rm=T),max(plotdata[,yearvar],na.rm=T),5))+
+          scale_color_hue(labels = interval.labels)+
+          theme(legend.position="bottom")+
+          theme(legend.title=element_blank())+
+          theme(plot.title = element_text(hjust = 0.5))+
+          annotate("text", x = x.values[[1]][1], y = y.values[[1]][1]+0.03, label = annot.strs[1], colour=gg_color_hue[1])+
+          annotate("text", x = x.values[[1]][2], y = y.values[[1]][2]+0.03, label = annot.strs[2], colour=gg_color_hue[1])+
+          annotate("text", x = x.values[[1]][3], y = y.values[[1]][3]+0.03, label = annot.strs[3], colour=gg_color_hue[1])+
+          annotate("text", x = x.values[[1]][4], y = y.values[[1]][4]+0.03, label = annot.strs[4], colour=gg_color_hue[1])+
+          annotate("text", x = x.values[[2]][1], y = y.values[[2]][1]+0.03, label = annot.strs[1], colour=gg_color_hue[2])+
+          annotate("text", x = x.values[[2]][2], y = y.values[[2]][2]+0.03, label = annot.strs[2], colour=gg_color_hue[2])+
+          annotate("text", x = x.values[[2]][3], y = y.values[[2]][3]+0.03, label = annot.strs[3], colour=gg_color_hue[2])+
+          annotate("text", x = x.values[[2]][4], y = y.values[[2]][4]+0.03, label = annot.strs[4], colour=gg_color_hue[2])    
+      }
+      if(length(interval.values)==3){
+        hues=seq(15,375,length=length(interval.values)+1)
+        gg_color_hue<-hcl(h=hues,l=65,c=100)[1:length(interval.values)]
+        plot<-ggplot(data=plotdata, aes(x=plotdata[,yearvar], y=1-plotdata[,predintvar],group=as.factor(plotdata[,interval]), colour=as.factor(plotdata[,interval]))) + 
+          geom_line(data=plotdata, aes(x=plotdata[,yearvar], y=1-plotdata[,predintvar],group=as.factor(plotdata[,interval]), colour=as.factor(plotdata[,interval])),linetype="solid")+
+          geom_point(data=plotdata, aes(x=plotdata[,yearvar], y=1-plotdata[,obsintvar], group=as.factor(plotdata[,interval]), colour=as.factor(plotdata[,interval])))+
+          xlab('Year at diagnosis') + ylab('Annual Probability of Cancer Death (%)')+
+          ggtitle(title.rch) +
+          coord_cartesian(ylim=c(0,1))+
+          scale_y_continuous(breaks=seq(0,1,0.1),labels = scales::percent)+
+          scale_x_continuous(breaks=seq(min(plotdata[,yearvar],na.rm=T),max(plotdata[,yearvar],na.rm=T),5))+
+          scale_color_hue(labels = interval.labels)+
+          theme(legend.position="bottom")+
+          theme(legend.title=element_blank())+
+          theme(plot.title = element_text(hjust = 0.5))+
+          annotate("text", x = x.values[[1]][1], y = y.values[[1]][1]+0.03, label = annot.strs[1], colour=gg_color_hue[1])+
+          annotate("text", x = x.values[[1]][2], y = y.values[[1]][2]+0.03, label = annot.strs[2], colour=gg_color_hue[1])+
+          annotate("text", x = x.values[[1]][3], y = y.values[[1]][3]+0.03, label = annot.strs[3], colour=gg_color_hue[1])+
+          annotate("text", x = x.values[[1]][4], y = y.values[[1]][4]+0.03, label = annot.strs[4], colour=gg_color_hue[1])+
+          annotate("text", x = x.values[[2]][1], y = y.values[[2]][1]+0.03, label = annot.strs[1], colour=gg_color_hue[2])+
+          annotate("text", x = x.values[[2]][2], y = y.values[[2]][2]+0.03, label = annot.strs[2], colour=gg_color_hue[2])+
+          annotate("text", x = x.values[[2]][3], y = y.values[[2]][3]+0.03, label = annot.strs[3], colour=gg_color_hue[2])+
+          annotate("text", x = x.values[[2]][4], y = y.values[[2]][4]+0.03, label = annot.strs[4], colour=gg_color_hue[2])+
+          annotate("text", x = x.values[[3]][1], y = y.values[[3]][1]+0.03, label = annot.strs[1], colour=gg_color_hue[3])+
+          annotate("text", x = x.values[[3]][2], y = y.values[[3]][2]+0.03, label = annot.strs[2], colour=gg_color_hue[3])+
+          annotate("text", x = x.values[[3]][3], y = y.values[[3]][3]+0.03, label = annot.strs[3], colour=gg_color_hue[3])+
+          annotate("text", x = x.values[[3]][4], y = y.values[[3]][4]+0.03, label = annot.strs[4], colour=gg_color_hue[3])
+      }
+    }
+    if(length(interval.values)>3 | nJP>3){
+      print("This annotation feature is not available when the number of joinpoints>3 or the number of multiple intervals selected>3.")
+      break
+    }
+  }
+  if(annotation==0){
+    plot<-ggplot(data=plotdata, aes(x=plotdata[,yearvar], y=1-plotdata[,predintvar],group=as.factor(plotdata[,interval]), colour=as.factor(plotdata[,interval]))) + 
+      geom_line(data=plotdata, aes(x=plotdata[,yearvar], y=1-plotdata[,predintvar],group=as.factor(plotdata[,interval]), colour=as.factor(plotdata[,interval])),linetype="solid")+
+      geom_point(data=plotdata, aes(x=plotdata[,yearvar], y=1-plotdata[,obsintvar], group=as.factor(plotdata[,interval]), colour=as.factor(plotdata[,interval])))+
+      xlab('Year at diagnosis') + ylab('Annual Probability of Cancer Death (%)')+
+      ggtitle(title.rch) +
+      coord_cartesian(ylim=c(0,1))+
+      scale_y_continuous(breaks=seq(0,1,0.1),labels = scales::percent)+
+      scale_x_continuous(breaks=seq(min(plotdata[,yearvar],na.rm=T),max(plotdata[,yearvar],na.rm=T),5))+
+      scale_color_hue(labels = interval.labels)+
+      theme(legend.position="bottom")+
+      theme(legend.title=element_blank())+
+      theme(plot.title = element_text(hjust = 0.5))
+  }
+  return(plot)
 }

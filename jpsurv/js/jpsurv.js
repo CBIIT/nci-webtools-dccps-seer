@@ -3031,10 +3031,10 @@ function genereateSheet(data) {
               'Relative_Survival_Cum',
               'Relative_SE_Interval',
               'Relative_SE_Cum',
-              'pred_int',
-              'pred_cum',
-              'pred_int_se',
-              'pred_cum_se'];
+              'Predicted_Int',
+              'Predicted_Cum',
+              'Predicted_Int_SE',
+              'Predicted_Cum_SE'];
   } else {
     input = [ yearVar,
               'Interval',
@@ -3046,10 +3046,10 @@ function genereateSheet(data) {
               'CauseSpecific_Survival_Cum',
               'CauseSpecific_SE_Interval',
               'CauseSpecific_SE_Cum',
-              'pred_int',
-              'pred_cum',
-              'pred_int_se',
-              'pred_cum_se'];
+              'Predicted_Int',
+              'Predicted_Cum',
+              'Predicted_Int_SE',
+              'Predicted_Cum_SE'];
   }
 
   var sheet = [input];
@@ -3074,9 +3074,9 @@ function genereateSheet(data) {
 }
 
 function downloadData(type) {
-  var survByYear = jpsurvData.results.joinYear;
+  var survByYear = jpsurvData.results.graphDownload
   var survByTime = jpsurvData.results.IntData.RelSurIntData;
-  var fullPred = jpsurvData.results.joinFull;
+  var fullPred = jpsurvData.results.fullDownload;
   var cohort = document.querySelector('#cohort-display').value;
   var wb = XLSX.utils.book_new();
   wb.props = {
