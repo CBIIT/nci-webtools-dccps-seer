@@ -311,7 +311,7 @@
       </div>
       <div id="right_panel" class="col-md-7 col-lg-7 col-sm-12" style="display:none;margin-top:2%">
         <div id="cohort-join-points" class="box">
-          <div class="row model-select-row" style="padding-bottom:15px;">
+          <div class="row model-select-row">
             <div class="col-md-12">
               <strong>Cohort</strong>&nbsp;
               <select id="cohort-display" aria-label="cohort display"></select>
@@ -320,11 +320,19 @@
                 class="btn btn-primary btn-sm pull-right button_group_separator" aria-label="Export">
                 Export
               </a>
-            </div>
-          </div>
-          <div class="row model-select-row">
-            <div class="col-md-10">
-              <strong>Model Selection</strong>
+
+              <label title="Rounded to decimal places." style="margin-left:10px;">Number of Decimal Places</label>
+              <select name="abcselect" id="precision" aria-label="Round">
+                <option>1</option>
+                <option selected>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+                <option>6</option>
+                <option>7</option>
+                <option>8</option>
+                <option>9</option>
+              </select>
             </div>
           </div>
           <div class="row">
@@ -345,21 +353,6 @@
               </table>
             </div>
           </div>
-          <div class="row model-select-row">
-              <h4 style="display: inline;">Display Options</h4>
-                  <label title="Rounded to decimal places." style="margin-left:10px;">Number of Decimal Places</label>
-                  <select name="abcselect" id="precision" aria-label="Round">
-                    <option>1</option>
-                    <option selected>2</option>
-                    <option>3</option>
-                    <option>4</option>
-                    <option>5</option>
-                    <option>6</option>
-                    <option>7</option>
-                    <option>8</option>
-                    <option>9</option>
-                  </select>
-      </div>
         </div>
 
         <!-- Message Panel for Error or Warning-->

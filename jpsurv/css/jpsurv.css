@@ -132,7 +132,7 @@ hr.stage-separator{
 .tg .tg-e3zv{font-weight:bold;background-color:#aaaaaa;color:#444444}
 
 .box {
-    background: linear-gradient(to bottom, #feffff 0%, #feffff 50%, #e7f3fa 100%) repeat scroll 0 0 rgba(0, 0, 0, 0);
+    /* background: linear-gradient(to bottom, #feffff 0%, #feffff 50%, #e7f3fa 100%) repeat scroll 0 0 rgba(0, 0, 0, 0); */
     border-radius: 8px;
     box-shadow: 0 2px 4px 0 rgba(1, 90, 129, 0.4);
     color: #666;
