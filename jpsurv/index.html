@@ -177,7 +177,7 @@
                     </span>
                   </div>
                   <div class="jpsurv-label-container">
-                    <span class="jpsurv-label">Intervals from Diagnosis Range:
+                    <span class="jpsurv-label">Max Intervals from Diagnosis Range:
                         <span>
                           <span class="jpsurv-label-container">
                             <label for="intervals_from_diagnosis" style="display:none">Select</label>
@@ -346,7 +346,7 @@
             </div>
           </div>
           <div class="row model-select-row">
-              <h4>Display Options</h4>
+              <h4 style="display: inline;">Display Options</h4>
                   <label title="Rounded to decimal places." style="margin-left:10px;">Number of Decimal Places</label>
                   <select name="abcselect" id="precision" aria-label="Round">
                     <option>1</option>
@@ -364,7 +364,7 @@
 
         <!-- Message Panel for Error or Warning-->
 
-        <ul id="jpsurv-tabs" class="nav nav-tabs responsive">
+        <ul id="jpsurv-tabs" class="nav nav-tabs main-tab responsive">
           <li class="active"><a href="#home" data-toggle="tab">Survival Graph/Data</a></li>
           <li><a href="#estimates-tab" data-toggle="tab">Model Estimates</a></li>
           <li><a id="trends-tab-anchor" href="#trends-tab" data-toggle="tab">Trends</a></li>
@@ -374,8 +374,9 @@
           <!-- Home Tab -->
           <div class="tab-pane active" id="home">
             <!-- Sub Tabs for Home -->
-            <ul class="nav nav-tabs" id="dashboard_tabs">
+            <ul class="nav nav-tabs sub-tab" id="dashboard_tabs">
               <li class="active"><a href="#graph-year-tab" data-toggle="tab">Survival vs. Year of Diagnosis</a></li>
+              <li><a href="#graph-death-tab" data-toggle="tab">Death vs. Year at Diagnosis</a></li>
               <li><a href="#graph-time-tab" data-toggle="tab">Survival vs. Time Since Diagnosis</a></li>
             </ul>
             <!-- Sub Graphs here -->
@@ -383,21 +384,21 @@
               <div id="graph-year-tab" class="tab-pane fade active in">
                 <div class="row">
                   <div class="col-lg-6 d-flex align-items-start row">
-                      <label for="interval-years" class="mx-1 col-lg-3">
-                        <strong>Interval Years</strong>
-                      </label>
-                      <div class="col-lg-2">
-                          <select id="interval-years" class="mx-1" multiple>
-                              <option selected>1</option>
-                              <option>2</option>
-                              <option>3</option>
-                              <option selected>4</option>
-                            </select>
-                      </div>
-                      <div class="col-lg-2">
-                        <button id="recalculate" class="btn btn-primary btn-sm" type="button">Select</button>
-                      </div>
-                      <div id="selected-interval-years" class="col-lg-5"></div>
+                    <label for="interval-years" class="mx-1 col-lg-3">
+                      <strong>Interval Years</strong>
+                    </label>
+                    <div class="col-lg-2">
+                        <select id="interval-years" class="mx-1" multiple>
+                            <option selected>1</option>
+                            <option>2</option>
+                            <option>3</option>
+                            <option selected>4</option>
+                          </select>
+                    </div>
+                    <div class="col-lg-2">
+                      <button id="recalculate" class="btn btn-primary btn-sm" type="button">Select</button>
+                    </div>
+                    <div id="selected-interval-years" class="col-lg-5"></div>
                   </div>
                   <div class="col-lg-6 text-right">
                     <span class="">
@@ -439,6 +440,66 @@
                   </table>
                 </div>
               </div>
+
+              <div id="graph-death-tab" class="tab-pane fade">
+                <div class="row">
+                  <div class="col-lg-6 d-flex align-items-start row">
+                    <label for="interval-years-death" class="mx-1 col-lg-3">
+                      <strong>Interval Years</strong>
+                    </label>
+                    <div class="col-lg-2">
+                        <select id="interval-years-death" class="mx-1" multiple>
+                            <option selected>1</option>
+                            <option>2</option>
+                            <option>3</option>
+                            <option selected>4</option>
+                          </select>
+                    </div>
+                    <div class="col-lg-2">
+                      <button id="recalculate" class="btn btn-primary btn-sm" type="button">Select</button>
+                    </div>
+                    <div id="selected-interval-years-death" class="col-lg-5"></div>
+                  </div>
+                  <div class="col-lg-6 text-right">
+                    <span class="">
+                      <a id="graph-death-dataset-link" href="#" style="text-decoration: underline;">Download Graph
+                        Dataset</a>
+                      &nbsp;
+                      <a class="full-dataset-link" href="#" style="text-decoration: underline;">Download Full
+                        Dataset</a>
+                    </span>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-offset-2" style="margin-top:1%">
+                    <img src="" style="display:none;" alt="graph-death">
+                  </div>
+                </div>
+                <b><span id="death-tab-rows" style="display:inline-block;padding-bottom:1%;padding-top:1%"></span></b>
+                <div class="table-responsive" style="max-height:500px">
+                  <table id="graph-year-table" class="table table-striped table-bordered table-condensed">
+                    <thead>
+                      <tr>
+                        <th scope="col">Year of Diagnosis 1975</th>
+                        <th scope="col">Interval</th>
+                        <th scope="col">Died</th>
+                        <th scope="col">Alive at Start</th>
+                        <th scope="col">Lost to Followup</th>
+                        <th scope="col">Expected Survival Interval</th>
+                        <th scope="col">Relative Survival Cum</th>
+                        <th scope="col">pred int</th>
+                        <th scope="col">pred cum</th>
+                        <th scope="col">pred int se</th>
+                        <th scope="col">pred cum se</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
               <div id="graph-time-tab" class="tab-pane fade">
                 <div class="row">
                   <div class="col-md-2 col-md-offset-1">
