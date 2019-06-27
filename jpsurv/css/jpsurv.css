@@ -535,7 +535,7 @@ fieldset[disabled] .btn-primary.active {
     margin-top: 0;
 }
 
-#selected-interval-years {
+#selected-interval-years, #selected-interval-years-death {
     margin-left: 5px;
     margin-top: 5px;
     padding-left: 20px;
@@ -597,6 +597,14 @@ footer.footer ul li a {
     }
   }
 
+.main-tab {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.sub-tab {
+  font-weight: 700;
+}
 
 
 
