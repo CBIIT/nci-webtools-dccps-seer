@@ -1,10 +1,6 @@
 library("rjson")
 library("JPSurv")
 library("ggplot2")
-<<<<<<< HEAD
-library("dplyr")
-=======
->>>>>>> aed6a46727b382e9358a1755b07f7a1cffea7cfd
 
 VERBOSE=TRUE
 
