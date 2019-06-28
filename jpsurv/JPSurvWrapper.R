@@ -382,9 +382,7 @@ getFittedResult <- function (tokenId,filePath, seerFilePrefix, yearOfDiagnosisVa
   intervalRange = as.integer(jpsurvData$calculate$form$interval)
   statistic=jpsurvData$additional$DataTypeVariable
   
-  subsetStr=getSubsetStr(yearOfDiagnosisVarName, yearOfDiagnosisRange, cohortVars, cohortValues)
-  #assign subsetStr in the global in order for eval(parse(text=)) to work
-  assign("subsetStr", subsetStr, envir = .GlobalEnv)
+  subsetStr = getSubsetStr(yearOfDiagnosisVarName, yearOfDiagnosisRange, cohortVars, cohortValues)
 
   print(type)
   if (type=="dic") {
@@ -664,25 +662,19 @@ geALLtModelWrapper <- function (filePath,jpsurvDataString,com) {
   saved=outputData$fittedResult$FitList
   joints=list()
   ModelSelection=list()
-  for(i in 1:length(saved)) 
-  {
+  for (i in 1:length(saved)) {
     name=paste0("joinpoint",i)
     aicJson=saved[[i]]$aic
     bicJson=saved[[i]]$bic
     llJson=saved[[i]]$ll
     convergedJson=saved[[i]]$converged
     joints[[name]]=list("aic"=aicJson, "bic"=bicJson, "ll"=llJson, "converged"=convergedJson)
-    
   }
   ModelSelection=joints
   jsonl=toJSON(ModelSelection)
-  
-  return (jsonl)
+
+  return(jsonl)
 }
-
-#gets all the model selection info for all joint points
-
-
 
 getTrendWrapper<- function (filePath,jpsurvDataString,com) {
   jsonl=c()
@@ -705,17 +697,15 @@ getTrendWrapper<- function (filePath,jpsurvDataString,com) {
   jsonl =c("CS_AAPC"=trend1,"CS_AAAC"=trend2,"HAZ_APC"=trend3)
   
   return(jsonl)
-  
 }
-getJPWrapper<-function(filePath,jpsurvDataString,first_calc,com)
-{
+
+getJPWrapper<-function(filePath,jpsurvDataString,first_calc,com) {
   jpsurvData <<- fromJSON(jpsurvDataString)
   file=paste(filePath, paste("output-", jpsurvData$tokenId,"-",com,".rds", sep=""), sep="/")
   outputData=readRDS(file)
   
   jpInd=jpsurvData$additional$headerJoinPoints
-  if(first_calc==TRUE||is.null(jpInd))
-  {
+  if(first_calc==TRUE||is.null(jpInd)) {
     jpInd=getSelectedModel(filePath,jpsurvDataString,com)-1
   }
   
@@ -725,8 +715,7 @@ getJPWrapper<-function(filePath,jpsurvDataString,first_calc,com)
   return(JP)
 }
 
-getSelectedModel<-function(filePath,jpsurvDataString,com)
-{
+getSelectedModel<-function(filePath,jpsurvDataString,com) {
   jpsurvData <<- fromJSON(jpsurvDataString)
   file=paste(filePath, paste("output-", jpsurvData$tokenId,"-",com,".rds", sep=""), sep="/")
   outputData=readRDS(file)  
@@ -829,20 +818,24 @@ downloadDataWrapper <- function(jpsurvDataString, filePath, com, yearVar, jpInd,
   outputData = readRDS(file)    
   input = outputData[['seerdata']]
   fit = outputData[['fittedResult']]
-  yearvar = yearVar  
+  yearOfDiagnosisRange = jpsurvData$calculate$form$yearOfDiagnosisRange
+  cohortVars = jpsurvData$calculate$form$cohortVars
+  cohortValues = jpsurvData$calculate$form$AllcohortValues
+  subsetStr = getSubsetStr(yearVar, yearOfDiagnosisRange, cohortVars, cohortValues)
+
   intervals = c()
   if (downloadtype == 'survival') {
     for (i in 1:length(jpsurvData$additional$intervals)) {
       intervals = c(intervals,jpsurvData$additional$intervals[[i]])
     } 
-    return (download.data(input, fit, jpInd, yearVar, downloadtype="graph", interval = interval, int.col = intervals))
+    return (download.data(input, fit, jpInd, yearVar, downloadtype="graph", interval = interval, int.col = intervals, subsetStr))
   } else if (downloadtype == 'death') {
      for (i in 1:length(jpsurvData$additional$intervalsDeath)) {
       intervals = c(intervals,jpsurvData$additional$intervalsDeath[[i]])
     } 
-    return (download.data(input, fit, jpInd, yearVar, downloadtype="graph", interval = interval, int.col = intervals))
+    return (download.data(input, fit, jpInd, yearVar, downloadtype="graph", interval = interval, int.col = intervals, subsetStr))
   } else {
-    return (download.data(input, fit, jpInd, yearVar, downloadtype="full", interval = interval))
+    return (download.data(input, fit, jpInd, yearVar, downloadtype="full", interval = interval, subsetStr = subsetStr))
   }
 }
 
@@ -864,7 +857,7 @@ getDeathByYearWrapper <- function (filePath, jpsurvDataString, first_calc, com, 
   scaleGraph = scaleTo(graphData, 'decimal')
 
   annotation = 0
-  if (nJP <= 3 && length(jpsurvData$additional$intervals) <= 3) {
+  if (nJP <= 3 && length(jpsurvData$additional$intervalsDeath) <= 3) {
     annotation = 1
   }
 
@@ -891,7 +884,7 @@ getDeathByYearWrapper <- function (filePath, jpsurvDataString, first_calc, com, 
 # int.col - the interval values selected for the plot if the downloadtype="graph". The default is NULL.
 #########################################################################################################
 
-download.data<-function(input,fit,nJP,yearvar,downloadtype,subset=NULL,interval="Interval",int.col=NULL){
+download.data<-function(input,fit,nJP,yearvar,downloadtype,subset=NULL,interval="Interval",int.col=NULL,subsetStr){
   input.sub<-subset(input,eval(parse(text=subsetStr)))
   if(downloadtype=="graph"){
     output.sub<-fit$FitList[[nJP+1]]$predicted
