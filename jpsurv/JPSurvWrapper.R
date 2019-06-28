@@ -828,13 +828,17 @@ downloadDataWrapper <- function(jpsurvDataString, filePath, com, yearVar, jpInd,
     for (i in 1:length(jpsurvData$additional$intervals)) {
       intervals = c(intervals,jpsurvData$additional$intervals[[i]])
     } 
-    return (download.data(input, fit, jpInd, yearVar, downloadtype="graph", interval = interval, int.col = intervals, subsetStr))
+    print('getting survival data')
+    return (download.data(input, fit, jpInd, yearVar, downloadtype="graph", interval = interval, int.col = intervals, subsetStr = subsetStr))
   } else if (downloadtype == 'death') {
      for (i in 1:length(jpsurvData$additional$intervalsDeath)) {
       intervals = c(intervals,jpsurvData$additional$intervalsDeath[[i]])
     } 
-    return (download.data(input, fit, jpInd, yearVar, downloadtype="graph", interval = interval, int.col = intervals, subsetStr))
+    print('getting death data')
+    print(subsetStr)
+    return (download.data(input, fit, jpInd, yearVar, downloadtype="graph", interval = interval, int.col = intervals, subsetStr = subsetStr))
   } else {
+    print('getting full data')
     return (download.data(input, fit, jpInd, yearVar, downloadtype="full", interval = interval, subsetStr = subsetStr))
   }
 }
