@@ -382,7 +382,7 @@ getFittedResult <- function (tokenId,filePath, seerFilePrefix, yearOfDiagnosisVa
   intervalRange = as.integer(jpsurvData$calculate$form$interval)
   statistic=jpsurvData$additional$DataTypeVariable
   
-  subsetStr = getSubsetStr(yearOfDiagnosisVarName, yearOfDiagnosisRange, cohortVars, cohortValues)
+  subsetStr <<- getSubsetStr(yearOfDiagnosisVarName, yearOfDiagnosisRange, cohortVars, cohortValues)
 
   print(type)
   if (type=="dic") {
@@ -888,7 +888,7 @@ getDeathByYearWrapper <- function (filePath, jpsurvDataString, first_calc, com, 
 # int.col - the interval values selected for the plot if the downloadtype="graph". The default is NULL.
 #########################################################################################################
 
-download.data<-function(input,fit,nJP,yearvar,downloadtype,subset=NULL,interval="Interval",int.col=NULL,subsetStr){
+download.data<-function(input,fit,nJP,yearvar,downloadtype,subsetStr,interval="Interval",int.col=NULL){
   input.sub<-subset(input,eval(parse(text=subsetStr)))
   if(downloadtype=="graph"){
     output.sub<-fit$FitList[[nJP+1]]$predicted
