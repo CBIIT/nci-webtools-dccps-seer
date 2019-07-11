@@ -177,7 +177,7 @@
                     </span>
                   </div>
                   <div class="jpsurv-label-container">
-                    <span class="jpsurv-label">Max Intervals from Diagnosis Range:
+                    <span class="jpsurv-label">Interval Since Diagnosis:
                         <span>
                           <span class="jpsurv-label-container">
                             <label for="intervals_from_diagnosis" style="display:none">Select</label>
@@ -368,7 +368,7 @@
           <div class="tab-pane active" id="home">
             <!-- Sub Tabs for Home -->
             <ul class="nav nav-tabs sub-tab" id="dashboard_tabs">
-              <li class="active"><a href="#graph-year-tab" data-toggle="tab">Survival vs. Year of Diagnosis</a></li>
+              <li class="active"><a href="#graph-year-tab" data-toggle="tab">Survival vs. Year at Diagnosis</a></li>
               <li><a href="#graph-death-tab" data-toggle="tab">Death vs. Year at Diagnosis</a></li>
               <li><a href="#graph-time-tab" data-toggle="tab">Survival vs. Time Since Diagnosis</a></li>
             </ul>
@@ -391,7 +391,11 @@
                     <div class="col-lg-2">
                       <button id="recalculate" class="btn btn-primary btn-sm" type="button">Select</button>
                     </div>
-                    <div id="selected-interval-years" class="col-lg-5"></div>
+                    <div id="selected-interval-years" class="col-lg-2"></div>
+                    <div class="col-lg-3">
+                      <input type="checkbox" id="yearAnno" name="yearAnno">
+                      <label for="yearAnno">Label Trends</label>
+                    </div>                  
                   </div>
                   <div class="col-lg-6 text-right">
                     <span class="">
@@ -451,7 +455,11 @@
                     <div class="col-lg-2">
                       <button id="recalculate" class="btn btn-primary btn-sm" type="button">Select</button>
                     </div>
-                    <div id="selected-interval-years-death" class="col-lg-5"></div>
+                    <div id="selected-interval-years-death" class="col-lg-2"></div>
+                    <div class="col-lg-3">
+                      <input type="checkbox" id="deathAnno" name="deathAnno">
+                      <label for="deathAnno">Label Trends</label>
+                    </div>     
                   </div>
                   <div class="col-lg-6 text-right">
                     <span class="">

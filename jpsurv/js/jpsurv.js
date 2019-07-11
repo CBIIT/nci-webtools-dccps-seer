@@ -459,6 +459,7 @@ function preLoadValues() {
 
   setIntervalsDefault();
   getIntervals();
+  getAnnotation();
   stage2("no calculate"); // This is the initial calculation and setup.
   retrieveResults();
   var status = getUrlParameter('status');
@@ -929,7 +930,7 @@ function updateGraphs(token_id) {
             }
           });
         }
-        var type = Object.keys(jpsurvData.results.timeData.timeTable)[2];
+        var type = jpsurvData.results.statistic
         row += "<td>"+value+"</td>";
 
         if(jpsurvData.results.input_type=="dic"){
@@ -989,7 +990,36 @@ function updateGraphs(token_id) {
 
     $("#graph-time-table > tbody").empty();
     var rows=0;
-    if (yod) {
+    if (!Array.isArray(yod)) {
+      row = "<tr>";
+      if (jpsurvData.results.Runs.split('jpcom')!=undefined){
+        var cohort_array = jpsurvData.results.Runs.split('jpcom');
+        var values= cohort_array[jpsurvData.results.com-1].split(" + ");
+        $.each(values, function(index2, value2) {
+          if(value2) {
+            row += "<td>"+value2.replace(/"/g, "")+"</td>";
+          }
+        });
+      } else {
+        var cohort_array = jpsurvData.results.Runs.split('jpcom');
+        var values= cohort_array.split("+");
+        $.each(values, function(index2, value2) {
+          row += "<td>"+value2.replace(/"/g, "")+"</td>";
+        });
+      }
+      row += "<td>"+yod+"</td>";
+      if(jpsurvData.results.input_type=="dic"){
+        row += formatCell(jpsurvData.results.timeData.timeTable.Interval);
+        row += formatCell(jpsurvData.results.timeData.timeTable[jpsurvData.results.statistic]);
+      }
+      else if(jpsurvData.results.input_type=="csv"){
+        row += formatCell(jpsurvData.results.timeData.timeTable[jpsurvData.results.headers.Interval]);
+        row += formatCell(jpsurvData.results.timeData.timeTable[jpsurvData.results.headers[jpsurvData.results.statistic]]);
+      }
+      row += formatCell(jpsurvData.results.timeData.timeTable.Predicted_Cum)+"</tr>/n";
+      $("#graph-time-table > tbody").append(row);
+      rows++;
+    } else if (yod) {
       $.each(yod, function( index, value ) {
         row = "<tr>";
 
@@ -1393,6 +1423,7 @@ function calculate(run) {
       if(send == true){
         setIntervalsDefault();
         getIntervals();
+        getAnnotation();
         setUrlParameter("request", "true");
         jpsurvData.additional.use_default="true"
         jpsurvData.queue.url = encodeURIComponent(window.location.href.toString());
@@ -1545,6 +1576,7 @@ function stage2(action) {
   jpsurvData.recentTrends = 0;
   setIntervalsDefault();
   getIntervals();
+  getAnnotation();
   jpsurvData.additional.yearOfDiagnosis[0] = jpsurvData.calculate.form.yearOfDiagnosisRange[0].toString();
   if(action == "calculate") {
     calculateFittedResults()
@@ -1564,6 +1596,7 @@ function stage3() {
   jpsurvData.recentTrends = 0;
   $("#year_of_diagnosis_start").val(jpsurvData.calculate.form.yearOfDiagnosisRange[0]);
   getIntervals();
+  getAnnotation();
   delete jpsurvData.results;
 
   calculateAllData();
@@ -1585,6 +1618,17 @@ function getIntervals() {
     jpsurvData.additional.intervalsDeath[index] = parseInt(value);
   });
 
+}
+
+function getAnnotation() {
+  jpsurvData.additional.yearAnnotation = 0;
+  jpsurvData.additional.deathAnnotation = 0;
+  if ($('#yearAnno').is(":checked")) {
+    jpsurvData.additional.yearAnnotation = 1;
+  }
+  if ($('#deathAnno').is(":checked")) {
+    jpsurvData.additional.deathAnnotation = 1;
+  }
 }
 
 
@@ -1911,10 +1955,15 @@ function set_year_of_diagnosis_select() {
 function set_intervals_from_diagnosis() {
   // start interval from 2 
   for(i=1; i<control_data.VarFormatSecList.Interval.ItemNameInDic.length; i++) {
+    if (i == control_data.VarFormatSecList.Interval.ItemNameInDic.length - 1) {
+      $("#intervals_from_diagnosis").append("<OPTION selected value=" +
+      control_data.VarFormatSecList.Interval.ItemNameInDic[i] + "> <= " +
+      control_data.VarFormatSecList.Interval.ItemNameInDic[i] + " years</OPTION>");
+    } else {
     $("#intervals_from_diagnosis").append("<OPTION value=" +
-    control_data.VarFormatSecList.Interval.ItemNameInDic[i] + ">" +
-    control_data.VarFormatSecList.Interval.ItemNameInDic[i] + " (" +
-    control_data.VarFormatSecList.Interval.ItemValueInDic[i] + ")</OPTION>");
+      control_data.VarFormatSecList.Interval.ItemNameInDic[i] + "> <= " +
+      control_data.VarFormatSecList.Interval.ItemNameInDic[i] + " years</OPTION>");
+    }
   }
 
   $("#intervals_from_diagnosis").change(function() {
