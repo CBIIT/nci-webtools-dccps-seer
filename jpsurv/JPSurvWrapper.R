@@ -14,7 +14,7 @@ getDictionary <- function (inputFile, path, tokenId) {
 }
 
 ReadCSVFile <- function (inputFile, path, tokenId, jpsurvDataString,input_type) { 
-  jpsurvData <<- fromJSON(jpsurvDataString)
+  jpsurvData <- fromJSON(jpsurvDataString)
   fqFileName = file.path(path,inputFile)
   file_name=paste(jpsurvData$tokenId,fqFileName, sep="" )
   outputFileName = paste("form-", tokenId, ".json", sep="") 
@@ -99,7 +99,7 @@ getCorrectFormat = function(variable) {
 jpsurvData = list()
 #Parses the JSON string and sends to getFittedResult to create the SEER Data and the Fitted Results
 getFittedResultWrapper <- function (filePath, jpsurvDataString) {
-  jpsurvData <<- fromJSON(jpsurvDataString)
+  jpsurvData <- fromJSON(jpsurvDataString)
   del=""
   #Reading json to retrieve inout variables from form in UI
   seerFilePrefix = jpsurvData$calculate$static$seerFilePrefix
@@ -162,7 +162,7 @@ getFittedResultForVarCombo<- function(modelIndex,jpsurvData,filePath,seerFilePre
 }
 
 getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,use_default=TRUE) { 
-  jpsurvData <<- fromJSON(jpsurvDataString)
+  jpsurvData <- fromJSON(jpsurvDataString)
   imageId=jpsurvData$plot$static$imageId
   com=as.integer(jpsurvData$run)
   interval=""
@@ -202,7 +202,6 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,use_default=TRU
         interval="Interval"
         input_type="dic"
   }
-  # IntGraph=getRelativeSurvivalByIntWrapper(filePath,jpsurvDataString,first_calc,com,interval,observed,use_default)
   ModelSelection=geALLtModelWrapper(filePath,jpsurvDataString,com)
   Coefficients=getcoefficientsWrapper(filePath,jpsurvDataString,first_calc,com)
   JP=getJPWrapper(filePath,jpsurvDataString,first_calc,com)
@@ -239,9 +238,7 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,use_default=TRU
     yod=jpsurvData$additional$yearOfDiagnosis_default
     intervals=jpsurvData$additional$intervals_default
   }
-  jsonl =list(
-          # "IntData" = IntGraph,
-              "Coefficients" = Coefficients,
+  jsonl =list("Coefficients" = Coefficients,
               "ModelSelection" = ModelSelection, 
               "JP" = JP,
               "SelectedModel" = SelectedModel,
@@ -265,7 +262,7 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,use_default=TRU
 }
 
 getTrendsData<-function(filePath,jpsurvDataString,com) {
-  jpsurvData <<- fromJSON(jpsurvDataString)
+  jpsurvData <- fromJSON(jpsurvDataString)
   com=as.integer(jpsurvData$run)
   Trends=getTrendWrapper(filePath,jpsurvDataString,com)
   jsonl =c(Trends) #returns
@@ -278,7 +275,7 @@ getTrendsData<-function(filePath,jpsurvDataString,com) {
 getFittedResult <- function (tokenId,filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange,
     allVars, cohortVars,cohortValues, numJP, advanced_options,delLastIntvlAdv,outputFileName,jpsurvDataString,projyear,type,
     alive_at_start=NULL,interval=NULL,died=NULL,lost_to_followup=NULL,rel_cum=NULL) {
-  jpsurvData <<- fromJSON(jpsurvDataString)
+  jpsurvData <- fromJSON(jpsurvDataString)
   type=jpsurvData$additional$input_type
   varLabels=getCorrectFormat(allVars)
   intervalRange = as.integer(jpsurvData$calculate$form$interval)
@@ -341,70 +338,9 @@ getFittedResult <- function (tokenId,filePath, seerFilePrefix, yearOfDiagnosisVa
   saveRDS(outputData, outputFileName)
 }
 
-#Graphs the Survival vs Time graph and saves a
-getRelativeSurvivalByIntWrapper <- function (filePath,jpsurvDataString,first_calc,com,interval_var,survar_var,use_default_year=TRUE) {
-  jpsurvData <<- fromJSON(jpsurvDataString)
-  statistic=jpsurvData$additional$statistic
-  type=""
-  if (statistic=="Relative Survival") {
-    statistic="R"
-    type="Relative"
-  } else if (statistic=="Cause-Specific Survival") {
-    statistic="CS"
-    type="Cause-Specific"
-  }
-  jpInd=jpsurvData$additional$headerJoinPoints
-  if (first_calc==TRUE||is.null(jpInd)) {
-    jpInd=getSelectedModel(filePath,jpsurvDataString,com)-1
-  }
-  file=paste(filePath, paste("output-", jpsurvData$tokenId,"-",com,".rds", sep=""), sep="/")
-  outputData=readRDS(file)
-  yearOfDiagnosisVarName = jpsurvData$calculate$static$yearOfDiagnosisVarName
-  yearOfDiagnosis = jpsurvData$additional$yearOfDiagnosis
-  if (use_default_year==TRUE) {
-    yearOfDiagnosis=jpsurvData$additional$yearOfDiagnosis_default
-  }
-  iteration=jpsurvData$plot$static$imageId
-  graphFile= paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",com,"-",jpInd,"-",iteration,".png", sep=""), sep="/")
-  downloadFile = paste(filePath, paste("data_Int-", jpsurvData$tokenId,"-",com,"-",jpInd, "-",iteration, ".csv", sep=""), sep="/") #CSV file to download
-  yearOfDiagnosisVarName=getCorrectFormat(yearOfDiagnosisVarName)
-  survData=data.plot.surv.int(outputData$fittedResult$FitList[[jpInd+1]],
-                            yearvar=yearOfDiagnosisVarName,
-                            year=yearOfDiagnosis,
-                            interval=interval_var,
-                            survvar=survar_var);
-  # multiply first row values by 100
-  survData = fixIntGraph(survData)
-  maxint <- max(survData[[1]][[interval_var]])
-  #From package, interval graph
-  ggplot(survData[[1]], aes(x=survData[[1]][[interval_var]])) + 
-      geom_line(aes(y=pred_cum, colour="pred_cum")) + 
-      geom_point(aes(y=survData[[1]][[survar_var]], colour=survar_var)) +
-      labs(title=paste("Cumulative",type,"Survival by Interval for", yearOfDiagnosis, sep=" "),
-           x=interval_var,
-           y=paste("Cumulative",type,"Survival", sep=" ")) +
-      scale_x_continuous(breaks=seq(0,maxint, if (length(survData[[1]][[interval_var]]) <= 12) 1 else  2)) +
-      coord_cartesian(ylim=c(0,100)) +
-      scale_y_continuous(breaks=seq(0,100,10)) +
-      scale_colour_discrete(breaks=c("pred_cum", survar_var),
-                            labels=c(paste("Predicted Cumulative",type,"Survival", sep=" "), paste("Observed Cumulative",type,"Survival", sep=" "))) +
-      theme(legend.position="bottom", 
-            legend.title=element_blank(),
-            plot.title = element_text(hjust = 0.5,size=22,face = "bold",vjust=0.5,margin = margin(0, 0, 10, 0, 'pt')),
-            axis.title=element_text(size=20),
-            axis.title.x = element_text(margin = unit(c(10, 0, 0, 0), "mm")),
-            axis.text = element_text(size=14.5),
-            axis.title.y = element_text(margin = unit(c(0, 10, 0, 0), "mm")),
-            legend.text=element_text(size=14.5))
-  ggsave(file=paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",com,"-",jpInd,"-",iteration,".png", sep=""), sep="/"),width = 10, height = 8)
-# ggsave(file=paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",com,"-",jpInd,"-",iteration,".png", sep=""), sep="/"))
-  results =c("RelSurIntData"=survData,"RelSurIntGraph"=graphFile) #returns 
-  return(results)
-}
-
 #Gets the coefficients table in the Model Estimates tab
 getcoefficientsWrapper <- function (filePath,jpsurvDataString,first_calc,com) {
-  jpsurvData <<- fromJSON(jpsurvDataString)
+  jpsurvData <- fromJSON(jpsurvDataString)
   fileName=paste("output-", jpsurvData$tokenId,"-",com,".rds", sep="")
   jpInd=jpsurvData$additional$headerJoinPoints
   if(first_calc==TRUE||is.null(jpInd))
@@ -424,7 +360,7 @@ getcoefficientsWrapper <- function (filePath,jpsurvDataString,first_calc,com) {
 
 #gets all the model selection info for all joint points
 geALLtModelWrapper <- function (filePath,jpsurvDataString,com) {
-  jpsurvData <<- fromJSON(jpsurvDataString)
+  jpsurvData <- fromJSON(jpsurvDataString)
   fileName=paste("output-", jpsurvData$tokenId,"-",com,".rds", sep="")
   jpInd=jpsurvData$additional$headerJoinPoints
   file=paste(filePath, fileName, sep="/" )
@@ -448,7 +384,7 @@ geALLtModelWrapper <- function (filePath,jpsurvDataString,com) {
 
 getTrendWrapper<- function (filePath,jpsurvDataString,com) {
   jsonl=c()
-  jpsurvData <<- fromJSON(jpsurvDataString)
+  jpsurvData <- fromJSON(jpsurvDataString)
   fileName=paste("output-", jpsurvData$tokenId,"-",com,".rds", sep="")
   jpInd=jpsurvData$additional$headerJoinPoints
   file=paste(filePath, fileName, sep="/" )
@@ -466,7 +402,7 @@ getTrendWrapper<- function (filePath,jpsurvDataString,com) {
 }
 
 getJPWrapper<-function(filePath,jpsurvDataString,first_calc,com) {
-  jpsurvData <<- fromJSON(jpsurvDataString)
+  jpsurvData <- fromJSON(jpsurvDataString)
   file=paste(filePath, paste("output-", jpsurvData$tokenId,"-",com,".rds", sep=""), sep="/")
   outputData=readRDS(file)
   jpInd=jpsurvData$additional$headerJoinPoints
@@ -479,7 +415,7 @@ getJPWrapper<-function(filePath,jpsurvDataString,first_calc,com) {
 }
 
 getSelectedModel<-function(filePath,jpsurvDataString,com) {
-  jpsurvData <<- fromJSON(jpsurvDataString)
+  jpsurvData <- fromJSON(jpsurvDataString)
   file=paste(filePath, paste("output-", jpsurvData$tokenId,"-",com,".rds", sep=""), sep="/")
   outputData=readRDS(file)  
   model=length(outputData$fittedResult$jp)+1
@@ -489,7 +425,7 @@ getSelectedModel<-function(filePath,jpsurvDataString,com) {
 # Creates a string containing each cohort combination, each combination is sperated by a , and each cohort seperated by a +
 #ex: ch1 + ch2 + ch3, ch1 + ch2 + ch4
 getRunsString<-function(filePath,jpsurvDataString){
-  jpsurvData <<- fromJSON(jpsurvDataString)
+  jpsurvData <- fromJSON(jpsurvDataString)
   length=length(jpsurvData$calculate$form$cohortVars)
   runs=""
   combination_array=c()
@@ -548,7 +484,7 @@ fixIntGraph <- function(graph) {
 }
 
 downloadDataWrapper <- function(jpsurvDataString, filePath, com, yearVar, jpInd, interval, downloadtype) {
-  jpsurvData <<- fromJSON(jpsurvDataString)
+  jpsurvData <- fromJSON(jpsurvDataString)
   file = paste(filePath, paste("output-", jpsurvData$tokenId, "-", com, ".rds", sep = ""), sep = "/")
   outputData = readRDS(file)    
   input = outputData[['seerdata']]
@@ -565,7 +501,7 @@ downloadDataWrapper <- function(jpsurvDataString, filePath, com, yearVar, jpInd,
     return (download.data(input, fit, jpInd, yearVar, downloadtype="graph", interval = interval, int.col = intervals, subset = subsetStr))
   } else if (downloadtype == 'death') {
      for (i in 1:length(jpsurvData$additional$intervalsDeath)) {
-      intervals = c(intervals,jpsurvData$additional$intervalsDeath[[i]])
+        intervals = c(intervals,jpsurvData$additional$intervalsDeath[[i]])
       } 
       return(download.data(input, fit, jpInd, yearVar, downloadtype="graph", interval = interval, int.col = intervals, subset = subsetStr))
   } else if (downloadtype == 'time') {
@@ -580,7 +516,7 @@ downloadDataWrapper <- function(jpsurvDataString, filePath, com, yearVar, jpInd,
 
 # creates graphs
 getGraphWrapper <- function (filePath, jpsurvDataString, first_calc, com, interval, graphData, type, statistic) {
-  jpsurvData <<- fromJSON(jpsurvDataString)
+  jpsurvData <- fromJSON(jpsurvDataString)
   iteration = jpsurvData$plot$static$imageId
   yearVar = getCorrectFormat(jpsurvData$calculate$static$yearOfDiagnosisVarName)
   nJP = jpsurvData$additional$headerJoinPoints
@@ -602,7 +538,8 @@ getGraphWrapper <- function (filePath, jpsurvDataString, first_calc, com, interv
   annotation = 0
   # create graph
   if (type == 'death') {
-    if (nJP <= 3 && length(jpsurvData$additional$intervalsDeath) <= 3) {
+    anno = jpsurvData$additional$deathAnno
+    if (nJP <= 3 && length(jpsurvData$additional$intervalsDeath) <= 3 && anno == 1) {
       annotation = 1
     } 
       graph = plot.dying.year.annotate(graphData, fit, nJP, yearVar, obsintvar, predintvar, interval, annotation)
@@ -611,7 +548,8 @@ getGraphWrapper <- function (filePath, jpsurvDataString, first_calc, com, interv
       graphData = scaleTo(graphData)
       results = list("deathGraph" = graphFile, "deathTable" = graphData)
   } else if (type == 'year') {
-      if (nJP <= 3 && length(jpsurvData$additional$intervals) <= 3) {
+      anno = jpsurvData$additional$yearAnno
+      if (nJP <= 3 && length(jpsurvData$additional$intervals) <= 3 && anno == 1) {
         annotation = 1
     } 
       graph = plot.surv.year.annotate(graphData, fit, nJP, yearVar, obscumvar, predcumvar, interval, annotation)
