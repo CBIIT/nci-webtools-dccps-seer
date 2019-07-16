@@ -25,6 +25,8 @@ $(document).ready(function() {
   addEventListeners();
   addMessages();
   hide_display_email();
+  // disable calculate button on document load
+  $('#calculate').prop("disabled",true);
   if (jpsurvData.status === 'uploaded') {
     $('#help').html('<div style="font-size:18px;">Please select Cohort and Model specifications on the left and click on Calculate / Submit.</div>');
   } else {
@@ -222,7 +224,6 @@ function addEventListeners() {
     jpsurvData.additional.use_default="false"
     setCalculateData();
     jpsurvData.additional.use_default="true"
-    updateSelectedIntervalYears();
     }
   })
 
@@ -386,11 +387,7 @@ function addInputSection() {
     }
 
     $('#upload_file_submit_container').remove();
-
-
-
-
-
+    $('#calculate').prop("disabled",false);
   }
   else if (status=="failed_upload")
   {
@@ -957,6 +954,7 @@ function updateGraphs(token_id) {
       });
     }
     $("#year-tab-rows").html("Total Row Count: "+rows)
+    $("#death-tab-rows").html("Total Row Count: "+rows)
 
   }
   else{
@@ -1214,6 +1212,7 @@ function calculateFittedResultsCallback() {
   $("#year-of-diagnosis").empty();
   for (year=jpsurvData.calculate.form.yearOfDiagnosisRange[0];year<=jpsurvData.calculate.form.yearOfDiagnosisRange[1];year++) {
     $("#year-of-diagnosis").append("<OPTION>"+year+"</OPTION>\n");
+    $("#year-of-diagnosis").val($("#year-of-diagnosis option:first").val());
   }
   //Set precision if cookie is available
   var precision = getCookie("precision");
@@ -1831,31 +1830,9 @@ jpsurvData.additional.intervals_default = [];
         }
     }
   }
-  updateSelectedIntervalYears();
 }
 
-function updateSelectedIntervalYears() {
-  var selectedIntervalYears =  $("#interval-years").val();
-  var selectedText = '';
-  if (selectedIntervalYears && selectedIntervalYears.length > 0) {
-    selectedText = selectedIntervalYears.join(', ');
-  }
-  $('#selected-interval-years').text(selectedText);
 
-  var selectedIntervalYears = $("#interval-years-death").val();
-  var selectedText = '';
-  if (selectedIntervalYears && selectedIntervalYears.length > 0) {
-    selectedText = selectedIntervalYears.join(', ');
-  }
-  $('#selected-interval-years-death').text(selectedText);
-
-  var selectedIntervalYears = $("#year-of-diagnosis").val();
-  var selectedText = '';
-  if (selectedIntervalYears && selectedIntervalYears.length > 0) {
-    selectedText = selectedIntervalYears.join(', ');
-  }
-  $('#selected-years-time').text(selectedText);
-}
 
 function getNumberOfIntervals() {
   if(control_data.input_type==undefined)
@@ -1954,16 +1931,11 @@ function set_year_of_diagnosis_select() {
 
 function set_intervals_from_diagnosis() {
   // start interval from 2 
-  for(i=1; i<control_data.VarFormatSecList.Interval.ItemNameInDic.length; i++) {
-    if (i == control_data.VarFormatSecList.Interval.ItemNameInDic.length - 1) {
-      $("#intervals_from_diagnosis").append("<OPTION selected value=" +
-      control_data.VarFormatSecList.Interval.ItemNameInDic[i] + "> <= " +
-      control_data.VarFormatSecList.Interval.ItemNameInDic[i] + " years</OPTION>");
-    } else {
+  for (i=1; i<control_data.VarFormatSecList.Interval.ItemNameInDic.length; i++) {
     $("#intervals_from_diagnosis").append("<OPTION value=" +
       control_data.VarFormatSecList.Interval.ItemNameInDic[i] + "> <= " +
-      control_data.VarFormatSecList.Interval.ItemNameInDic[i] + " years</OPTION>");
-    }
+      control_data.VarFormatSecList.Interval.ItemNameInDic[i] + "</OPTION>");
+    $("#intervals_from_diagnosis").val($("#intervals_from_diagnosis option:last").val());
   }
 
   $("#intervals_from_diagnosis").change(function() {
@@ -3034,6 +3006,12 @@ $(document).ready(function(){
  // $('a[rel=popover]').addClass('custom_popover');
  $.ajaxSetup({ cache: false });
 
+//  Apply select2 to all dropdowns
+ $('select').select2({
+  dropdownAutoWidth : true,
+  width: 'auto'
+ });
+
 });
 
 $(document).click(function (e) {
@@ -3071,7 +3049,7 @@ function settingsSheet() {
   // add settings and values
   sheet.push(['Year of Diagnosis', title]);
   sheet.push(['Year of Diagnosis Range', (range[0]+' - '+range[1])]);
-  sheet.push(['Intervals from Diagnosis Range', interval]);
+  sheet.push(['Max Intervals from Diagnosis to Include', interval]);
   for (i in cohortVars) {
     sheet.push([cohortVars[i], cohortValues[i].replace(/\"/g, '')]);
   }
