@@ -280,7 +280,7 @@ getFittedResult <- function (tokenId,filePath, seerFilePrefix, yearOfDiagnosisVa
   varLabels=getCorrectFormat(allVars)
   intervalRange = as.integer(jpsurvData$calculate$form$interval)
   statistic=jpsurvData$additional$DataTypeVariable
-  subsetStr <<- getSubsetStr(yearOfDiagnosisVarName, yearOfDiagnosisRange, cohortVars, cohortValues)
+  subsetStr <- getSubsetStr(yearOfDiagnosisVarName, yearOfDiagnosisRange, cohortVars, cohortValues)
   if (type=="dic") {
     file_name=paste(tokenId,seerFilePrefix, sep="" )
     file=paste(filePath, file_name, sep="/" )
@@ -291,7 +291,7 @@ getFittedResult <- function (tokenId,filePath, seerFilePrefix, yearOfDiagnosisVa
     # get subset of seerdata containing rows within user defined interval range (Intervals from Diagnosis Range)
     seerdataSub = subset(seerdata, Interval <= intervalRange)
     fittedResult=joinpoint(seerdataSub,
-                           subset = eval(parse(text=subsetStr)),
+                           subset = subsetStr,
                            year=getCorrectFormat(yearOfDiagnosisVarName),
                            observedrelsurv=statistic,
                            model.form = ~NULL,
