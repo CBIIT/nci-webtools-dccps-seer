@@ -1,13 +1,13 @@
 Package: JPSurv
-Version: 2.0.31
-Date: 2017/6/6
+Version: 2.0.32
+Date: 2019/7/17
 Title: Methods for population-based cancer survival analysis
 Author: Yongwu Shao <ywshao@gmail.com>, Jun Luo <luoj@imsweb.com>
-Maintainer: Dennis Buckman <buckmand@imsweb.com>, Daniel Miller <millerd@imsweb.com>
+Maintainer: Dennis Buckman <buckmand@imsweb.com>, Daniel Miller <millerd@imsweb.com>, Fanni Zhang<zhangf@imsweb.com>
 Description: Functions, methods, and datasets for cancer survival analysis,
  including the proportional hazard relative survival model, the join point
  relative survival model.
 License: GPL version 2 or newer
 URL: http://www.r-project.org
 NeedsCompilation: no
-Packaged: 2017-06-06 14:09:27 UTC; millerd
+Packaged: 2019-07-17 15:13:01 UTC; zhangf
