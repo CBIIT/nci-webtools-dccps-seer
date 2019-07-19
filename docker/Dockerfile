@@ -37,7 +37,7 @@ RUN pip install --upgrade \
         stompest.async \
         twisted
 
-COPY JPSurv_2.0.31.tar.gz /tmp/jpsurv.tar.gz
+COPY JPSurv_2.0.32.tar.gz /tmp/jpsurv.tar.gz
 
 RUN R -e "install.packages(c('ggplot2', 'rjson'))" \
  && R -e "install.packages('/tmp/jpsurv.tar.gz', repos = NULL)"
