@@ -1622,15 +1622,10 @@ function getIntervals() {
 function getAnnotation() {
   jpsurvData.additional.yearAnnotation = 0;
   jpsurvData.additional.deathAnnotation = 0;
-  jpsurvData.additional.topAnnotation = 0;
   if ($('#yearAnno').is(":checked")) {
     jpsurvData.additional.yearAnnotation = 1;
   }
-  if ($('#deathAnnoOptions').val() == 'top') {
-    jpsurvData.additional.topAnnotation = 1;
-    jpsurvData.additional.deathAnnotation = 1;
-  }
-  if ($('#deathAnnoOptions').val() == 'all') {
+  if ($('#deathAnno').is(":checked")) {
     jpsurvData.additional.deathAnnotation = 1;
   }
 }

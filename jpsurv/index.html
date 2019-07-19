@@ -382,23 +382,16 @@
             <div class="tab-content">
               <div id="graph-year-tab" class="tab-pane fade active in">
                 <div class="row">
-                  <div class="col-lg-7 d-flex align-items-start row">
-                    <div class="col-lg-4">
-                      <label for="interval-years" class="mx-1">
-                        <strong>Interval Years</strong>
-                      </label>
-                    </div>
-                    <div class="col-lg-7">
-                      <select id="interval-years" class="mx-1" multiple>
-                        <option selected>1</option>
-                        <option>2</option>
-                        <option>3</option>
-                        <option selected>4</option>
-                      </select>
-                    </div>
-                    <div class="col-lg-1">
-                      <button id="recalculate" class="btn btn-primary btn-sm" type="button">Recalculate</button>
-                    </div>
+                  <div class="col-lg-7 d-flex align-items-start">
+                    <label for="interval-years" class="mx-1 mr-5">
+                      <strong>Interval Years</strong>
+                    </label>
+                    <select id="interval-years" class="mx-1" multiple>
+                      <option selected>1</option>
+                      <option>2</option>
+                      <option>3</option>
+                      <option selected>4</option>
+                    </select>
                   </div>
                   <div class="col-lg-5 text-right">
                     <span>Download Dataset&nbsp;
@@ -409,10 +402,13 @@
                   </div>
                 </div>
 
-                <div class="row">
-                  <div class="col-lg-3">
-                    <label class="mx-1" for="yearAnno">Label Trends</label>
-                    <input class="checkbox-inline" type="checkbox" id="yearAnno" name="yearAnno">
+                <div class="row" style="margin-top: 1rem;">
+                  <div class="col-lg-5">
+                    <div style="display: inline-block; margin-right: 2.5rem;">
+                      <label class="mx-1" style="margin-right: 2.5rem;" for="yearAnno">Annotate Trends</label>
+                      <input class="checkbox-inline" type="checkbox" id="yearAnno" name="yearAnno">
+                    </div>
+                    <button id="recalculate" class="btn btn-primary btn-sm" type="button">Recalculate</button>
                   </div>
                 </div>
 
@@ -447,23 +443,16 @@
 
               <div id="graph-death-tab" class="tab-pane fade">
                 <div class="row">
-                  <div class="col-lg-7 d-flex align-items-start row">
-                    <div class="col-lg-4">
-                      <label for="interval-years-death" class="mx-1">
-                        <strong>Interval Years</strong>
-                      </label>
-                    </div>
-                    <div class="col-lg-7">
-                      <select id="interval-years-death" class="mx-1" multiple="multiple">
-                        <option selected>1</option>
-                        <option>2</option>
-                        <option>3</option>
-                        <option selected>4</option>
-                      </select>
-                    </div>
-                    <div class="col-lg-1">
-                      <button id="recalculate" class="btn btn-primary btn-sm" type="button">Recalculate</button>
-                    </div>
+                  <div class="col-lg-7 d-flex align-items-start ">
+                    <label for="interval-years-death" class="mx-1 mr-5">
+                      <strong>Interval Years</strong>
+                    </label>
+                    <select id="interval-years-death" class="mx-1" multiple="multiple">
+                      <option selected>1</option>
+                      <option>2</option>
+                      <option>3</option>
+                      <option selected>4</option>
+                    </select>
                   </div>
                   <div class="col-lg-5 text-right">
                     <span>Download Dataset&nbsp;
@@ -474,14 +463,13 @@
                   </div>
                 </div>
 
-                <div class="row">
-                  <div class="col-lg-6">
-                    <label class="mx-1">Label Trends:</label>
-                    <select id="deathAnnoOptions" class="mx-1">
-                      <option value="none" selected>None</option>
-                      <option value="top">Top</option>
-                      <option value="all">All</option>
-                    </select>
+                <div class="row" style="margin-top: 1rem;">
+                  <div class="col-lg-5">
+                    <div style="display: inline-block; margin-right: 2.5rem;">
+                      <label class="mx-1" style="margin-right: 2.5rem;" for="deathAnno">Annotate Trends</label>
+                      <input class="checkbox-inline" type="checkbox" id="deathAnno" name="deathAnno">
+                    </div>
+                    <button id="recalculate" class="btn btn-primary btn-sm" type="button">Recalculate</button>
                   </div>
                 </div>
 
