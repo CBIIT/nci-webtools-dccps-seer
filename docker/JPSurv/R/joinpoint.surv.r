@@ -909,13 +909,15 @@ joinpoint <- function(
   }
 #1) handle arguments
   mfcall <- match.call(expand.dots=FALSE);
-  mfcall.datainfo.index <- match(c("data", "subset", "na.action"), names(mfcall), 0L);
+  #mfcall.datainfo.index <- match(c("data", "subset", "na.action"), names(mfcall), 0L);
+  mfcall.datainfo.index <- match(c("data", "eval(parse(text=subset))", "na.action"), names(mfcall), 0L); ### FZ 07/16/2019
   mfcall.datainfo <- mfcall[c(1L, mfcall.datainfo.index)];
   mfcall.datainfo$drop.unused.levels <- TRUE;
   #inputdata=mfcall.datainfo$data;
   
 # extract data of survinfo: year, interval, number.event, number.alive, number.loss, expected.rate, observedrelsurv
-  crntdata=data;
+  #crntdata=data;
+  crntdata<-subset(data,eval(parse(text=subset))) ### FZ 07/17/2019
   classtypes = c(
     class(year), class(interval), 
     class(number.event), class(number.alive), class(number.loss), class(expected.rate),

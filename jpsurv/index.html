@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -13,7 +14,8 @@
     gtag('js', new Date());
     gtag('config', 'UA-62346354-12');
   </script>
-  <script src="https://assets.adobedtm.com/f1bfa9f7170c81b1a9a9ecdcc6c5215ee0b03c84/satelliteLib-4b219b82c4737db0e1797b6c511cf10c802c95cb.js"></script>
+  <script
+    src="https://assets.adobedtm.com/f1bfa9f7170c81b1a9a9ecdcc6c5215ee0b03c84/satelliteLib-4b219b82c4737db0e1797b6c511cf10c802c95cb.js"></script>
   <script lang="javascript" src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.14.3/shim.min.js"></script>
   <script lang="javascript" src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.14.3/xlsx.full.min.js"></script>
 
@@ -181,13 +183,13 @@
                   </div>
                   <div class="jpsurv-label-container">
                     <span class="jpsurv-label">Max Intervals from Diagnosis to Include:
-                        <span>
-                          <span class="jpsurv-label-content">
-                            <label for="intervals_from_diagnosis" style="display:none">Select</label>
-                            <select id="intervals_from_diagnosis" name="intervals_from_diagnosis"></select>
-                              &nbsp;Years
-                          </span>
+                      <span>
+                        <span class="jpsurv-label-content">
+                          <label for="intervals_from_diagnosis" style="display:none">Select</label>
+                          <select id="intervals_from_diagnosis" name="intervals_from_diagnosis"></select>
+                          &nbsp;Years
                         </span>
+                      </span>
                     </span>
                   </div>
                   <div id="cohort-variables">
@@ -209,8 +211,8 @@
                       <option>5</option>
 
                     </select>
-                      <i class="glyphicon glyphicon-question-sign glyphicon-blue cursor" aria-label="Help"
-                        id='max_help'></i></a>
+                    <i class="glyphicon glyphicon-question-sign glyphicon-blue cursor" aria-label="Help"
+                      id='max_help'></i></a>
                     <div class="row">
                       <div id="e-mail-msg" class="e-mail-grp" style="padding:5px 15px;display:none;">
                       </div>
@@ -380,38 +382,34 @@
             <div class="tab-content">
               <div id="graph-year-tab" class="tab-pane fade active in">
                 <div class="row">
-                  <div class="col-lg-7 d-flex align-items-start row">
-                    <div class="col-lg-4">
-                      <label for="interval-years" class="mx-1">
-                        <strong>Interval Years</strong>
-                      </label>
-                    </div>
-                    <div class="col-lg-7">
-                      <select id="interval-years" class="mx-1" multiple>
-                        <option selected>1</option>
-                        <option>2</option>
-                        <option>3</option>
-                        <option selected>4</option>
-                      </select>
-                    </div>
-                    <div class="col-lg-1">
-                      <button id="recalculate" class="btn btn-primary btn-sm" type="button">Recalculate</button>
-                    </div>      
+                  <div class="col-lg-7 d-flex align-items-start">
+                    <label for="interval-years" class="mx-1 mr-5">
+                      <strong>Interval Years</strong>
+                    </label>
+                    <select id="interval-years" class="mx-1" multiple>
+                      <option selected>1</option>
+                      <option>2</option>
+                      <option>3</option>
+                      <option selected>4</option>
+                    </select>
                   </div>
                   <div class="col-lg-5 text-right">
                     <span>Download Dataset&nbsp;
-                      <a class="download" id="graph-year-dataset-link" href="#" >Graph</a>
+                      <a class="download" id="graph-year-dataset-link" href="#">Graph</a>
                       &nbsp;|&nbsp;
-                      <a class="full-dataset-link download" href="#" >Full</a>
+                      <a class="full-dataset-link download" href="#">Full</a>
                     </span>
                   </div>
                 </div>
 
-                <div class="row">
-                  <div class="col-lg-3">
-                    <label class="mx-1" for="yearAnno">Label Trends</label>
-                    <input class="checkbox-inline" type="checkbox" id="yearAnno" name="yearAnno">
-                  </div>     
+                <div class="row" style="margin-top: 1rem;">
+                  <div class="col-lg-5">
+                    <div style="display: inline-block; margin-right: 2.5rem;">
+                      <label class="mx-1" style="margin-right: 2.5rem;" for="yearAnno">Annotate Trends</label>
+                      <input class="checkbox-inline" type="checkbox" id="yearAnno" name="yearAnno">
+                    </div>
+                    <button id="recalculate" class="btn btn-primary btn-sm" type="button">Recalculate</button>
+                  </div>
                 </div>
 
                 <div class="row">
@@ -445,40 +443,36 @@
 
               <div id="graph-death-tab" class="tab-pane fade">
                 <div class="row">
-                  <div class="col-lg-7 d-flex align-items-start row">
-                    <div class="col-lg-4">
-                      <label for="interval-years-death" class="mx-1">
-                        <strong>Interval Years</strong>
-                      </label>
-                    </div>
-                    <div class="col-lg-7">
-                      <select id="interval-years-death" class="mx-1" multiple="multiple">
-                        <option selected>1</option>
-                        <option>2</option>
-                        <option>3</option>
-                        <option selected>4</option>
-                      </select>
-                    </div>
-                    <div class="col-lg-1">
-                      <button id="recalculate" class="btn btn-primary btn-sm" type="button">Recalculate</button>
-                    </div>      
+                  <div class="col-lg-7 d-flex align-items-start ">
+                    <label for="interval-years-death" class="mx-1 mr-5">
+                      <strong>Interval Years</strong>
+                    </label>
+                    <select id="interval-years-death" class="mx-1" multiple="multiple">
+                      <option selected>1</option>
+                      <option>2</option>
+                      <option>3</option>
+                      <option selected>4</option>
+                    </select>
                   </div>
                   <div class="col-lg-5 text-right">
                     <span>Download Dataset&nbsp;
-                      <a class="download" id="graph-death-dataset-link" href="#" >Graph</a>
+                      <a class="download" id="graph-death-dataset-link" href="#">Graph</a>
                       &nbsp;|&nbsp;
-                      <a class="full-dataset-link download" href="#" >Full</a>
+                      <a class="full-dataset-link download" href="#">Full</a>
                     </span>
                   </div>
                 </div>
 
-                <div class="row">
-                  <div class="col-lg-3">
-                    <label class="mx-1" for="deathAnno">Label Trends</label>
-                    <input class="checkbox-inline" type="checkbox" id="deathAnno" name="deathAnno">
-                  </div>     
+                <div class="row" style="margin-top: 1rem;">
+                  <div class="col-lg-5">
+                    <div style="display: inline-block; margin-right: 2.5rem;">
+                      <label class="mx-1" style="margin-right: 2.5rem;" for="deathAnno">Annotate Trends</label>
+                      <input class="checkbox-inline" type="checkbox" id="deathAnno" name="deathAnno">
+                    </div>
+                    <button id="recalculate" class="btn btn-primary btn-sm" type="button">Recalculate</button>
+                  </div>
                 </div>
-                  
+
                 <div class="row">
                   <div class="col-md-offset-3" style="margin-top:1%">
                     <img src="" style="display:none;" alt="graph-death">
@@ -518,22 +512,22 @@
                     </div>
                     <div class="col-lg-7">
                       <select id="year-of-diagnosis" class="mx-1" multiple="multiple">
-                          <option selected>1975</option>
+                        <option selected>1975</option>
                       </select>
                     </div>
                     <div class="col-lg-1">
                       <button id="recalculate" class="btn btn-primary btn-sm" type="button">Recalculate</button>
-                    </div>      
+                    </div>
                   </div>
                   <div class="col-lg-5 text-right">
                     <span>Download Dataset&nbsp;
-                      <a class="download" id="graph-time-dataset-link" href="#" >Graph</a>
+                      <a class="download" id="graph-time-dataset-link" href="#">Graph</a>
                       &nbsp;|&nbsp;
-                      <a class="full-dataset-link download" href="#" >Full</a>
+                      <a class="full-dataset-link download" href="#">Full</a>
                     </span>
                   </div>
                 </div>
-                
+
                 <div class="row">
                   <div class="col-md-offset-3" style="margin-top:1%">
                     <img src="" style="display:none;" alt="graph-time">
@@ -593,19 +587,19 @@
           <div id="trends-tab" class="tab-pane fade">
             <h4>Trend Measures</h4>
             <div class="row">
-              <div class="col-md-7 col-sm-10 d-flex align-items-center">                    
-                  <label for="trends-interval-years" class="mx-1">
-                    <strong>Interval&nbsp;Years</strong>
-                  </label>
-                  <select id="trends-interval-years" class="mx-1">
-                      <option>1</option>
-                      <option>2</option>
-                      <option>3</option>
-                      <option>4</option>
-                      <option selected>5</option>
-                    </select>
+              <div class="col-md-7 col-sm-10 d-flex align-items-center">
+                <label for="trends-interval-years" class="mx-1">
+                  <strong>Interval&nbsp;Years</strong>
+                </label>
+                <select id="trends-interval-years" class="mx-1">
+                  <option>1</option>
+                  <option>2</option>
+                  <option>3</option>
+                  <option>4</option>
+                  <option selected>5</option>
+                </select>
 
-                    <button onclick="calculateTrend()" class="btn btn-primary btn-sm" type="button">Select</button>
+                <button onclick="calculateTrend()" class="btn btn-primary btn-sm" type="button">Select</button>
               </div>
             </div>
             <!-- <h5>Relative Change in Survival</h5>
@@ -646,7 +640,8 @@
               </table>
             </div>
             <div id='footnote'>
-              <sup>*Numbers represent the difference in cumulative survival rate (as the percent surviving) from one year at diagnosis to the previous.</sup>
+              <sup>*Numbers represent the difference in cumulative survival rate (as the percent surviving) from one
+                year at diagnosis to the previous.</sup>
             </div>
 
             <h5>Percent Change in the Annual Probability of Dying of Cancer by Diagnosis Year</h5>
@@ -713,7 +708,7 @@
     <div class="modal-dialog modal-sm">
       <div class="modal-content">
         <div class="modal-body">
-            <i class="fa fa-cog fa-spin fa-10x fa-fw"></i>
+          <i class="fa fa-cog fa-spin fa-10x fa-fw"></i>
         </div>
       </div>
     </div>
