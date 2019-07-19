@@ -280,7 +280,7 @@ getFittedResult <- function (tokenId,filePath, seerFilePrefix, yearOfDiagnosisVa
   varLabels=getCorrectFormat(allVars)
   intervalRange = as.integer(jpsurvData$calculate$form$interval)
   statistic=jpsurvData$additional$DataTypeVariable
-  subsetStr <<- getSubsetStr(yearOfDiagnosisVarName, yearOfDiagnosisRange, cohortVars, cohortValues)
+  subsetStr <- getSubsetStr(yearOfDiagnosisVarName, yearOfDiagnosisRange, cohortVars, cohortValues)
   if (type=="dic") {
     file_name=paste(tokenId,seerFilePrefix, sep="" )
     file=paste(filePath, file_name, sep="/" )
@@ -291,7 +291,7 @@ getFittedResult <- function (tokenId,filePath, seerFilePrefix, yearOfDiagnosisVa
     # get subset of seerdata containing rows within user defined interval range (Intervals from Diagnosis Range)
     seerdataSub = subset(seerdata, Interval <= intervalRange)
     fittedResult=joinpoint(seerdataSub,
-                           subset = eval(parse(text=subsetStr)),
+                           subset = subsetStr,
                            year=getCorrectFormat(yearOfDiagnosisVarName),
                            observedrelsurv=statistic,
                            model.form = ~NULL,
@@ -459,14 +459,13 @@ scaleTo <- function(data) {
               'CauseSpecific_Survival_Cum',
               'CauseSpecific_SE_Interval',
               'CauseSpecific_SE_Cum',
-              'Predicted_Int',
-              'Predicted_Cum',
-              'Predicted_Int_SE',
-              'Predicted_Cum_SE',
-              'pred_cum',
-              'pred_cum_se',
-              'pred_int',
-              'pred_int_se')
+              'Predicted_Survival_Int',
+              'Predicted_ProbDeath_Int',
+              'Predicted_Survival_Cum',
+              'Predicted_Survival_Int_SE',
+              'Predicted_ProbDeath_Int_SE',
+              'Predicted_Survival_Cum_SE'
+              )
   for (col in columns) {
     if (!is.null(data[[col]])) {
       data[[col]] <- data[[col]] * 100
@@ -527,30 +526,35 @@ getGraphWrapper <- function (filePath, jpsurvDataString, first_calc, com, interv
   outputData = readRDS(data)
   fit = outputData[['fittedResult']]
   obsintvar = "Relative_Survival_Interval"
-  predintvar = "Predicted_Int"
+  predintvar = "Predicted_ProbDeath_Int"
   obscumvar = "Relative_Survival_Cum"
-  predcumvar = "Predicted_Cum"
+  predcumvar = "Predicted_Survival_Cum"
   if (statistic == 'CauseSpecific_Survival_Cum') {
     obsintvar = "CauseSpecific_Survival_Interval"
     obscumvar = "CauseSpecific_Survival_Cum"
   }
-
-  annotation = 0
   # create graph
   if (type == 'death') {
-    anno = jpsurvData$additional$deathAnno
-    if (nJP <= 3 && length(jpsurvData$additional$intervalsDeath) <= 3 && anno == 1) {
-      annotation = 1
+    annotation = jpsurvData$additional$deathAnnotation
+    topanno = jpsurvData$additional$topAnnotation
+    if (nJP <= 3 && length(jpsurvData$additional$intervalsDeath) <= 3) {
+      if (topanno == 1) {
+        annotation = 1
+        # Label top trend only
+      } else if (annotation == 1) {
+        topanno = 0
+        # Label all trends
+      }
     } 
-      graph = plot.dying.year.annotate(graphData, fit, nJP, yearVar, obsintvar, predintvar, interval, annotation)
+      graph = plot.dying.year.annotate(graphData, fit, nJP, yearVar, obsintvar, predintvar, interval, annotation, topanno)
       graphFile = paste(filePath, paste("plot_Death-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/")
       ggsave(file=paste(filePath, paste("plot_Death-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/"), plot = graph)
       graphData = scaleTo(graphData)
       results = list("deathGraph" = graphFile, "deathTable" = graphData)
   } else if (type == 'year') {
-      anno = jpsurvData$additional$yearAnno
-      if (nJP <= 3 && length(jpsurvData$additional$intervals) <= 3 && anno == 1) {
-        annotation = 1
+      annotation = jpsurvData$additional$yearAnno
+      if (!(nJP <= 3 && length(jpsurvData$additional$intervals) <= 3 && annotation == 1)) {
+        annotation = 0
     } 
       graph = plot.surv.year.annotate(graphData, fit, nJP, yearVar, obscumvar, predcumvar, interval, annotation)
       graphFile = paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/")
@@ -606,9 +610,15 @@ download.data<-function(input,fit,nJP,yearvar,downloadtype,subset=NULL,interval=
   cols.output<-colnames(output.sub)
   merge.sub<-output.sub
   merge.sub[,cols.input]<-input.sub[rows.match,cols.input]
-  merge.data<-merge.sub[,c(cols.input,"pred_int","pred_cum","pred_int_se","pred_cum_se")]
-  pred.cols<-c("Predicted_Int","Predicted_Cum","Predicted_Int_SE","Predicted_Cum_SE")
-  colnames(merge.data)[(length(colnames(merge.data))-3):length(colnames(merge.data))]<-pred.cols
+  colnames(merge.sub)[which(colnames(merge.sub)=="pred_int")]<-"Predicted_Survival_Int"
+  colnames(merge.sub)[which(colnames(merge.sub)=="pred_cum")]<-"Predicted_Survival_Cum"
+  colnames(merge.sub)[which(colnames(merge.sub)=="pred_int_se")]<-"Predicted_Survival_Int_SE"
+  colnames(merge.sub)[which(colnames(merge.sub)=="pred_cum_se")]<-"Predicted_Survival_Cum_SE"
+  merge.sub[,"Predicted_ProbDeath_Int"]<-1-merge.sub$Predicted_Survival_Int
+  merge.sub[,"Predicted_ProbDeath_Int_SE"]<-merge.sub$Predicted_Survival_Int_SE
+  cols.pred<-c("Predicted_Survival_Int","Predicted_ProbDeath_Int","Predicted_Survival_Cum",
+              "Predicted_Survival_Int_SE","Predicted_Survival_Cum_SE","Predicted_ProbDeath_Int_SE")
+  merge.data<-merge.sub[,c(cols.input,cols.pred)]
   if(downloadtype=="full"){
     merge.data[,yearvar]<-output.sub[,yearvar]
     merge.data[,interval]<-output.sub[,interval]
@@ -638,20 +648,21 @@ download.data<-function(input,fit,nJP,yearvar,downloadtype,subset=NULL,interval=
 # yearvar - the variable name for year of diagnosis used in argument 'year' of the function joinpoint.
 # obsintvar - the variable name for observed interval survival. The default is "Relative_Survival_Interval"
 #             for relative survival data. For cause-specific data, it needs to be changed accordingly.
-# predintvar - the variable name for predicted interval survival.
+# predintvar - the variable name for predicted interval survival. The default is "Predicted_ProbDeath_Int".
 # interval - the variable name for year since diagnosis. The default is 'Interval'.
-# annotation - the indicator for annotation feature. The default is 0 (no annotation on the plot).
+# annotation - the indicator for the annotation feature. The default is 0 (no annotation on the plot).
+# topanno - the indicator for showing the top curve annotation. The default is 1 (annotation for the top curve).
 #########################################################################################################
 
 ### define a plot function for Percent Change in the Annual Probability of Dying of Cancer by Diagnosis year with annotations
-plot.dying.year.annotate<-function(plotdata,fit,nJP,yearvar,obsintvar="Relative_Survival_Interval",predintvar="Predicted_Int",interval="Interval",annotation=0){
+plot.dying.year.annotate<-function(plotdata,fit,nJP,yearvar,obsintvar="Relative_Survival_Interval",predintvar="Predicted_ProbDeath_Int",interval="Interval",annotation=0,topanno=1){
   title.rch<-"Percent Change in the Annual Probability of Dying of Cancer \n by Diagnosis Year"
   interval.values<-as.numeric(unique(plotdata[,"Interval"]))
   interval.labels<-paste((interval.values-1)," to ",interval.values," years since diagnosis",sep="")
   if(interval.values[1]==1){
     interval.labels[1]<-"0 to 1 year since diagnosis"
   }
- 
+  
   if(annotation==1){  
     if(length(interval.values)<=3 & nJP<=3){
       ### haz results are the same for all interval values
@@ -666,8 +677,8 @@ plot.dying.year.annotate<-function(plotdata,fit,nJP,yearvar,obsintvar="Relative_
         if(max(plotdata.i[,yearvar])==max(haz.apc$end.year) | nJP==0){
           end.year<-haz.apc$end.year
           end.year[length(haz.apc$end.year)]<-max(plotdata.i[,yearvar])
-          y.values.i<-1/2*((1-plotdata.i[which(plotdata.i[,yearvar] %in% haz.apc$start.year),predintvar])+
-                             (1-plotdata.i[which(plotdata.i[,yearvar] %in% end.year),predintvar]))
+          y.values.i<-1/2*(plotdata.i[which(plotdata.i[,yearvar] %in% haz.apc$start.year),predintvar]+
+                             plotdata.i[which(plotdata.i[,yearvar] %in% end.year),predintvar])
           x.values.i<-1/2*(haz.apc$start.year+end.year)
         }
         if(max(plotdata.i[,yearvar])<max(haz.apc$end.year)){
@@ -675,13 +686,13 @@ plot.dying.year.annotate<-function(plotdata,fit,nJP,yearvar,obsintvar="Relative_
             if(max(plotdata.i[,yearvar])>jp.loc){
               end.year<-haz.apc$end.year
               end.year[length(haz.apc$end.year)]<-max(plotdata.i[,yearvar])
-              y.values.i<-1/2*((1-plotdata.i[which(plotdata.i[,yearvar] %in% haz.apc$start.year),predintvar])+
-                                 (1-plotdata.i[which(plotdata.i[,yearvar] %in% end.year),predintvar]))
+              y.values.i<-1/2*(plotdata.i[which(plotdata.i[,yearvar] %in% haz.apc$start.year),predintvar]+
+                               plotdata.i[which(plotdata.i[,yearvar] %in% end.year),predintvar])
               x.values.i<-1/2*(haz.apc$start.year+end.year)
             }else{
               haz.apc<-haz.apc[1:nJP,]
-              y.values.i<-1/2*((1-plotdata.i[which(plotdata.i[,yearvar] %in% haz.apc$start.year),predintvar])+
-                                 (1-plotdata.i[which(plotdata.i[,yearvar] %in% haz.apc$end.year),predintvar]))
+              y.values.i<-1/2*(plotdata.i[which(plotdata.i[,yearvar] %in% haz.apc$start.year),predintvar]+
+                               plotdata.i[which(plotdata.i[,yearvar] %in% haz.apc$end.year),predintvar])
               x.values.i<-1/2*(haz.apc$start.year+haz.apc$end.year)
             }
           } ## nJP=1 end
@@ -689,20 +700,20 @@ plot.dying.year.annotate<-function(plotdata,fit,nJP,yearvar,obsintvar="Relative_
             if(max(plotdata.i[,yearvar])>max(jp.loc)){
               end.year<-haz.apc$end.year
               end.year[length(haz.apc$end.year)]<-max(plotdata.i[,yearvar])
-              y.values.i<-1/2*((1-plotdata.i[which(plotdata.i[,yearvar] %in% haz.apc$start.year),predintvar])+
-                                 (1-plotdata.i[which(plotdata.i[,yearvar] %in% end.year),predintvar]))
+              y.values.i<-1/2*(plotdata.i[which(plotdata.i[,yearvar] %in% haz.apc$start.year),predintvar]+
+                               plotdata.i[which(plotdata.i[,yearvar] %in% end.year),predintvar])
               x.values.i<-1/2*(haz.apc$start.year+end.year)
             } else if(max(plotdata.i[,yearvar])<=max(jp.loc) & max(plotdata.i[,yearvar])>min(jp.loc)){
               haz.apc<-haz.apc[1:nJP,]
-              y.values.i<-1/2*((1-plotdata.i[which(plotdata.i[,yearvar] %in% haz.apc$start.year),predintvar])+
-                                 (1-plotdata.i[which(plotdata.i[,yearvar] %in% haz.apc$end.year),predintvar]))
+              y.values.i<-1/2*(plotdata.i[which(plotdata.i[,yearvar] %in% haz.apc$start.year),predintvar]+
+                               plotdata.i[which(plotdata.i[,yearvar] %in% haz.apc$end.year),predintvar])
               x.values.i<-1/2*(haz.apc$start.year+haz.apc$end.year)
             } else{
               haz.apc<-haz.apc[1:(nJP-1),]
               end.year<-haz.apc$end.year
               end.year[length(haz.apc$end.year)]<-max(plotdata.i[,yearvar])
-              y.values.i<-1/2*((1-plotdata.i[which(plotdata.i[,yearvar] %in% haz.apc$start.year),predintvar])+
-                                 (1-plotdata.i[which(plotdata.i[,yearvar] %in% end.year),predintvar]))
+              y.values.i<-1/2*(plotdata.i[which(plotdata.i[,yearvar] %in% haz.apc$start.year),predintvar]+
+                               plotdata.i[which(plotdata.i[,yearvar] %in% end.year),predintvar])
               x.values.i<-1/2*(haz.apc$start.year+end.year)
             }
           } ## nJP=2 end
@@ -710,29 +721,29 @@ plot.dying.year.annotate<-function(plotdata,fit,nJP,yearvar,obsintvar="Relative_
             if(max(plotdata.i[,yearvar])>max(jp.loc)){
               end.year<-haz.apc$end.year
               end.year[length(haz.apc$end.year)]<-max(plotdata.i[,yearvar])
-              y.values.i<-1/2*((1-plotdata.i[which(plotdata.i[,yearvar] %in% haz.apc$start.year),predintvar])+
-                                 (1-plotdata.i[which(plotdata.i[,yearvar] %in% end.year),predintvar]))
+              y.values.i<-1/2*(plotdata.i[which(plotdata.i[,yearvar] %in% haz.apc$start.year),predintvar]+
+                               plotdata.i[which(plotdata.i[,yearvar] %in% end.year),predintvar])
               x.values.i<-1/2*(haz.apc$start.year+end.year)
             } else if(max(plotdata.i[,yearvar])<=max(jp.loc) & max(plotdata.i[,yearvar])>jp.loc[2]){
               haz.apc<-haz.apc[1:nJP,]
               end.year<-haz.apc$end.year
               end.year[length(haz.apc$end.year)]<-max(plotdata.i[,yearvar])
-              y.values.i<-1/2*((1-plotdata.i[which(plotdata.i[,yearvar] %in% haz.apc$start.year),predintvar])+
-                                 (1-plotdata.i[which(plotdata.i[,yearvar] %in% end.year),predintvar]))
+              y.values.i<-1/2*(plotdata.i[which(plotdata.i[,yearvar] %in% haz.apc$start.year),predintvar]+
+                               plotdata.i[which(plotdata.i[,yearvar] %in% end.year),predintvar])
               x.values.i<-1/2*(haz.apc$start.year+end.year)
             } else if(max(plotdata.i[,yearvar])<=jp.loc[2] & max(plotdata.i[,yearvar])>=jp.loc[1]){
               haz.apc<-haz.apc[1:(nJP-1),]
               end.year<-haz.apc$end.year
               end.year[length(haz.apc$end.year)]<-max(plotdata.i[,yearvar])
-              y.values.i<-1/2*((1-plotdata.i[which(plotdata.i[,yearvar] %in% haz.apc$start.year),predintvar])+
-                                 (1-plotdata.i[which(plotdata.i[,yearvar] %in% end.year),predintvar]))
+              y.values.i<-1/2*(plotdata.i[which(plotdata.i[,yearvar] %in% haz.apc$start.year),predintvar]+
+                               plotdata.i[which(plotdata.i[,yearvar] %in% end.year),predintvar])
               x.values.i<-1/2*(haz.apc$start.year+end.year)
             } else {
               haz.apc<-haz.apc[1:(nJP-2),]
               end.year<-haz.apc$end.year
               end.year[length(haz.apc$end.year)]<-max(plotdata.i[,yearvar])
-              y.values.i<-1/2*((1-plotdata.i[which(plotdata.i[,yearvar] %in% haz.apc$start.year),predintvar])+
-                                 (1-plotdata.i[which(plotdata.i[,yearvar] %in% end.year),predintvar]))
+              y.values.i<-1/2*(plotdata.i[which(plotdata.i[,yearvar] %in% haz.apc$start.year),predintvar]+
+                               plotdata.i[which(plotdata.i[,yearvar] %in% end.year),predintvar])
               x.values.i<-1/2*(haz.apc$start.year+end.year)
             }
           } ## nJP=3 end
@@ -743,8 +754,8 @@ plot.dying.year.annotate<-function(plotdata,fit,nJP,yearvar,obsintvar="Relative_
       if(length(interval.values)==1){
         hues=seq(15,375,length=length(interval.values)+1)
         gg_color_hue<-hcl(h=hues,l=65,c=100)[1:length(interval.values)]
-        plot<-ggplot(data=plotdata, aes(x=plotdata[,yearvar], y=1-plotdata[,predintvar],group=as.factor(plotdata[,interval]), colour=as.factor(plotdata[,interval]))) + 
-          geom_line(data=plotdata, aes(x=plotdata[,yearvar], y=1-plotdata[,predintvar],group=as.factor(plotdata[,interval]), colour=as.factor(plotdata[,interval])),linetype="solid")+
+        plot<-ggplot(data=plotdata, aes(x=plotdata[,yearvar], y=plotdata[,predintvar],group=as.factor(plotdata[,interval]), colour=as.factor(plotdata[,interval]))) + 
+          geom_line(data=plotdata, aes(x=plotdata[,yearvar], y=plotdata[,predintvar],group=as.factor(plotdata[,interval]), colour=as.factor(plotdata[,interval])),linetype="solid")+
           geom_point(data=plotdata, aes(x=plotdata[,yearvar], y=1-plotdata[,obsintvar], group=as.factor(plotdata[,interval]), colour=as.factor(plotdata[,interval])))+
           xlab('Year at diagnosis') + ylab('Annual Probability of Cancer Death (%)')+
           theme_bw()+
@@ -764,56 +775,100 @@ plot.dying.year.annotate<-function(plotdata,fit,nJP,yearvar,obsintvar="Relative_
       if(length(interval.values)==2){
         hues=seq(15,375,length=length(interval.values)+1)
         gg_color_hue<-hcl(h=hues,l=65,c=100)[1:length(interval.values)]
-        plot<-ggplot(data=plotdata, aes(x=plotdata[,yearvar], y=1-plotdata[,predintvar],group=as.factor(plotdata[,interval]), colour=as.factor(plotdata[,interval]))) + 
-          geom_line(data=plotdata, aes(x=plotdata[,yearvar], y=1-plotdata[,predintvar],group=as.factor(plotdata[,interval]), colour=as.factor(plotdata[,interval])),linetype="solid")+
-          geom_point(data=plotdata, aes(x=plotdata[,yearvar], y=1-plotdata[,obsintvar], group=as.factor(plotdata[,interval]), colour=as.factor(plotdata[,interval])))+
-          xlab('Year at diagnosis') + ylab('Annual Probability of Cancer Death (%)')+
-          theme_bw()+
-          ggtitle(title.rch) +
-          coord_cartesian(ylim=c(0,1))+
-          scale_y_continuous(breaks=seq(0,1,0.1),labels = scales::percent)+
-          scale_x_continuous(breaks=seq(min(plotdata[,yearvar],na.rm=T),max(plotdata[,yearvar],na.rm=T),5))+
-          scale_color_hue(labels = interval.labels)+
-          theme(legend.position="bottom")+
-          theme(legend.title=element_blank())+
-          theme(plot.title = element_text(hjust = 0.5))+
-          annotate("text", x = x.values[[1]][1], y = y.values[[1]][1]+0.03, label = annot.strs[1], colour=gg_color_hue[1])+
-          annotate("text", x = x.values[[1]][2], y = y.values[[1]][2]+0.03, label = annot.strs[2], colour=gg_color_hue[1])+
-          annotate("text", x = x.values[[1]][3], y = y.values[[1]][3]+0.03, label = annot.strs[3], colour=gg_color_hue[1])+
-          annotate("text", x = x.values[[1]][4], y = y.values[[1]][4]+0.03, label = annot.strs[4], colour=gg_color_hue[1])+
-          annotate("text", x = x.values[[2]][1], y = y.values[[2]][1]+0.03, label = annot.strs[1], colour=gg_color_hue[2])+
-          annotate("text", x = x.values[[2]][2], y = y.values[[2]][2]+0.03, label = annot.strs[2], colour=gg_color_hue[2])+
-          annotate("text", x = x.values[[2]][3], y = y.values[[2]][3]+0.03, label = annot.strs[3], colour=gg_color_hue[2])+
-          annotate("text", x = x.values[[2]][4], y = y.values[[2]][4]+0.03, label = annot.strs[4], colour=gg_color_hue[2])    
+        if(topanno==1){
+          ymeans.byint<-aggregate(plotdata[,"Predicted_ProbDeath_Int"], list(plotdata[,interval]), mean)
+          topint<-which(ymeans.byint[,2]==max(ymeans.byint[,2]))
+          plot<-ggplot(data=plotdata, aes(x=plotdata[,yearvar], y=plotdata[,predintvar],group=as.factor(plotdata[,interval]), colour=as.factor(plotdata[,interval]))) + 
+            geom_line(data=plotdata, aes(x=plotdata[,yearvar], y=plotdata[,predintvar],group=as.factor(plotdata[,interval]), colour=as.factor(plotdata[,interval])),linetype="solid")+
+            geom_point(data=plotdata, aes(x=plotdata[,yearvar], y=1-plotdata[,obsintvar], group=as.factor(plotdata[,interval]), colour=as.factor(plotdata[,interval])))+
+            xlab('Year at diagnosis') + ylab('Annual Probability of Cancer Death (%)')+
+            theme_bw()+
+            ggtitle(title.rch) +
+            coord_cartesian(ylim=c(0,1))+
+            scale_y_continuous(breaks=seq(0,1,0.1),labels = scales::percent)+
+            scale_x_continuous(breaks=seq(min(plotdata[,yearvar],na.rm=T),max(plotdata[,yearvar],na.rm=T),5))+
+            scale_color_hue(labels = interval.labels)+
+            theme(legend.position="bottom")+
+            theme(legend.title=element_blank())+
+            theme(plot.title = element_text(hjust = 0.5))+
+            annotate("text", x = x.values[[topint]][1], y = y.values[[topint]][1]+0.03, label = annot.strs[1], colour=gg_color_hue[topint])+
+            annotate("text", x = x.values[[topint]][2], y = y.values[[topint]][2]+0.03, label = annot.strs[2], colour=gg_color_hue[topint])+
+            annotate("text", x = x.values[[topint]][3], y = y.values[[topint]][3]+0.03, label = annot.strs[3], colour=gg_color_hue[topint])+
+            annotate("text", x = x.values[[topint]][4], y = y.values[[topint]][4]+0.03, label = annot.strs[4], colour=gg_color_hue[topint])
+        }else{
+          plot<-ggplot(data=plotdata, aes(x=plotdata[,yearvar], y=plotdata[,predintvar],group=as.factor(plotdata[,interval]), colour=as.factor(plotdata[,interval]))) + 
+            geom_line(data=plotdata, aes(x=plotdata[,yearvar], y=plotdata[,predintvar],group=as.factor(plotdata[,interval]), colour=as.factor(plotdata[,interval])),linetype="solid")+
+            geom_point(data=plotdata, aes(x=plotdata[,yearvar], y=1-plotdata[,obsintvar], group=as.factor(plotdata[,interval]), colour=as.factor(plotdata[,interval])))+
+            xlab('Year at diagnosis') + ylab('Annual Probability of Cancer Death (%)')+
+            theme_bw()+
+            ggtitle(title.rch) +
+            coord_cartesian(ylim=c(0,1))+
+            scale_y_continuous(breaks=seq(0,1,0.1),labels = scales::percent)+
+            scale_x_continuous(breaks=seq(min(plotdata[,yearvar],na.rm=T),max(plotdata[,yearvar],na.rm=T),5))+
+            scale_color_hue(labels = interval.labels)+
+            theme(legend.position="bottom")+
+            theme(legend.title=element_blank())+
+            theme(plot.title = element_text(hjust = 0.5))+
+            annotate("text", x = x.values[[1]][1], y = y.values[[1]][1]+0.03, label = annot.strs[1], colour=gg_color_hue[1])+
+            annotate("text", x = x.values[[1]][2], y = y.values[[1]][2]+0.03, label = annot.strs[2], colour=gg_color_hue[1])+
+            annotate("text", x = x.values[[1]][3], y = y.values[[1]][3]+0.03, label = annot.strs[3], colour=gg_color_hue[1])+
+            annotate("text", x = x.values[[1]][4], y = y.values[[1]][4]+0.03, label = annot.strs[4], colour=gg_color_hue[1])+
+            annotate("text", x = x.values[[2]][1], y = y.values[[2]][1]+0.03, label = annot.strs[1], colour=gg_color_hue[2])+
+            annotate("text", x = x.values[[2]][2], y = y.values[[2]][2]+0.03, label = annot.strs[2], colour=gg_color_hue[2])+
+            annotate("text", x = x.values[[2]][3], y = y.values[[2]][3]+0.03, label = annot.strs[3], colour=gg_color_hue[2])+
+            annotate("text", x = x.values[[2]][4], y = y.values[[2]][4]+0.03, label = annot.strs[4], colour=gg_color_hue[2])
+        }
       }
       if(length(interval.values)==3){
         hues=seq(15,375,length=length(interval.values)+1)
         gg_color_hue<-hcl(h=hues,l=65,c=100)[1:length(interval.values)]
-        plot<-ggplot(data=plotdata, aes(x=plotdata[,yearvar], y=1-plotdata[,predintvar],group=as.factor(plotdata[,interval]), colour=as.factor(plotdata[,interval]))) + 
-          geom_line(data=plotdata, aes(x=plotdata[,yearvar], y=1-plotdata[,predintvar],group=as.factor(plotdata[,interval]), colour=as.factor(plotdata[,interval])),linetype="solid")+
-          geom_point(data=plotdata, aes(x=plotdata[,yearvar], y=1-plotdata[,obsintvar], group=as.factor(plotdata[,interval]), colour=as.factor(plotdata[,interval])))+
-          xlab('Year at diagnosis') + ylab('Annual Probability of Cancer Death (%)')+
-          theme_bw()+
-          ggtitle(title.rch) +
-          coord_cartesian(ylim=c(0,1))+
-          scale_y_continuous(breaks=seq(0,1,0.1),labels = scales::percent)+
-          scale_x_continuous(breaks=seq(min(plotdata[,yearvar],na.rm=T),max(plotdata[,yearvar],na.rm=T),5))+
-          scale_color_hue(labels = interval.labels)+
-          theme(legend.position="bottom")+
-          theme(legend.title=element_blank())+
-          theme(plot.title = element_text(hjust = 0.5))+
-          annotate("text", x = x.values[[1]][1], y = y.values[[1]][1]+0.03, label = annot.strs[1], colour=gg_color_hue[1])+
-          annotate("text", x = x.values[[1]][2], y = y.values[[1]][2]+0.03, label = annot.strs[2], colour=gg_color_hue[1])+
-          annotate("text", x = x.values[[1]][3], y = y.values[[1]][3]+0.03, label = annot.strs[3], colour=gg_color_hue[1])+
-          annotate("text", x = x.values[[1]][4], y = y.values[[1]][4]+0.03, label = annot.strs[4], colour=gg_color_hue[1])+
-          annotate("text", x = x.values[[2]][1], y = y.values[[2]][1]+0.03, label = annot.strs[1], colour=gg_color_hue[2])+
-          annotate("text", x = x.values[[2]][2], y = y.values[[2]][2]+0.03, label = annot.strs[2], colour=gg_color_hue[2])+
-          annotate("text", x = x.values[[2]][3], y = y.values[[2]][3]+0.03, label = annot.strs[3], colour=gg_color_hue[2])+
-          annotate("text", x = x.values[[2]][4], y = y.values[[2]][4]+0.03, label = annot.strs[4], colour=gg_color_hue[2])+
-          annotate("text", x = x.values[[3]][1], y = y.values[[3]][1]+0.03, label = annot.strs[1], colour=gg_color_hue[3])+
-          annotate("text", x = x.values[[3]][2], y = y.values[[3]][2]+0.03, label = annot.strs[2], colour=gg_color_hue[3])+
-          annotate("text", x = x.values[[3]][3], y = y.values[[3]][3]+0.03, label = annot.strs[3], colour=gg_color_hue[3])+
-          annotate("text", x = x.values[[3]][4], y = y.values[[3]][4]+0.03, label = annot.strs[4], colour=gg_color_hue[3])
+        if(topanno==1){
+          ymeans.byint<-aggregate(plotdata[,"Predicted_ProbDeath_Int"], list(plotdata[,interval]), mean)
+          topint<-which(ymeans.byint[,2]==max(ymeans.byint[,2]))
+          plot<-ggplot(data=plotdata, aes(x=plotdata[,yearvar], y=plotdata[,predintvar],group=as.factor(plotdata[,interval]), colour=as.factor(plotdata[,interval]))) + 
+            geom_line(data=plotdata, aes(x=plotdata[,yearvar], y=plotdata[,predintvar],group=as.factor(plotdata[,interval]), colour=as.factor(plotdata[,interval])),linetype="solid")+
+            geom_point(data=plotdata, aes(x=plotdata[,yearvar], y=1-plotdata[,obsintvar], group=as.factor(plotdata[,interval]), colour=as.factor(plotdata[,interval])))+
+            xlab('Year at diagnosis') + ylab('Annual Probability of Cancer Death (%)')+
+            theme_bw()+
+            ggtitle(title.rch) +
+            coord_cartesian(ylim=c(0,1))+
+            scale_y_continuous(breaks=seq(0,1,0.1),labels = scales::percent)+
+            scale_x_continuous(breaks=seq(min(plotdata[,yearvar],na.rm=T),max(plotdata[,yearvar],na.rm=T),5))+
+            scale_color_hue(labels = interval.labels)+
+            theme(legend.position="bottom")+
+            theme(legend.title=element_blank())+
+            theme(plot.title = element_text(hjust = 0.5))+
+            annotate("text", x = x.values[[topint]][1], y = y.values[[topint]][1]+0.03, label = annot.strs[1], colour=gg_color_hue[topint])+
+            annotate("text", x = x.values[[topint]][2], y = y.values[[topint]][2]+0.03, label = annot.strs[2], colour=gg_color_hue[topint])+
+            annotate("text", x = x.values[[topint]][3], y = y.values[[topint]][3]+0.03, label = annot.strs[3], colour=gg_color_hue[topint])+
+            annotate("text", x = x.values[[topint]][4], y = y.values[[topint]][4]+0.03, label = annot.strs[4], colour=gg_color_hue[topint])
+        }else{
+          plot<-ggplot(data=plotdata, aes(x=plotdata[,yearvar], y=plotdata[,predintvar],group=as.factor(plotdata[,interval]), colour=as.factor(plotdata[,interval]))) + 
+            geom_line(data=plotdata, aes(x=plotdata[,yearvar], y=plotdata[,predintvar],group=as.factor(plotdata[,interval]), colour=as.factor(plotdata[,interval])),linetype="solid")+
+            geom_point(data=plotdata, aes(x=plotdata[,yearvar], y=1-plotdata[,obsintvar], group=as.factor(plotdata[,interval]), colour=as.factor(plotdata[,interval])))+
+            xlab('Year at diagnosis') + ylab('Annual Probability of Cancer Death (%)')+
+            theme_bw()+
+            ggtitle(title.rch) +
+            coord_cartesian(ylim=c(0,1))+
+            scale_y_continuous(breaks=seq(0,1,0.1),labels = scales::percent)+
+            scale_x_continuous(breaks=seq(min(plotdata[,yearvar],na.rm=T),max(plotdata[,yearvar],na.rm=T),5))+
+            scale_color_hue(labels = interval.labels)+
+            theme(legend.position="bottom")+
+            theme(legend.title=element_blank())+
+            theme(plot.title = element_text(hjust = 0.5))+
+            annotate("text", x = x.values[[1]][1], y = y.values[[1]][1]+0.03, label = annot.strs[1], colour=gg_color_hue[1])+
+            annotate("text", x = x.values[[1]][2], y = y.values[[1]][2]+0.03, label = annot.strs[2], colour=gg_color_hue[1])+
+            annotate("text", x = x.values[[1]][3], y = y.values[[1]][3]+0.03, label = annot.strs[3], colour=gg_color_hue[1])+
+            annotate("text", x = x.values[[1]][4], y = y.values[[1]][4]+0.03, label = annot.strs[4], colour=gg_color_hue[1])+
+            annotate("text", x = x.values[[2]][1], y = y.values[[2]][1]+0.03, label = annot.strs[1], colour=gg_color_hue[2])+
+            annotate("text", x = x.values[[2]][2], y = y.values[[2]][2]+0.03, label = annot.strs[2], colour=gg_color_hue[2])+
+            annotate("text", x = x.values[[2]][3], y = y.values[[2]][3]+0.03, label = annot.strs[3], colour=gg_color_hue[2])+
+            annotate("text", x = x.values[[2]][4], y = y.values[[2]][4]+0.03, label = annot.strs[4], colour=gg_color_hue[2])+
+            annotate("text", x = x.values[[3]][1], y = y.values[[3]][1]+0.03, label = annot.strs[1], colour=gg_color_hue[3])+
+            annotate("text", x = x.values[[3]][2], y = y.values[[3]][2]+0.03, label = annot.strs[2], colour=gg_color_hue[3])+
+            annotate("text", x = x.values[[3]][3], y = y.values[[3]][3]+0.03, label = annot.strs[3], colour=gg_color_hue[3])+
+            annotate("text", x = x.values[[3]][4], y = y.values[[3]][4]+0.03, label = annot.strs[4], colour=gg_color_hue[3])
+        }
       }
     }
     if(length(interval.values)>3 | nJP>3){
@@ -822,8 +877,8 @@ plot.dying.year.annotate<-function(plotdata,fit,nJP,yearvar,obsintvar="Relative_
     }
   }
   if(annotation==0){
-    plot<-ggplot(data=plotdata, aes(x=plotdata[,yearvar], y=1-plotdata[,predintvar],group=as.factor(plotdata[,interval]), colour=as.factor(plotdata[,interval]))) + 
-      geom_line(data=plotdata, aes(x=plotdata[,yearvar], y=1-plotdata[,predintvar],group=as.factor(plotdata[,interval]), colour=as.factor(plotdata[,interval])),linetype="solid")+
+    plot<-ggplot(data=plotdata, aes(x=plotdata[,yearvar], y=plotdata[,predintvar],group=as.factor(plotdata[,interval]), colour=as.factor(plotdata[,interval]))) + 
+      geom_line(data=plotdata, aes(x=plotdata[,yearvar], y=plotdata[,predintvar],group=as.factor(plotdata[,interval]), colour=as.factor(plotdata[,interval])),linetype="solid")+
       geom_point(data=plotdata, aes(x=plotdata[,yearvar], y=1-plotdata[,obsintvar], group=as.factor(plotdata[,interval]), colour=as.factor(plotdata[,interval])))+
       xlab('Year at diagnosis') + ylab('Annual Probability of Cancer Death (%)')+
       ggtitle(title.rch) +
@@ -834,6 +889,15 @@ plot.dying.year.annotate<-function(plotdata,fit,nJP,yearvar,obsintvar="Relative_
       theme(legend.position="bottom")+
       theme(legend.title=element_blank())+
       theme(plot.title = element_text(hjust = 0.5))
+  }
+  
+  if(!annotation %in% c(0,1)){
+    print("The annontation indicator should be either 0 or 1.")
+    break
+  }
+  if(!topanno %in% c(0,1)){
+    print("The annontation indicator for the top curve only should be either 0 or 1.")
+    break
   }
   return(plot)
 }
@@ -849,13 +913,13 @@ plot.dying.year.annotate<-function(plotdata,fit,nJP,yearvar,obsintvar="Relative_
 # yearvar - the variable name for year of diagnosis used in argument 'year' of the function joinpoint.
 # obscumvar - the variable name for observed relative cumulative survival. The default is "Relative_Survival_Cum"
 #             for relative survival data. For cause-specific data, it needs to be changed accordingly.
-# predcumvar - the variable name for predicted cumulative survival. The default is "Predicted_Cum".
+# predcumvar - the variable name for predicted cumulative survival. The default is "Predicted_Survival_Cum".
 # interval - the variable name for year since diagnosis. The default is 'Interval'.
-# annotation - the indicator for annotation feature. The default is 0 (no annotation on the plot).
+# annotation - the indicator for the annotation feature. The default is 0 (no annotation on the plot).
 #########################################################################################################
 
 ### define a plot function for Average Change in Cumulative Survival by diagnosis year with annotations
-plot.surv.year.annotate<-function(plotdata,fit,nJP,yearvar,obscumvar="Relative_Survival_Cum",predcumvar="Predicted_Cum",interval="Interval",annotation=0){
+plot.surv.year.annotate<-function(plotdata,fit,nJP,yearvar,obscumvar="Relative_Survival_Cum",predcumvar="Predicted_Survival_Cum",interval="Interval",annotation=0){
   title.acs<-"Average Change in Cumulative Survival by Diagnosis Year"
   interval.values<-as.numeric(unique(plotdata[,interval]))
   interval.labels<-paste(interval.values,"-year Cum. Survival",sep="")
@@ -1028,7 +1092,6 @@ plot.surv.year.annotate<-function(plotdata,fit,nJP,yearvar,obscumvar="Relative_S
     }
     if(length(interval.values)>3 | nJP>3){
       print("This annotation feature is not available when the number of joinpoints>3 or the number of multiple intervals selected>3.")
-      print(interval)
       break
     }
   }
@@ -1047,8 +1110,13 @@ plot.surv.year.annotate<-function(plotdata,fit,nJP,yearvar,obscumvar="Relative_S
       theme(legend.title=element_blank())+
       theme(plot.title = element_text(hjust = 0.5))
   }
+  if(!annotation %in% c(0,1)){
+    print("The annontation indicator should be either 0 or 1.")
+    break
+  }
   return(plot)
 }
+
 
 #########################################################################################################
 # plot.surv.int.multiyears: a function that returns a plot for Cumulative Survival by Interval supporting
@@ -1062,20 +1130,38 @@ plot.surv.year.annotate<-function(plotdata,fit,nJP,yearvar,obscumvar="Relative_S
 # yearvar - the variable name for year of diagnosis used in argument 'year' of the function joinpoint.
 # obscumvar - the variable name for observed relative cumulative survival. The default is "Relative_Survival_Cum"
 #             for relative survival data. For cause-specific data, it needs to be changed accordingly.
-# predcumvar - the variable name for predicted cumulative survival. The default is "Predicted_Cum".
+# predcumvar - the variable name for predicted cumulative survival. The default is "Predicted_Survival_Cum".
 # interval - the variable name for year since diagnosis. The default is 'Interval'.
 # year.col - the year values selected for the plot. The default is NULL.
 #########################################################################################################
 
 ### define a plot function for Cumulative Survival by Interval
-plot.surv.int.multiyears<-function(plotdata,fit,nJP,yearvar,obscumvar="Relative_Survival_Cum",predcumvar="Predicted_Cum",interval="Interval",year.col=NULL){
+plot.surv.int.multiyears<-function(plotdata,fit,nJP,yearvar,obscumvar="Relative_Survival_Cum",predcumvar="Predicted_Survival_Cum",interval="Interval",year.col=NULL){
   year.col.str<- paste(year.col,collapse=", ",sep="")
   if(length(year.col)<=3){
     title.survint<-paste("Cumulative Survival by Interval for ",year.col.str,sep="")
   }else{
     title.survint<-"Cumulative Survival by Interval"
   }
-  plotdata.sub<-plotdata[which((plotdata[,yearvar] %in% year.col) & !is.na(plotdata[,obscumvar])),]
+  x.combo<-function(x){
+    paste(x,collapse="_",sep="")
+  }
+  cohort.combo <- rep(NA,dim(plotdata)[1])
+  cohort.combo <- apply(data.frame(plotdata[,1:(which(colnames(plotdata)==interval)-1)]), 1, x.combo)
+  cohort.combo.int0<-(paste(unique(cohort.combo),"_00",sep=""))
+  int.2d<-sprintf("%02d",plotdata[,interval])
+  cohort.combo.int<-paste(cohort.combo,"_",int.2d,sep="")
+  plotdata.add<-plotdata[which(plotdata[,interval]==1),]
+  plotdata.add[,interval]<-0
+  plotdata.add[,c(obscumvar,predcumvar)]<-1
+  cols.keep<-c(colnames(plotdata)[1:which(colnames(plotdata)==interval)],obscumvar,predcumvar)
+  plotdata.add[,colnames(plotdata)[which(!colnames(plotdata) %in% cols.keep)]]<-NA
+  plotdata[,"cohort.combo.int"]<-cohort.combo.int
+  plotdata.add[,"cohort.combo.int"]<-cohort.combo.int0
+  plotdata.merge<-rbind(plotdata,plotdata.add)
+  plotdata.sort<-plotdata.merge[order(plotdata.merge$cohort.combo.int),]
+  
+  plotdata.sub<-plotdata.sort[which((plotdata.sort[,yearvar] %in% year.col) & !is.na(plotdata.sort[,obscumvar])),]
   int.max<-max(plotdata.sub[,interval],na.rm=T)
   if(int.max<=12){
     xbreaks.by<-1
