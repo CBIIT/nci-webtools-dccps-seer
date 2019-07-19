@@ -536,17 +536,10 @@ getGraphWrapper <- function (filePath, jpsurvDataString, first_calc, com, interv
   # create graph
   if (type == 'death') {
     annotation = jpsurvData$additional$deathAnnotation
-    topanno = jpsurvData$additional$topAnnotation
-    if (nJP <= 3 && length(jpsurvData$additional$intervalsDeath) <= 3) {
-      if (topanno == 1) {
-        annotation = 1
-        # Label top trend only
-      } else if (annotation == 1) {
-        topanno = 0
-        # Label all trends
-      }
+    if (!(nJP <= 3 && length(jpsurvData$additional$intervalsDeath) <= 3 && annotation == 1)) {
+      annotation = 0
     } 
-      graph = plot.dying.year.annotate(graphData, fit, nJP, yearVar, obsintvar, predintvar, interval, annotation, topanno)
+      graph = plot.dying.year.annotate(graphData, fit, nJP, yearVar, obsintvar, predintvar, interval, annotation)
       graphFile = paste(filePath, paste("plot_Death-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/")
       ggsave(file=paste(filePath, paste("plot_Death-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/"), plot = graph)
       graphData = scaleTo(graphData)
