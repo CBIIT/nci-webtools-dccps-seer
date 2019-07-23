@@ -2082,6 +2082,7 @@ function build_output_format_column() {
 function jpsurvRest2(action, callback) {
   var params = getParams();
 
+  $("#calculating-spinner").modal({ backdrop:'static'})
   $("#calculating-spinner").modal('show');
   //console.log('jpsurvRest2');
   //console.info(params);
