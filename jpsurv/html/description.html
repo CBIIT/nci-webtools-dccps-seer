@@ -1,22 +1,40 @@
-    <div class="row row col-md-12" style="font-family: Arial, Helvetica, sans-serif;font-size:14px">
-        <p>The JPSurv software has been developed to analyze trends in survival with respect to year of diagnosis. The joinpoint survival model (1) is an extension of the proportional hazard model for survival where the effect of calendar year at diagnosis is linear on the log hazard of cancer death scale. The joinpoint model allows for different linear trends between joinpoints, i.e., calendar years where trends in the hazard of cancer death changes.</p>
-            
-        <p><b>What it does: </b>Fits the joinpoint survival model with 0 to the specified maximum number of joinpoints. For each number of joinpoints JPSurv estimates the best model and the respective location of joinpoints, the slope parameters for each segment, the baseline hazard and diagnostic statistics to compare models with different number of joinpoints.</p>
+<div class="row">
+    <div class="col-md-12">
+        <p>The JPSurv software has been developed to analyze trends in survival with respect to year of diagnosis. The
+            joinpoint survival model (1) is an extension of the proportional hazard model for survival where the effect
+            of calendar year at diagnosis is linear on the log hazard of cancer death scale. The joinpoint model allows
+            for different linear trends between joinpoints, i.e., calendar years where trends in the hazard of cancer
+            death changes.</p>
 
-        <p><b>Input data: </b>Grouped relative survival or cause-specific survival data by survival time intervals and by calendar year at diagnosis, either as delimited text file or as SEER*Stat survival text and dictionary files.</p>
-        
-        <p><b>Cohort specification: </b>The JPSurv web tool fits a joinpoint model to each cohort (selected values of variables).</p>
-        
-        <p><b>Computation time: </b>Fitting more than one model or fitting a model with 3 or more joinpoints takes a long time and an e-mail address is required to retrieve results.</p>
-        
-        <p><b>Advanced options: </b>Provide control to reduce the number of joinpoints estimated due to data variability that do not reflect a significant change in survival. </p>
-        
-        <p><b>Output: </b>Number and location of joinpoints, parameter estimates for each segment, diagnostic statistics and graphs of observed and modeled cumulative survival by time since diagnosis and trends of x-years cumulative survival. </p>
-        
-        <p> 1.  Yu BB, Huang L, Tiwari RC, Feuer EJ, Johnson KA. Modelling population-based cancer survival trends by using join point models for grouped survival data. Journal of the Royal Statistical Society Series a-Statistics in Society. 2009;172:405-25. </p>
+        <p><b>What it does: </b>Fits the joinpoint survival model with 0 to the specified maximum number of joinpoints.
+            For each number of joinpoints JPSurv estimates the best model and the respective location of joinpoints, the
+            slope parameters for each segment, the baseline hazard and diagnostic statistics to compare models with
+            different number of joinpoints.</p>
+
+        <p><b>Input data: </b>Grouped relative survival or cause-specific survival data by survival time intervals and
+            by calendar year at diagnosis, either as delimited text file or as SEER*Stat survival text and dictionary
+            files.</p>
+
+        <p><b>Cohort specification: </b>The JPSurv web tool fits a joinpoint model to each cohort (selected values of
+            variables).</p>
+
+        <p><b>Computation time: </b>Fitting more than one model or fitting a model with 3 or more joinpoints takes a
+            long time and an e-mail address is required to retrieve results.</p>
+
+        <p><b>Advanced options: </b>Provide control to reduce the number of joinpoints estimated due to data variability
+            that do not reflect a significant change in survival. </p>
+
+        <p><b>Output: </b>Number and location of joinpoints, parameter estimates for each segment, diagnostic statistics
+            and graphs of observed and modeled cumulative survival by time since diagnosis and trends of x-years
+            cumulative survival. </p>
+
+        <p> 1. Yu BB, Huang L, Tiwari RC, Feuer EJ, Johnson KA. Modelling population-based cancer survival trends by
+            using join point models for grouped survival data. Journal of the Royal Statistical Society Series
+            a-Statistics in Society. 2009;172:405-25. </p>
 
         <a href="#" data-toggle="tooltip" title="Help for Joinpoint Model for Relative Survival">
-            <span class="" aria-label="Help" onclick="openHelpWindow('./html/help.html')" href="#">Help for Joinpoint Model for Relative Survival</span>
+            <span class="" aria-label="Help" onclick="openHelpWindow('./html/help.html')" href="#">Help for Joinpoint
+                Model for Relative Survival</span>
         </a>
-
     </div>
+</div>
