@@ -321,7 +321,7 @@
                 <input type='button' id='calculate' value='Calculate' class="btn btn-primary btn-sm float-right mr-3"
                   aria-label="calculate" disabled>
                 <input type='button' onclick="window.location.href='.'" value="Reset"
-                  class="btn btn-secondary btn-sm float-right mr-3" title="Reset all values" aria-label="Reset">
+                  class="btn btn-primary btn-sm float-right mr-3" title="Reset all values" aria-label="Reset">
 
                 <div style="clear:both;"></div>
               </div>
@@ -386,7 +386,7 @@
                 </tbody>
               </table>
             </div>
-            <a class="full-dataset-link font-weight-bold float-right" href="#">Download Full Dataset</a>
+            <a class="full-dataset-link float-right" href="#">Download Full Dataset</a>
           </div>
         </div>
 
@@ -434,20 +434,16 @@
                   </div>
                   <div class="col-lg-5 text-right">
                     <span>
-                      <a class="font-weight-bold" id="graph-year-dataset-link" href="#">Download Graph Dataset</a>
+                      <a id="graph-year-dataset-link" href="#">Download Graph Dataset</a>
                     </span>
                   </div>
                 </div>
 
                 <div class="row my-4">
                   <div class="d-flex col-lg-12">
-                    <div class="custom-control custom-checkbox custom-control-inline">
+                    <div class="custom-control custom-checkbox">
                       <input class="custom-control-input" type="checkbox" id="showYearTrend">
                       <label class="custom-control-label" for="showYearTrend">Show Trend Table</label>
-                    </div>
-                    <div class="custom-control custom-checkbox custom-control-inline">
-                      <input class="custom-control-input" type="checkbox" id="yearAnno" name="yearAnno">
-                      <label class="custom-control-label" for="yearAnno">Show Trend Label</label>
                     </div>
                     <button id="recalculate" class="btn btn-primary btn-sm ml-4" type="button">Recalculate</button>
                   </div>
@@ -499,6 +495,13 @@
                 </div>
 
                 <div class="row">
+                  <div class="custom-control custom-checkbox mx-auto">
+                    <input class="custom-control-input" type="checkbox" id="yearAnno" name="yearAnno">
+                    <label class="custom-control-label" for="yearAnno">Show Trend Measures on Graph</label>
+                  </div>
+                </div>
+
+                <div class="row">
                   <img class="mx-auto mt-1 d-block" src="" alt="graph-year">
                 </div>
                 <b><span id="year-tab-rows" style="display:inline-block;padding-bottom:1%;padding-top:1%"></span></b>
@@ -540,20 +543,16 @@
                   </div>
                   <div class="col-lg-5 text-right">
                     <span>
-                      <a class="font-weight-bold" id="graph-death-dataset-link" href="#">Download Graph Dataset</a>
+                      <a id="graph-death-dataset-link" href="#">Download Graph Dataset</a>
                     </span>
                   </div>
                 </div>
 
                 <div class="row my-4">
                   <div class="d-flex col-lg-12">
-                    <div class="custom-control custom-checkbox custom-control-inline">
+                    <div class="custom-control custom-checkbox">
                       <input class="custom-control-input" type="checkbox" id="showDeathTrend">
                       <label class="custom-control-label" for="showDeathTrend">Show Trend Table</label>
-                    </div>
-                    <div class="custom-control custom-checkbox custom-control-inline">
-                      <input class="custom-control-input" type="checkbox" id="deathAnno" name="deathAnno">
-                      <label class="custom-control-label" for="deathAnno">Show Trend Label</label>
                     </div>
                     <button id="recalculate" class="btn btn-primary btn-sm ml-4" type="button">Recalculate</button>
                   </div>
@@ -605,6 +604,13 @@
                 </div>
 
                 <div class="row">
+                  <div class="custom-control custom-checkbox mx-auto">
+                    <input class="custom-control-input" type="checkbox" id="deathAnno" name="deathAnno">
+                    <label class="custom-control-label" for="deathAnno">Show Trend Measures on Graph</label>
+                  </div>
+                </div>
+
+                <div class="row">
                   <img class="mx-auto mt-1 d-block" src="" alt="graph-death">
                 </div>
                 <b><span id="death-tab-rows" style="display:inline-block;padding-bottom:1%;padding-top:1%"></span></b>
@@ -644,7 +650,7 @@
                   </div>
                   <div class="col-lg-5 text-right">
                     <span>
-                      <a class="font-weight-bold" id="graph-time-dataset-link" href="#">Download Graph Dataset</a>
+                      <a id="graph-time-dataset-link" href="#">Download Graph Dataset</a>
                     </span>
                   </div>
                 </div>

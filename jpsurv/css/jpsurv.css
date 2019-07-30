@@ -197,6 +197,11 @@ input[type="file"] {
 .cursor-pointer {
     cursor: pointer;
 }
+
+:disabled {
+  cursor: not-allowed; 
+}
+
 .fa-question-circle {
     color: #337ab7;
 }
@@ -485,3 +490,13 @@ tbody tr:last-child td:last-child {
 .bg-primary {
   background-color: #2a71a5!important;
 }
+
+.nav-link {
+  font-size: large;
+  color: black;
+}
+
+.nav-link.active {
+  color: #007bff !important;
+}
+
