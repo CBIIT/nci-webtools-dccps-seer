@@ -1928,9 +1928,8 @@ function set_intervals_from_diagnosis() {
   // start interval from 2 
   for (i=1; i<control_data.VarFormatSecList.Interval.ItemNameInDic.length; i++) {
     $("#intervals_from_diagnosis").append("<OPTION value=" +
-      control_data.VarFormatSecList.Interval.ItemNameInDic[i] + ">" +
-      control_data.VarFormatSecList.Interval.ItemNameInDic[i] + 
-      " (through " + 1 + " - " + (i+1) + " yr)" + "</OPTION>");
+      control_data.VarFormatSecList.Interval.ItemNameInDic[i] + "> <= " +
+      control_data.VarFormatSecList.Interval.ItemNameInDic[i] + "</OPTION>");
     // default to last interval
     $("#intervals_from_diagnosis").val($("#intervals_from_diagnosis option:last").val());
   }
