@@ -185,11 +185,11 @@ function addEventListeners() {
     hide_display_email();
 
   });
-  $("#trends-tab-anchor").click(function(e) {
-  if(jpsurvData.stage2completed && jpsurvData.recentTrends == 0) {
-      calculateTrend();
-    }
-  });
+  // $("#trends-tab-anchor").click(function(e) {
+  // if(jpsurvData.stage2completed && jpsurvData.recentTrends == 0) {
+  //     calculateTrend();
+  //   }
+  // });
 
   // $("#icon").on('click', slideToggle);
 
