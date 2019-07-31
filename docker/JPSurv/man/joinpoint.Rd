@@ -57,7 +57,7 @@ subsetStr="Year_of_diagnosis_1975 >= 1975 & Age_groups == \'00-49\' & Breast_sta
 # Fit the survival join point model with zero join points, 
 #  i.e., fit the proportional hazard relative survival model.
 fit1 = joinpoint(data=breast.example,
-                 subset = eval(parse(text=subsetStr)),
+                 subset = subsetStr,
                  year="Year_of_diagnosis_1975",
                  observedrelsurv="Relative_Survival_Cum",
                  model.form = NULL,
