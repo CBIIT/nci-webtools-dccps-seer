@@ -19,9 +19,9 @@ If false, then data read from the associated data file won't be changed.
 # If the "breast.example.txt" is the output data file from SEER*Stat, then joinpoint.seerdata can be used 
 # to input the data quickly, while taking into account the relevant information in the accompanying dictionary file.
 # Input data is stored in breast.example
-breast.data = joinpoint.seerdata(seerfilename="breast.example", 
-                                 newvarnames=c("Age_groups","Breast_Stage","Year_of_diagnosis_1975"),
-                                 UseVarLabelsInData=FALSE 
-);
+#breast.data = joinpoint.seerdata(seerfilename="breast.example", 
+#                                 newvarnames=c("Age_groups","Breast_Stage","Year_of_diagnosis_1975"),
+#                                 UseVarLabelsInData=FALSE 
+#);
 # The breast.data object can immediately be used as input to teh joinpoint modeling function.
 }
