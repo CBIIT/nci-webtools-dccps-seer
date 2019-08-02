@@ -257,16 +257,6 @@ input[type="file"] {
 
 }
 
-/* Tooltip */
-div.tooltip-inner {
-    background-color: #505050;
-    color: #FFFFFF;
-    font-size: 14px;
-    padding: 15px;
-    width:500px;
-    text-align:left;
-}
-
 .jpsurv-title {
   float: left;
   padding-bottom: 10px;
@@ -390,24 +380,13 @@ fieldset[disabled] .btn-primary.active {
 /* ToolTips      */
 /*****************/
 
-.tooltip {
-  font-size: 10px;
-  /* font-family: Arial, "Helvetica Neue", Helvetica, sans-serif; */
-  border: 1px solid lightgrey;
-  opacity: 1;
-
-}
-
-#input_type_select div.tooltip div.tooltip-inner {
-    font-size: 10px;
-    padding-right: 10px;
-    padding-left: 10px;
-    padding-top: 0px;
-    padding-bottom: 0px;
-    width: auto;
-    color: #666666;
-    background-color: #FFFFFF;
-    opacity: 1;
+div.tooltip-inner {
+  border: none;
+  background-color: #505050;
+  color: #FFFFFF;
+  font-size: 12px;
+  padding: .5rem 1rem;
+  text-align: left;
 }
 
 #selected-interval-years, #selected-interval-years-death {

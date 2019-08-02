@@ -45,58 +45,11 @@ $(document).ready(function() {
     })
   })
 
-  /* Needed when the user hovers over the radio button without clicking the section for the File Formats,the tooltips */
-  /* will not work                                                                                                    */
-  $("#upload-form").hover(function(event) {
-    //$(this).focus()
-    $("#upload-form").focus()
-  })
-
-  //var fileFormatDiv = $('#input_type_select [class~="file_format_selection_section"] :radio, span')
-  var fileFormatDiv = $('#input_type_select [class~="file_format_selection_section"] :radio, #input_type_select [class~="file_format_selection_section"] span')
-  var exportButton = $('#exportButton')
-
-  // Clicking on the radio button will force the tooltip to disappear.
-  $('#input_type_select [class~="file_format_selection_section"] :radio').click( function(event) {
-    $(this).tooltip("hide")
-  })
-
-  /* Hovering over the radio or the text for each file format will produce a tooltip                                  */
-  $(fileFormatDiv).hover(
-    function(event) {
-
-       $(this).tooltip({
-            delay: 500,
-            title: txtForInputButtonToolTip,
-            placement: "bottom",
-       });
-    },
-
-    function(event) {
-        $(this).tooltip("hide")
-    })
+  // initialize tooltips and popover
+  $("#max_help").popover();
+  $('[data-toggle="tooltip"]').tooltip()
 
 });
-
-
-// Provides the help text for the button that will upload the file
-// The problem is that the upload button handles three different types of upload ( dic/txt, csv, file exported)git
-function txtForInputButtonToolTip() {
-    var helpTxt = "Help String not defined for this object";
-
-    var selectedOption = $(this).parent().attr("id");
-    if ( selectedOption == "import_section" )
-        helpTxt = "Import a JPSurv workspace exported previously.";
-    else if ( selectedOption == "csv_section")
-        helpTxt = "SEER Data File";
-    else if ( selectedOption == "dic_section")
-        helpTxt = "SEER*Stat survival text and dictionary files";
-    else if ( selectedOption == "exportButton") {
-        helpTxt = "Export cohort, model specification and results to a workspace file.";
-    }
-
-    return helpTxt
-}
 
 
 function checkInput(id) {
@@ -2973,15 +2926,14 @@ function data_table(matrix,headers,rows){
 }
 
 $(document).ready(function(){
-  $("#max_help").popover();
   $.ajaxSetup({ cache: false });
 
-//  Apply select2 to all dropdowns
- $('select').select2({
-  dropdownAutoWidth : true,
-  width: 'auto'
- });
-
+  // Apply select2 to all dropdowns
+  $('select').select2({
+    dropdownAutoWidth : true,
+    width: 'auto'
+  });
+  
 });
 
 $(document).click(function (e) {
