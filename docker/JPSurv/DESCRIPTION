@@ -10,4 +10,4 @@ Description: Functions, methods, and datasets for cancer survival analysis,
 License: GPL version 2 or newer
 Imports: ggplot2,ggrepel
 NeedsCompilation: no
-Packaged: 2019-07-31 16:28:15 UTC; zhangf10
+Packaged: 2019-08-02 14:29:31 UTC; zhangf10

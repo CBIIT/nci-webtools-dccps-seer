@@ -1,6 +1,7 @@
 library("rjson")
 library("JPSurv")
 library("ggplot2")
+library("ggrepel")
 
 VERBOSE=TRUE
 
@@ -497,18 +498,18 @@ downloadDataWrapper <- function(jpsurvDataString, filePath, com, yearVar, jpInd,
     for (i in 1:length(jpsurvData$additional$intervals)) {
       intervals = c(intervals,jpsurvData$additional$intervals[[i]])
     } 
-    return (download.data(input, fit, jpInd, yearVar, downloadtype="graph", interval = interval, int.col = intervals, subset = subsetStr))
+    return (download.data(input, fit, jpInd, yearVar, downloadtype="graph", subset = subsetStr, interval = interval, int.select = intervals))
   } else if (downloadtype == 'death') {
      for (i in 1:length(jpsurvData$additional$intervalsDeath)) {
         intervals = c(intervals,jpsurvData$additional$intervalsDeath[[i]])
       } 
-      return(download.data(input, fit, jpInd, yearVar, downloadtype="graph", interval = interval, int.col = intervals, subset = subsetStr))
+      return(download.data(input, fit, jpInd, yearVar, downloadtype="graph", subset = subsetStr, interval = interval, int.select = intervals))
   } else if (downloadtype == 'time') {
       intervalRange = as.integer(jpsurvData$calculate$form$interval)
       range = (c(1:intervalRange))
-      return(download.data(input, fit, jpInd, yearVar, downloadtype="graph", interval = interval, int.col = range, subset = subsetStr))
+      return(download.data(input, fit, jpInd, yearVar, downloadtype="graph", subset = subsetStr, interval = interval, int.select = range))
   } else {
-      fullData = download.data(input, fit, jpInd, yearVar, downloadtype="full", interval = interval, subset = subsetStr)
+      fullData = download.data(input, fit, jpInd, yearVar, downloadtype="full", subset = subsetStr, interval = interval, )
       return(scaleTo(fullData))
   }
 }
@@ -535,30 +536,87 @@ getGraphWrapper <- function (filePath, jpsurvDataString, first_calc, com, interv
   }
   # create graph
   if (type == 'death') {
-    annotation = jpsurvData$additional$deathAnnotation
-    if (!(nJP <= 3 && length(jpsurvData$additional$intervalsDeath) <= 3 && annotation == 1)) {
-      annotation = 0
-    } 
-      graph = plot.dying.year.annotate(graphData, fit, nJP, yearVar, obsintvar, predintvar, interval, annotation)
+    trend = jpsurvData$additional$deathTrend 
+    data = NULL
+    # check if annotation is possible
+    if (trend == 1) {
+      if (nJP <= 3 && length(jpsurvData$additional$intervalsDeath) <= 3) {
+        data = plot.dying.year.annotate(graphData, fit, nJP, yearVar, obsintvar, predintvar, interval, annotation = 1, trend = 1)
+      } else {
+        data = plot.dying.year.annotate(graphData, fit, nJP, yearVar, obsintvar, predintvar, interval, annotation = 0, trend = 1)
+      }
+    } else {
+      plot <- plot.dying.year.annotate(graphData, fit, nJP, yearVar, obsintvar, predintvar, interval, annotation = 0, trend = 0)
+      ggsave(file=paste(filePath, paste("plot_Death-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/"))
       graphFile = paste(filePath, paste("plot_Death-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/")
-      ggsave(file=paste(filePath, paste("plot_Death-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/"), plot = graph)
       graphData = scaleTo(graphData)
       results = list("deathGraph" = graphFile, "deathTable" = graphData)
-  } else if (type == 'year') {
-      annotation = jpsurvData$additional$yearAnno
-      if (!(nJP <= 3 && length(jpsurvData$additional$intervals) <= 3 && annotation == 1)) {
-        annotation = 0
-    } 
-      graph = plot.surv.year.annotate(graphData, fit, nJP, yearVar, obscumvar, predcumvar, interval, annotation)
-      graphFile = paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/")
-      ggsave(file=paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/"), plot = graph)
+      return(results)
+    }
+    if (length(data) == 2) {   # Trend + plot
+      trendTable = data[[1]]
+      plot = data[[2]]
+      ggsave(file=paste(filePath, paste("plot_Death-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/"), plot = plot)
+      graphFile = paste(filePath, paste("plot_Death-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/")
       graphData = scaleTo(graphData)
-      results = list("yearGraph" = graphFile, "yearTable" = graphData)
+      results = list("deathGraph" = graphFile, "deathTable" = graphData, "deathTrend" = trendTable)
+      return(results)
+    } else if (length(data) == 3) {   # Trend + plot + anno
+      trendTable = data[[1]]
+      plot.anno <- data[[2]]
+      ggsave(file=paste(filePath, paste("plot_DeathAnno-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/"), plot = plot.anno)
+      plot = data[[3]]
+      ggsave(file=paste(filePath, paste("plot_Death-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/"), plot = plot)
+      graphFile = paste(filePath, paste("plot_Death-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/")
+      graphAnnoFile = paste(filePath, paste("plot_DeathAnno-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/")
+      graphData = scaleTo(graphData)
+      results = list("deathGraph" = graphFile, "deathGraphAnno" = graphAnnoFile, "deathTable" = graphData, "deathTrend" = trendTable)
+      return(results)
+    }
+  } else if (type == 'year') {
+    trend = jpsurvData$additional$yearTrend
+    data = NULL
+    # check if annotation is possible
+    if (trend == 1) {
+      if (nJP <= 3 && length(jpsurvData$additional$intervals) <= 3) {
+        data = plot.surv.year.annotate(graphData, fit, nJP, yearVar, obscumvar, predcumvar, interval, annotation = 1, trend = 1)
+      } else {
+        data = plot.surv.year.annotate(graphData, fit, nJP, yearVar, obscumvar, predcumvar, interval, annotation = 0, trend = 1)
+      }
+    } else {
+      plot = plot.surv.year.annotate(graphData, fit, nJP, yearVar, obscumvar, predcumvar, interval, annotation = 0, trend = 0)
+      ggsave(file=paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/"))
+      graphFile = paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/")
+      graphData = scaleTo(graphData)
+      results = list("survGraph" = graphFile, "survTable" = graphData)
+      return(results)
+    }
+
+    if (length(data) == 2) {   # Trend + plot
+      trendTable = data[[1]]
+      plot = data[[2]]
+      ggsave(file=paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/"), plot = plot)
+      graphFile = paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/")
+      graphData = scaleTo(graphData)
+      results = list("survGraph" = graphFile, "survTable" = graphData, "survTrend" = trendTable)
+      return(results)
+    } else if (length(data) == 3) {   # Trend + plot + anno
+      trendTable = data[[1]]
+      plot.anno = data[[2]]
+      ggsave(file=paste(filePath, paste("plot_YearAnno-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/"), plot = plot.anno)
+      plot = data[[3]]
+      ggsave(file=paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/"), plot = plot)
+      graphFile = paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/")
+      graphAnnoFile = paste(filePath, paste("plot_YearAnno-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/")
+      graphData = scaleTo(graphData)
+      results = list("survGraph" = graphFile, "survGraphAnno" = graphAnnoFile, "survTable" = graphData, "survTrend" = trendTable)
+      return(results)
+    }
   } else if (type == 'time') {
       years = jpsurvData$additional$yearOfDiagnosis
-      graph = plot.surv.int.multiyears(graphData, fit, nJP, yearVar, obscumvar, predcumvar, interval, year.col = years)
+      graph = plot.surv.int.multiyears(graphData, fit, nJP, yearVar, obscumvar, predcumvar, interval, year.select = years)
       graphFile = paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/")
-      ggsave(file=paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/"), plot = graph)
+      ggsave(file=paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/"))
       graphData = scaleTo(graphData)
       graphData = graphData[graphData[[yearVar]] %in% years,]
       results = list("timeGraph" = graphFile, "timeTable" = graphData)
