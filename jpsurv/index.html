@@ -99,15 +99,18 @@
                     action="jpsurvRest/stage1_upload">
                     <label class="col-xs-3" id="inputTypeLabel">File Format:</label>
                     <div id="input_type_select" style="margin-bottom:2%" class="d-flex">
-                      <div class="custom-control custom-radio custom-control-inline" id="dic_section">
+                      <div class="custom-control custom-radio custom-control-inline" data-toggle="tooltip"
+                        data-placement="top" title="SEER*Stat survival text and dictionary files">
                         <input type="radio" id="dic" name="data" value="dic" class="custom-control-input" checked>
                         <label class="custom-control-label" for="dic" aria-label="dictionary">Dic/Data Files</label>
                       </div>
-                      <div class="custom-control custom-radio custom-control-inline" id="csv_section">
+                      <div class="custom-control custom-radio custom-control-inline" data-toggle="tooltip"
+                        data-placement="top" title="SEER Data File">
                         <input type="radio" id="csv" name="data" value="csv" class="custom-control-input">
                         <label class="custom-control-label" for="csv" aria-label="csv">CSV Files</label>
                       </div>
-                      <div class="custom-control custom-radio custom-control-inline" id="import_section">
+                      <div class="custom-control custom-radio custom-control-inline" data-toggle="tooltip"
+                        data-placement="top" title="Import a JPSurv workspace exported previously">
                         <input type="radio" id="importRadioButton" name="data" value="importRadioButton"
                           class="custom-control-input">
                         <label class="custom-control-label" for="importRadioButton"
@@ -725,7 +728,7 @@
                     <button onclick="calculateTrend()" class="btn btn-primary btn-sm" type="button">Select</button>
                   </div>
                 </div> -->
-                <!-- <h5>Relative Change in Survival</h5>
+              <!-- <h5>Relative Change in Survival</h5>
             <div class="table-responsive">
               <table id="trend-apc" class="table table-striped table-bordered table-condensed">
                 <thead>
