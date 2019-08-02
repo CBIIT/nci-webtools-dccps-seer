@@ -418,96 +418,97 @@ aapc.multiints<-function(fit, type="AbsChgSur",int.select=NULL,Z0=NULL) {
   #Z0: only 1 row
   stopifnot(type %in% c("RelChgHaz","AbsChgSur","RelChgSur")); #Removed "HAZ_AC(CS)", "HAZ_APC(CS)",; 
   if(!is.null(Z0)) Z0 = t(data.frame(as.vector(Z0)));
+  
+  getAapc = function(fit, beta, gamma, Z0) {
+    epsilon = 1e-5;
+    getAapc1 = function(years) {
+      pred1 = fit$Predict(years + epsilon, fup, beta_input=beta,Z0=Z0, gamma_input=gamma);
+      pred2 = fit$Predict(years - epsilon, fup, beta_input=beta,Z0=Z0, gamma_input=gamma);
+      #deriv = (log(pred1$pred_cum) - log(pred2$pred_cum)) / epsilon / 2;
+      deriv = ((pred1$pred_cum) - (pred2$pred_cum)) / epsilon / 2;
+      return(deriv);
+    }
+    nSeg = dim(fit$apc)[1];
+    newApc = rep(NA, nSeg);
+    for (i in 1:nSeg) {
+      t0 = fit$apc$start.year[i];
+      t1 = fit$apc$end.year[i]-1;
+      newApc[i] = mean(getAapc1(t0:t1));
+    }
+    return(newApc);
+  }
+  
+  getAapc_log = function(fit, beta, gamma, Z0) {
+    epsilon = 1e-5;
+    getAapc1 = function(years) {
+      pred1 = fit$Predict(years + epsilon, fup, beta_input=beta,Z0=Z0, gamma_input=gamma);
+      pred2 = fit$Predict(years - epsilon, fup, beta_input=beta,Z0=Z0, gamma_input=gamma);
+      deriv = (log(pred1$pred_cum) - log(pred2$pred_cum)) / epsilon / 2;
+      #deriv = ((pred1$pred_cum) - (pred2$pred_cum)) / epsilon / 2;
+      return(deriv);
+    }
+    nSeg = dim(fit$apc)[1];
+    newApc = rep(NA, nSeg);
+    for (i in 1:nSeg) {
+      t0 = fit$apc$start.year[i];
+      t1 = fit$apc$end.year[i]-1;
+      newApc[i] = mean(getAapc1(t0:t1));
+    }
+    return(newApc);
+  }
+  
+  getAapc_hr = function(fit, beta, gamma, Z0) {
+    
+    nJP = length(as.vector(fit$jp));
+    result = rep(NA, nJP + 1);
+    result[1] = beta[nJP + 1];
+    if (nJP > 0) for (i in 1:nJP) result[i + 1] = result[i] + beta[i]
+    return(exp(result) - 1);
+  }
+  
+  getAVEAAPC = function(fit, beta, gamma, Z0) {
+    getAapc1 = function(years) {
+      pred1 = fit$Predict(years , fup, beta_input=beta,Z0=Z0, gamma_input=gamma);
+      pred2 = fit$Predict(years + 1, fup, beta_input=beta,Z0=Z0, gamma_input=gamma);
+      
+      AAPC = ((pred2$pred_cum) - (pred1$pred_cum));
+      return(AAPC);
+    }
+    nSeg = dim(fit$apc)[1];
+    newApc = rep(NA, nSeg);
+    for (i in 1:nSeg) {
+      t0 = fit$apc$start.year[i];
+      t1 = fit$apc$end.year[i]-1;
+      newApc[i] = mean(getAapc1(t0:t1));
+    }
+    return(newApc);
+  }
+  
+  getAVEARPC = function(fit, beta, gamma, Z0) {
+    getAapc1 = function(years) {
+      pred1 = fit$Predict(years , fup, beta_input=beta,Z0=Z0, gamma_input=gamma);
+      pred2 = fit$Predict(years + 1, fup, beta_input=beta,Z0=Z0, gamma_input=gamma);
+      ARPC=0;
+      if((pred1$pred_cum)!=0){
+        ARPC = ((pred2$pred_cum) - (pred1$pred_cum))/(pred1$pred_cum);
+      }
+      return(ARPC);
+    }
+    nSeg = dim(fit$apc)[1];
+    newApc = rep(NA, nSeg);
+    for (i in 1:nSeg) {
+      t0 = fit$apc$start.year[i];
+      t1 = fit$apc$end.year[i]-1;
+      newApc[i] = mean(getAapc1(t0:t1));
+    }
+    return(newApc);
+  }
+  
   aapc.results<-list()
+  
   for(i in 1:length(int.select)){
     fup = int.select[i];
-    getAapc = function(fit, beta, gamma, Z0) {
-      epsilon = 1e-5;
-      getAapc1 = function(years) {
-        pred1 = fit$Predict(years + epsilon, fup, beta_input=beta,Z0=Z0, gamma_input=gamma);
-        pred2 = fit$Predict(years - epsilon, fup, beta_input=beta,Z0=Z0, gamma_input=gamma);
-        #deriv = (log(pred1$pred_cum) - log(pred2$pred_cum)) / epsilon / 2;
-        deriv = ((pred1$pred_cum) - (pred2$pred_cum)) / epsilon / 2;
-        return(deriv);
-      }
-      nSeg = dim(fit$apc)[1];
-      newApc = rep(NA, nSeg);
-      for (i in 1:nSeg) {
-        t0 = fit$apc$start.year[i];
-        t1 = fit$apc$end.year[i]-1;
-        newApc[i] = mean(getAapc1(t0:t1));
-      }
-      return(newApc);
-    }
-    
-    getAapc_log = function(fit, beta, gamma, Z0) {
-      epsilon = 1e-5;
-      getAapc1 = function(years) {
-        pred1 = fit$Predict(years + epsilon, fup, beta_input=beta,Z0=Z0, gamma_input=gamma);
-        pred2 = fit$Predict(years - epsilon, fup, beta_input=beta,Z0=Z0, gamma_input=gamma);
-        deriv = (log(pred1$pred_cum) - log(pred2$pred_cum)) / epsilon / 2;
-        #deriv = ((pred1$pred_cum) - (pred2$pred_cum)) / epsilon / 2;
-        return(deriv);
-      }
-      nSeg = dim(fit$apc)[1];
-      newApc = rep(NA, nSeg);
-      for (i in 1:nSeg) {
-        t0 = fit$apc$start.year[i];
-        t1 = fit$apc$end.year[i]-1;
-        newApc[i] = mean(getAapc1(t0:t1));
-      }
-      return(newApc);
-    }
-    
-    getAapc_hr = function(fit, beta, gamma, Z0) {
-      
-      nJP = length(as.vector(fit$jp));
-      result = rep(NA, nJP + 1);
-      result[1] = beta[nJP + 1];
-      if (nJP > 0) for (i in 1:nJP) result[i + 1] = result[i] + beta[i]
-      return(exp(result) - 1);
-    }
-    
-    getAVEAAPC = function(fit, beta, gamma, Z0) {
-      getAapc1 = function(years) {
-        pred1 = fit$Predict(years , fup, beta_input=beta,Z0=Z0, gamma_input=gamma);
-        pred2 = fit$Predict(years + 1, fup, beta_input=beta,Z0=Z0, gamma_input=gamma);
-        
-        AAPC = ((pred2$pred_cum) - (pred1$pred_cum));
-        return(AAPC);
-      }
-      nSeg = dim(fit$apc)[1];
-      newApc = rep(NA, nSeg);
-      for (i in 1:nSeg) {
-        t0 = fit$apc$start.year[i];
-        t1 = fit$apc$end.year[i]-1;
-        newApc[i] = mean(getAapc1(t0:t1));
-      }
-      return(newApc);
-    }
-    
-    getAVEARPC = function(fit, beta, gamma, Z0) {
-      getAapc1 = function(years) {
-        pred1 = fit$Predict(years , fup, beta_input=beta,Z0=Z0, gamma_input=gamma);
-        pred2 = fit$Predict(years + 1, fup, beta_input=beta,Z0=Z0, gamma_input=gamma);
-        ARPC=0;
-        if((pred1$pred_cum)!=0){
-          ARPC = ((pred2$pred_cum) - (pred1$pred_cum))/(pred1$pred_cum);
-        }
-        return(ARPC);
-      }
-      nSeg = dim(fit$apc)[1];
-      newApc = rep(NA, nSeg);
-      for (i in 1:nSeg) {
-        t0 = fit$apc$start.year[i];
-        t1 = fit$apc$end.year[i]-1;
-        newApc[i] = mean(getAapc1(t0:t1));
-      }
-      return(newApc);
-    }
-    
     result = NULL;
-    
     #if (type == "HAZ_AC(CS)") result = .getSeAapc(fit, getAapc,Z0)
     #else if (type == "HAZ_APC(CS)") result = .getSeAapc(fit, getAapc_log,Z0)
     if (type == "RelChgHaz") result = .getSeAapc(fit, getAapc_hr,Z0)

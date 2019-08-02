@@ -94,18 +94,17 @@ plot.dying.year.annotate<-function(plotdata,fit,nJP,yearvar,obsintvar="Relative_
   }
   trends.out<-list()
   
-  if(trend==1 | annotation==1){  
+  if(trend==1 | annotation==1){ 
+    trends.out <- aapc.multiints(fit$FitList[[nJP+1]], type="RelChgHaz", int.select=interval.values)
     if(length(interval.values)<=3 & nJP<=3){
       ### haz results are the same for all interval values
       jp.loc<-fit$FitList[[nJP+1]]$jp
-      haz.apc<-aapc(fit$FitList[[nJP+1]], type="RelChgHaz", interval=interval.values[1])
-      annot.strs<-paste(sprintf("%.1f",100*haz.apc$estimate),"%",sep="")
+      annot.strs<-paste(sprintf("%.1f",100*trends.out[[1]]$estimate),"%",sep="")
       x.values<-list()
       plotdata[,"trend.label"]<-""
       for(i in 1:length(interval.values)){
         int.i<-interval.values[i]
-        haz.apc[,interval]<-int.i
-        trends.out[[i]]<-haz.apc
+        haz.apc<-trends.out[[i]]
         plotdata.i<-plotdata[which(plotdata[,interval]==int.i),]
         if(max(plotdata.i[,yearvar])==max(haz.apc$end.year) | nJP==0){
           end.year<-haz.apc$end.year
@@ -228,15 +227,15 @@ plot.dying.year.annotate<-function(plotdata,fit,nJP,yearvar,obsintvar="Relative_
   }
   
   if(trend==0){
-    if(annotation==0){
-      out<-plot
-    }else if(annotation==1){
+    if(annotation==0 | length(interval.values)>3 | nJP>3){
+      out<-plot0
+    }else{
       out<-list(plot,plot0)  
     }
   }else if(trend==1){
-    if(annotation==0){
+    if(annotation==0 | length(interval.values)>3 | nJP>3){
       out<-list(trends.out,plot0)
-    }else if(annotation==1){
+    }else{
       out<-list(trends.out,plot,plot0)
     }
   }else{
@@ -380,15 +379,15 @@ plot.surv.year.annotate<-function(plotdata,fit,nJP,yearvar,obscumvar="Relative_S
     print("The annontation indicator should be either 0 or 1.")
   }
   if(trend==0){
-    if(annotation==0){
-      out<-plot
-    }else if(annotation==1){
+    if(annotation==0 | length(interval.values)>3 | nJP>3){
+      out<-plot0
+    }else{
       out<-list(plot,plot0)  
     }
   }else if(trend==1){
-    if(annotation==0){
+    if(annotation==0 | length(interval.values)>3 | nJP>3){
       out<-list(trends.out,plot0)
-    }else if(annotation==1){
+    }else{
       out<-list(trends.out,plot,plot0)
     }
   }else{
