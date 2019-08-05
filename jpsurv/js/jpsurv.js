@@ -918,7 +918,7 @@ function updateGraphs(token_id) {
     var data_type = jpsurvData.results.statistic
     var data_type = data_type.replace("Cum", "Cumulative");
 
-    var timeHeader = ["Year of Diagnosis", "Interval", "Died", "Alive_at_Start","Lost_to_Followup","Expected_Survival_Interval",data_type,"Predicted Interval Survival","Predicted Cumulative Survival","Predicted Interval Survival Std. Err.","Predicted Cumulative Survival Std. Err. "];
+    var timeHeader = ["Year of Diagnosis", "Interval", "Died", "Alive_at_Start","Lost_to_Followup","Expected_Survival_Interval",data_type,"Predicted Interval Death","Predicted Cumulative Survival","Predicted Interval Death Std. Err.","Predicted Cumulative Survival Std. Err. "];
     header.push.apply(header, timeHeader);
     //Create the header
     $("#graph-death-table > thead").empty();
@@ -971,9 +971,9 @@ function updateGraphs(token_id) {
           row += formatCell(jpsurvData.results.deathData.deathTable[jpsurvData.results.headers.Expected_Survival_Interval][index]);
         }
         row += formatCell(jpsurvData.results.deathData.deathTable[type][index]);
-        row += formatCell(jpsurvData.results.deathData.deathTable.Predicted_Survival_Int[index])
+        row += formatCell(jpsurvData.results.deathData.deathTable.Predicted_ProbDeath_Int[index])
         row += formatCell(jpsurvData.results.deathData.deathTable.Predicted_Survival_Cum[index]);
-        row += formatCell(jpsurvData.results.deathData.deathTable.Predicted_Survival_Int_SE[index]);
+        row += formatCell(jpsurvData.results.deathData.deathTable.Predicted_ProbDeath_Int_SE[index]);
         row += formatCell(jpsurvData.results.deathData.deathTable.Predicted_Survival_Cum_SE[index])+"</tr>/n";
         $("#graph-death-table > tbody").append(row);
         rows++;
