@@ -41,6 +41,7 @@ After starting the container, JPSurv should be available at: [http://localhost:9
 
 ## External Technologies Used
 - ggplot2
+- ggrepel
 - Python Flask
 - rjson
 - R
