@@ -837,10 +837,11 @@ function updateGraphs(token_id) {
       header.push(value);
     });
 
-    var data_type = jpsurvData.results.statistic
-    var data_type = data_type.replace("Cum", "Cumulative");
+    var data_type = jpsurvData.results.statistic.replace("Cum", "Cumulative");
+    var data_se = jpsurvData.results.statistic.replace('Survival', 'SE');
+    var se_col = jpsurvData.results.statistic.replace('Cum', 'Cumulative Std. Err.')
 
-    var timeHeader = ["Year of Diagnosis", "Interval", "Died", "Alive_at_Start","Lost_to_Followup","Expected_Survival_Interval",data_type,"Predicted Interval Survival","Predicted Cumulative Survival","Predicted Interval Survival Std. Err.","Predicted Cumulative Survival Std. Err. "];
+    var timeHeader = ["Year of Diagnosis", "Interval", data_type, se_col, "Predicted Cumulative Survival","Predicted Cumulative Survival Std. Err. "];
     header.push.apply(header, timeHeader);
     //Create the header
     $("#graph-year-table > thead").empty();
@@ -880,22 +881,13 @@ function updateGraphs(token_id) {
 
         if(jpsurvData.results.input_type=="dic"){
           row += formatCell(jpsurvData.results.yearData.survTable.Interval[index]);
-          row += formatCell(jpsurvData.results.yearData.survTable.Died[index]);
-          row += formatCell(jpsurvData.results.yearData.survTable.Alive_at_Start[index]);
-          row += formatCell(jpsurvData.results.yearData.survTable.Lost_to_Followup[index]);
-          row += formatCell(jpsurvData.results.yearData.survTable.Expected_Survival_Interval[index]);
         }
         else if(jpsurvData.results.input_type=="csv"){
           row += formatCell(jpsurvData.results.yearData.survTable[jpsurvData.results.headers.Interval][index]);
-          row += formatCell(jpsurvData.results.yearData.survTable[jpsurvData.results.headers.Died][index]);
-          row += formatCell(jpsurvData.results.yearData.survTable[jpsurvData.results.headers.Alive_at_Start][index]);
-          row += formatCell(jpsurvData.results.yearData.survTable[jpsurvData.results.headers.Lost_to_followup][index]);
-          row += formatCell(jpsurvData.results.yearData.survTable[jpsurvData.results.headers.Expected_Survival_Interval][index]);
         }
         row += formatCell(jpsurvData.results.yearData.survTable[type][index]);
-        row += formatCell(jpsurvData.results.yearData.survTable.Predicted_Survival_Int[index])
+        row += formatCell(jpsurvData.results.yearData.survTable[data_se][index]);
         row += formatCell(jpsurvData.results.yearData.survTable.Predicted_Survival_Cum[index]);
-        row += formatCell(jpsurvData.results.yearData.survTable.Predicted_Survival_Int_SE[index]);
         row += formatCell(jpsurvData.results.yearData.survTable.Predicted_Survival_Cum_SE[index])+"</tr>/n";
         $("#graph-year-table > tbody").append(row);
         rows++;
@@ -914,10 +906,7 @@ function updateGraphs(token_id) {
       header.push(value);
     });
 
-    var data_type = jpsurvData.results.statistic
-    var data_type = data_type.replace("Cum", "Cumulative");
-
-    var timeHeader = ["Year of Diagnosis", "Interval", "Died", "Alive_at_Start","Lost_to_Followup","Expected_Survival_Interval",data_type,"Predicted Interval Death","Predicted Cumulative Survival","Predicted Interval Death Std. Err.","Predicted Cumulative Survival Std. Err. "];
+    var timeHeader = ["Year of Diagnosis", "Interval", "Probability of Death Interval", "Probability of Death Interval Std. Err.", "Predicted Interval Death","Predicted Interval Death Std. Err."];
     header.push.apply(header, timeHeader);
     //Create the header
     $("#graph-death-table > thead").empty();
@@ -957,23 +946,15 @@ function updateGraphs(token_id) {
 
         if(jpsurvData.results.input_type=="dic"){
           row += formatCell(jpsurvData.results.deathData.deathTable.Interval[index]);
-          row += formatCell(jpsurvData.results.deathData.deathTable.Died[index]);
-          row += formatCell(jpsurvData.results.deathData.deathTable.Alive_at_Start[index]);
-          row += formatCell(jpsurvData.results.deathData.deathTable.Lost_to_Followup[index]);
-          row += formatCell(jpsurvData.results.deathData.deathTable.Expected_Survival_Interval[index]);
         }
         else if(jpsurvData.results.input_type=="csv"){
           row += formatCell(jpsurvData.results.deathData.deathTable[jpsurvData.results.headers.Interval][index]);
-          row += formatCell(jpsurvData.results.deathData.deathTable[jpsurvData.results.headers.Died][index]);
-          row += formatCell(jpsurvData.results.deathData.deathTable[jpsurvData.results.headers.Alive_at_Start][index]);
-          row += formatCell(jpsurvData.results.deathData.deathTable[jpsurvData.results.headers.Lost_to_followup][index]);
-          row += formatCell(jpsurvData.results.deathData.deathTable[jpsurvData.results.headers.Expected_Survival_Interval][index]);
         }
-        row += formatCell(jpsurvData.results.deathData.deathTable[type][index]);
+        // Probability of Death Interval (This is calculated as 1 - Relative Survival Interval)
+        row += formatCell(100 - jpsurvData.results.deathData.deathTable.Relative_Survival_Interval[index]);
+        row += formatCell(jpsurvData.results.deathData.deathTable.Relative_SE_Interval[index]);
         row += formatCell(jpsurvData.results.deathData.deathTable.Predicted_ProbDeath_Int[index])
-        row += formatCell(jpsurvData.results.deathData.deathTable.Predicted_Survival_Cum[index]);
-        row += formatCell(jpsurvData.results.deathData.deathTable.Predicted_ProbDeath_Int_SE[index]);
-        row += formatCell(jpsurvData.results.deathData.deathTable.Predicted_Survival_Cum_SE[index])+"</tr>/n";
+        row += formatCell(jpsurvData.results.deathData.deathTable.Predicted_ProbDeath_Int_SE[index])+"</tr>/n";
         $("#graph-death-table > tbody").append(row);
         rows++;
       });
@@ -1175,10 +1156,6 @@ function updateTrendGraph(trends, table_id) {
 
 }
 function updateGraphLinks(token_id) {
-  // $("#graph-year-dataset-link").attr("href", "tmp/data_Year-"+token_id+"-"+jpsurvData.results.com+"-"+jpsurvData.results.jpInd+"-"+jpsurvData.results.imageId+".csv");
-  // $("#graph-time-dataset-link").attr("href", "tmp/data_Int-"+token_id+"-"+jpsurvData.results.com+"-"+jpsurvData.results.jpInd+"-"+jpsurvData.results.imageId+".csv");
-  // $(".full-dataset-link").attr("href", "tmp/Full_Predicted-"+token_id+"-"+jpsurvData.results.com+"-"+jpsurvData.results.imageId+".csv");
-
   document.querySelector("#graph-year-dataset-link").onclick = function(event) {
     event.preventDefault(); 
     downloadData('survByYear'); 
