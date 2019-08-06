@@ -906,7 +906,10 @@ function updateGraphs(token_id) {
       header.push(value);
     });
 
-    var timeHeader = ["Year of Diagnosis", "Interval", "Probability of Death Interval", "Probability of Death Interval Std. Err.", "Predicted Interval Death","Predicted Interval Death Std. Err."];
+    var data_type = jpsurvData.results.statistic.replace("Cum", "Interval");
+    var data_se = jpsurvData.results.statistic.replace("Cum", "Interval").replace('Survival', 'SE');
+
+    var timeHeader = ["Year of Diagnosis", "Interval", "Probability of Death Interval", "Probability of Death Interval Std. Err.", "Predictive Prob. of Death Interval","Predictive Prob. of Death Interval Std. Err."];
     header.push.apply(header, timeHeader);
     //Create the header
     $("#graph-death-table > thead").empty();
@@ -951,9 +954,9 @@ function updateGraphs(token_id) {
           row += formatCell(jpsurvData.results.deathData.deathTable[jpsurvData.results.headers.Interval][index]);
         }
         // Probability of Death Interval (This is calculated as 1 - Relative Survival Interval)
-        row += formatCell(100 - jpsurvData.results.deathData.deathTable.Relative_Survival_Interval[index]);
-        row += formatCell(jpsurvData.results.deathData.deathTable.Relative_SE_Interval[index]);
-        row += formatCell(jpsurvData.results.deathData.deathTable.Predicted_ProbDeath_Int[index])
+        row += formatCell(100 - jpsurvData.results.deathData.deathTable[data_type][index]);
+        row += formatCell(jpsurvData.results.deathData.deathTable[data_se][index]);
+        row += formatCell(jpsurvData.results.deathData.deathTable.Predicted_ProbDeath_Int[index]);
         row += formatCell(jpsurvData.results.deathData.deathTable.Predicted_ProbDeath_Int_SE[index])+"</tr>/n";
         $("#graph-death-table > tbody").append(row);
         rows++;
