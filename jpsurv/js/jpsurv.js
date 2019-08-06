@@ -908,7 +908,6 @@ function updateGraphs(token_id) {
 
   //Add the Death Table
   if (jpsurvData.results.deathData.deathTable!=undefined) {
-    console.log('death table')
     var yod = jpsurvData.results.deathData.deathTable[yodVarName];
     header = [];
     $.each(jpsurvData.calculate.form.cohortVars, function(index, value) {
@@ -1154,7 +1153,8 @@ function updateTrendGraph(trends, table_id) {
       $("#"+table_id+" > tbody").append(row);
     } else {
       $.each(trend["start.year"], function( index, value ) {
-        row = "<tr><td>"+value+"</td>";
+        row = "<tr><td>"+(trend["interval"][index] || trend["Interval"][index])+"</td>"
+        row += "<td>"+value+"</td>";
         row += "<td>"+trend["end.year"][index]+"</td>";
         row += formatCell(trend.estimate[index]*100);
         row += formatCell(trend["std.error"][index]*100)+"</td>";
