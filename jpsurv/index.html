@@ -97,7 +97,7 @@
 
                   <form id="upload-form" class="form-horizontal" role="form" method="post" enctype="multipart/form-data"
                     action="jpsurvRest/stage1_upload">
-                    <label class="col-xs-3" id="inputTypeLabel">File Format:</label>
+                    <label class="col-xs-3 font-weight-bold" id="inputTypeLabel">File Format:</label>
                     <div id="input_type_select" style="margin-bottom:2%" class="d-flex">
                       <div class="custom-control custom-radio custom-control-inline" data-toggle="tooltip"
                         data-placement="top" title="SEER*Stat survival text and dictionary files">
@@ -122,8 +122,8 @@
                     </div>
                     <div id="dic_container">
                       <div id="file_control_container" class="mx-0 mb-0">
-                        <div>
-                          <label for='file_control'>SEER Stat Dictionary/Data Files:</label>
+                        <div class="mb-2">
+                          <label class="font-weight-bold" for='file_control'>SEER Stat Dictionary/Data Files:</label>
                           <a style='font-size:small;color:#3273ab'
                             href='./data/SEER9_Survival_6CancerSitesByStage_1975_2007.dic'
                             download='SEER9_Survival_6CancerSitesByStage_1975_2007.dic'>(dic example)</a>
@@ -149,12 +149,12 @@
 
                     <div id="csv_container" style="display:none">
                       <div id="file_control_container_csv" class="mx-0 mb-0">
-                        <div>
-                          <label for='file_control_csv'>CSV File:</label>
+                        <div class="mb-2">
+                          <label class="font-weight-bold" for='file_control_csv'>CSV File:</label>
                           <a style='font-size:small;color:#3273ab' href='./data/Breast_RelativeSurvival_Head_NA0.csv'
                             download='Breast_RelativeSurvival_Head_NA0.csv'>(example)</a>
-                          <button type="button" class="btn btn-outline-light btn-sm float-right text-dark"
-                            id="Adv_input" disabled>Configure CSV
+                          <button type="button" class="btn btn-light btn-sm float-right" id="Adv_input"
+                            style="background-color: buttonface" disabled>Configure CSV
                           </button>
                         </div>
 
@@ -173,8 +173,11 @@
                       </div>
                     </div>
                     <div id="import_container" style="display:none">
-                      <p class="mb-2">All Files imported/exported use the &quot;.jpsurv&quot;extension
-                      </p>
+                      <div class="mb-2">
+                        <label class="font-weight-bold" for="import_container">All Files imported/exported use the
+                          &quot;.jpsurv&quot;extension
+                        </label>
+                      </div>
                       <div class="input-group mb-2">
                         <div class="custom-file">
                           <input type="file" class="custom-file-input" id="fileSelect" name="fileSelect"
@@ -446,7 +449,8 @@
                   <div class="d-flex col-lg-12">
                     <div class="custom-control custom-checkbox">
                       <input class="custom-control-input" type="checkbox" id="showYearTrend">
-                      <label class="custom-control-label" for="showYearTrend" aria-label="showYearTrend">Show Trend Table</label>
+                      <label class="custom-control-label" for="showYearTrend" aria-label="showYearTrend">Show Trend
+                        Table</label>
                     </div>
                     <button id="recalculate" class="btn btn-primary btn-sm ml-4" type="button">Recalculate</button>
                   </div>
@@ -480,9 +484,11 @@
                 </div>
 
                 <div class="row">
-                  <div class="custom-control custom-checkbox mx-auto" data-toggle="tooltip" data-placement="right" title="Only available when less than three intervals or joinpoints are selected">
+                  <div class="custom-control custom-checkbox mx-auto" data-toggle="tooltip" data-placement="right"
+                    title="Only available when less than three intervals or joinpoints are selected">
                     <input class="custom-control-input" type="checkbox" id="yearAnno" name="yearAnno">
-                    <label class="custom-control-label" for="yearAnno" aria-label="showTrendsOnGraph">Show Trend Measures on Graph</label>
+                    <label class="custom-control-label" for="yearAnno" aria-label="showTrendsOnGraph">Show Trend
+                      Measures on Graph</label>
                   </div>
                 </div>
 
@@ -537,7 +543,8 @@
                   <div class="d-flex col-lg-12">
                     <div class="custom-control custom-checkbox">
                       <input class="custom-control-input" type="checkbox" id="showDeathTrend">
-                      <label class="custom-control-label" for="showDeathTrend" aria-label="showDeathTrend">Show Trend Table</label>
+                      <label class="custom-control-label" for="showDeathTrend" aria-label="showDeathTrend">Show Trend
+                        Table</label>
                     </div>
                     <button id="recalculate" class="btn btn-primary btn-sm ml-4" type="button">Recalculate</button>
                   </div>
@@ -567,9 +574,11 @@
                 </div>
 
                 <div class="row">
-                  <div class="custom-control custom-checkbox mx-auto" data-toggle="tooltip" data-placement="right" title="Only available when less than three intervals or joinpoints are selected">
+                  <div class="custom-control custom-checkbox mx-auto" data-toggle="tooltip" data-placement="right"
+                    title="Only available when less than three intervals or joinpoints are selected">
                     <input class="custom-control-input" type="checkbox" id="deathAnno" name="deathAnno">
-                    <label class="custom-control-label" for="deathAnno" aria-label="showTrendsOnGraph">Show Trend Measures on Graph</label>
+                    <label class="custom-control-label" for="deathAnno" aria-label="showTrendsOnGraph">Show Trend
+                      Measures on Graph</label>
                   </div>
                 </div>
 
