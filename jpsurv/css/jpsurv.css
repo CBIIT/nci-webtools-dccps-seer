@@ -100,8 +100,6 @@ hr.stage-separator{
     /* background: linear-gradient(to bottom, #feffff 0%, #feffff 50%, #e7f3fa 100%) repeat scroll 0 0 rgba(0, 0, 0, 0); */
     background: #FFFFFF;
     border-radius: 8px;
-    box-shadow: 0 .5rem 1rem rgba(0,0,0,.125);
-    /* box-shadow: 0 2px 4px 0 rgba(1, 90, 129, 0.4); */
     color: #666;
     margin-bottom: 18px;
     padding: 18px;
@@ -471,7 +469,7 @@ tbody tr:last-child td:last-child {
 }
 
 .nav-link {
-  font-size: large;
+  font-size: 1rem;
   color: black;
 }
 
@@ -479,3 +477,6 @@ tbody tr:last-child td:last-child {
   color: #007bff !important;
 }
 
+.btn {
+  font-size: 1rem;
+}

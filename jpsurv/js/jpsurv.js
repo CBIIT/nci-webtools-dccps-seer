@@ -28,7 +28,7 @@ $(document).ready(function() {
   // disable calculate button on document load
   $('#calculate').prop("disabled",true);
   if (jpsurvData.status === 'uploaded') {
-    $('#help').html('<div style="font-size:18px;">Please select Cohort and Model specifications on the left and click on Calculate / Submit.</div>');
+    $('#help').html('<div style="font-size:1.25rem;">Please select Cohort and Model specifications on the left and click on Calculate / Submit.</div>');
   } else {
     loadHelp();
   }

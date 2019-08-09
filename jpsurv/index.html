@@ -63,7 +63,7 @@
   <div id="main" class="container">
     <div class="row">
       <div class="col-lg-12 col-lg-offset-1 w-100 ml-0" id="jpsurv-message-container" style="display:none;">
-        <div class="card bg-light">
+        <div class="card bg-white">
           <div class="card-header bg-danger">Error</div>
           <div class="card-body">
             <p id="jpsurv-message-content"></p>
@@ -78,7 +78,7 @@
       <div id="slideoutTab" class="col-md-12 col-lg-4">
         <i id="icon" class="fa fa-caret-left fa-2x hidden-xs hidden-sm" onclick="Slide_menu_Horz()"
           style="visibility: hidden;margin-left:100%"></i>
-        <div id="slideoutForm" class="card bg-light shadow-lg">
+        <div id="slideoutForm" class="card bg-white shadow-lg">
           <div class="card-body">
             <span class="jpsurv-title col-md-6 d-none d-sm-block d-md-block"><img src="./images/jpsurv.png"
                 style="height:60%;width:60%" alt="JPSurv (Joint Point Survival Model)"></img></span>
@@ -89,12 +89,11 @@
                 <span class="float-right col-md-5 cursor text-right" onclick="openHelpWindow('./html/help.html')">
                   <a href="#">
                     <i class="fas fa-question-circle" aria-label="Help"></i>
-                    <span style="font-size:small">Help</span>
+                    <span>Help</span>
                   </a>
                 </span>
                 <!-- Upload FORM - STAGE 1 -->
-                <div class="box col-xs-12" style="overflow:hidden;width:100%">
-
+                <div class="box col-xs-12 shadow" style="overflow:hidden;width:100%">
                   <form id="upload-form" class="form-horizontal" role="form" method="post" enctype="multipart/form-data"
                     action="jpsurvRest/stage1_upload">
                     <label class="col-xs-3 font-weight-bold" id="inputTypeLabel">File Format:</label>
@@ -135,7 +134,7 @@
                           <div class="custom-file">
                             <input type="file" class="custom-file-input" id="file_control" name="file_control"
                               accept=".dic, .txt" aria-label="dictionary file chooser" multiple max-uploads=2>
-                            <label class="custom-file-label" for="file_control">Choose file (dic, txt)</label>
+                            <label class="custom-file-label" for="file_control">Choose files (dic, txt)</label>
                           </div>
                           <div class="input-group-append">
                             <button class="btn btn-primary upload_file_submit" id="upload_dictxt" data-toggle="tooltip"
@@ -194,7 +193,7 @@
                   </form>
                 </div>
                 <!-- Calculate - STAGE 2 -->
-                <div id="stage2-calculate" class="box col-xs-12" style="display:none;">
+                <div id="stage2-calculate" class="box col-xs-12 shadow" style="display:none;">
                   <form id='parameters' class="form-horizontal" role="form">
                     <h5 class="card-title">Cohort and Model Specifications</h5>
                     <hr class="stage-separator">
@@ -263,7 +262,7 @@
                   </form>
                 </div>
                 <!-- Advanced Options - STAGE 2b -->
-                <div class="box col-md-12" div id="stage2b-advanced" style="display:none;">
+                <div class="box col-md-12 shadow" div id="stage2b-advanced" style="display:none;">
                   <h2 class="h4">Advanced Options</h2>
                   <hr class="stage-separator">
                   <div id="adv-options">
@@ -336,7 +335,7 @@
         <!-- </form> -->
         <!-- Main Menu Tabs -->
       </div>
-      <div class="card col-md-12 col-lg-8 shadow-lg bg-light" id="helpCard" style="margin-top:2rem;">
+      <div class="card col-md-12 col-lg-8 shadow-lg bg-white" id="helpCard" style="margin-top:2rem;">
         <div id="help" class="card-body h-auto overflow-auto">
           <div class="row">
             <div class="col-sm-7 col-sm-offset-2" id="jpsurv-help-message-container" style="display:none;margin-top:2%">
@@ -351,7 +350,7 @@
         </div>
       </div>
       <div id="right_panel" class="col-md-12 col-lg-8" style="display:none;margin-top:2%">
-        <div id="cohort-join-points" class="card bg-light shadow-lg mb-4">
+        <div id="cohort-join-points" class="card bg-white shadow-lg mb-4">
           <div class="card-body">
             <div class="pb-3">
               <strong>Cohort</strong>&nbsp;
