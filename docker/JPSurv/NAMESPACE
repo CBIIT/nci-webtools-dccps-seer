@@ -1,2 +1,0 @@
-import(stats,ggplot2,ggrepel)
-export(aapc,aapc.multiints,deleteLastInterval,dictionary.overview,joinpoint,joinpoint.seerdata,download.data,plot.dying.year.annotate,plot.surv.year.annotate,plot.surv.int.multiyears)
