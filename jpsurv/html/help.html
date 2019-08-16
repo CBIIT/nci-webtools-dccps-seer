@@ -208,16 +208,16 @@
             <font size="2">&nbsp;[Top]</font>
           </a></h3>
         <p>
-          There are 3 types of graphs and 2 survival trend measures as specified below. Graphs displays predicted
+          There are 3 types of graphs and 2 survival trend measures as specified below. Graphs display predicted
           (modeled) and observed (data) survival or interval probabilities of death for each Joinpoint model and
-          cohorts. The default is the final selected model however the user can select other fitted models. The user
-          can check “Show Trend Measures” and hit Recalculate to display the trend summary measures. All plots in
-          JPSurv are done using the package ggplot2 [3] developed for the R environment.
+          cohorts. The default is the final selected model however the user can select other fitted models. The user can
+          check “Show Trend Measures” and hit Recalculate to display the trend summary measures. All plots in JPSurv are
+          done using the package ggplot2 [3] developed for the R environment.
         </p>
         <ol>
-          <li><b>Survival vs. Year of Diagnosis Graph: </b>The user can select 1 or more values of interval years,
-            e.g. 5-year or 10-year survival and produce the trend graph over all available years of diagnosis. The
-            default is 5-year survival.</li>
+          <li><b>Survival vs. Year of Diagnosis Graph: </b>The user can select 1 or more values of interval years, e.g.
+            5-year or 10-year survival and produce the trend graph over all available years of diagnosis. The default is
+            5-year survival.</li>
           <ul>
             <li><b>Trend measure: Average Absolute Change in Survival by Diagnosis Year: </b>The numbers represent the
               average absolute difference in survival (either relative survival or cause-specific survival) for people
@@ -229,10 +229,10 @@
           </ul>
           <br>
 
-          <li><b>Death vs. Year of Diagnosis: </b>The user can select 1 or more values of interval years, e.g. 5-year or
-            10-year probability of death interval and produce the trend graph over all available years of diagnosis. The
-            default is 5-year probability of death interval, which represents given alive at the end of the fourth years
-            the probability of dying of cancer between 4th and 5th year from diagnosis.</li>
+          <li><b>Death vs. Year of Diagnosis Graph: </b>The user can select 1 or more values of interval years, e.g.
+            5-year or 10-year probability of death interval and produce the trend graph over all available years of
+            diagnosis. The default is 5-year probability of death interval, which represents given alive at the end of
+            the fourth years the probability of dying of cancer between 4th and 5th year from diagnosis.</li>
           <ul>
             <li><b>Trend measure: Percent Change in the Interval Probability of Dying of Cancer by Diagnosis Year:
               </b>The numbers represent the percent change in the interval probability of dying of cancer for people
@@ -243,7 +243,7 @@
               dying in any interval (e.g. 0 to 1, 1 to 2,… years since diagnosis). </li>
           </ul>
           <br>
-          <li><b>Graph - Survival vs. Time Since Diagnosis: </b>The user can select 1 or more calendar years, e.g. 1990
+          <li><b>Survival vs. Time Since Diagnosis Graph: </b>The user can select 1 or more calendar years, e.g. 1990
             and 2000, and show modeled vs. observed survival by years since diagnosis. </li>
         </ol>
         <p><b>Show Trend Measures on Graph: </b>For some of the graphs the user can display the trends measures by
@@ -252,7 +252,7 @@
         <p><b>Model Estimates: </b>Displays the number and location of joinpoints, the parameter estimates, and standard
           errors.</p>
         <p><b>Download Full Dataset: </b>Provides the data, survival, probability of cancer death estimates and
-          standardbred errors for the full data.</p>
+          standard errors for the full data.</p>
         <p><b>Download Graph Dataset: </b>Provides the graph data and estimates for users to reproduce the graphs using
           a different software.</p>
 
