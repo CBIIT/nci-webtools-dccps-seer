@@ -2141,6 +2141,7 @@ function jpsurvRest2(action, callback) {
     window[callback]();
     scrollIntervalYearDropdown();
     $("#calculating-spinner").modal('hide');
+    showTrendTable();
   }).fail(function(jqXHR, textStatus) {
     $("#calculating-spinner").modal('hide');
     displayCommFail("jpsurv", jqXHR, textStatus);
@@ -3052,15 +3053,21 @@ function getTrendTables() {
   jpsurvData.additional.yearTrend = 0;
   jpsurvData.additional.deathTrend = 0;
 
+  if ($('#showYearTrend').is(':checked')) 
+    jpsurvData.additional.yearTrend = 1;
+
+  if ($('#showDeathTrend').is(':checked')) 
+    jpsurvData.additional.deathTrend = 1;
+}
+
+function showTrendTable() {
   if ($('#showYearTrend').is(':checked')) {
     $('#yearTrendTable').removeClass('d-none')
-    jpsurvData.additional.yearTrend = 1;
   } else {
     $('#yearTrendTable').addClass('d-none')
   }
   if ($('#showDeathTrend').is(':checked')) {
     $('#deathTrendTable').removeClass('d-none')
-    jpsurvData.additional.deathTrend = 1;
   } else {
     $('#deathTrendTable').addClass('d-none')
   }
