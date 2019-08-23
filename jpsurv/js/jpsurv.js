@@ -1182,6 +1182,10 @@ function updateGraphLinks(token_id) {
     event.preventDefault(); 
     downloadData('survByYear'); 
   };
+  document.querySelector("#graph-death-dataset-link").onclick = function(event) {
+    event.preventDefault(); 
+    downloadData('deathByYear'); 
+  };
   document.querySelector("#graph-time-dataset-link").onclick = function(event) {
     event.preventDefault(); 
     downloadData('survByTime');
@@ -3143,7 +3147,8 @@ function genereateSheet(data) {
               'Expected_Survival_Cum',
               'Observed_Survival_Cum', 
               'Observed_Survival_Interval', 
-              'Relative_Survival_Interval', 
+              'Relative_Survival_Interval',
+              'Relative_Death_Interval', 
               'Relative_Survival_Cum',
               'Relative_SE_Interval',
               'Relative_SE_Cum',
@@ -3162,6 +3167,7 @@ function genereateSheet(data) {
               'Lost_to_Followup',
               'Expected_Survival_Interval',
               'CauseSpecific_Survival_Interval',
+              'Relative_Death_Interval', 
               'CauseSpecific_Survival_Cum',
               'CauseSpecific_SE_Interval',
               'CauseSpecific_SE_Cum',
@@ -3175,7 +3181,6 @@ function genereateSheet(data) {
   }
 
   var sheet = [input];
-  var remove = [];
   input.forEach(function(col, index) {
     if (data[col]) {
       data[col].forEach(function(value, row) {
@@ -3195,8 +3200,19 @@ function genereateSheet(data) {
   return XLSX.utils.aoa_to_sheet(sheet);
 }
 
+// delete columns that aren't being used for table display
+function filterTable(table, col) {
+  for (key in table) {
+    if (!col.includes(key)) {
+      delete table[key]
+    }
+  }
+  return table;
+}
+
 function downloadData(type) {
   var survByYear = jpsurvData.results.yearData.survTable;
+  var deathByYear = jpsurvData.results.deathData.deathTable;
   var survByTime = jpsurvData.results.timeData.timeTable;
   var fullPred = jpsurvData.results.fullDownload;
   var cohort = document.querySelector('#cohort-display').value;
@@ -3205,10 +3221,50 @@ function downloadData(type) {
   wb.props = {
     Title: type + ' - Model ' + (jp+1) + ' (JP ' + jp + ') - ' + cohort 
   };
+
+  // columns specific to each graph
+  var columns = [jpsurvData.results.yearVar]
   
   if (type == 'survByYear') {
+    columns.push(
+      'Interval', 
+      'Relative_Survival_Cum',
+      'Relative_SE_Cum',
+      'CauseSpecific_Survival_Cum',
+      'CauseSpecific_SE_Cum',
+      'Predicted_Survival_Cum',
+      'Predicted_Survival_Cum_SE',
+      )
+    survByYear = filterTable(survByYear, columns);
     XLSX.utils.book_append_sheet(wb, genereateSheet(survByYear), 'Survival vs. Year');
+  } else if (type == 'deathByYear') {  
+    if (deathByYear['Relative_Survival_Interval']) {
+    deathByYear['Relative_Death_Interval'] = deathByYear['Relative_Survival_Interval'].map(function (i) {
+      return 100 - i;
+    });
+    } else {
+      deathByYear['Relative_Death_Interval'] = deathByYear['CauseSpecific_Survival_Interval'].map(function (i) {
+        return 100 - i;
+      });
+    }
+    columns.push(
+      'Interval', 
+      'Relative_Death_Interval',
+      'Relative_SE_Interval',
+      'CauseSpecific_SE_Interval',
+      'Predicted_ProbDeath_Int',
+      'Predicted_ProbDeath_Int_SE'
+      )
+    deathByYear = filterTable(deathByYear, columns);
+    XLSX.utils.book_append_sheet(wb, genereateSheet(deathByYear), 'Death vs. Year'); 
   } else if (type == 'survByTime') {  
+    columns.push(
+      'Interval',
+      'Relative_Survival_Cum',
+      'CauseSpecific_Survival_Cum',
+      'Predicted_Survival_Cum',
+      )
+    survByTime = filterTable(survByTime, columns);
     XLSX.utils.book_append_sheet(wb, genereateSheet(survByTime), 'Survival vs. Time');
   } else if (type == 'fullData') {
     XLSX.utils.book_append_sheet(wb, genereateSheet(fullPred), 'Full Dataset');
