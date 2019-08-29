@@ -437,7 +437,6 @@ function preLoadValues() {
   stage2("no calculate"); // This is the initial calculation and setup.
   retrieveResults();
   var status = getUrlParameter('status');
-  scrollIntervalYearDropdown();
   //console.log(status)
 }
 
@@ -1258,7 +1257,6 @@ function calculateFittedResultsCallback() {
 }
 
 function calculateTrend() {
-  window.jpsurvData.trendsInterval = $('#trends-interval-years').val();
   jpsurvRest2('stage4_trends_calculate', "calculateTrendCallback");
 }
 
@@ -1805,14 +1803,6 @@ function parse_cohort_covariance_variables() {
     }
   }
 }
-function scrollIntervalYearDropdown() {
-    var intervalYearDropdown = $("#interval-years");
-    var selectedIntervalYear = intervalYearDropdown.find('option:selected');
-    if (selectedIntervalYear) {
-      var pos = selectedIntervalYear.prop('offsetTop');
-      intervalYearDropdown.scrollTop(pos);
-    }
-}
 function setIntervalsDefault() {
 jpsurvData.additional.intervals_default = [];
 
@@ -1826,7 +1816,6 @@ jpsurvData.additional.intervals_default = [];
     var selectedRange = jpsurvData.calculate.form.yearOfDiagnosisRange[1] - jpsurvData.calculate.form.yearOfDiagnosisRange[0];
     $("#interval-years").empty();
     $("#interval-years-death").empty();
-    $("#trends-interval-years").empty();
 
   if(control_data.input_type==undefined){
     intervals = (selectedRange < intervals ? selectedRange : intervals);
@@ -1852,12 +1841,6 @@ jpsurvData.additional.intervals_default = [];
         $("#interval-years").append($("<option>").text(i));
         $("#interval-years-death").append($("<option>").text(i));
       }
-      if ((intervals < 5 && i === intervals) ||
-           i === 5) {
-        $("#trends-interval-years").append($("<option>").attr("selected", "selected").text(i));
-      } else {
-        $("#trends-interval-years").append($("<option>").text(i));
-      }
     }
 
   }
@@ -1873,12 +1856,6 @@ jpsurvData.additional.intervals_default = [];
         } else {
           $("#interval-years").append($("<option>").text(intervals[i]));
           $("#interval-years-death").append($("<option>").text(intervals[i]));
-        }
-        if ((intervals[intervals.length -1] < 5 && i === intervals.length -1) ||
-             intervals[i] === 5) {
-          $("#trends-interval-years").append($("<option>").attr("selected", "selected").text(intervals[i]));
-        } else {
-          $("#trends-interval-years").append($("<option>").text(intervals[i]));
         }
     }
   }
@@ -2143,7 +2120,6 @@ function jpsurvRest2(action, callback) {
     contentType : 'application/json'
   }).done(function(msg) {
     window[callback]();
-    scrollIntervalYearDropdown();
     $("#calculating-spinner").modal('hide');
     showTrendTable();
   }).fail(function(jqXHR, textStatus) {
@@ -3037,6 +3013,11 @@ $(document).ready(function(){
     dropdownAutoWidth : true,
     width: 'auto'
   });
+
+  // Add aria labels for 508 compliance
+  $(".select2-search__field").attr("aria-label", function(){
+    return $(this).closest(".form-group").children("label").text()
+  })
   
 });
 
