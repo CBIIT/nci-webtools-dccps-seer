@@ -177,6 +177,10 @@ function addEventListeners() {
     }
   })
 
+  $('#year-of-diagnosis').on('change', function () {
+    checkSelect();
+  })
+
   $('#showYearTrend').on('change', function() {
     if (this.checked && $('#interval-years').val().length < 4 && jpsurvData.additional.headerJoinPoints < 4) {
       $('#yearAnno').prop("disabled", false);
