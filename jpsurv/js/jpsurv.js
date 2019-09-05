@@ -119,17 +119,27 @@ function hide_display_email(){
       $("#calculate").prop("disabled", false);
     }
 }
-function addEventListeners() {
 
-  $('#e-mail').on('keydown change', function(e) {
+// disable recalculate button if any of the interval or year 
+function checkSelect() {
+  if ($('#interval-years').val().length == 0 ||
+      $('#interval-years-death').val().length == 0 ||
+      $('#year-of-diagnosis').val().length == 0) {
+        $('.recalculate').prop('disabled', true);
+  } else {
+    $('.recalculate').prop('disabled', false);
+  }
+}
+
+function addEventListeners() {
+  $('#e-mail').on('keydown change', function (e) {
     if (e.which == 13) {
       e.preventDefault();
     }
     validateEmail();
   });
 
-
-  $("#cohort-variables").on('change', function(e){
+  $("#cohort-variables").on('change', function (e) {
     hide_display_email();
 
   });
@@ -139,7 +149,12 @@ function addEventListeners() {
 
   });
 
-  $('#interval-years').on('change', function() {
+  $("#intervals_from_diagnosis").change(function () {
+    jpsurvData.calculate.form.interval = parseInt(this.value);
+  }).change();
+
+  $('#interval-years').on('change', function () {
+    checkSelect();
     if ($('#interval-years').val().length > 3) {
       $('#yearAnno').prop("disabled", true);
       $("#yearAnno").prop("checked", false);
@@ -150,7 +165,8 @@ function addEventListeners() {
     }
   })
 
-  $('#interval-years-death').on('change', function() {
+  $('#interval-years-death').on('change', function () {
+    checkSelect();
     if ($('#interval-years-death').val().length > 3) {
       $('#deathAnno').prop("disabled", true);
       $("#deathAnno").prop("checked", false);
@@ -208,13 +224,13 @@ function addEventListeners() {
   $("#precision").on("change", userChangePrecision);
 
   // recalculate button
-  Array.prototype.map.call(document.querySelectorAll("#recalculate"), function(link) {
-    link.onclick = function(event) {
-    event.preventDefault(); 
-    jpsurvData.additional.recalculate="true"
-    jpsurvData.additional.use_default="false"
-    setCalculateData();
-    jpsurvData.additional.use_default="true"
+  Array.prototype.map.call(document.querySelectorAll(".recalculate"), function (link) {
+    link.onclick = function (event) {
+      event.preventDefault();
+      jpsurvData.additional.recalculate = "true"
+      jpsurvData.additional.use_default = "false"
+      setCalculateData();
+      jpsurvData.additional.use_default = "true"
     }
   })
 
