@@ -3078,6 +3078,13 @@ function showTrendTable() {
   }
 }
 
+// returns an array of cohort variables names
+function getCohorts() {
+  return jpsurvData.calculate.form.cohortVars.map(function (cohort) {
+    return cohort.replace(/\s/g, '_');
+  });
+}
+
 // Creates a sheet containing selections for cohorts, model, and advanced options
 function settingsSheet() {
   cohortVars = jpsurvData.calculate.form.cohortVars;
@@ -3133,53 +3140,53 @@ function settingsSheet() {
 //    ...
 //  ]
 function genereateSheet(data) {
-  // var headers = Object.keys(json);
-  var input = [];
   var yearVar = jpsurvData.results.yearVar;
-
+  var input = [
+    yearVar,
+    "Interval",
+    "Died",
+    "Alive_at_Start",
+    "Lost_to_Followup",
+    "Expected_Survival_Interval"
+  ];
+  
   // include input data depending on type of statistic
-  if (jpsurvData.additional.statistic == 'Relative Survival') {
-    input = [ yearVar,
-              'Interval',
-              'Died',
-              'Alive_at_Start',
-              'Lost_to_Followup',
-              'Expected_Survival_Interval',
-              'Expected_Survival_Cum',
-              'Observed_Survival_Cum', 
-              'Observed_Survival_Interval', 
-              'Relative_Survival_Interval',
-              'Relative_Death_Interval', 
-              'Relative_Survival_Cum',
-              'Relative_SE_Interval',
-              'Relative_SE_Cum',
-              'Predicted_Survival_Int',
-              'Predicted_ProbDeath_Int',
-              'Predicted_Survival_Cum',
-              'Predicted_Survival_Int_SE',
-              'Predicted_ProbDeath_Int_SE',
-              'Predicted_Survival_Cum_SE',
-            ];
+  if (jpsurvData.additional.statistic == "Relative Survival") {
+    var cols = [
+      "Expected_Survival_Cum",
+      "Observed_Survival_Cum",
+      "Observed_Survival_Interval",
+      "Relative_Survival_Interval",
+      "Relative_Death_Interval",
+      "Relative_Survival_Cum",
+      "Relative_SE_Interval",
+      "Relative_SE_Cum"
+    ];
+    input = input.concat(cols);
   } else {
-    input = [ yearVar,
-              'Interval',
-              'Died',
-              'Alive_at_Start',
-              'Lost_to_Followup',
-              'Expected_Survival_Interval',
-              'CauseSpecific_Survival_Interval',
-              'Relative_Death_Interval', 
-              'CauseSpecific_Survival_Cum',
-              'CauseSpecific_SE_Interval',
-              'CauseSpecific_SE_Cum',
-              'Predicted_Survival_Int',
-              'Predicted_ProbDeath_Int',
-              'Predicted_Survival_Cum',
-              'Predicted_Survival_Int_SE',
-              'Predicted_ProbDeath_Int_SE',
-              'Predicted_Survival_Cum_SE',
-            ];
+    var cols = [
+      "CauseSpecific_Survival_Interval",
+      "Relative_Death_Interval",
+      "CauseSpecific_Survival_Cum",
+      "CauseSpecific_SE_Interval",
+      "CauseSpecific_SE_Cum"
+    ];
+    input = input.concat(cols);
   }
+  
+  // add predicted columns
+  var predicted = [
+    "Predicted_Survival_Int",
+    "Predicted_ProbDeath_Int",
+    "Predicted_Survival_Cum",
+    "Predicted_Survival_Int_SE",
+    "Predicted_ProbDeath_Int_SE",
+    "Predicted_Survival_Cum_SE"
+  ];
+  input = input.concat(predicted);
+
+  // Add cohort vars
+  input = getCohorts().concat(input);
 
   var sheet = [input];
   input.forEach(function(col, index) {
@@ -3225,7 +3232,6 @@ function downloadData(type) {
 
   // columns specific to each graph
   var columns = [jpsurvData.results.yearVar]
-  
   if (type == 'survByYear') {
     columns.push(
       'Interval', 
@@ -3234,8 +3240,11 @@ function downloadData(type) {
       'CauseSpecific_Survival_Cum',
       'CauseSpecific_SE_Cum',
       'Predicted_Survival_Cum',
-      'Predicted_Survival_Cum_SE',
-      )
+      'Predicted_Survival_Cum_SE',)
+
+    // add cohort vars
+    columns = getCohorts().concat(columns);
+
     survByYear = filterTable(survByYear, columns);
     XLSX.utils.book_append_sheet(wb, genereateSheet(survByYear), 'Survival vs. Year');
   } else if (type == 'deathByYear') {  
@@ -3256,6 +3265,10 @@ function downloadData(type) {
       'Predicted_ProbDeath_Int',
       'Predicted_ProbDeath_Int_SE'
       )
+
+    // add cohort vars
+    columns = getCohorts().concat(columns);
+
     deathByYear = filterTable(deathByYear, columns);
     XLSX.utils.book_append_sheet(wb, genereateSheet(deathByYear), 'Death vs. Year'); 
   } else if (type == 'survByTime') {  
@@ -3265,6 +3278,10 @@ function downloadData(type) {
       'CauseSpecific_Survival_Cum',
       'Predicted_Survival_Cum',
       )
+
+    // add cohort vars
+    columns = getCohorts().concat(columns);
+
     survByTime = filterTable(survByTime, columns);
     XLSX.utils.book_append_sheet(wb, genereateSheet(survByTime), 'Survival vs. Time');
   } else if (type == 'fullData') {
