@@ -3056,7 +3056,9 @@ function showTrendTable() {
 // returns an array of cohort variables names
 function getCohorts() {
   return jpsurvData.calculate.form.cohortVars.map(function (cohort) {
-    return cohort.replace(/\s/g, '_');
+    return cohort.replace(/[^a-z\d/]/gi, '_')
+      .replace(/_{2,}/g, '_')
+      .replace(/^[^a-z\d/]*|[^a-z\d/]*$/gi, '');
   });
 }
 
