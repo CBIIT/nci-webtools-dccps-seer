@@ -1231,7 +1231,7 @@ function updateTabs(tokenId) {
   changePrecision();
   // Check checkboxes if annotated graph exists
   jpsurvData.results.yearData.survGraphAnno ? $('#yearAnno').prop('checked', true) : ($('#yearAnno').prop('disabled', true), $('#yearAnno').prop('checked', false));
-  jpsurvData.results.yearData.deathGraphAnno ? $('#deathAnno').prop('checked', true) : ($('#deathAnno').prop('disabled', true), $('#deathAnno').prop('checked', false));
+  jpsurvData.results.deathData.deathGraphAnno ? $('#deathAnno').prop('checked', true) : ($('#deathAnno').prop('disabled', true), $('#deathAnno').prop('checked', false));
   getAnnoGraph();
 }
 
