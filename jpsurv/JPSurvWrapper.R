@@ -1,7 +1,7 @@
-library("rjson")
-library("JPSurv")
-library("ggplot2")
-library("ggrepel")
+library(rjson)
+library(JPSurv)
+library(ggplot2)
+library(ggrepel)
 
 VERBOSE=TRUE
 
@@ -35,7 +35,8 @@ ReadCSVFile <- function (inputFile, path, tokenId, jpsurvDataString,input_type) 
   statistic=jpsurvData$additional$statistic
   #If delimter is a space or tab change it to ""
   if (del=="\t"||del==" ") { del="" }
-  csvdata <- read.tabledata(fileName=file.path(path, inputFile),  # fileName: Name of file to use in current directory, or filepath.
+
+  csvdata <- JPSurv:::read.tabledata(fileName=file.path(path, inputFile),  # fileName: Name of file to use in current directory, or filepath.
                             hasHeader=TRUE,
                             dlm=del);                             # hasHeader: Boolean variable indicating whether or not the CSV being read in has a header row or not. Default is FALSE.
   dictionaryCols=c()
@@ -44,7 +45,7 @@ ReadCSVFile <- function (inputFile, path, tokenId, jpsurvDataString,input_type) 
   } else {
     dictionaryCols = c(year,interval)
   }
-  seerFormData=write.tabledic(inputData=csvdata,          # inputData: Input data.frame.
+  seerFormData = JPSurv:::write.tabledic(inputData=csvdata,          # inputData: Input data.frame.
                               idCols=dictionaryCols);
                                                           # idColNum: Integer value defining how many leading columns to create a dictionary of possible values from. Default is 1. 
   interval_name=names(csvdata)[interval]
@@ -180,7 +181,7 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,use_default=TRU
     file=paste(filePath, file_name, sep="/" )
     del=jpsurvData$additional$del
     if (del=="\t"||del==" ") { del="" }
-    seerdata=read.tabledata(fileName=file,          # fileName: Name of file to use in current directory, or filepath.
+    seerdata =  JPSurv:::read.tabledata(fileName=file,          # fileName: Name of file to use in current directory, or filepath.
                             hasHeader=TRUE,
                             dlm=del);    
     observed=names(seerdata)[jpsurvData$additional$observed]
@@ -190,8 +191,8 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,use_default=TRU
     alive_at_start=names(seerdata)[jpsurvData$additional$alive_at_start]
     lost_to_followup=names(seerdata)[jpsurvData$additional$lost_to_followup]
     exp_int=names(seerdata)[jpsurvData$additional$exp_int]
-    interval=names(seerdata)[as.integer(jpsurvData$additional$interval)]
-    observed=names(seerdata)[jpsurvData$additional$observed]
+    # interval=names(seerdata)[as.integer(jpsurvData$additional$interval)]
+    # observed=names(seerdata)[jpsurvData$additional$observed]
     statistic=jpsurvData$additional$statistic
     if (statistic=="Relative Survival") {
       headers=list("Died"=died,"Alive_at_Start"=alive_at_start,"Lost_to_followup"=lost_to_followup,"Expected_Survival_Interval"=exp_int,"Interval"=interval,"Relative_Survival_Cum"=observed)
@@ -308,7 +309,7 @@ getFittedResult <- function (tokenId,filePath, seerFilePrefix, yearOfDiagnosisVa
     if (del=="\t"||del==" ") {
         del=""
     }
-    seerdata=read.tabledata(fileName=file,          # fileName: Name of file to use in current directory, or filepath.
+    seerdata =  JPSurv:::read.tabledata(fileName=file,          # fileName: Name of file to use in current directory, or filepath.
                             hasHeader=TRUE,
                             dlm=del);      
     intervalRange = as.integer(jpsurvData$calculate$form$interval)
@@ -318,8 +319,9 @@ getFittedResult <- function (tokenId,filePath, seerFilePrefix, yearOfDiagnosisVa
     observed=names(seerdata)[jpsurvData$additional$observed]
     interval=names(seerdata)[as.integer(jpsurvData$additional$interval)]
     died=names(seerdata)[jpsurvData$additional$died]
-    fittedResult <- joinpoint(seerdata, 
-                              subset = eval(parse(text=subsetStr)),
+    seerdataSub = subset(seerdata, Interval <= intervalRange)
+    fittedResult <- joinpoint(seerdataSub, 
+                              subset = subsetStr,
                               year=getCorrectFormat(yearOfDiagnosisVarName),
                               interval=interval,                             
                               number.event=died,
