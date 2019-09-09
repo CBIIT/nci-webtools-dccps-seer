@@ -1477,29 +1477,23 @@ function calculate(run) {
     incrementImageId();
     jpsurvData.run = 1;
     if (parseInt($("#max_join_point_select").val()) > maxJP && validateVariables() || check_multiple() == true) {
-      //asks user to confirm they want thier job queued
-      var send = confirm("Please confirm you would like your job sent to the queuing system for calculation");
-      // SEND TO QUEUE
-      if (send == true) {
-        setIntervalsDefault();
-        getIntervals();
-        // getTrendTables();
-        setUrlParameter("request", "true");
-        jpsurvData.additional.use_default = "true"
-        jpsurvData.queue.url = encodeURIComponent(window.location.href.toString());
-        jpsurvData.additional.yearOfDiagnosis[0] = jpsurvData.calculate.form.yearOfDiagnosisRange[0].toString();
-        jpsurvData.additional.yearOfDiagnosis_default = [parseInt($("#year_of_diagnosis_start").val())];
-        jpsurvData.additional.del = control_data.del
-        //  jpsurvData.additional.rates=control.rates
-        var params = getParams();
-        $("#right_panel").hide();
-        $("#helpCard").show();
-        $("#icon").css('visibility', 'hidden');
-        var comm_results = JSON.parse(jpsurvRest('stage5_queue', params));
-        $("#calculating-spinner").modal('hide');
-        okAlert("Your submission has been queued.  You will receive an e-mail when calculation is completed.", "Calculation in Queue");
-      }
-
+      setIntervalsDefault();
+      getIntervals();
+      // getTrendTables();
+      setUrlParameter("request", "true");
+      jpsurvData.additional.use_default = "true"
+      jpsurvData.queue.url = encodeURIComponent(window.location.href.toString());
+      jpsurvData.additional.yearOfDiagnosis[0] = jpsurvData.calculate.form.yearOfDiagnosisRange[0].toString();
+      jpsurvData.additional.yearOfDiagnosis_default = [parseInt($("#year_of_diagnosis_start").val())];
+      jpsurvData.additional.del = control_data.del
+      //  jpsurvData.additional.rates=control.rates
+      var params = getParams();
+      $("#right_panel").hide();
+      $("#helpCard").show();
+      $("#icon").css('visibility', 'hidden');
+      var comm_results = JSON.parse(jpsurvRest('stage5_queue', params));
+      $("#calculating-spinner").modal('hide');
+      okAlert("Your submission has been queued.  You will receive an e-mail when calculation is completed.", "Calculation in Queue");
     }
     else if (parseInt($("#max_join_point_select").val()) > maxJP && !validateVariables()) {
       console.log("Not Calculating - validateVariables did not pass");
