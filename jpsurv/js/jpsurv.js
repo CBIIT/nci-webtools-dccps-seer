@@ -567,22 +567,11 @@ function load_input_form(inputData) {
 }
 //populates the chort dropdown window based on the form selection
 function updateCohortDropdown() {
+  $("#cohort-display").empty();
   var cohort_array = jpsurvData.results.Runs.split("jpcom");
-  var display = document.getElementById("cohort-display");
-  var displayParent = display.parentElement;
-  var length = cohort_array.length;
-
-  display.innerHTML = "";
-  for (var i = 0; i < length; i++) {
-    var option = document.createElement("option");
-    option.setAttribute("id", i + 1);
-    cohort = cohort_array[i];
-    option.text = cohort;
-    display.add(option);
-  }
-
-  if (length === 0 || $.inArray("", cohort_array) === 0) {
-    displayParent.style.display = "none";
+  for (var i = 0; i < cohort_array.length; i++) {
+    var option = new Option(cohort_array[i], i + 1);
+    $("#cohort-display").append(option);
   }
 
   dropdownListener();
@@ -590,14 +579,12 @@ function updateCohortDropdown() {
 
 //populates the inpout json with the desired cohort combination based on the cohort dropdown window
 function dropdownListener() {
-  var display = document.getElementById("cohort-display");
-  display.addEventListener("change", function() {
-    var options = display.querySelectorAll("option");
-    var count = options.length;
-    //  jpsurvData.additional.headerJoinPoints=null
+  $("#cohort-display").on("select2:select", function() {
     jpsurvData.calculate.form.cohortValues = [];
     //splits the cohorts based on a " + "
-    var cohorts = display.options[display.selectedIndex].value.split(" + ");
+    var cohorts = $("#cohort-display option:selected")
+      .text()
+      .split(" + ");
     //adds each cohort to the json
     for (var j = 0; j < cohorts.length; j++) {
       jpsurvData.calculate.form.cohortValues.push('"' + cohorts[j] + '"');
@@ -609,8 +596,6 @@ function dropdownListener() {
     jpsurvData.additional.use_default = "true";
     jpsurvData.additional.Runs = jpsurvData.results.Runs;
     calculate(true);
-
-    //console.log(s.results);
   });
 }
 
@@ -627,14 +612,14 @@ function updateCohortDisplay() {
       //if checked add to ALL cohorts to be used for populating the drop down (if at least one checkbox is selected)
       if ($(element2).prop("checked")) {
         checked = true;
-        cohort_message += ' "' + $(element2).val() + '"';
+        cohort_message += "'" + $(element2).val() + "''";
         if (
           !jpsurvData.calculate.form.AllcohortValues[index].includes(
-            '"' + $(element2).val() + '"'
+            "'" + $(element2).val() + "'"
           )
         ) {
           jpsurvData.calculate.form.AllcohortValues[index].push(
-            '"' + $(element2).val() + '"'
+            "'" + $(element2).val() + "'"
           );
         }
       }
@@ -643,14 +628,14 @@ function updateCohortDisplay() {
     if (checked == false)
       $.each(inputs, function(index2, element2) {
         //if checked add to ALL cohorts to be used for populating the drop down (if at least one checkbox is selected)
-        cohort_message += ' "' + $(element2).val() + '"';
+        cohort_message += "'" + $(element2).val() + "'"
         if (
           !jpsurvData.calculate.form.AllcohortValues[index].includes(
-            '"' + $(element2).val() + '"'
+            "'" + $(element2).val() + "'"
           )
         ) {
           jpsurvData.calculate.form.AllcohortValues[index].push(
-            '"' + $(element2).val() + '"'
+            "'" + $(element2).val() + "'"
           );
         }
       });
@@ -1808,8 +1793,7 @@ function calculate(run) {
 }
 
 function setRun() {
-  var dropdown = document.getElementById("cohort-display");
-  jpsurvData.run = dropdown.options[dropdown.selectedIndex].id;
+  jpsurvData.run = $("#cohort-display").val();
 }
 
 function file_submit(event) {
