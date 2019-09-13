@@ -81,8 +81,8 @@ class jpsurvProcessor(DisconnectListener):
     print data
     try:
       r.source('./JPSurvWrapper.R')
-      r.getFittedResultWrapper(parameters['filepath'], jpsurvDataString)
       print "Calculating"
+      r.getFittedResultWrapper(parameters['filepath'], jpsurvDataString)
       print "making message"
       url=urllib.unquote(data['queue']['url'])
     except:
@@ -187,6 +187,7 @@ if __name__ == '__main__':
   from argparse import ArgumentParser
   parser = ArgumentParser()
   parser.add_argument('-d', '--debug', action = 'store_true')
+  parser.add_argument('port', nargs='+')
   args = parser.parse_args()
 
   logging.basicConfig(level=logging.DEBUG)

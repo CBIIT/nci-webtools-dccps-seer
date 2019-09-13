@@ -612,14 +612,14 @@ function updateCohortDisplay() {
       //if checked add to ALL cohorts to be used for populating the drop down (if at least one checkbox is selected)
       if ($(element2).prop("checked")) {
         checked = true;
-        cohort_message += "'" + $(element2).val() + "''";
+        cohort_message += '"' + $(element2).val() + '"';
         if (
           !jpsurvData.calculate.form.AllcohortValues[index].includes(
-            "'" + $(element2).val() + "'"
+            '"' + $(element2).val() + '"'
           )
         ) {
           jpsurvData.calculate.form.AllcohortValues[index].push(
-            "'" + $(element2).val() + "'"
+            '"' + $(element2).val() + '"'
           );
         }
       }
@@ -628,14 +628,14 @@ function updateCohortDisplay() {
     if (checked == false)
       $.each(inputs, function(index2, element2) {
         //if checked add to ALL cohorts to be used for populating the drop down (if at least one checkbox is selected)
-        cohort_message += "'" + $(element2).val() + "'"
+        cohort_message += '"' + $(element2).val() + '"';
         if (
           !jpsurvData.calculate.form.AllcohortValues[index].includes(
-            "'" + $(element2).val() + "'"
+            '"' + $(element2).val() + '"'
           )
         ) {
           jpsurvData.calculate.form.AllcohortValues[index].push(
-            "'" + $(element2).val() + "'"
+            '"' + $(element2).val() + '"'
           );
         }
       });

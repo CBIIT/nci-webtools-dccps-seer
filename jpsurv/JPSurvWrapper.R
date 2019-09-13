@@ -483,7 +483,15 @@ downloadDataWrapper <- function(jpsurvDataString, filePath, com, yearVar, jpInd,
   fit = outputData[['fittedResult']]
   yearOfDiagnosisRange = jpsurvData$calculate$form$yearOfDiagnosisRange
   cohortVars = jpsurvData$calculate$form$cohortVars
-  cohortValues = jpsurvData$calculate$form$AllcohortValues[[1]][com]
+  cohortMatrix = jpsurvData$calculate$form$AllcohortValues
+  cohortValues = c()
+  for (arr in cohortMatrix) {
+    if (length(arr) > 1) {
+      cohortValues = append(cohortValues, arr[com])
+    } else {
+      cohortValues = append(cohortValues, arr[1])
+    }
+  }
   subsetStr = getSubsetStr(yearVar, yearOfDiagnosisRange, cohortVars, cohortValues)
   intervals = c()
   if (downloadtype == 'year') {
@@ -531,7 +539,7 @@ getGraphWrapper <- function (filePath, jpsurvDataString, first_calc, com, interv
     trend = jpsurvData$additional$deathTrend 
     data = NULL
     # check if annotation is possible
-    if (trend == 1) {
+    if (!is.null(trend) && trend == 1) {
       if (nJP <= 3 && length(jpsurvData$additional$intervalsDeath) <= 3) {
         data = plot.dying.year.annotate(graphData, fit, nJP, yearVar, obsintvar, predintvar, interval, annotation = 1, trend = 1)
       } else {
@@ -569,7 +577,7 @@ getGraphWrapper <- function (filePath, jpsurvDataString, first_calc, com, interv
     trend = jpsurvData$additional$yearTrend
     data = NULL
     # check if annotation is possible
-    if (trend == 1) {
+    if (!is.null(trend) && trend == 1) {
       if (nJP <= 3 && length(jpsurvData$additional$intervals) <= 3) {
         data = plot.surv.year.annotate(graphData, fit, nJP, yearVar, obscumvar, predcumvar, interval, annotation = 1, trend = 1)
       } else {
