@@ -17,6 +17,7 @@ import logging
 from werkzeug.urls import Href
 from urllib import pathname2url
 import zlib
+from argparse import ArgumentParser
 
 app = Flask(__name__, static_folder='', static_url_path='')
 app.logger.setLevel(logging.DEBUG)
@@ -24,9 +25,19 @@ app.logger.setLevel(logging.DEBUG)
 if not os.path.exists('tmp'):
     os.makedirs('tmp')
 
+args = None
+config_file = "config.ini"
+if __name__ == "__main__":
+    parser = ArgumentParser()
+    parser.add_argument('-d', '--debug', action = 'store_true')
+    parser.add_argument("-p", dest="port_number", default="9001", help="Sets the Port")
+    args = parser.parse_args()
+    if args.debug:
+        config_file = "config.dev.ini"
+
 QUEUE_NAME = 'queue.name'
 QUEUE_URL = 'queue.url'
-jpsurvConfig = PropertyUtil(r"config.ini")
+jpsurvConfig = PropertyUtil(config_file)
 #UPLOAD_DIR = 'tmp' #os.path.join(os.getcwd(), 'tmp')
 UPLOAD_DIR = os.path.join(os.getcwd(), "tmp")
 
@@ -41,6 +52,7 @@ FAIL = '\033[91m'
 BOLD = '\033[1m'
 UNDERLINE = '\033[4m'
 ENDC = '\033[0m'
+
 
 def fix_jpsurv(jpsurvDataString):
     jpsurvDataString = jpsurvDataString.decode("utf-8").replace("{plus}", "+").encode("utf-8")
@@ -707,14 +719,6 @@ def initialize(port,debug=True):
     app.run(host='0.0.0.0', port=port, debug=True)
 
 if __name__ == '__main__':
-    import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-p", dest="port_number", default="9001", help="Sets the Port")
-    parser.add_argument("--debug", action="store_true")
-
-    args = parser.parse_args()
-    port_num = int(args.port_number);
-
     # @app.route('/error')
     # def error():
     #     raise()
@@ -724,4 +728,4 @@ if __name__ == '__main__':
         return send_file('index.html')
 
     print("The root path is " + app.root_path)
-    initialize(port_num)
+    initialize(args.port_number)

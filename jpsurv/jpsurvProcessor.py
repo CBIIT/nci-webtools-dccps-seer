@@ -35,7 +35,7 @@ class jpsurvProcessor(DisconnectListener):
     packet['From'] = "JPSurv Analysis Tool <do.not.reply@nih.gov>"
     packet['To'] = ", ".join(recipients)
     print recipients
-    print message
+   # print message
     packet.attach(MIMEText(message,'html'))
     for file in files:
       with open(file,"rb") as openfile:
@@ -86,6 +86,7 @@ class jpsurvProcessor(DisconnectListener):
       print "making message"
       url=urllib.unquote(data['queue']['url'])
     except:
+      print "calculation failed"
       url=urllib.unquote(data['queue']['url'])
       print(url)
       url=url+"&calculation=failed"
@@ -174,8 +175,8 @@ class jpsurvProcessor(DisconnectListener):
     self.run()
 
  # @read from property file to set up parameters for the queue.
-  def __init__(self):
-    config = PropertyUtil(r"config.ini")
+  def __init__(self, dev_mode = False):
+    config = PropertyUtil(r"config.dev.ini" if dev_mode else r"config.ini")
      # Initialize Connections to ActiveMQ
     self.QUEUE=config.getAsString(jpsurvProcessor.NAME)
     self.ERROR_QUEUE=config.getAsString('queue.error.name')
@@ -183,6 +184,12 @@ class jpsurvProcessor(DisconnectListener):
     self.config = config
 
 if __name__ == '__main__':
-  logging.basicConfig(level=logging.INFO)
-  jpsurvProcessor().run()
+  from argparse import ArgumentParser
+  parser = ArgumentParser()
+  parser.add_argument('-d', '--debug', action = 'store_true')
+  args = parser.parse_args()
+
+  logging.basicConfig(level=logging.DEBUG)
+  logging.info("JPSurv processor has started")
+  jpsurvProcessor(dev_mode = args.debug).run()
   reactor.run()
