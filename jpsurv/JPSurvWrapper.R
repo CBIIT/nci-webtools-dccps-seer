@@ -220,10 +220,10 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,use_default=TRU
   # get year column var name
   yearVar = getCorrectFormat(jpsurvData$calculate$static$yearOfDiagnosisVarName)  
   # create datasets for download
-  fullDownload <- downloadDataWrapper(jpsurvDataString, filePath, com, yearVar, jpInd, interval, 'full')
-  deathGraphData <- downloadDataWrapper(jpsurvDataString, filePath, com, yearVar, jpInd, interval, 'death')
-  survGraphData <- downloadDataWrapper(jpsurvDataString, filePath, com, yearVar, jpInd, interval, 'year')
-  timeGraphData <- downloadDataWrapper(jpsurvDataString, filePath, com, yearVar, jpInd, interval, 'time')
+  fullDownload <- downloadDataWrapper(jpsurvDataString, filePath, com, yearVar, jpInd, 'full')
+  deathGraphData <- downloadDataWrapper(jpsurvDataString, filePath, com, yearVar, jpInd, 'death')
+  survGraphData <- downloadDataWrapper(jpsurvDataString, filePath, com, yearVar, jpInd, 'year')
+  timeGraphData <- downloadDataWrapper(jpsurvDataString, filePath, com, yearVar, jpInd, 'time')
   # create graphs
   deathGraph <- getGraphWrapper(filePath, jpsurvDataString, first_calc, com, interval, deathGraphData, 'death', statistic)
   yearGraph <- getGraphWrapper(filePath, jpsurvDataString, first_calc, com, interval, survGraphData, 'year', statistic)
@@ -475,15 +475,7 @@ scaleTo <- function(data) {
   return(data)
 }
 
-# transform first row of int graph to percent from decimal 
-fixIntGraph <- function(graph) {
-  graph[[1]]$Relative_Survival_Cum[1] <- graph[[1]]$Relative_Survival_Cum[1] * 100
-  graph[[1]]$CauseSpecific_Survival_Cum[1] <- graph[[1]]$CauseSpecific_Survival_Cum[1] * 100
-  graph[[1]]$pred_cum[1] <- graph[[1]]$pred_cum[1] * 100
-  return(graph)
-}
-
-downloadDataWrapper <- function(jpsurvDataString, filePath, com, yearVar, jpInd, interval, downloadtype) {
+downloadDataWrapper <- function(jpsurvDataString, filePath, com, yearVar, jpInd, downloadtype) {
   jpsurvData <- fromJSON(jpsurvDataString)
   file = paste(filePath, paste("output-", jpsurvData$tokenId, "-", com, ".rds", sep = ""), sep = "/")
   outputData = readRDS(file)    
@@ -491,25 +483,33 @@ downloadDataWrapper <- function(jpsurvDataString, filePath, com, yearVar, jpInd,
   fit = outputData[['fittedResult']]
   yearOfDiagnosisRange = jpsurvData$calculate$form$yearOfDiagnosisRange
   cohortVars = jpsurvData$calculate$form$cohortVars
-  cohortValues = jpsurvData$calculate$form$AllcohortValues
+  cohortMatrix = jpsurvData$calculate$form$AllcohortValues
+  cohortValues = c()
+  for (arr in cohortMatrix) {
+    if (length(arr) > 1) {
+      cohortValues = append(cohortValues, arr[com])
+    } else {
+      cohortValues = append(cohortValues, arr[1])
+    }
+  }
   subsetStr = getSubsetStr(yearVar, yearOfDiagnosisRange, cohortVars, cohortValues)
   intervals = c()
   if (downloadtype == 'year') {
     for (i in 1:length(jpsurvData$additional$intervals)) {
       intervals = c(intervals,jpsurvData$additional$intervals[[i]])
     } 
-    return (download.data(input, fit, jpInd, yearVar, downloadtype="graph", subset = subsetStr, interval = interval, int.select = intervals))
+    return (download.data(input, fit, jpInd, yearVar, downloadtype="graph", int.select = intervals, subset = subsetStr))
   } else if (downloadtype == 'death') {
      for (i in 1:length(jpsurvData$additional$intervalsDeath)) {
         intervals = c(intervals,jpsurvData$additional$intervalsDeath[[i]])
       } 
-      return(download.data(input, fit, jpInd, yearVar, downloadtype="graph", subset = subsetStr, interval = interval, int.select = intervals))
+      return(download.data(input, fit, jpInd, yearVar, downloadtype="graph", int.select = intervals, subset = subsetStr))
   } else if (downloadtype == 'time') {
       intervalRange = as.integer(jpsurvData$calculate$form$interval)
       range = (c(1:intervalRange))
-      return(download.data(input, fit, jpInd, yearVar, downloadtype="graph", subset = subsetStr, interval = interval, int.select = range))
+      return(download.data(input, fit, jpInd, yearVar, downloadtype="graph", int.select = range, subset = subsetStr))
   } else {
-      fullData = download.data(input, fit, jpInd, yearVar, downloadtype="full", subset = subsetStr, interval = interval, )
+      fullData = download.data(input, fit, jpInd, yearVar, downloadtype="full", subset = subsetStr)
       return(scaleTo(fullData))
   }
 }
@@ -539,7 +539,7 @@ getGraphWrapper <- function (filePath, jpsurvDataString, first_calc, com, interv
     trend = jpsurvData$additional$deathTrend 
     data = NULL
     # check if annotation is possible
-    if (trend == 1) {
+    if (!is.null(trend) && trend == 1) {
       if (nJP <= 3 && length(jpsurvData$additional$intervalsDeath) <= 3) {
         data = plot.dying.year.annotate(graphData, fit, nJP, yearVar, obsintvar, predintvar, interval, annotation = 1, trend = 1)
       } else {
@@ -577,7 +577,7 @@ getGraphWrapper <- function (filePath, jpsurvDataString, first_calc, com, interv
     trend = jpsurvData$additional$yearTrend
     data = NULL
     # check if annotation is possible
-    if (trend == 1) {
+    if (!is.null(trend) && trend == 1) {
       if (nJP <= 3 && length(jpsurvData$additional$intervals) <= 3) {
         data = plot.surv.year.annotate(graphData, fit, nJP, yearVar, obscumvar, predcumvar, interval, annotation = 1, trend = 1)
       } else {
