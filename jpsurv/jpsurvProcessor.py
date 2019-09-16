@@ -35,7 +35,7 @@ class jpsurvProcessor(DisconnectListener):
     packet['From'] = "JPSurv Analysis Tool <do.not.reply@nih.gov>"
     packet['To'] = ", ".join(recipients)
     print recipients
-   # print message
+    # print message
     packet.attach(MIMEText(message,'html'))
     for file in files:
       with open(file,"rb") as openfile:
@@ -85,29 +85,55 @@ class jpsurvProcessor(DisconnectListener):
       r.getFittedResultWrapper(parameters['filepath'], jpsurvDataString)
       print "making message"
       url=urllib.unquote(data['queue']['url'])
+      success = True
     except:
       print "calculation failed"
       url=urllib.unquote(data['queue']['url'])
       print(url)
       url=url+"&calculation=failed"
+      success = False
 
     Link='<a href='+url+'> Here </a>'
     print parameters['timestamp']
     print "Here is the Link to the past:"
     print Link
+    
     header = """<h2>"""+product_name+"""</h2>"""
-    body = """
-          <div style="background-color:white;border-top:25px solid #142830;border-left:2px solid #142830;border-right:2px solid #142830;border-bottom:2px solid #142830;padding:20px">
-            Hello,<br>
-            <p>Here are the results you requested on """+parameters['timestamp']+""" from the """+product_name+""".</p>
-            <p>
-            <div style="margin:20px auto 40px auto;width:200px;text-align:center;font-size:14px;font-weight:bold;padding:10px;line-height:25px">
-              <div style="font-size:24px;"><a href='"""+url+"""'>View Results</a></div>
+    if success == True:
+      body = """
+            <div style="background-color:white;border-top:25px solid #142830;border-left:2px solid #142830;border-right:2px solid #142830;border-bottom:2px solid #142830;padding:20px">
+              Hello,<br>
+              <p>Here are the results you requested on """+parameters['timestamp']+""" from the """+product_name+""".</p>
+              <p>
+              <div style="margin:20px auto 40px auto;width:200px;text-align:center;font-size:14px;font-weight:bold;padding:10px;line-height:25px">
+                <div style="font-size:24px;"><a href='"""+url+"""'>View Results</a></div>
+              </div>
+              </p>
+              <p>The results will be available online for the next 14 days.</p>
             </div>
-            </p>
-            <p>The results will be available online for the next 14 days.</p>
-          </div>
-          """
+            """
+    else:
+      if data['file'].has_key('data'):
+        uploadFiles = data['file']['dictionary'] + " " + data['file']['data']
+      else :
+        uploadFiles = data['file']['dictionary']
+      body = """
+            <div style="background-color:white;border-top:25px solid #142830;border-left:2px solid #142830;border-right:2px solid #142830;border-bottom:2px solid #142830;padding:20px">
+              Dear User,<br>
+              <p>
+                  Thanks for using the JPSurv Analysis Tool. Unfortunately the job you submitted to the JPSurv processor failed to be processed. 
+                  Please review your dataset to make sure it conforms to the Input Data File format as described in the Help page of the web tool. 
+                  Please resubmit your data set after the corrections are made.
+              </p>
+              <p style="margin-left: 1rem;">
+                  Job Information<br>
+                  Input Data File: """+uploadFiles+"""<br>
+                  Submitted Time: """+parameters['timestamp']+"""
+              </p>
+              <p>JPSurv Web admin</p>
+            </div>
+            """
+
     footer = """
           <div>
             <p>
