@@ -68,6 +68,21 @@ $(document).ready(function() {
   // initialize tooltips and popover
   $("#max_help").popover();
   $('[data-toggle="tooltip"]').tooltip();
+
+  // Show correct container when navigating back a page
+  if ($("#dic").prop("checked")) {
+    $("#dic_container").show();
+    $("#csv_container").hide();
+    $("#import_container").hide();
+  } else if ($("#csv").prop("checked")) {
+    $("#dic_container").hide();
+    $("#csv_container").show();
+    $("#import_container").hide();
+  } else if ($("#importRadioButton").prop("checked")) {
+    $("#dic_container").hide();
+    $("#csv_container").hide();
+    $("#import_container").show();
+  }
 });
 
 function checkInput(id) {
@@ -407,6 +422,7 @@ function addInputSection() {
                 .addClass("jpsurv-label-content")
             )
         );
+      $("#inputTypeLabel").remove();
       $("#input_type_select").remove();
       $("#upload-form #seperator").remove();
       $(".upload_file_submit").remove();
@@ -737,13 +753,13 @@ function addCohortVariables() {
               .append([
                 $("<input>", {
                   class: "custom-control-input cohort-" + i,
-                  id: cohort_covariance_variables[key],
+                  id: key + cohort_covariance_variables[key],
                   value: cohort_covariance_variables[key],
                   type: "checkbox"
                 }),
                 $("<label>", {
                   class: "custom-control-label cohort-" + i,
-                  for: cohort_covariance_variables[key],
+                  for: key + cohort_covariance_variables[key],
                   html: cohort_covariance_variables[key]
                 })
               ])
@@ -756,13 +772,13 @@ function addCohortVariables() {
               .append([
                 $("<input>", {
                   class: "custom-control-input cohort-" + i,
-                  id: cohort_covariance_variables[key][j],
+                  id: key + cohort_covariance_variables[key][j],
                   value: cohort_covariance_variables[key][j],
                   type: "checkbox"
                 }),
                 $("<label>", {
                   class: "custom-control-label cohort-" + i,
-                  for: cohort_covariance_variables[key][j],
+                  for: key + cohort_covariance_variables[key][j],
                   html: cohort_covariance_variables[key][j]
                 })
               ])
@@ -2146,59 +2162,36 @@ function setIntervalsDefault() {
   $("#interval-years").empty();
   $("#interval-years-death").empty();
 
-  if (control_data.input_type == undefined) {
-    intervals = selectedRange < intervals ? selectedRange : intervals;
-    ////console.log(intervals+" : "+selectedRange);
-    var years = [];
-    //Set the ranges based on interval length
-    if (intervals >= 10) {
-      years = [5, 10];
-      jpsurvData.additional.intervals_default = years;
-    } else if (intervals >= 5) {
-      years = [5];
-      jpsurvData.additional.intervals_default = years;
-    } else if (intervals < 5) {
-      years = [intervals];
-      jpsurvData.additional.intervals_default = years;
-    }
-
-    for (var i = 1; i <= intervals; i++) {
-      if ($.inArray(i, years) >= 0) {
-        $("#interval-years").append(
-          $("<option>")
-            .attr("selected", "selected")
-            .text(i)
-        );
-        $("#interval-years-death").append(
-          $("<option>")
-            .attr("selected", "selected")
-            .text(i)
-        );
-      } else {
-        $("#interval-years").append($("<option>").text(i));
-        $("#interval-years-death").append($("<option>").text(i));
-      }
-    }
-  } else if (control_data.input_type == "csv") {
-    years = [intervals[0]];
+  intervals = selectedRange < intervals ? selectedRange : intervals;
+  ////console.log(intervals+" : "+selectedRange);
+  var years = [];
+  //Set the ranges based on interval length
+  if (intervals >= 10) {
+    years = [5, 10];
     jpsurvData.additional.intervals_default = years;
+  } else if (intervals >= 5) {
+    years = [5];
+    jpsurvData.additional.intervals_default = years;
+  } else if (intervals < 5) {
+    years = [intervals];
+    jpsurvData.additional.intervals_default = years;
+  }
 
-    for (var i = 0; i < intervals.length; i++) {
-      if ($.inArray(intervals[i], years) >= 0) {
-        $("#interval-years").append(
-          $("<option>")
-            .attr("selected", "selected")
-            .text(intervals[i])
-        );
-        $("#interval-years-death").append(
-          $("<option>")
-            .attr("selected", "selected")
-            .text(intervals[i])
-        );
-      } else {
-        $("#interval-years").append($("<option>").text(intervals[i]));
-        $("#interval-years-death").append($("<option>").text(intervals[i]));
-      }
+  for (var i = 1; i <= intervals; i++) {
+    if ($.inArray(i, years) >= 0) {
+      $("#interval-years").append(
+        $("<option>")
+          .attr("selected", "selected")
+          .text(i)
+      );
+      $("#interval-years-death").append(
+        $("<option>")
+          .attr("selected", "selected")
+          .text(i)
+      );
+    } else {
+      $("#interval-years").append($("<option>").text(i));
+      $("#interval-years-death").append($("<option>").text(i));
     }
   }
 }
@@ -2297,29 +2290,29 @@ function set_year_of_diagnosis_select() {
 }
 
 function set_intervals_from_diagnosis() {
-  for (
-    i = 0;
-    i < control_data.VarFormatSecList.Interval.ItemNameInDic.length;
-    i++
-  ) {
+  if (control_data.input_type == "csv") {
+    generateIntervalSelect(
+      control_data.data[Object.keys(control_data.data).length],
+      control_data.data[Object.keys(control_data.data).length].length
+    );
+  } else {
+    generateIntervalSelect(
+      control_data.VarFormatSecList.Interval.ItemNameInDic,
+      control_data.VarFormatSecList.Interval.ItemNameInDic.length
+    );
+  }
+}
+
+function generateIntervalSelect(source, length) {
+  for (i = 0; i < length; i++) {
     $("#intervals_from_diagnosis").append(
-      "<OPTION value=" +
-        control_data.VarFormatSecList.Interval.ItemNameInDic[i] +
-        "> <= " +
-        control_data.VarFormatSecList.Interval.ItemNameInDic[i] +
-        "</OPTION>"
+      "<OPTION value=" + source[i] + "> <= " + source[i] + "</OPTION>"
     );
     // default to last interval
     $("#intervals_from_diagnosis").val(
       $("#intervals_from_diagnosis option:last").val()
     );
   }
-
-  $("#intervals_from_diagnosis")
-    .change(function() {
-      jpsurvData.calculate.form.interval = parseInt(this.value);
-    })
-    .change();
 }
 
 function set_cohort_select(cohort_options) {
@@ -3042,7 +3035,10 @@ $("#Adv_input").click(function() {
   else {
     $("#modal").modal("show");
     var type = $("#data_type").val();
-    $('option[id="observed"]').text(type);
+    $('option[id="survCum"]').text(type + " Cum");
+    $('option[id="survInt"]').text(type + " Int");
+    $('option[id="survCumSE"]').text(type + " Cum SE");
+    $('option[id="survIntSE"]').text(type + " Int SE");
   }
 });
 
@@ -3111,11 +3107,14 @@ var selector =
   "<option>Cohort</option>" +
   "<option>Year</option>" +
   "<option>Interval</option>" +
-  "<option>Number.Dead</option>" +
   "<option>Number.Alive</option>" +
+  "<option>Number.Dead</option>" +
   "<option>Number.Lost</option>" +
-  "<option>Expected.Survival</option>" +
-  '<option id="observed">observedrelsurv</option>' +
+  "<option>Expected.Survival.Int</option>" +
+  '<option id="survInt">survInt</option>' +
+  '<option id="survCum">survCum</option>' +
+  '<option id="survIntSE">survIntse</option>' +
+  '<option id="survCumSE">survCumse</option>' +
   "</select>";
 
 function createModal() {
@@ -3124,7 +3123,10 @@ function createModal() {
   $("#modalTitle").html(header);
   $("#data_type").change(function() {
     var type = $("#data_type").val();
-    $('option[id="observed"]').text(type);
+    $('option[id="survCum"]').text(type + " Cum");
+    $('option[id="survInt"]').text(type + " Int");
+    $('option[id="survCumSE"]').text(type + " Cum SE");
+    $('option[id="survIntSE"]').text(type + " Int SE");
   });
 
   $("#modal").modal({ backdrop: "static", keyboard: false });
@@ -3154,17 +3156,26 @@ function createModal() {
         $("#type_" + i + " select").val("Year");
       } else if (jpsurvData.mapping.interval == i + 1) {
         $("#type_" + i + " select").val("Interval");
-      } else if (jpsurvData.mapping.died == i + 1) {
-        $("#type_" + i + " select").val("Number.Dead");
       } else if (jpsurvData.mapping.alive_at_start == i + 1) {
         $("#type_" + i + " select").val("Number.Alive");
+      } else if (jpsurvData.mapping.died == i + 1) {
+        $("#type_" + i + " select").val("Number.Dead");
       } else if (jpsurvData.mapping.lost_to_followup == i + 1) {
         $("#type_" + i + " select").val("Number.Lost");
       } else if (jpsurvData.mapping.exp_int == i + 1) {
-        $("#type_" + i + " select").val("Expected.Survival");
+        $("#type_" + i + " select").val("Expected.Survival.Int");
       } else if (jpsurvData.mapping.observed == i + 1) {
         var type = $("#data_type").val();
-        $("#type_" + i + " select").val(type);
+        $("#type_" + i + " select").val(type + " Cum");
+      } else if (jpsurvData.mapping.survInt == i + 1) {
+        var type = $("#data_type").val();
+        $("#type_" + i + " select").val(type + " Int");
+      } else if (jpsurvData.mapping.survIntSE == i + 1) {
+        var type = $("#data_type").val();
+        $("#type_" + i + " select").val(type + " Int SE");
+      } else if (jpsurvData.mapping.survCumSE == i + 1) {
+        var type = $("#data_type").val();
+        $("#type_" + i + " select").val(type + " Cum SE");
       }
     }
   }
@@ -3180,7 +3191,10 @@ function save_params() {
     "alive_at_start",
     "lost_to_followup",
     "exp_int",
-    "observed"
+    "observed",
+    "survInt",
+    "survCumSE",
+    "survIntSE"
   ];
   jpsurvData.mapping.cohorts = [];
   length = $("#data_table th").length;
@@ -3193,16 +3207,36 @@ function save_params() {
       jpsurvData.mapping.year = i + 1;
     } else if (value == "Interval") {
       jpsurvData.mapping.interval = i + 1;
+      $('input[id="header_' + i + '"]').val("Interval");
     } else if (value == "Number.Dead") {
       jpsurvData.mapping.died = i + 1;
+      $('input[id="header_' + i + '"]').val("Died");
     } else if (value == "Number.Alive") {
       jpsurvData.mapping.alive_at_start = i + 1;
+      $('input[id="header_' + i + '"]').val("Alive_at_Start");
     } else if (value == "Number.Lost") {
       jpsurvData.mapping.lost_to_followup = i + 1;
-    } else if (value == "Expected.Survival") {
+      $('input[id="header_' + i + '"]').val("Lost_to_Followup");
+    } else if (value == "Expected.Survival.Int") {
+      jpsurvData.mapping.obsSEInt = i + 1;
       jpsurvData.mapping.exp_int = i + 1;
-    } else if (value == type) {
+      $('input[id="header_' + i + '"]').val("Expected_Survival_Interval");
+    } else if (value == type + " Cum") {
       jpsurvData.mapping.observed = i + 1;
+      var obscum = value.replace(/\s/g, "_");
+      $('input[id="header_' + i + '"]').val(obscum);
+    } else if (value == type + " Int") {
+      jpsurvData.mapping.survInt = i + 1;
+      var obsint = type.replace(/\s/g, "_") + "_Interval";
+      $('input[id="header_' + i + '"]').val(obsint);
+    } else if (value == type + " Cum SE") {
+      jpsurvData.mapping.survCumSE = i + 1;
+      var cumSE = type.replace(/\s/g, "_").replace("Survival", "SE_Cum");
+      $('input[id="header_' + i + '"]').val(cumSE);
+    } else if (value == type + " Int SE") {
+      jpsurvData.mapping.survIntSE = i + 1;
+      var intSE = type.replace(/\s/g, "_").replace("Survival", "SE_Interval");
+      $('input[id="header_' + i + '"]').val(intSE);
     }
   }
   var passed = true;
@@ -3212,7 +3246,7 @@ function save_params() {
 
   for (var i = 0; i < params.length; i++) {
     if (jpsurvData.mapping[params[i]] == undefined) {
-      alert("Please choose all necessary parameters to continue");
+      alert("Please choose all necessary parameters to continue " + params[i]);
       //console.log("Please choose all necessary parameters to continue")
       passed = false;
       jpsurvData.passed = false;
@@ -3317,8 +3351,10 @@ function create_table(content, rows, has_headers) {
     header.prepend(headerRow);
     header.prepend(selector_row);
     var type = $("#data_type").val();
-    $('option[id="observed"]').text(type);
-
+    $('option[id="survCum"]').text(type + " Cum");
+    $('option[id="survInt"]').text(type + " Int");
+    $('option[id="survCumSE"]').text(type + " Cum SE");
+    $('option[id="survIntSE"]').text(type + " Int SE");
     first_modal = false;
   } else {
     for (var i = 0; i < headers.length; i++) {
