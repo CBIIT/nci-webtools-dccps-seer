@@ -44,7 +44,7 @@ $(document).ready(function() {
   addMessages();
   hide_display_email();
   // disable calculate button on document load if there are cohorts to select
-  if (jpsurvData.calculate.form.cohortValues > 0) {
+  if (!jpsurvData.calculate.form.cohortValues || jpsurvData.calculate.form.cohortValues.length != 0) {
     $("#calculate").prop("disabled", true);
   }
   if (jpsurvData.status === "uploaded") {
@@ -1529,38 +1529,6 @@ function calculateFittedResultsCallback() {
   retrieveResults();
   jpsurvData.additional.use_default = "true";
 }
-
-function calculateTrend() {
-  jpsurvRest2("stage4_trends_calculate", "calculateTrendCallback");
-}
-
-// function calculateTrendCallback() {
-//   var trendData = load_ajax("trend_results-" + jpsurvData.tokenId + ".json");
-//   if ( trendData != undefined && trendData != null ) {
-//     // jpsurvData.results.CS_AAPC = trendData.CS_AAPC;
-//     jpsurvData.results.CS_AAAC = trendData.CS_AAAC;
-//     jpsurvData.results.HAZ_APC = trendData.HAZ_APC;
-//     updateTrend(jpsurvData.tokenId);
-//     changePrecision();
-//     jpsurvData.recentTrends = 1;
-//   } else {
-//     jpsurvData.recentTrends = 0
-//   }
-// }
-
-// function graphTrendCallback() {
-//   var trendData = load_ajax("trend_results-" + jpsurvData.tokenId + ".json");
-//   if ( trendData != undefined && trendData != null ) {
-//     // jpsurvData.results.CS_AAPC = trendData.CS_AAPC;
-//     jpsurvData.results.CS_AAAC = trendData.CS_AAAC;
-//     jpsurvData.results.HAZ_APC = trendData.HAZ_APC;
-//     updateTrend(jpsurvData.tokenId);
-//     changePrecision();
-//     jpsurvData.recentTrends = 1;
-//   } else {
-//     jpsurvData.recentTrends = 0
-//   }
-// }
 
 function changePrecision() {
   var precision = $("#precision").val();
