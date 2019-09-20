@@ -689,6 +689,7 @@ function addCohortVariables() {
       })
     );
   } else {
+    $("#cohort-variables").empty()
     var i = 0;
     $.each(cohort_covariance_variables, function(key, value) {
       if (key) {
@@ -699,7 +700,7 @@ function addCohortVariables() {
           '<div class="row"><div class="col-md-12"><fieldset id="cohort-' +
           i + '" data-cohort="' + key + '"><legend><span class="jpsurv-label">' +
           key + ":</span></legend></fieldset></div></div>";
-        $("#cohort-variables").empty().append(html);
+        $("#cohort-variables").append(html);
         if (control_data.input_type == undefined) {
           if (
             typeof control_data.VarFormatSecList[key].ItemValueInDic == "string"
@@ -2054,22 +2055,37 @@ function addSelectYear() {
       $("<div>")
         .addClass("jpsurv-label-container")
         .append(
-          $("<span>")
-            .append("Year of Diagnosis:")
-            .addClass("jpsurv-label mr-2")
-        )
-        .append(
-          $("<select>", {
-            id: "selectYear"
-          }).append(getYearOptions())
+          $("<span>", {
+            id: 'yodLabel',
+            class: 'jpsurv-label mr-2',
+            html: 'Year of Diagnosis:'
+          })
         )
     );
-    $('#selectYear').on('select2:select', function() {
-      // set diagnosis years and year of diagnosis title
-      jpsurvData.calculate.static.years = control_data.VarFormatSecList[$('#selectYear option:selected').text()].ItemValueInDic;
-      jpsurvData.calculate.static.yearOfDiagnosisTitle = $('#selectYear option:selected').text();
-      loadCohorts();
-    });
+
+    if (control_data.input_type == undefined) {
+      $('#yodLabel').append(
+        $('<select>', {
+          id: 'selectYear'
+        }).append(getYearOptions())
+      )
+      $('#selectYear').on('select2:select', function() {
+        // set diagnosis years and year of diagnosis title
+        jpsurvData.calculate.static.years = control_data.VarFormatSecList[$('#selectYear option:selected').text()].ItemValueInDic;
+        jpsurvData.calculate.static.yearOfDiagnosisTitle = $('#selectYear option:selected').text();
+        loadCohorts();
+      });
+    } else {
+      jpsurvData.calculate.static.yearOfDiagnosisTitle = control_data.year[0];
+      jpsurvData.calculate.static.years = control_data.data[control_data.year[1]];
+      $('#yodLabel').append(
+        $('<span>', {
+          class: 'jpsurv-label-content',
+          title: 'Year of diagnosis label',
+          html: jpsurvData.calculate.static.yearOfDiagnosisTitle,
+        })
+      )
+    }
 }
 
 function get_column_values() {
