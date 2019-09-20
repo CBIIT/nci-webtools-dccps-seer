@@ -257,8 +257,13 @@ def stage1_upload():
             stri = fo.read(500)
             fo.close()
 
-            app.logger.debug(request.url_root + '/jpsurv/')
-            url = Href('/jpsurv/')(
+            if __name__ == '__main__':
+                base_href = '/'
+            else:
+                base_href = '/jpsurv/'
+
+            app.logger.debug(request.url_root + base_href)
+            url = Href(base_href)(
                 request='false',
                 file_control_filename=file_control_filename_clean,
                 output_filename=output_filename,

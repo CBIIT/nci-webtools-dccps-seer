@@ -1577,7 +1577,7 @@ function setData(type) {
   );
 
   //Set static data
-  var yearOfDiagnosisVarName = $("#selectYear").val();
+  var yearOfDiagnosisVarName = $("#selectYear").val() ? $("#selectYear").val() : jpsurvData.calculate.static.yearOfDiagnosisTitle;
   
   //Remove spaces and replace with underscore
   jpsurvData.calculate.static.yearOfDiagnosisVarName = yearOfDiagnosisVarName;
@@ -2012,10 +2012,9 @@ function loadCohorts() {
     parse_cohort_covariance_variables();
     addCohortVariables();
     // build_parameter_column();
-
-    if (control_data.input_type == "csv") {
-      get_column_values();
-    }
+  }
+  if (control_data.input_type == "csv") {
+    get_column_values();
   }
 }
 
@@ -2111,21 +2110,14 @@ function parse_diagnosis_years() {
   // First we need to find the element that says "Year of Diagnosis"
   // Then we need to read the label for the previous row, this will be the name used for the title,
   // it will ALSO be the value in the array needed to find the years
-
-  if (control_data.input_type == undefined) {
-    var diagnosis_row = find_year_of_diagnosis_row();
-    if (diagnosis_row >= 2) {
-      jpsurvData.calculate.static.yearOfDiagnosisTitle =
-        control_data.VarAllInfo.ItemValueInDic[diagnosis_row - 1];
-      jpsurvData.calculate.static.years =
-        control_data.VarFormatSecList[jpsurvData.calculate.static.yearOfDiagnosisTitle].ItemValueInDic;
-    } else {
-      return false;
-    }
-  } else if (control_data.input_type == "csv") {
-    jpsurvData.calculate.static.yearOfDiagnosisTitle = control_data.year[0];
-    var year_column = control_data.year[1];
-    jpsurvData.calculate.static.years = control_data.data[year_column];
+  var diagnosis_row = find_year_of_diagnosis_row();
+  if (diagnosis_row >= 2) {
+    jpsurvData.calculate.static.yearOfDiagnosisTitle =
+      control_data.VarAllInfo.ItemValueInDic[diagnosis_row - 1];
+    jpsurvData.calculate.static.years =
+      control_data.VarFormatSecList[jpsurvData.calculate.static.yearOfDiagnosisTitle].ItemValueInDic;
+  } else {
+    return false;
   }
   return true;
 }
