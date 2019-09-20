@@ -269,8 +269,7 @@ function addEventListeners() {
     setCalculateData();
   });
 
-  $("#cohort_select").on("change", change_cohort_select);
-  $("#covariate_select").on("change", change_covariate_select);
+  // $("#covariate_select").on("change", change_covariate_select);
   $("#precision").on("change", userChangePrecision);
 
   // recalculate button
@@ -1019,10 +1018,7 @@ function updateGraphs(token_id) {
   var row;
 
   var header = [];
-  var yodVarName = jpsurvData.calculate.static.yearOfDiagnosisVarName.replace(
-    /\(|\)|-/g,
-    ""
-  );
+  var yodVarName = jpsurvData.calculate.static.yearOfDiagnosisVarName.replace(/\(|\)|-/g,"");
   yodVarName = yodVarName.replace(/__/g, "_");
 
   //Add the Year Table
@@ -2015,7 +2011,7 @@ function loadCohorts() {
     addSessionVariables();
     parse_cohort_covariance_variables();
     addCohortVariables();
-    build_parameter_column();
+    // build_parameter_column();
 
     if (control_data.input_type == "csv") {
       get_column_values();
@@ -2104,12 +2100,11 @@ function addSessionVariables() {
     jpsurvData.additional.statistic = control_data.statistic;
 }
 
-function build_parameter_column() {
-  set_cohort_select(Object.keys(cohort_covariance_variables));
-  var covariate_options = Object.keys(cohort_covariance_variables);
-  covariate_options.unshift("None");
-  set_covariate_select(covariate_options);
-}
+// function build_parameter_column() {
+//   var covariate_options = Object.keys(cohort_covariance_variables);
+//   covariate_options.unshift("None");
+//   set_covariate_select(covariate_options);
+// }
 
 // returns true if YoD is found and set, otherwise return false
 function parse_diagnosis_years() {
@@ -2324,76 +2319,30 @@ function generateIntervalSelect(source, length) {
   }
 }
 
-function set_cohort_select(cohort_options) {
-  var max_size = 4;
-  if (cohort_options.length < 4) max_size = cohort_options.length;
-  $("#cohort_select").attr("size", max_size);
+// function set_covariate_select(covariate_options) {
+//   if (covariate_options.length == 0) {
+//   }
 
-  $("#cohort_select").empty();
-  for (i = 0; i < cohort_options.length; i++) {
-    $("#cohort_select").append("<OPTION>" + cohort_options[i] + "</OPTION>");
-  }
-}
+//   $("#covariate_select").empty();
+//   $("#covariate_select_plot").empty();
 
-function set_covariate_select(covariate_options) {
-  if (covariate_options.length == 0) {
-  }
-
-  $("#covariate_select").empty();
-  $("#covariate_select_plot").empty();
-
-  for (i = 0; i < covariate_options.length; i++) {
-    $("#covariate_select").append(
-      '<OPTION data-info="Selecting a covariate variable in this model assumes that the hazards are proportional to the different levels of this covariate. This might not be realistic.">' +
-        covariate_options[i] +
-        "</OPTION>"
-    );
-    $("#covariate_select_plot").append(
-      '<OPTION data-info="Selecting a covariate variable in this model assumes that the hazards are proportional to the different levels of this covariate. This might not be realistic.">' +
-        covariate_options[i] +
-        "</OPTION>"
-    );
-  }
-}
+//   for (i = 0; i < covariate_options.length; i++) {
+//     $("#covariate_select").append(
+//       '<OPTION data-info="Selecting a covariate variable in this model assumes that the hazards are proportional to the different levels of this covariate. This might not be realistic.">' +
+//         covariate_options[i] +
+//         "</OPTION>"
+//     );
+//     $("#covariate_select_plot").append(
+//       '<OPTION data-info="Selecting a covariate variable in this model assumes that the hazards are proportional to the different levels of this covariate. This might not be realistic.">' +
+//         covariate_options[i] +
+//         "</OPTION>"
+//     );
+//   }
+// }
 
 function change_cohort_first_index_select() {
   var val = $("#cohort_value_0_select").val();
   $("#header-cohort-value").text(val);
-}
-
-function change_cohort_select() {
-  alert("change_cohort_select");
-
-  var all_selected = $("#cohort_select").val();
-  $("#header-cohort-name").text(all_selected);
-
-  var keys = Object.keys(cohort_covariance_variables);
-
-  $("#cohort_sub_select").empty();
-  $("#covariate_select").val("None");
-  $("#covariate-fieldset").hide();
-  $("#covariate_sub_select").empty();
-  if (all_selected != null) {
-    for (var i = 0; i < all_selected.length; i++) {
-      for (var j = 0; j < keys.length; j++) {
-        if (all_selected[i] == keys[j])
-          add_cohort_covariance_variable_select(
-            $("#cohort_sub_select"),
-            "cohort_value_" + i,
-            keys[j],
-            cohort_covariance_variables[keys[j]]
-          );
-      }
-    }
-    var covariate_options = remove_items_from_set(keys, all_selected);
-    $("#cohort-fieldset").show();
-  } else {
-    var covariate_options = keys;
-    $("#cohort-fieldset").hide();
-  }
-  covariate_options.unshift("None");
-  set_covariate_select(covariate_options);
-  change_cohort_first_index_select();
 }
 
 function remove_items_from_set(big_set, removed_set) {
@@ -2406,33 +2355,33 @@ function remove_items_from_set(big_set, removed_set) {
   return new_set;
 }
 
-function change_covariate_select() {
-  var all_selected = $("#covariate_select").val();
-  var keys = Object.keys(cohort_covariance_variables);
+// function change_covariate_select() {
+//   var all_selected = $("#covariate_select").val();
+//   var keys = Object.keys(cohort_covariance_variables);
 
-  $("#covariate_sub_select").empty();
+//   $("#covariate_sub_select").empty();
 
-  if (all_selected != null) {
-    for (var j = 0; j < keys.length; j++) {
-      if (all_selected == keys[j])
-        add_cohort_covariance_variable_select(
-          $("#covariate_sub_select"),
-          "covariate_value",
-          keys[j],
-          cohort_covariance_variables[keys[j]]
-        );
-    }
-    var covariate_options = remove_items_from_set(keys, all_selected);
-  } else {
-    var covariate_options = keys;
-  }
+//   if (all_selected != null) {
+//     for (var j = 0; j < keys.length; j++) {
+//       if (all_selected == keys[j])
+//         add_cohort_covariance_variable_select(
+//           $("#covariate_sub_select"),
+//           "covariate_value",
+//           keys[j],
+//           cohort_covariance_variables[keys[j]]
+//         );
+//     }
+//     var covariate_options = remove_items_from_set(keys, all_selected);
+//   } else {
+//     var covariate_options = keys;
+//   }
 
-  if (all_selected == "None") {
-    $("#covariate-fieldset").hide();
-  } else {
-    $("#covariate-fieldset").show();
-  }
-}
+//   if (all_selected == "None") {
+//     $("#covariate-fieldset").hide();
+//   } else {
+//     $("#covariate-fieldset").show();
+//   }
+// }
 
 function add_cohort_covariance_variable_select(
   field,
