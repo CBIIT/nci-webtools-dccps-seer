@@ -328,6 +328,11 @@ function addInputSection() {
     setUploadData();
 
     control_data = load_ajax(jpsurvData.file.form);
+    // load input data if exists (from queued result)
+    inputData = load_ajax("input_" + jpsurvData.tokenId + ".json");
+    if (inputData) {
+      jpsurvData = inputData;
+    }
 
     if (control_data.input_type == undefined) {
       jpsurvData.additional.input_type = "dic";
@@ -2024,7 +2029,11 @@ function getYearOptions() {
   var dicOptions = Object.keys(control_data.VarFormatSecList).filter(function(e) {
     return !cohortFilter.includes(e);
   });
-  var found = parse_diagnosis_years();
+  if (jpsurvData.calculate.static.yearOfDiagnosisTitle) {
+    var found = true
+  } else {
+    var found = parse_diagnosis_years();
+  }
   if (found) {
     var yodTitle = jpsurvData.calculate.static.yearOfDiagnosisTitle;
     html = dicOptions.map(function(option) {
