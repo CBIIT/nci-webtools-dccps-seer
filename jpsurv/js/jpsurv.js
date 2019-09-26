@@ -716,13 +716,13 @@ function addCohortVariables() {
                 .append([
                   $("<input>", {
                     class: "custom-control-input cohort-" + i,
-                    id: control_data.VarFormatSecList[key].ItemValueInDic,
+                    id: control_data.VarFormatSecList[key].ItemValueInDic.replace(/\s/g, '_'),
                     value: control_data.VarFormatSecList[key].ItemValueInDic,
                     type: "checkbox"
                   }),
                   $("<label>", {
                     class: "custom-control-label cohort-" + i,
-                    for: control_data.VarFormatSecList[key].ItemValueInDic,
+                    for: control_data.VarFormatSecList[key].ItemValueInDic.replace(/\s/g, '_'),
                     html: control_data.VarFormatSecList[key].ItemValueInDic
                   })
                 ])
@@ -739,11 +739,11 @@ function addCohortVariables() {
                     $("<input>", {
                       type: "checkbox",
                       value: value2,
-                      id: value2,
+                      id: value2.replace(/\s/g, '_'),
                       class: "custom-control-input cohort-" + i
                     }),
                     $("<label>", {
-                      for: value2,
+                      for: value2.replace(/\s/g, '_'),
                       class: "custom-control-label cohort-" + i,
                       html: value2
                     })
@@ -762,13 +762,13 @@ function addCohortVariables() {
                 .append([
                   $("<input>", {
                     class: "custom-control-input cohort-" + i,
-                    id: key + cohort_covariance_variables[key],
+                    id: (key + cohort_covariance_variables[key]),
                     value: cohort_covariance_variables[key],
                     type: "checkbox"
                   }),
                   $("<label>", {
                     class: "custom-control-label cohort-" + i,
-                    for: key + cohort_covariance_variables[key],
+                    for: (key + cohort_covariance_variables[key]),
                     html: cohort_covariance_variables[key]
                   })
                 ])

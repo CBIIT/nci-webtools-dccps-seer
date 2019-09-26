@@ -143,7 +143,6 @@ function updatePageAfterRefresh(event) {
         calculateFittedResultsCallback()
         updateCohortDropdown()
 
-        calculateTrendCallback()
         setRun()
 
         jpsurvData.plot.static.imageId = parseInt(localStorage.getItem("initialIdCnt")) - 1
@@ -210,17 +209,19 @@ function loadUserInput(data) {
         });
 
         // Go through cohort matrix to set checkboxes for each value selected
-        for (var i = 0; i < cohortArrays.length; ++i) {
-            var cohortArray = cohortArrays[i];
-            for (var j = 0; j < cohortArray.length; ++j) {
-                var selector = "div#cohort-variables label[class=cohort-" + j + "]:contains('" + cohortArray[j] + "')";
-                $(selector).each( function(index, element) {
-                    if (element.textContent === cohortArray[j]) {
-                        $(element).find('input').prop('checked', true);
-                    }
-                });
-            }
-        }
+        var cohortOptions = Array.prototype.slice.call(document.querySelectorAll('#cohort-variables fieldset'))
+        cohortOptions.forEach(function(element, index) {
+            cohortOptions[index] = Array.prototype.slice.call(element.querySelectorAll('#cohort-variables .custom-control-input'))
+        })
+        
+        cohortArrays.forEach(function(array) {
+            array.forEach(function(cohortVal, index) {
+               cohortOptions[index].forEach(function(checkbox) {
+                   if (checkbox.value == cohortVal) 
+                   checkbox.checked = true;
+               })
+            })
+        })
 
         if ( data.advDelInterval === 'T')
             $("#del-int-yes").prop("checked", true)
@@ -233,7 +234,6 @@ function loadUserInput(data) {
         $("#adv-year").val(parseInt(data.advYear))
 
         $("#interval-years").val(intervals)
-        updateSelectedIntervalYears();
         $("#year-of-diagnosis").val(data.diagnosisYear)
 
     }
