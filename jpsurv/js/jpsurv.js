@@ -606,6 +606,7 @@ function dropdownListener() {
     //splits the cohorts based on a " + "
     var cohorts = $("#cohort-display option:selected")
       .text()
+      .trim()
       .split(" + ");
     //adds each cohort to the json
     for (var j = 0; j < cohorts.length; j++) {

@@ -485,16 +485,9 @@ downloadDataWrapper <- function(jpsurvDataString, filePath, com, yearVar, jpInd,
   fit = outputData[['fittedResult']]
   yearOfDiagnosisRange = jpsurvData$calculate$form$yearOfDiagnosisRange
   cohortVars = jpsurvData$calculate$form$cohortVars
-  cohortMatrix = jpsurvData$calculate$form$AllcohortValues
-  cohortValues = c()
-  for (arr in cohortMatrix) {
-    if (length(arr) > 1) {
-      cohortValues = append(cohortValues, arr[com])
-    } else {
-      cohortValues = append(cohortValues, arr[1])
-    }
-  }
+  cohortValues = jpsurvData$calculate$form$cohortValues
   subsetStr = getSubsetStr(yearVar, yearOfDiagnosisRange, cohortVars, cohortValues)
+ 
   intervals = c()
   if (downloadtype == 'year') {
     for (i in 1:length(jpsurvData$additional$intervals)) {
