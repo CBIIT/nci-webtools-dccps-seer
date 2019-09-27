@@ -179,6 +179,7 @@ function addEventListeners() {
   });
 
   $("#max_join_point_select").on("change", function(e) {
+    jpsurvData.calculate.form.maxjoinPoints = parseInt(this.value);
     hide_display_email();
   });
 
@@ -1595,13 +1596,13 @@ function setData(type) {
     parseInt($("#year_of_diagnosis_start").val()),
     parseInt($("#year_of_diagnosis_end").val())
   ];
-  (jpsurvData.calculate.form.maxjoinPoints = parseInt(
+  jpsurvData.calculate.form.maxjoinPoints = parseInt(
     $("#max_join_point_select").val()
-  )),
-    //
-    // Get Advanced Options
-    //
-    (jpsurvData.calculate.static.advanced = {});
+  );
+  //
+  // Get Advanced Options
+  //
+  jpsurvData.calculate.static.advanced = {};
   jpsurvData.calculate.static.advanced.advDeleteInterval =
     $("input[name='adv-delete-interval']:checked").val() == "Yes" ? "T" : "F";
   jpsurvData.calculate.static.advanced.advBetween = $("#adv-between").val();

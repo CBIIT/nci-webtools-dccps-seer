@@ -69,7 +69,7 @@ function exportBackEnd(event) {
     data.yearOfDiagnosisRangeStart = jpsurvData.calculate.form.yearOfDiagnosisRange[0]
     data.yearOfDiagnosisRangeEnd   = jpsurvData.calculate.form.yearOfDiagnosisRange[1]
     data.cohortVariables = jpsurvData.results.Runs
-    data.maxJoinPoints = jpsurvData.calculate.form.maxjoinPoints
+    data.maxJoinPoints = jpsurvData.calculate.form.maxJoinPoints
     data.advBetween = jpsurvData.calculate.static.advanced.advBetween
     data.advDelInterval = jpsurvData.calculate.static.advanced.advDeleteInterval
     data.advFirst = jpsurvData.calculate.static.advanced.advFirst
@@ -245,7 +245,7 @@ function loadUserInput(data) {
         jpsurvData.queue.email = data.email
         jpsurvData.calculate.form.yearOfDiagnosisRange[0] = parseInt(data.yearOfDiagnosisRangeStart)
         jpsurvData.calculate.form.yearOfDiagnosisRange[1] = parseInt(data.yearOfDiagnosisRangeEnd)
-        jpsurvData.calculate.form.maxJoinPoints = parseInt(data.maxjoinPoints)
+        jpsurvData.calculate.form.maxJoinPoints = parseInt(data.maxJoinPoints)
 
         jpsurvData.calculate.static.advanced.advDeleteInterval = data.advDelInterval
         jpsurvData.calculate.static.advanced.advBetween = parseInt(data.advBetween)
