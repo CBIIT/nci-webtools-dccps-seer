@@ -153,7 +153,7 @@ function hide_display_email() {
   }
 }
 
-// disable recalculate button if any of the interval or year
+// disable recalculate button if any of the interval or year selects are empty
 function checkSelect() {
   if (
     $("#interval-years").val().length == 0 ||
@@ -162,6 +162,18 @@ function checkSelect() {
   ) {
     $(".recalculate").prop("disabled", true);
   } else {
+    $(".recalculate").prop("disabled", false);
+  }
+}
+
+function checkAbsChg() {
+  if (jpsurvData.additional.absChgRange[1] <= jpsurvData.additional.absChgRange[0]) {
+    $('#absSelect').popover({
+      content: "Selected years must be a progressive range.",
+    }).popover('show');
+    $(".recalculate").prop("disabled", true);
+  } else {
+    $('#absSelect').popover('dispose');
     $(".recalculate").prop("disabled", false);
   }
 }
@@ -268,10 +280,12 @@ function addEventListeners() {
 
   $("#absChgFrom").on("change", function() {
     jpsurvData.additional.absChgRange[0] = parseInt($('#absChgFrom').val());
+    checkAbsChg();
   });
 
   $("#absChgTo").on("change", function() {
     jpsurvData.additional.absChgRange[1] = parseInt($('#absChgTo').val());
+    checkAbsChg();
   });
 
   // $("#icon").on('click', slideToggle);
