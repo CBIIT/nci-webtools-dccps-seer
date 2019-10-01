@@ -81,9 +81,9 @@
         <div id="slideoutForm" class="card bg-white shadow-lg">
           <div class="card-body">
             <span class="jpsurv-title col-md-6 d-none d-sm-block d-md-block"><img src="./images/jpsurv.png"
-                style="height:60%;width:60%" alt="JPSurv (Joint Point Survival Model)"></img></span>
+                style="height:60%;width:60%" alt="JPSurv (Joint Point Survival Model)"></span>
             <span class="jpsurv-title col-md-12 d-block d-sm-none d-md-none"><img src="./images/jpsurv.png"
-                style="height:60%;width:40%" alt="JPSurv (Joint Point Survival Model)"></img></span>
+                style="height:60%;width:40%" alt="JPSurv (Joint Point Survival Model)"></span>
             <div id="slideout">
               <div class="">
                 <span class="float-right col-md-5 cursor text-right" onclick="openHelpWindow('./html/help.html')">
@@ -128,7 +128,7 @@
                             download='SEER9_Survival_6CancerSitesByStage_1975_2007.dic'>(dic example)</a>
                           <a style='font-size:small;color:#3273ab'
                             href='./data/SEER9_Survival_6CancerSitesByStage_1975_2007.txt'
-                            download='SEER9_Survival_6CancerSitesByStage_1975_2007.txt'>(txt example)</a></br>
+                            download='SEER9_Survival_6CancerSitesByStage_1975_2007.txt'>(txt example)</a>
                         </div>
                         <div class="input-group mb-2">
                           <div class="custom-file">
@@ -241,7 +241,7 @@
                       <i class="fas fa-question-circle" aria-label="Help" id='max_help' data-toggle="popover"
                         tabindex="0" data-trigger="focus" data-placement="right"
                         data-content="Most common situation is to have 0 or 1 joinpoint since survival trends change gradually. Begin with small number of joinpoints. Increase the number if there is not a good fit or to be sure you capture all joinpoints. Computation time increases exponentially with number of joinpoints tested."
-                        title="Maxiumum Joinpoints"></i></a>
+                        title="Maxiumum Joinpoints"></i>
                       <div class="row">
                         <div id="e-mail-msg" class="e-mail-grp" style="padding:5px 15px;display:none;">
                         </div>
@@ -417,9 +417,6 @@
                 <li class="nav-item">
                   <a class="nav-link" href="#estimates-tab" data-toggle="tab">Model Estimates</a>
                 </li>
-                <!-- <li class="nav-item">
-                  <a class="nav-link" id="trends-tab-anchor" href="#trends-tab" data-toggle="tab">Trends</a>
-                </li> -->
               </ul>
             </div>
           </div>
@@ -431,26 +428,49 @@
               <div id="graph-year-tab" class="tab-pane fade show active">
                 <div class="border rounded mb-1">
                   <div class="row pt-3 px-3">
-                    <div class="col-lg-7 d-flex align-items-start form-group">
-                      <label for="interval-years" class="ml-1 mr-3">
-                        <strong>Interval Years</strong>
-                      </label>
-                      <select id="interval-years" class="mx-1" multiple>
-                        <option selected>1</option>
-                        <option>2</option>
-                        <option>3</option>
-                        <option selected>4</option>
-                      </select>
+                    <div class="col-lg-5 d-block">
+                      <div class="d-flex form-group">
+                        <label for="interval-years" class="ml-1 mr-3">
+                            <strong>Interval Years</strong>
+                          </label>
+                          <select id="interval-years" class="mx-1" multiple>
+                            <option selected>1</option>
+                            <option>2</option>
+                            <option>3</option>
+                            <option selected>4</option>
+                          </select>
+                      </div>
+                      <button class="btn btn-primary btn-sm mb-3 recalculate" type="button">Recalculate</button>
                     </div>
-                  </div>
-                  <div class="row my-4 px-3">
-                    <div class="d-flex col-lg-12">
-                      <div class="custom-control custom-checkbox">
+                    <div class="custom-control custom-checkbox col-lg-2">
                         <input class="custom-control-input" type="checkbox" id="showYearTrend">
                         <label class="custom-control-label" for="showYearTrend" aria-label="showYearTrend">Show Trend
                           Measures</label>
+                    </div>
+                    <div class="col-lg-5 d-block">
+                      <div class="d-flex">
+                        <label id="absLabel" class="ml-auto d-none">Absolute Change</label>
                       </div>
-                      <button class="btn btn-primary btn-sm ml-4 recalculate" type="button">Recalculate</button>
+                      <div class="d-flex">
+                          <div id="absSelect" class="ml-auto d-none">
+                            <label for="interval-years" class="align-self-center mr-3">
+                              <strong>From</strong>
+                            </label>
+                            <select id="absFrom" class="mx-1">
+                              <option selected>1975</option>
+                              <option>1976</option>
+                              <option>1977</option>
+                            </select>
+                            <label for="interval-years" class="align-self-center mx-3">
+                              <strong>To</strong>
+                            </label>
+                            <select id="absTo" class="mx-1">
+                                <option>1975</option>
+                                <option selected>1976</option>
+                                <option>1977</option>
+                            </select>
+                          </div>
+                        </div>
                     </div>
                   </div>
                 </div>
@@ -530,7 +550,8 @@
               <div id="graph-death-tab" class="tab-pane fade">
                 <div class="border rounded mb-1">
                   <div class="row pt-3 px-3">
-                    <div class="col-lg-7 d-flex align-items-start form-group">
+                    <div class="col-lg-5 d-block">
+                      <div class="d-flex form-group">
                       <label for="interval-years-death" class="ml-1 mr-3">
                         <strong>Interval Years</strong>
                       </label>
@@ -540,18 +561,14 @@
                         <option>3</option>
                         <option selected>4</option>
                       </select>
+                     </div>
+                     <button class="btn btn-primary btn-sm mb-3 recalculate" type="button">Recalculate</button>
                     </div>
-
-                  </div>
-                  <div class="row my-4 px-3">
-                    <div class="d-flex col-lg-12">
-                      <div class="custom-control custom-checkbox">
+                      <div class="custom-control custom-checkbox col-lg-7">
                         <input class="custom-control-input" type="checkbox" id="showDeathTrend">
                         <label class="custom-control-label" for="showDeathTrend" aria-label="showDeathTrend">Show Trend
                           Measures</label>
                       </div>
-                      <button class="btn btn-primary btn-sm ml-4 recalculate" type="button">Recalculate</button>
-                    </div>
                   </div>
                 </div>
                 <div id="deathTrendTable" class="d-none mb-4">
@@ -621,13 +638,15 @@
               <div id="graph-time-tab" class="tab-pane fade">
                 <div class="border rounded p-3">
                   <div class="row">
-                    <div class="col-lg-7 d-flex align-items-start form-group">
+                    <div class="col-lg-5 d-flex align-items-start form-group">
                       <label for="year-of-diagnosis" class="mx-1 mr-3">
                         <Strong>Year of Diagnosis</Strong>
                       </label>
                       <select id="year-of-diagnosis" class="mx-1" multiple="multiple">
                         <option selected>1975</option>
                       </select>
+                    </div>
+                    <div class="col-lg-2">
                       <button class="btn btn-primary btn-sm ml-auto recalculate" type="button">Recalculate</button>
                     </div>
                   </div>

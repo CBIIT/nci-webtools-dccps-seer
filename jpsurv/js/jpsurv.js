@@ -224,11 +224,22 @@ function addEventListeners() {
       jpsurvData.additional.headerJoinPoints < 4
     ) {
       $("#yearAnno").prop("disabled", false);
+      $("#absLabel").removeClass("d-none");
+      $("#absSelect").removeClass("d-none");
+    } else if (
+      this.checked &&
+      $("#interval-years").val().length >= 4 &&
+      jpsurvData.additional.headerJoinPoints >= 4
+    ) {
+      $("#absLabel").removeClass("d-none");
+      $("#absSelect").removeClass("d-none");
     } else if (Object.keys(jpsurvData.results.yearData).length == 4) {
       $("#yearAnno").prop("disabled", false);
     } else {
       $("#yearAnno").prop("disabled", true);
       $("#yearAnno").prop("checked", false);
+      $("#absLabel").addClass("d-none");
+      $("#absSelect").addClass("d-none");
     }
   });
 
@@ -1383,6 +1394,10 @@ function updateEstimates(token_id) {
 
   $("#yod-range").text(jpsurvData.results.JP);
   $("#estimates-jp-selected").text(jpsurvData.additional.headerJoinPoints);
+}
+
+function showAbsParam() {
+  
 }
 
 function updateTrend() {
