@@ -266,6 +266,14 @@ function addEventListeners() {
     getAnnoGraph();
   });
 
+  $("#absChgFrom").on("change", function() {
+    jpsurvData.additional.absChgRange[0] = parseInt($('#absChgFrom').val());
+  });
+
+  $("#absChgTo").on("change", function() {
+    jpsurvData.additional.absChgRange[1] = parseInt($('#absChgTo').val());
+  });
+
   // $("#icon").on('click', slideToggle);
 
   $(document).on("click", "#model-selection-table tbody tr", function(e) {
@@ -2028,8 +2036,9 @@ function load_form() {
 
 function loadCohorts() {
   if ($('#selectYear').val() != '(Select one)') {
-    set_year_of_diagnosis_select()
+    set_year_of_diagnosis_select();
     set_intervals_from_diagnosis();
+    setAbsChange();
     addSessionVariables();
     parse_cohort_covariance_variables();
     addCohortVariables();
@@ -2294,15 +2303,21 @@ function find_year_of_diagnosis_row() {
   return 0;
 }
 
+function setAbsChange() {
+  jpsurvData.calculate.static.years.forEach(function(year) {
+    $("#absChgFrom").append("<OPTION>" + year + "</OPTION>");
+    $("#absChgTo").append("<OPTION>" + year + "</OPTION>");
+  });
+  var numberOfOptions = $("select#absChgTo option").length;
+  $("#absChgTo option")[numberOfOptions - 1].selected = true;
+  jpsurvData.additional.absChgRange = [parseInt($("#absChgFrom").val()), parseInt($('#absChgTo').val())];
+}
+
 function set_year_of_diagnosis_select() {
-  for (i = 0; i < jpsurvData.calculate.static.years.length; i++) {
-    $("#year_of_diagnosis_start").append(
-      "<OPTION>" + jpsurvData.calculate.static.years[i] + "</OPTION>"
-    );
-    $("#year_of_diagnosis_end").append(
-      "<OPTION>" + jpsurvData.calculate.static.years[i] + "</OPTION>"
-    );
-  }
+  jpsurvData.calculate.static.years.forEach(function(year) {
+    $("#year_of_diagnosis_start").append("<OPTION>" + year + "</OPTION>");
+    $("#year_of_diagnosis_end").append("<OPTION>" + year + "</OPTION>");
+  });
   // Set last entry in year_of_diagnosis_end
   // Count the number of options in #year_of_diagnosis_end and select the last one.
   var numberOfOptions = $("select#year_of_diagnosis_end option").length;
@@ -3405,8 +3420,12 @@ function getTrendTables() {
 function showTrendTable() {
   if ($("#showYearTrend").is(":checked")) {
     $("#yearTrendTable").removeClass("d-none");
+    $('#absLabel').removeClass("d-none");
+    $('#absSelect').removeClass("d-none");
   } else {
     $("#yearTrendTable").addClass("d-none");
+    $('#absLabel').addClass("d-none");
+    $('#absSelect').addClass("d-none");
   }
   if ($("#showDeathTrend").is(":checked")) {
     $("#deathTrendTable").removeClass("d-none");
