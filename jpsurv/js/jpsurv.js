@@ -2318,6 +2318,8 @@ function find_year_of_diagnosis_row() {
 }
 
 function setAbsChange() {
+  $("#absChgFrom").empty();
+  $("#absChgTo").empty();
   jpsurvData.calculate.static.years.forEach(function(year) {
     $("#absChgFrom").append("<OPTION>" + year + "</OPTION>");
     $("#absChgTo").append("<OPTION>" + year + "</OPTION>");
