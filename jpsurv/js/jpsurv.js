@@ -236,21 +236,18 @@ function addEventListeners() {
       jpsurvData.additional.headerJoinPoints < 4
     ) {
       $("#yearAnno").prop("disabled", false);
-      $("#absLabel").removeClass("d-none");
       $("#absSelect").removeClass("d-none");
     } else if (
       this.checked &&
       $("#interval-years").val().length >= 4 &&
       jpsurvData.additional.headerJoinPoints >= 4
     ) {
-      $("#absLabel").removeClass("d-none");
       $("#absSelect").removeClass("d-none");
     } else if (Object.keys(jpsurvData.results.yearData).length == 4) {
       $("#yearAnno").prop("disabled", false);
     } else {
       $("#yearAnno").prop("disabled", true);
       $("#yearAnno").prop("checked", false);
-      $("#absLabel").addClass("d-none");
       $("#absSelect").addClass("d-none");
     }
   });
@@ -3436,11 +3433,9 @@ function getTrendTables() {
 function showTrendTable() {
   if ($("#showYearTrend").is(":checked")) {
     $("#yearTrendTable").removeClass("d-none");
-    $('#absLabel').removeClass("d-none");
     $('#absSelect').removeClass("d-none");
   } else {
     $("#yearTrendTable").addClass("d-none");
-    $('#absLabel').addClass("d-none");
     $('#absSelect').addClass("d-none");
   }
   if ($("#showDeathTrend").is(":checked")) {
