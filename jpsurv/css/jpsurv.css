@@ -44,10 +44,6 @@ fieldset.jpsurv-fieldset {
     display:none;
 }
 
-.recalculate {
-  height: fit-content;
-}
-
 legend.jpsurv-legend {
   /*
   padding: 0.2em 0.5em;

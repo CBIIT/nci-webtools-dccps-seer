@@ -170,6 +170,8 @@ function checkAbsChg() {
   if (jpsurvData.additional.absChgRange[1] <= jpsurvData.additional.absChgRange[0]) {
     $('#absSelect').popover({
       content: "Selected years must be a progressive range.",
+      trigger: 'focus hover',
+      placement: 'top'
     }).popover('show');
     $(".recalculate").prop("disabled", true);
   } else {
@@ -236,19 +238,22 @@ function addEventListeners() {
       jpsurvData.additional.headerJoinPoints < 4
     ) {
       $("#yearAnno").prop("disabled", false);
-      $("#absSelect").removeClass("d-none");
+      $('#absChgFrom').prop("disabled", false);
+      $('#absChgTo').prop("disabled", false);
     } else if (
       this.checked &&
       $("#interval-years").val().length >= 4 &&
       jpsurvData.additional.headerJoinPoints >= 4
     ) {
-      $("#absSelect").removeClass("d-none");
+      $('#absChgFrom').prop("disabled", false);
+      $('#absChgTo').prop("disabled", false);
     } else if (Object.keys(jpsurvData.results.yearData).length == 4) {
       $("#yearAnno").prop("disabled", false);
     } else {
       $("#yearAnno").prop("disabled", true);
       $("#yearAnno").prop("checked", false);
-      $("#absSelect").addClass("d-none");
+      $('#absChgFrom').prop("disabled", true);
+      $('#absChgTo').prop("disabled", true);
     }
   });
 
@@ -2765,13 +2770,10 @@ function Slide_menu_Horz(action) {
 
     setTimeout(function() {
       $("#right_panel").animate({}, 300);
-
-      $("#right_panel").removeClass("col-lg-7");
-      $("#right_panel").removeClass("col-md-7");
-
+      $("#right_panel").removeClass("col-lg-8");
+      // $("#right_panel").removeClass("col-md-7");
       $("#right_panel").addClass("col-lg-12");
-      $("#right_panel").addClass("col-md-12");
-
+      // $("#right_panel").addClass("col-md-12");
       $("#right_panel").css("margin-top", "0%");
     }, 300);
   } else if (
@@ -2782,11 +2784,9 @@ function Slide_menu_Horz(action) {
     $("#icon").addClass("fa fa-caret-left fa-2x");
     $("#slideoutForm").fadeIn(500);
     $("#right_panel").removeClass("col-lg-12");
-    $("#right_panel").removeClass("col-md-12");
-
-    $("#right_panel").addClass("col-lg-7");
-    $("#right_panel").addClass("col-md-7");
-
+    // $("#right_panel").removeClass("col-md-12");
+    $("#right_panel").addClass("col-lg-8");
+    // $("#right_panel").addClass("col-md-7");
     $("#right_panel").css("margin-top", "2%");
 
     left_panel_width = $("#slideoutTab").width();
@@ -3433,10 +3433,12 @@ function getTrendTables() {
 function showTrendTable() {
   if ($("#showYearTrend").is(":checked")) {
     $("#yearTrendTable").removeClass("d-none");
-    $('#absSelect').removeClass("d-none");
+    $('#absChgFrom').prop("disabled", false);
+    $('#absChgTo').prop("disabled", false);
   } else {
     $("#yearTrendTable").addClass("d-none");
-    $('#absSelect').addClass("d-none");
+    $('#absChgFrom').prop("disabled", true);
+    $('#absChgTo').prop("disabled", true);
   }
   if ($("#showDeathTrend").is(":checked")) {
     $("#deathTrendTable").removeClass("d-none");
