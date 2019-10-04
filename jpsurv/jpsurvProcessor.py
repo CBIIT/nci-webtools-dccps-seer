@@ -27,14 +27,14 @@ class jpsurvProcessor(DisconnectListener):
 
   def composeMail(self,recipients,message,files=[]):
     config = PropertyUtil(r"config.ini")
-    print "sending message"
+    logging.info("sending message")
     if not isinstance(recipients,list):
       recipients = [recipients]
     packet = MIMEMultipart()
     packet['Subject'] = "JPsurv Analysis Results"
     packet['From'] = "JPSurv Analysis Tool <do.not.reply@nih.gov>"
     packet['To'] = ", ".join(recipients)
-    print recipients
+    logging.info(recipients)
     # print message
     packet.attach(MIMEText(message,'html'))
     for file in files:
@@ -45,12 +45,12 @@ class jpsurvProcessor(DisconnectListener):
           Name=os.path.basename(file)
         ))
     MAIL_HOST=config.getAsString('mail.host')
-    print MAIL_HOST
+    logging.info(MAIL_HOST)
     smtp = smtplib.SMTP(MAIL_HOST)
     smtp.sendmail("do.not.reply@nih.gov",recipients,packet.as_string())
 
   def testQueue(self):
-    print("tested")
+    logging.debug("tested")
 
   def rLength(self, tested):
     if tested is None:
@@ -62,41 +62,41 @@ class jpsurvProcessor(DisconnectListener):
 
  # @This is teh consume code which will listen to Queue server.
   def consume(self, client, frame):
-    print "In consume"
+    logging.info("In consume")
     files=[]
     product_name = "JPSurv Analysis Tool"
     parameters = json.loads(frame.body)
-    print parameters
+    logging.info(parameters)
     token=parameters['token']
     filepath=parameters['filepath']
     timestamp=['timestamp']
 
-    print token
+    logging.info(token)
     fname=filepath+"/input_"+token+".json"
-    print fname
+    logging.info(fname)
     with open(fname) as content_file:
       jpsurvDataString = content_file.read()
 
     data=json.loads(jpsurvDataString)
-    print data
+    logging.info(data)
     try:
       r.source('./JPSurvWrapper.R')
-      print "Calculating"
+      logging.info("Calculating")
       r.getFittedResultWrapper(parameters['filepath'], jpsurvDataString)
-      print "making message"
+      logging.info("making message")
       url=urllib.unquote(data['queue']['url'])
       success = True
     except:
-      print "calculation failed"
+      logging.info("calculation failed")
       url=urllib.unquote(data['queue']['url'])
-      print(url)
+      logging.info(url)
       url=url+"&calculation=failed"
       success = False
 
     Link='<a href='+url+'> Here </a>'
-    print parameters['timestamp']
-    print "Here is the Link to the past:"
-    print Link
+    logging.info(parameters['timestamp'])
+    logging.info("Here is the Link to the past:")
+    logging.info(Link)
     
     header = """<h2>"""+product_name+"""</h2>"""
     if success == True:
@@ -172,9 +172,9 @@ class jpsurvProcessor(DisconnectListener):
 
           #    "\r\n\r\n - JPSurv Team\r\n(Note:  Please do not reply to this email. If you need assistance, please contact xxxx@mail.nih.gov)"+
           #    "\n\n")
-    print "sending"
+    logging.info("sending")
     self.composeMail(data['queue']['email'],message,files)
-    print "end"
+    logging.info("end")
 
   @defer.inlineCallbacks
   def run(self):
@@ -194,10 +194,10 @@ class jpsurvProcessor(DisconnectListener):
   # Consumer for Jobs in Queue, needs to be rewrite by the individual projects
 
   def onCleanup(self, connect):
-    print 'In clean up ...'
+    logging.info('In clean up ...')
 
   def onConnectionLost(self, connect, reason):
-    print "in onConnectionLost"
+    logging.info("in onConnectionLost")
     self.run()
 
  # @read from property file to set up parameters for the queue.
@@ -216,7 +216,7 @@ if __name__ == '__main__':
   parser.add_argument('port', nargs='+')
   args = parser.parse_args()
 
-  logging.basicConfig(level=logging.DEBUG)
+  logging.basicConfig(level=logging.DEBUG, filename='../logs/queue.log', filemode='w')
   logging.info("JPSurv processor has started")
   jpsurvProcessor(dev_mode = args.debug).run()
   reactor.run()
