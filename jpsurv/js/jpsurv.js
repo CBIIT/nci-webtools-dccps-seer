@@ -2322,13 +2322,13 @@ function find_year_of_diagnosis_row() {
 function setAbsChange() {
   $("#absChgFrom").empty();
   $("#absChgTo").empty();
+  $("#absChgFrom").append("<OPTION></OPTION>");
+  $("#absChgTo").append("<OPTION></OPTION>");
   jpsurvData.calculate.static.years.forEach(function(year) {
     $("#absChgFrom").append("<OPTION>" + year + "</OPTION>");
     $("#absChgTo").append("<OPTION>" + year + "</OPTION>");
   });
-  var numberOfOptions = $("select#absChgTo option").length;
-  $("#absChgTo option")[numberOfOptions - 1].selected = true;
-  jpsurvData.additional.absChgRange = [parseInt($("#absChgFrom").val()), parseInt($('#absChgTo').val())];
+  jpsurvData.additional.absChgRange = null;
 }
 
 function set_year_of_diagnosis_select() {
