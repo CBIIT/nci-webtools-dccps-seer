@@ -55,7 +55,7 @@ ENDC = '\033[0m'
 
 
 def fix_jpsurv(jpsurvDataString):
-    jpsurvDataString = jpsurvDataString.decode("utf-8").replace("{plus}", "+").encode("utf-8")
+    jpsurvDataString = jpsurvDataString.replace("{plus}", "+")
 
     print(BOLD+"New:::"+ENDC)
     print(jpsurvDataString)

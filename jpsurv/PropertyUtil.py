@@ -1,10 +1,10 @@
-import ConfigParser
+import configparser
 
 class PropertyUtil(dict):
   TRUTHY = ['true','True','1']
 
   def __init__(self, filename):
-    cp = ConfigParser.SafeConfigParser()
+    cp = configparser.SafeConfigParser()
     cp.optionxform=str
     cp.read(filename)
 
