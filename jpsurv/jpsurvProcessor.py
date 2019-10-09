@@ -5,7 +5,7 @@ import rpy2.robjects as robjects
 import smtplib
 import time
 import logging
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import sys
 
 from email.mime.application import MIMEApplication
@@ -84,11 +84,11 @@ class jpsurvProcessor(DisconnectListener):
       logging.info("Calculating")
       r.getFittedResultWrapper(parameters['filepath'], jpsurvDataString)
       logging.info("making message")
-      url=urllib.unquote(data['queue']['url'])
+      url=urllib.parse.unquote(data['queue']['url'])
       success = True
     except:
       logging.info("calculation failed")
-      url=urllib.unquote(data['queue']['url'])
+      url=urllib.parse.unquote(data['queue']['url'])
       logging.info(url)
       url=url+"&calculation=failed"
       success = False
@@ -113,7 +113,7 @@ class jpsurvProcessor(DisconnectListener):
             </div>
             """
     else:
-      if data['file'].has_key('data'):
+      if 'data' in data['file']:
         uploadFiles = data['file']['dictionary'] + " " + data['file']['data']
       else :
         uploadFiles = data['file']['dictionary']
