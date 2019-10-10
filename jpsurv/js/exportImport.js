@@ -82,12 +82,17 @@ function exportBackEnd(event) {
 
     if ( data.type == "dic") data.txtFile = jpsurvData.file.data
 
-
-    try {
-        $('#exportButton').attr("href", "jpsurvRest/export" + generateQueryParameterStr(data))
-    } catch(error) {
-        console.log(error)
-    }
+     $.ajax({
+       type: "GET",
+       url: "jpsurvRest/export" + generateQueryParameterStr(data)
+     })
+       .done(function(res) {
+         window.location =
+           "jpsurvRest/export" + generateQueryParameterStr(data);
+       })
+       .fail(function(jqXHR, textStatus) {
+         displayCommFail("jpsurv", jqXHR, textStatus);
+       });
 }
 
 //
@@ -305,13 +310,12 @@ function setEventHandlerForImports() {
 }
 
 function handleError(error) {
-    message = error
     message_type = 'error';
     id="jpsurv"
-    showMessage(id, message, message_type);
+    showMessage(id, error, message_type);
     $("#right_panel").hide();
+    Slide_menu_Horz();
     $("#help").show();
-    var inputData = load_ajax("input_" + jpsurvData.tokenId + ".json");
     preLoadValues()
 }
 

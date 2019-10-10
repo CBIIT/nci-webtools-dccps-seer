@@ -2,7 +2,7 @@
 import json
 import os
 import time
-from flask import Flask, request, redirect, current_app, Response, send_from_directory, jsonify, send_file
+from flask import Flask, request, redirect, current_app, Response, send_from_directory, jsonify, send_file, abort
 from PropertyUtil import PropertyUtil
 from rpy2.robjects import r
 from stompest.config import StompConfig
@@ -542,8 +542,7 @@ def myExport():
 
     except Exception as e:
         print str(e)
-        return_url = "?request=false&status=failed_import"
-        return redirect(return_url)
+        return abort(404, 'Export failed')
 
 @app.route('/jpsurvRest/stage2_calculate', methods=['GET'])
 def stage2_calculate():
