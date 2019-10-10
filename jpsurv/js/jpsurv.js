@@ -167,7 +167,12 @@ function checkSelect() {
 }
 
 function checkAbsChg() {
-  if (jpsurvData.additional.absChgRange[1] <= jpsurvData.additional.absChgRange[0]) {
+  var absTmp = jpsurvData.additional.absTmp;
+  if (isNaN(absTmp[0]) && isNaN(absTmp[1])) {
+    jpsurvData.additional.absChgRange = null;
+    $(".recalculate").prop("disabled", false);
+  } else if (absTmp.findIndex(Number.isNaN) > -1 || absTmp[1] <= absTmp[0]) {
+    jpsurvData.additional.absChgRange = null;
     $('#absSelect').popover({
       content: "Selected years must be a progressive range.",
       trigger: 'focus hover',
@@ -175,6 +180,7 @@ function checkAbsChg() {
     }).popover('show');
     $(".recalculate").prop("disabled", true);
   } else {
+    jpsurvData.additional.absChgRange = jpsurvData.additional.absTmp;
     $('#absSelect').popover('dispose');
     $(".recalculate").prop("disabled", false);
   }
@@ -281,12 +287,12 @@ function addEventListeners() {
   });
 
   $("#absChgFrom").on("change", function() {
-    jpsurvData.additional.absChgRange[0] = parseInt($('#absChgFrom').val());
+    jpsurvData.additional.absTmp[0] = parseInt($('#absChgFrom').val());
     checkAbsChg();
   });
 
   $("#absChgTo").on("change", function() {
-    jpsurvData.additional.absChgRange[1] = parseInt($('#absChgTo').val());
+    jpsurvData.additional.absTmp[1] = parseInt($('#absChgTo').val());
     checkAbsChg();
   });
 
@@ -2316,12 +2322,13 @@ function find_year_of_diagnosis_row() {
 function setAbsChange() {
   $("#absChgFrom").empty();
   $("#absChgTo").empty();
-  $("#absChgFrom").append("<OPTION></OPTION>");
-  $("#absChgTo").append("<OPTION></OPTION>");
+  $("#absChgFrom").append("<OPTION>Select</OPTION>");
+  $("#absChgTo").append("<OPTION>Select</OPTION>");
   jpsurvData.calculate.static.years.forEach(function(year) {
     $("#absChgFrom").append("<OPTION>" + year + "</OPTION>");
     $("#absChgTo").append("<OPTION>" + year + "</OPTION>");
   });
+  jpsurvData.additional.absTmp = [NaN, NaN];
   jpsurvData.additional.absChgRange = null;
 }
 
