@@ -167,7 +167,12 @@ function checkSelect() {
 }
 
 function checkAbsChg() {
-  if (jpsurvData.additional.absChgRange[1] <= jpsurvData.additional.absChgRange[0]) {
+  var absTmp = jpsurvData.additional.absTmp;
+  if (isNaN(absTmp[0]) && isNaN(absTmp[1])) {
+    jpsurvData.additional.absChgRange = null;
+    $(".recalculate").prop("disabled", false);
+  } else if (absTmp.findIndex(Number.isNaN) > -1 || absTmp[1] <= absTmp[0]) {
+    jpsurvData.additional.absChgRange = null;
     $('#absSelect').popover({
       content: "Selected years must be a progressive range.",
       trigger: 'focus hover',
@@ -175,6 +180,7 @@ function checkAbsChg() {
     }).popover('show');
     $(".recalculate").prop("disabled", true);
   } else {
+    jpsurvData.additional.absChgRange = jpsurvData.additional.absTmp;
     $('#absSelect').popover('dispose');
     $(".recalculate").prop("disabled", false);
   }
@@ -281,12 +287,12 @@ function addEventListeners() {
   });
 
   $("#absChgFrom").on("change", function() {
-    jpsurvData.additional.absChgRange[0] = parseInt($('#absChgFrom').val());
+    jpsurvData.additional.absTmp[0] = parseInt($('#absChgFrom').val());
     checkAbsChg();
   });
 
   $("#absChgTo").on("change", function() {
-    jpsurvData.additional.absChgRange[1] = parseInt($('#absChgTo').val());
+    jpsurvData.additional.absTmp[1] = parseInt($('#absChgTo').val());
     checkAbsChg();
   });
 
@@ -558,26 +564,20 @@ function checkInputFile() {
 
 //loads the form based on selected values
 function preLoadValues() {
-  //
   //Check to see if input file exists.
-  //
 
   var inputData = load_ajax("input_" + jpsurvData.tokenId + ".json");
-
-  //console.warn("inputData");
-  //console.dir(inputData);
-  load_input_form(inputData);
-  //Form section
-
-  //Set jpsurvData and update everything....
-  jpsurvData = inputData;
-
-  setIntervalsDefault();
-  getIntervals();
-  stage2("no calculate"); // This is the initial calculation and setup.
-  retrieveResults();
-  var status = getUrlParameter("status");
-  //console.log(status)
+  if (inputData) {
+    //Form section
+    load_input_form(inputData);
+    jpsurvData = inputData;
+    //Set jpsurvData and update everything....
+    setIntervalsDefault();
+    getIntervals();
+    stage2("no calculate"); // This is the initial calculation and setup.
+    retrieveResults();
+    var status = getUrlParameter("status");
+  }
 }
 
 function load_input_form(inputData) {
@@ -2322,12 +2322,13 @@ function find_year_of_diagnosis_row() {
 function setAbsChange() {
   $("#absChgFrom").empty();
   $("#absChgTo").empty();
-  $("#absChgFrom").append("<OPTION></OPTION>");
-  $("#absChgTo").append("<OPTION></OPTION>");
+  $("#absChgFrom").append("<OPTION>Select</OPTION>");
+  $("#absChgTo").append("<OPTION>Select</OPTION>");
   jpsurvData.calculate.static.years.forEach(function(year) {
     $("#absChgFrom").append("<OPTION>" + year + "</OPTION>");
     $("#absChgTo").append("<OPTION>" + year + "</OPTION>");
   });
+  jpsurvData.additional.absTmp = [NaN, NaN];
   jpsurvData.additional.absChgRange = null;
 }
 
@@ -2522,15 +2523,16 @@ function displayCommFail(id, jqXHR, textStatus) {
   // ERROR
   if (jqXHR.status == 500) {
     message =
-      "An unexpected error occured. Please ensure the input file(s) is in the correct format and/or correct parameters were chosen. <br>";
-    message_type = "error";
+      "An unexpected error occured. Please ensure the input file(s) is in the correct format and/or correct parameters were chosen.";
+  } else if (jqXHR.status == 404) {
+    message = "Could not export workspace. Please check that input files are properly named and formatted.";
   } else {
-    message = jqXHR.statusText + " (" + textStatus + ")<br><br>";
+    message = "code(" + jqXHR.status + ") " + jqXHR.statusText + " (" + textStatus + ")";
     message +=
-      "The server is temporarily unable to service your request due to maintenance downtime or capacity problems. Please try again later.<br>";
-    message += "<br>code(" + jqXHR.status + ")";
-    message_type = "error";
+      "The server is temporarily unable to service your request due to maintenance downtime or capacity problems. Please try again later.";
   }
+  message_type = "error";
+
   showMessage(id, message, message_type);
 }
 function jpsurvRest(action, params) {
@@ -2589,19 +2591,15 @@ function jpsurvRest(action, params) {
 }
 
 function showMessage(id, message, message_type) {
-  //
+  console.log("error");
   //  Display either a warning an error.
-  //
   $("#right_panel").show();
   $("#helpCard").hide();
   $("#icon").css("visibility", "visible");
 
-  //console.log("Show Message");
-
   var css_class = "";
   var header = "";
   var container_id = id + "-message-container";
-  //console.log(container_id);
 
   if (message_type.toUpperCase() == "ERROR") {
     css_class = "bg-danger text-white";
@@ -2610,22 +2608,24 @@ function showMessage(id, message, message_type) {
     css_class = "bg-warning";
     header = "Warning";
   }
+  console.log(message);
   $("#" + container_id)
     .empty()
-    .show();
-  $("#" + container_id).append(
-    $("<div>")
-      .addClass("card")
-      .append([
-        $("<div>", {
-          class: "card-header " + css_class,
-          html: header
-        }),
-        $("<div>", {
-          class: "card-body"
-        }).append($("p").html(message))
-      ])
-  );
+    .show()
+    .append(
+      $("<div>")
+        .addClass("card")
+        .append(
+          $("<div>")
+            .addClass("card-header " + css_class)
+            .text(header)
+        )
+        .append(
+          $("<div>")
+            .addClass("card-body")
+            .append($("p").text(message))
+        )
+    );
 }
 
 function load_ajax(filename) {
