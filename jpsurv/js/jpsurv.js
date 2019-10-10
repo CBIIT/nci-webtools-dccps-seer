@@ -2328,7 +2328,7 @@ function setAbsChange() {
     $("#absChgFrom").append("<OPTION>" + year + "</OPTION>");
     $("#absChgTo").append("<OPTION>" + year + "</OPTION>");
   });
-  jpsurvData.additional.absChgRange = [];
+  jpsurvData.additional.absChgRange = null;
 }
 
 function set_year_of_diagnosis_select() {
