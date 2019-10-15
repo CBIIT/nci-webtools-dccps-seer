@@ -439,10 +439,10 @@
               <!-- Graphs here -->
               <div id="graph-year-tab" class="tab-pane fade show active">
                 <div class="border rounded mb-1">
-                  <div class="row pt-3 px-2">
-                    <div class="col-md-5">
-                      <div class="form-group">
-                        <label for="interval-years" class="ml-1 mr-3">
+                  <div class="row">
+                    <div class="col-md-3 m-3">
+                      <div class="d-flex">
+                        <label for="interval-years" class="align-self-center ml-1 mr-3">
                           Interval Years
                         </label>
                         <select id="interval-years" class="mx-1" multiple>
@@ -453,35 +453,27 @@
                         </select>
                       </div>
                     </div>
-                    <div class="col-md-auto d-flex">
-                      <div id="absSelect" class="ml-auto">
-                        <label class="mr-2" data-toggle="tooltip" data-placement="top"
-                          title="Average Absolute Change over Calendar Year Interval">Average Absolute Change Years</label>
-                        <select disabled id="absChgFrom" class="mx-1">
-                          <option>1975</option>
-                          <option>1976</option>
-                          <option>1977</option>
-                        </select>
-                        <label for="interval-years" class="mx-2">to</label>
-                        <select disabled id="absChgTo" class="mx-1">
-                          <option>1975</option>
-                          <option>1976</option>
-                          <option>1977</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="row pt-3 px-2">
-                    <div class="col-md-5">
-                      <button class="btn btn-primary btn-sm mb-2 recalculate" type="button">
-                        Recalculate
-                      </button>
-                    </div>
-                    <div class="col-md-auto">
+                    <div class="col-md-auto m-3">
                       <div class="custom-control custom-checkbox">
                         <input class="custom-control-input" type="checkbox" id="showYearTrend" />
                         <label class="custom-control-label" for="showYearTrend" aria-label="showYearTrend">Show Trend
                           Measures</label>
+                      </div>
+                    </div>
+                    <div class="col-md-auto d-flex m-3">
+                      <div id="absSelect" class="">
+                        <label class="mr-2" data-toggle="tooltip" data-placement="top"
+                          title="Average Absolute Change over Calendar Year Interval">Average Absolute Change Years</label>
+                        <select disabled id="absChgFrom" class="mx-1"></select>
+                        <label for="interval-years" class="mx-2">to</label>
+                        <select disabled id="absChgTo" class="mx-1"></select>
+                      </div>
+                    </div>
+                    <div class="col m-3">
+                      <div id="warning-wrapper" class="d-inline-flex">
+                        <button class="btn btn-primary btn-sm recalculate" type="button">
+                          Recalculate
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -564,10 +556,10 @@
 
               <div id="graph-death-tab" class="tab-pane fade">
                 <div class="border rounded mb-1">
-                  <div class="row pt-3 px-2">
-                    <div class="col-lg-5">
-                      <div class="form-group">
-                        <label for="interval-years-death" class="ml-1 mr-3">
+                  <div class="row">
+                    <div class="col-md-3 m-3">
+                      <div class="d-flex">
+                        <label for="interval-years-death" class="align-self-center ml-1 mr-3">
                           Interval Years
                         </label>
                         <select id="interval-years-death" class="mx-1" multiple="multiple">
@@ -578,20 +570,17 @@
                         </select>
                       </div>
                     </div>
-
-                  </div>
-                  <div class="row pt-3 px-2">
-                    <div class="col-md-5">
-                      <button class="btn btn-primary btn-sm mb-2 recalculate" type="button">
-                        Recalculate
-                      </button>
-                    </div>
-                    <div class="col-md-auto">
+                    <div class="col-md-auto m-3">
                       <div class="custom-control custom-checkbox ">
                         <input class="custom-control-input" type="checkbox" id="showDeathTrend" />
                         <label class="custom-control-label" for="showDeathTrend" aria-label="showDeathTrend">Show Trend
                           Measures</label>
                       </div>
+                    </div>
+                    <div class="col-md-auto m-3">
+                      <button class="btn btn-primary btn-sm recalculate" type="button">
+                        Recalculate
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -665,9 +654,9 @@
               </div>
 
               <div id="graph-time-tab" class="tab-pane fade">
-                <div class="border rounded px-2 pt-3">
+                <div class="border rounded">
                   <div class="row">
-                    <div class="col-md-5">
+                    <div class="col-md-3 m-3">
                       <div class="form-group">
                         <label for="year-of-diagnosis" class="mx-1 mr-3">
                           Year of Diagnosis
@@ -677,7 +666,7 @@
                         </select>
                       </div>
                     </div>
-                    <div class="col">
+                    <div class="col m-3">
                       <button class="btn btn-primary btn-sm recalculate" type="button">
                         Recalculate
                       </button>
