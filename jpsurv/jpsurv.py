@@ -178,10 +178,10 @@ def stage1_upload():
             stri = fo.read(500)
             fo.close()
 
-            if __name__ == '__main__':
-                base_href = '/'
-            else:
-                base_href = '/jpsurv/'
+            # if __name__ == '__main__':
+            base_href = '/'
+            # else:
+            #     base_href = '/jpsurv/'
 
             app.logger.debug(request.url_root + base_href)
             url = Href(base_href)(
@@ -253,10 +253,10 @@ def stage1_upload():
             stri = fo.read(500)
             fo.close()
 
-            if __name__ == '__main__':
-                base_href = '/'
-            else:
-                base_href = '/jpsurv/'
+            # if __name__ == '__main__':
+            base_href = '/'
+            # else:
+            #     base_href = '/jpsurv/'
 
             app.logger.debug(request.url_root + base_href)
             url = Href(base_href)(
