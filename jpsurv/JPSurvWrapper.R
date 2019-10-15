@@ -592,9 +592,9 @@ getGraphWrapper <- function (filePath, jpsurvDataString, first_calc, com, interv
       # trendTable = data[[1]]
       trends = aapc.multiints(fit, type="AbsChgSur", int.select=intervals, ACS.range=jpsurvData$additional$absChgRange)
       if (length(trends) > 1) {
-        bothTrends = rbind(trends[[1]],trends[[2]])
-        if (inherits(bothTrends, 'data.frame')) {
-          trends = list(bothTrends)
+        trends = rbind(trends[[1]],trends[[2]])
+        if (inherits(trends, 'data.frame')) {
+          trends = list(trends)
         }
       }
       plot = data[[2]]
@@ -607,9 +607,9 @@ getGraphWrapper <- function (filePath, jpsurvDataString, first_calc, com, interv
       # trendTable = data[[1]]
       trends = aapc.multiints(fit, type="AbsChgSur", int.select=intervals, ACS.range=jpsurvData$additional$absChgRange)
       if (length(trends) > 1) {
-        bothTrends = rbind(trends[[1]],trends[[2]])
-        if (inherits(bothTrends, 'data.frame')) {
-          trends = list(bothTrends)
+        trends = rbind(trends[[1]],trends[[2]])
+        if (inherits(trends, 'data.frame')) {
+          trends = list(trends)
         }
       }
       plot.anno = data[[2]]
