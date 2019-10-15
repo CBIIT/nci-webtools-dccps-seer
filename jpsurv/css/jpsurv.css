@@ -480,3 +480,7 @@ tbody tr:last-child td:last-child {
 .btn {
   font-size: 1rem;
 }
+
+#warning-wrapper .recalculate:disabled {
+  pointer-events: none;
+}

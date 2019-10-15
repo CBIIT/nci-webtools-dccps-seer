@@ -44,7 +44,10 @@ $(document).ready(function() {
   addMessages();
   hide_display_email();
   // disable calculate button on document load if there are cohorts to select
-  if (!jpsurvData.calculate.form.cohortValues || jpsurvData.calculate.form.cohortValues.length != 0) {
+  if (
+    !jpsurvData.calculate.form.cohortValues ||
+    jpsurvData.calculate.form.cohortValues.length != 0
+  ) {
     $("#calculate").prop("disabled", true);
   }
   if (jpsurvData.status === "uploaded") {
@@ -173,15 +176,18 @@ function checkAbsChg() {
     $(".recalculate").prop("disabled", false);
   } else if (absTmp.findIndex(Number.isNaN) > -1 || absTmp[1] <= absTmp[0]) {
     jpsurvData.additional.absChgRange = null;
-    $('#absSelect').popover({
-      content: "Selected years must be a progressive range.",
-      trigger: 'focus hover',
-      placement: 'top'
-    }).popover('show');
+    $('#warning-wrapper').css('cursor', 'not-allowed');
+    $('#warning-wrapper')
+      .popover({
+        content: "Selected years must be a progressive range.",
+        trigger: "focus hover",
+        placement: "bottom"
+      })
     $(".recalculate").prop("disabled", true);
   } else {
     jpsurvData.additional.absChgRange = jpsurvData.additional.absTmp;
-    $('#absSelect').popover('dispose');
+    $('#warning-wrapper').css('cursor', '');
+    $('#warning-wrapper').popover('dispose');
     $(".recalculate").prop("disabled", false);
   }
 }
@@ -238,28 +244,18 @@ function addEventListeners() {
   });
 
   $("#showYearTrend").on("change", function() {
+    toggleAbsSelect();
     if (
       this.checked &&
       $("#interval-years").val().length < 4 &&
       jpsurvData.additional.headerJoinPoints < 4
     ) {
       $("#yearAnno").prop("disabled", false);
-      $('#absChgFrom').prop("disabled", false);
-      $('#absChgTo').prop("disabled", false);
-    } else if (
-      this.checked &&
-      $("#interval-years").val().length >= 4 &&
-      jpsurvData.additional.headerJoinPoints >= 4
-    ) {
-      $('#absChgFrom').prop("disabled", false);
-      $('#absChgTo').prop("disabled", false);
     } else if (Object.keys(jpsurvData.results.yearData).length == 4) {
       $("#yearAnno").prop("disabled", false);
     } else {
       $("#yearAnno").prop("disabled", true);
       $("#yearAnno").prop("checked", false);
-      $('#absChgFrom').prop("disabled", true);
-      $('#absChgTo').prop("disabled", true);
     }
   });
 
@@ -286,12 +282,12 @@ function addEventListeners() {
     getAnnoGraph();
   });
 
-  $("#absChgFrom").on("change", function() {
+  $('#absChgFrom').on("change", function() {
     jpsurvData.additional.absTmp[0] = parseInt($('#absChgFrom').val());
     checkAbsChg();
   });
 
-  $("#absChgTo").on("change", function() {
+  $('#absChgTo').on("change", function() {
     jpsurvData.additional.absTmp[1] = parseInt($('#absChgTo').val());
     checkAbsChg();
   });
@@ -723,14 +719,16 @@ function addCohortVariables() {
   jpsurvData.calculate.form.AllcohortValues = {};
 
   if (Object.keys(cohort_covariance_variables).length == 0) {
-    $("#cohort-variables").empty().append(
-      $('<div>', {
-        class: 'jpsurv-label text-info font-weight-bold',
-        html: 'No cohorts available'
-      })
-    );
+    $("#cohort-variables")
+      .empty()
+      .append(
+        $("<div>", {
+          class: "jpsurv-label text-info font-weight-bold",
+          html: "No cohorts available"
+        })
+      );
   } else {
-    $("#cohort-variables").empty()
+    $("#cohort-variables").empty();
     var i = 0;
     $.each(cohort_covariance_variables, function(key, value) {
       if (key) {
@@ -739,8 +737,12 @@ function addCohortVariables() {
 
         var html =
           '<div class="row"><div class="col-md-12"><fieldset id="cohort-' +
-          i + '" data-cohort="' + key + '"><legend><span class="jpsurv-label">' +
-          key + ":</span></legend></fieldset></div></div>";
+          i +
+          '" data-cohort="' +
+          key +
+          '"><legend><span class="jpsurv-label">' +
+          key +
+          ":</span></legend></fieldset></div></div>";
         $("#cohort-variables").append(html);
         if (control_data.input_type == undefined) {
           if (
@@ -752,13 +754,17 @@ function addCohortVariables() {
                 .append([
                   $("<input>", {
                     class: "custom-control-input cohort-" + i,
-                    id: control_data.VarFormatSecList[key].ItemValueInDic.replace(/\s/g, '_'),
+                    id: control_data.VarFormatSecList[
+                      key
+                    ].ItemValueInDic.replace(/\s/g, "_"),
                     value: control_data.VarFormatSecList[key].ItemValueInDic,
                     type: "checkbox"
                   }),
                   $("<label>", {
                     class: "custom-control-label cohort-" + i,
-                    for: control_data.VarFormatSecList[key].ItemValueInDic.replace(/\s/g, '_'),
+                    for: control_data.VarFormatSecList[
+                      key
+                    ].ItemValueInDic.replace(/\s/g, "_"),
                     html: control_data.VarFormatSecList[key].ItemValueInDic
                   })
                 ])
@@ -775,11 +781,11 @@ function addCohortVariables() {
                     $("<input>", {
                       type: "checkbox",
                       value: value2,
-                      id: value2.replace(/\s/g, '_'),
+                      id: value2.replace(/\s/g, "_"),
                       class: "custom-control-input cohort-" + i
                     }),
                     $("<label>", {
-                      for: value2.replace(/\s/g, '_'),
+                      for: value2.replace(/\s/g, "_"),
                       class: "custom-control-label cohort-" + i,
                       html: value2
                     })
@@ -798,13 +804,13 @@ function addCohortVariables() {
                 .append([
                   $("<input>", {
                     class: "custom-control-input cohort-" + i,
-                    id: (key + cohort_covariance_variables[key]),
+                    id: key + cohort_covariance_variables[key],
                     value: cohort_covariance_variables[key],
                     type: "checkbox"
                   }),
                   $("<label>", {
                     class: "custom-control-label cohort-" + i,
-                    for: (key + cohort_covariance_variables[key]),
+                    for: key + cohort_covariance_variables[key],
                     html: cohort_covariance_variables[key]
                   })
                 ])
@@ -1060,7 +1066,10 @@ function updateGraphs(token_id) {
   var row;
 
   var header = [];
-  var yodVarName = jpsurvData.calculate.static.yearOfDiagnosisVarName.replace(/\(|\)|-/g,"");
+  var yodVarName = jpsurvData.calculate.static.yearOfDiagnosisVarName.replace(
+    /\(|\)|-/g,
+    ""
+  );
   yodVarName = yodVarName.replace(/__/g, "_");
 
   //Add the Year Table
@@ -1420,10 +1429,6 @@ function updateEstimates(token_id) {
   $("#estimates-jp-selected").text(jpsurvData.additional.headerJoinPoints);
 }
 
-function showAbsParam() {
-  
-}
-
 function updateTrend() {
   if ($("#showYearTrend").is(":checked")) {
     $("#trend-aac > tbody").empty();
@@ -1623,11 +1628,16 @@ function setData(type) {
   );
 
   //Set static data
-  var yearOfDiagnosisVarName = $("#selectYear").val() ? $("#selectYear").val() : jpsurvData.calculate.static.yearOfDiagnosisTitle;
-  
+  var yearOfDiagnosisVarName = $("#selectYear").val()
+    ? $("#selectYear").val()
+    : jpsurvData.calculate.static.yearOfDiagnosisTitle;
+
   //Remove spaces and replace with underscore
   jpsurvData.calculate.static.yearOfDiagnosisVarName = yearOfDiagnosisVarName;
-  jpsurvData.calculate.static.seerFilePrefix = jpsurvData.file.dictionary.replace(/.\w*$/, "");
+  jpsurvData.calculate.static.seerFilePrefix = jpsurvData.file.dictionary.replace(
+    /.\w*$/,
+    ""
+  );
   jpsurvData.calculate.static.allVars = get_cohort_covariance_variable_names();
   jpsurvData.calculate.static.allVars.push(yearOfDiagnosisVarName);
   jpsurvData.calculate.form.covariateVars = "";
@@ -2051,7 +2061,7 @@ function load_form() {
 }
 
 function loadCohorts() {
-  if ($('#selectYear').val() != '(Select one)') {
+  if ($("#selectYear").val() != "(Select one)") {
     set_year_of_diagnosis_select();
     set_intervals_from_diagnosis();
     setAbsChange();
@@ -2067,12 +2077,14 @@ function loadCohorts() {
 
 // construct year of diagnosis option elements
 function getYearOptions() {
-  var cohortFilter = ['Page type', 'Interval'];
-  var dicOptions = Object.keys(control_data.VarFormatSecList).filter(function(e) {
+  var cohortFilter = ["Page type", "Interval"];
+  var dicOptions = Object.keys(control_data.VarFormatSecList).filter(function(
+    e
+  ) {
     return !cohortFilter.includes(e);
   });
   if (jpsurvData.calculate.static.yearOfDiagnosisTitle) {
-    var found = true
+    var found = true;
   } else {
     var found = parse_diagnosis_years();
   }
@@ -2080,17 +2092,35 @@ function getYearOptions() {
     var yodTitle = jpsurvData.calculate.static.yearOfDiagnosisTitle;
     html = dicOptions.map(function(option) {
       if (option.includes(yodTitle)) {
-        return "<option selected value=" + option.replace(/\s+/g, '_') + ">" + option + "</option>";
+        return (
+          "<option selected value=" +
+          option.replace(/\s+/g, "_") +
+          ">" +
+          option +
+          "</option>"
+        );
       } else {
-        return "<option value=" + option.replace(/\s+/g, '_') + ">" + option + "</option>";
+        return (
+          "<option value=" +
+          option.replace(/\s+/g, "_") +
+          ">" +
+          option +
+          "</option>"
+        );
       }
     });
-    return html.join('');
+    return html.join("");
   } else {
     var html = dicOptions.map(function(option) {
-      return "<option value=" + option.replace(/\s+/g, '_') + ">" + option + "</option>";
+      return (
+        "<option value=" +
+        option.replace(/\s+/g, "_") +
+        ">" +
+        option +
+        "</option>"
+      );
     });
-    return '<option>(Select one)</option>' + html;
+    return "<option>(Select one)</option>" + html;
   }
 }
 
@@ -2102,36 +2132,41 @@ function addSelectYear() {
         .addClass("jpsurv-label-container")
         .append(
           $("<span>", {
-            id: 'yodLabel',
-            class: 'jpsurv-label mr-2',
-            html: 'Year of Diagnosis:'
+            id: "yodLabel",
+            class: "jpsurv-label mr-2",
+            html: "Year of Diagnosis:"
           })
         )
     );
 
-    if (control_data.input_type == undefined) {
-      $('#yodLabel').append(
-        $('<select>', {
-          id: 'selectYear'
-        }).append(getYearOptions())
-      )
-      $('#selectYear').on('select2:select', function() {
-        // set diagnosis years and year of diagnosis title
-        jpsurvData.calculate.static.years = control_data.VarFormatSecList[$('#selectYear option:selected').text()].ItemValueInDic;
-        jpsurvData.calculate.static.yearOfDiagnosisTitle = $('#selectYear option:selected').text();
-        loadCohorts();
-      });
-    } else {
-      jpsurvData.calculate.static.yearOfDiagnosisTitle = control_data.year[0];
-      jpsurvData.calculate.static.years = control_data.data[control_data.year[1]];
-      $('#yodLabel').append(
-        $('<span>', {
-          class: 'jpsurv-label-content',
-          title: 'Year of diagnosis label',
-          html: jpsurvData.calculate.static.yearOfDiagnosisTitle,
-        })
-      )
-    }
+  if (control_data.input_type == undefined) {
+    $("#yodLabel").append(
+      $("<select>", {
+        id: "selectYear"
+      }).append(getYearOptions())
+    );
+    $("#selectYear").on("select2:select", function() {
+      // set diagnosis years and year of diagnosis title
+      jpsurvData.calculate.static.years =
+        control_data.VarFormatSecList[
+          $("#selectYear option:selected").text()
+        ].ItemValueInDic;
+      jpsurvData.calculate.static.yearOfDiagnosisTitle = $(
+        "#selectYear option:selected"
+      ).text();
+      loadCohorts();
+    });
+  } else {
+    jpsurvData.calculate.static.yearOfDiagnosisTitle = control_data.year[0];
+    jpsurvData.calculate.static.years = control_data.data[control_data.year[1]];
+    $("#yodLabel").append(
+      $("<span>", {
+        class: "jpsurv-label-content",
+        title: "Year of diagnosis label",
+        html: jpsurvData.calculate.static.yearOfDiagnosisTitle
+      })
+    );
+  }
 }
 
 function get_column_values() {
@@ -2166,7 +2201,9 @@ function parse_diagnosis_years() {
     jpsurvData.calculate.static.yearOfDiagnosisTitle =
       control_data.VarAllInfo.ItemValueInDic[diagnosis_row - 1];
     jpsurvData.calculate.static.years =
-      control_data.VarFormatSecList[jpsurvData.calculate.static.yearOfDiagnosisTitle].ItemValueInDic;
+      control_data.VarFormatSecList[
+        jpsurvData.calculate.static.yearOfDiagnosisTitle
+      ].ItemValueInDic;
   } else {
     return false;
   }
@@ -2292,7 +2329,7 @@ function get_cohort_covariance_variable_names() {
       if (regex_interval.test(values[i])) break; //stops at a value with "Interval" in it
       if (!regex_name.test(names[i])) continue;
       if (values[i] == "Page type") continue; // Skip the Page type
-      if (regex_year == (values[i])) continue; //skips "Year of diagnosis"
+      if (regex_year == values[i]) continue; //skips "Year of diagnosis"
       //if variable has Base for which
       cohort_covariance_variable_names.push(values[i]);
     }
@@ -2319,14 +2356,24 @@ function find_year_of_diagnosis_row() {
   return 0;
 }
 
+function toggleAbsSelect() {
+  $('#absChgFrom').prop('disabled', !$('#showYearTrend').prop('checked'));
+  $('#absChgTo').prop('disabled', !$('#showYearTrend').prop('checked'));
+  $('#absChgFrom').val('');
+  $('#absChgTo').val('');
+  $('#absChgFrom').trigger('change');
+  $('#absChgTo').trigger('change');
+  $('#warning-wrapper').popover('dispose');
+}
+
 function setAbsChange() {
-  $("#absChgFrom").empty();
-  $("#absChgTo").empty();
-  $("#absChgFrom").append("<OPTION>Select</OPTION>");
-  $("#absChgTo").append("<OPTION>Select</OPTION>");
+  $('#absChgFrom').empty();
+  $('#absChgTo').empty();
+  $('#absChgFrom').append('<OPTION value="">&nbsp;</OPTION>');
+  $('#absChgTo').append('<OPTION value="">&nbsp;</OPTION>');
   jpsurvData.calculate.static.years.forEach(function(year) {
-    $("#absChgFrom").append("<OPTION>" + year + "</OPTION>");
-    $("#absChgTo").append("<OPTION>" + year + "</OPTION>");
+    $('#absChgFrom').append('<OPTION>' + year + '</OPTION>');
+    $('#absChgTo').append('<OPTION>' + year + '</OPTION>');
   });
   jpsurvData.additional.absTmp = [NaN, NaN];
   jpsurvData.additional.absChgRange = null;
@@ -2367,7 +2414,9 @@ function generateIntervalSelect(source, length) {
     $("#intervals_from_diagnosis").val(
       $("#intervals_from_diagnosis option:last").val()
     );
-    jpsurvData.calculate.form.interval = parseInt($("#intervals_from_diagnosis option:last").val());
+    jpsurvData.calculate.form.interval = parseInt(
+      $("#intervals_from_diagnosis option:last").val()
+    );
   }
 }
 
@@ -2525,9 +2574,17 @@ function displayCommFail(id, jqXHR, textStatus) {
     message =
       "An unexpected error occured. Please ensure the input file(s) is in the correct format and/or correct parameters were chosen.";
   } else if (jqXHR.status == 404) {
-    message = "Could not export workspace. Please check that input files are properly named and formatted.";
+    message =
+      "Could not export workspace. Please check that input files are properly named and formatted.";
   } else {
-    message = "code(" + jqXHR.status + ") " + jqXHR.statusText + " (" + textStatus + ")";
+    message =
+      "code(" +
+      jqXHR.status +
+      ") " +
+      jqXHR.statusText +
+      " (" +
+      textStatus +
+      ")";
     message +=
       "The server is temporarily unable to service your request due to maintenance downtime or capacity problems. Please try again later.";
   }
@@ -3433,12 +3490,8 @@ function getTrendTables() {
 function showTrendTable() {
   if ($("#showYearTrend").is(":checked")) {
     $("#yearTrendTable").removeClass("d-none");
-    $('#absChgFrom').prop("disabled", false);
-    $('#absChgTo').prop("disabled", false);
   } else {
     $("#yearTrendTable").addClass("d-none");
-    $('#absChgFrom').prop("disabled", true);
-    $('#absChgTo').prop("disabled", true);
   }
   if ($("#showDeathTrend").is(":checked")) {
     $("#deathTrendTable").removeClass("d-none");
