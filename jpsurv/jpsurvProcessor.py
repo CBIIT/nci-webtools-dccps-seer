@@ -80,7 +80,7 @@ class jpsurvProcessor(DisconnectListener):
     data=json.loads(jpsurvDataString)
     logging.info(data)
     try:
-      r.source('./JPSurvWrapper.R')
+      r.source('JPSurvWrapper.R')
       logging.info("Calculating")
       r.getFittedResultWrapper(parameters['filepath'], jpsurvDataString)
       logging.info("making message")
