@@ -133,7 +133,7 @@ def stage1_upload():
 
     print((BOLD + "****** Stage 1: tokenId = %s" + ENDC) % (tokenId))
 
-    for k, v in request.args.items():
+    for k, v in list(request.args.items()):
         print("var: %s = %s" % (k, v))
     r.source('./JPSurvWrapper.R')
     try:
@@ -558,7 +558,7 @@ def stage2_calculate():
     print(jpsurvDataString)
     jpsurvData = json.loads(jpsurvDataString)
     print(BOLD+"**** jpsurvData ****"+ENDC)
-    for key, value in jpsurvData.items():
+    for key, value in list(jpsurvData.items()):
         print("var: %s = %s" % (key, value))
         print("var: %s = %s" % (key, value))
 
@@ -681,7 +681,7 @@ def queue():
     print("print json()")
     print(jpsurv_json)
     print(dir(jpsurv_json))
-    for k, v in request.args.items():
+    for k, v in list(request.args.items()):
         print("var: %s = %s" % (k, v))
 
     filename = "input_%s.json" % tokenId
@@ -709,7 +709,7 @@ def sendqueue(tokenId):
     QUEUE_CONFIG=StompConfig(jpsurvConfig.getAsString(QUEUE_URL))
     client = Stomp(QUEUE_CONFIG)
     client.connect()
-    client.send(QUEUE,json.dumps({"filepath":UPLOAD_DIR,"token":tokenId,"timestamp":timestr}))
+    client.send(QUEUE,json.dumps({"filepath":UPLOAD_DIR,"token":tokenId,"timestamp":timestr}).encode())
     client.disconnect()
 
     return
