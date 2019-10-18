@@ -1,39 +1,42 @@
 $(document).ready(function() {
-  $("#importButton").on("click", importBackEnd)
-  $("#exportButton").on("click", exportBackEnd)
-
-  setEventHandlerForImports()
+  $("#importButton").on("click", importBackEnd);
+  $("#exportButton").on("click", exportBackEnd);
+  setEventHandlerForImports();
 })
 
 //
 // Import -- Upload a previous session ( stored in a zip with the extension .jpsurv  )
 //
 function importBackEnd(event) {
+  var formData = new FormData();
+  formData.append("zipData", $("#fileSelect")[0].files[0]);
 
-      var formData = new FormData()
-      formData.append("zipData", $("#fileSelect")[0].files[0] )
-
-      $.ajax({
-         'type': "post",
-         'url':  "jpsurvRest/import",
-         'data': formData,
-         'async': true,
-         'contentType': false,
-         'processData': false,
-         'success': function(data) {
-            importFrontEnd(data.tokenIdForForm, data.tokenIdForRest, data.txtFile, data.controlFile, data.type, data.imageIdStartCount, data.delimiter)
-         },
-         'fail' : function(jqXHR, textStatus) {
-            handleBackendError()
-         },
-         'error' : function(jqXHR, textStatus) {
-            console.dir(jqXHR);
-            console.log('Error on load_ajax');
-            console.log(jqXHR.status);
-            console.log(jqXHR.statusText);
-            console.log(textStatus);
-          }
-        })
+  $.ajax({
+    type: "post",
+    url: "jpsurvRest/import",
+    data: formData,
+    contentType: false,
+    processData: false
+  })
+    .done(function(data) {
+      importFrontEnd(
+        data.tokenIdForForm,
+        data.tokenIdForRest,
+        data.txtFile,
+        data.controlFile,
+        data.type,
+        data.imageIdStartCount,
+        data.delimiter
+      );
+    })
+    .fail(function(jqXHR, textStatus) {
+      handleBackendError();
+      console.dir(jqXHR);
+      console.log("Error on load_ajax");
+      console.log(jqXHR.status);
+      console.log(jqXHR.statusText);
+      console.log(textStatus);
+    });
 }
 
 //
@@ -130,44 +133,39 @@ function importFrontEnd(idOfForm, idOfOthers, txtFile, controlFile, dataType, im
  * One of the requirements was that the data not be calculated again, but read from the files
  * that were created from the previous section.
  */
-function updatePageAfterRefresh(event) {
+function updatePageAfterRefresh(e) {
+  console.log("fired");
+  try {
+    if (
+      window.location.search === undefined ||
+      window.location.search.length === 0
+    )
+      return;
 
-    try {
+    jpsurvData.stage2completed = true;
+    setIntervalsDefault();
+    getIntervals();
+    parse_diagnosis_years();
+    setData();
+    load_ajax_with_success_callback(generateResultsFilename(), loadResults);
+    calculateFittedResultsCallback();
+    updateCohortDropdown();
+    setRun();
 
-        if ( window.location.search === undefined || window.location.search.length === 0 ) return
+    jpsurvData.plot.static.imageId =
+      parseInt(localStorage.getItem("initialIdCnt")) - 1;
+    jpsurvData.additional.del = localStorage.getItem("delimiter");
+    jpsurvData.stage2completed = true;
 
-        jpsurvData.stage2completed = true
-
-        setIntervalsDefault()
-        getIntervals()
-        parse_diagnosis_years()
-
-        setData()
-
-        load_ajax_with_success_callback(generateResultsFilename(), loadResults)
-        calculateFittedResultsCallback()
-        updateCohortDropdown()
-
-        setRun()
-
-        jpsurvData.plot.static.imageId = parseInt(localStorage.getItem("initialIdCnt")) - 1
-        jpsurvData.additional.del = localStorage.getItem("delimiter")
-
-        jpsurvData.stage2completed = true
-
-        load_ajax_with_success_callback(createFormValuesFilename(), loadUserInput)
-
-     } catch(err) {
-
-        console.log("An exception happen.  The error is " + err.message)
-        jpsurvData.stage2completed = 0
-
-     } finally {
-        localStorage.removeItem("importing")
-        localStorage.removeItem("initialIdCnt")
-        localStorage.removeItem("delimiter")
-        setEventHandlerForImports()
-     }
+    load_ajax_with_success_callback(createFormValuesFilename(), loadUserInput);
+  } catch (err) {
+    console.log("An exception happen.  The error is " + err.message);
+    jpsurvData.stage2completed = 0;
+  } finally {
+    localStorage.removeItem("importing");
+    localStorage.removeItem("initialIdCnt");
+    localStorage.removeItem("delimiter");
+  }
 }
 
 /*
@@ -280,33 +278,32 @@ function createFormValuesFilename() {
 // Loads data using ajax and then calls a function.  This routine is needed since the GetJSON is asynchronous and the
 // data is not loaded until after the function returns causing problems with the program.
 function load_ajax_with_success_callback(url, callback) {
-    $.ajax({
-       'async': false,
-       'global': false,
-       'url': url,
-       'dataType': "json",
-       'success': function (data) {
-            callback(data)
-          },
-       'fail' : function(jqXHR, textStatus) {
-        alert('Fail on load_ajax');
-       },
-       'error' : function(jqXHR, textStatus) {
-        //console.dir(jqXHR);
-        //console.warn('Error on load_ajax');
-        //console.log(jqXHR.status);
-        //console.log(jqXHR.statusText);
-        //console.log(textStatus);
-       }
+  $.ajax({
+    async: false,
+    global: false,
+    url: url,
+    dataType: "json"
+  })
+    .done(function(data) {
+      callback(data);
     })
+    .fail(function(jqXHR, textStatus) {
+      alert("Fail on load_ajax");
+      //console.dir(jqXHR);
+      //console.warn('Error on load_ajax');
+      //console.log(jqXHR.status);
+      //console.log(jqXHR.statusText);
+      //console.log(textStatus);
+    });
 }
 
 // Sets the event handler when data is being imported into the system
 function setEventHandlerForImports() {
-    if ( localStorage.getItem("importing") === "YES")
-        $(window).on('load', updatePageAfterRefresh)
-    else
-        $(window).off('load', updatePageAfterRefresh)
+  if (localStorage.getItem("importing") === "YES") {
+    $(function(e) {
+      updatePageAfterRefresh(e);
+    });
+  }
 }
 
 function handleError(error) {
