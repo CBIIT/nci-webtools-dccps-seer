@@ -33,7 +33,7 @@ After starting the container, JPSurv should be available at: [http://localhost:9
     - WARNING!!! Always restart after making a change to the R and Python code.
 
 ## Instruction for RStudio
-1. If you need to inspect the source for the JPSurv R package, extract the `docker/JPSurv_2.0.31.tar.gz` file (in the docker directory, run `tar -xvf JPSurv_2.0.31.tar.gz`)
+1. If you need to inspect the source for the JPSurv R package, extract the `r-packages/JPSurv_R_package.tar.gz` file (in the docker directory, run `tar -xvf JPSurv_R_package.tar.gz`)
 2. Open JPSurvWrapper.R (if RStudio has the proper file associations, you can just click on the file)
 3. Source File (click source button) to run all the functions contained in the file.
 4. You cannot debug the R code from your browser. You must change the code, then restart the docker container (see above) to see your changes.
