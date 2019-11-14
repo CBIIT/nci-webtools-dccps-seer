@@ -591,12 +591,6 @@ getGraphWrapper <- function (filePath, jpsurvDataString, first_calc, com, interv
     if (length(data) == 2) {   # Trend + plot
       # trendTable = data[[1]]
       trends = aapc.multiints(fit, type="AbsChgSur", int.select=intervals, ACS.range=jpsurvData$additional$absChgRange)
-      if (length(trends) > 1) {
-        trends = rbind(trends[[1]],trends[[2]])
-        if (inherits(trends, 'data.frame')) {
-          trends = list(trends)
-        }
-      }
       plot = data[[2]]
       ggsave(file=paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/"), plot = plot)
       graphFile = paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/")
@@ -606,12 +600,6 @@ getGraphWrapper <- function (filePath, jpsurvDataString, first_calc, com, interv
     } else if (length(data) == 3) {   # Trend + plot + anno
       # trendTable = data[[1]]
       trends = aapc.multiints(fit, type="AbsChgSur", int.select=intervals, ACS.range=jpsurvData$additional$absChgRange)
-      # if (inherits(trends[[1]], 'list')) {  # merge trends if ACS.range is provided
-      #   trends = rbind(trends[[1]],trends[[2]])
-      #   # if (inherits(trends, 'data.frame')) {
-      #   #   trends = list(trends)
-      #   # }
-      # }
       plot.anno = data[[2]]
       ggsave(file=paste(filePath, paste("plot_YearAnno-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/"), plot = plot.anno)
       plot = data[[3]]

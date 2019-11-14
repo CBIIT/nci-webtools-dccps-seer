@@ -1464,6 +1464,11 @@ function updateTrendGraph(trends, table_id) {
       t.forEach(function(trend) {
         $("#" + table_id + " > tbody").append(createRow(trend));
       });
+      if (i != trends.length - 1)
+        // seperate jp and user-specified trends
+        $('<tr style="border-bottom: 1px solid black">')
+          .append('<td colspan="100%">')
+          .appendTo("#" + table_id + " > tbody");
     } else {
       $("#" + table_id + " > tbody").append(createRow(t));
     }
