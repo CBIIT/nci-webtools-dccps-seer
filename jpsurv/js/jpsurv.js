@@ -176,18 +176,17 @@ function checkAbsChg() {
     $(".recalculate").prop("disabled", false);
   } else if (absTmp.findIndex(Number.isNaN) > -1 || absTmp[1] <= absTmp[0]) {
     jpsurvData.additional.absChgRange = null;
-    $('#warning-wrapper').css('cursor', 'not-allowed');
-    $('#warning-wrapper')
-      .popover({
-        content: "Selected years must be a progressive range.",
-        trigger: "focus hover",
-        placement: "bottom"
-      })
+    $("#warning-wrapper").css("cursor", "not-allowed");
+    $("#warning-wrapper").popover({
+      content: "Selected years must be a progressive range.",
+      trigger: "focus hover",
+      placement: "bottom"
+    });
     $(".recalculate").prop("disabled", true);
   } else {
     jpsurvData.additional.absChgRange = jpsurvData.additional.absTmp;
-    $('#warning-wrapper').css('cursor', '');
-    $('#warning-wrapper').popover('dispose');
+    $("#warning-wrapper").css("cursor", "");
+    $("#warning-wrapper").popover("dispose");
     $(".recalculate").prop("disabled", false);
   }
 }
@@ -282,13 +281,13 @@ function addEventListeners() {
     getAnnoGraph();
   });
 
-  $('#absChgFrom').on("change", function() {
-    jpsurvData.additional.absTmp[0] = parseInt($('#absChgFrom').val());
+  $("#absChgFrom").on("change", function() {
+    jpsurvData.additional.absTmp[0] = parseInt($("#absChgFrom").val());
     checkAbsChg();
   });
 
-  $('#absChgTo').on("change", function() {
-    jpsurvData.additional.absTmp[1] = parseInt($('#absChgTo').val());
+  $("#absChgTo").on("change", function() {
+    jpsurvData.additional.absTmp[1] = parseInt($("#absChgTo").val());
     checkAbsChg();
   });
 
@@ -1441,44 +1440,32 @@ function updateTrend() {
 }
 
 function updateTrendGraph(trends, table_id) {
-  Object.keys(trends).forEach(function(i) {
-    var trend = trends[i];
-    var row;
-    if (typeof trend["start.year"] == "number") {
-      row = "<tr><td>" + (trend["interval"] || trend["Interval"]) + "</td>";
-      row += "<td>" + trend["start.year"] + "</td>";
-      row += "<td>" + trend["end.year"] + "</td>";
-      row += formatCell(trend.estimate * 100);
-      row += formatCell(trend["std.error"] * 100) + "</td>";
-      row += formatCell(trend["lowCI"] * 100) + "</td>";
-      row += formatCell(trend["upCI"] * 100) + "</td>";
-      var trend_sig = "";
-      if (trend["lowCI"] > 0) trend_sig = "Increasing";
-      else if (trend["upCI"] < 0) trend_sig = "Decreasing";
-      else if (trend["lowCI"] <= 0 && trend["upCI"] >= 0)
-        trend_sig = "Not significant";
-      row += formatCell(trend_sig) + "</tr>/n";
-      $("#" + table_id + " > tbody").append(row);
-    } else {
-      $.each(trend["start.year"], function(index, value) {
-        row =
-          "<tr><td>" +
-          (trend["interval"][index] || trend["Interval"][index]) +
-          "</td>";
-        row += "<td>" + value + "</td>";
-        row += "<td>" + trend["end.year"][index] + "</td>";
-        row += formatCell(trend.estimate[index] * 100);
-        row += formatCell(trend["std.error"][index] * 100) + "</td>";
-        row += formatCell(trend["lowCI"][index] * 100) + "</td>";
-        row += formatCell(trend["upCI"][index] * 100) + "</td>";
-        var trend_sig = "";
-        if (trend["lowCI"][index] > 0) trend_sig = "Increasing";
-        else if (trend["upCI"][index] < 0) trend_sig = "Decreasing";
-        else if (trend["lowCI"][index] <= 0 && trend["upCI"][index] >= 0)
-          trend_sig = "Not significant";
-        row += formatCell(trend_sig) + "</tr>/n";
-        $("#" + table_id + " > tbody").append(row);
+  function createRow(trend) {
+    var trend_sig = "";
+    if (trend["lowCI"] > 0) trend_sig = "Increasing";
+    else if (trend["upCI"] < 0) trend_sig = "Decreasing";
+    else if (trend["lowCI"] <= 0 && trend["upCI"] >= 0)
+      trend_sig = "Not significant";
+
+    return $("<tr>").append([
+      $("<td>").text(trend["interval"] || trend["Interval"]),
+      $("<td>").text(trend["start.year"]),
+      $("<td>").text(trend["end.year"]),
+      formatCell(trend.estimate * 100),
+      formatCell(trend["std.error"] * 100),
+      formatCell(trend["lowCI"] * 100),
+      formatCell(trend["upCI"] * 100),
+      formatCell(trend_sig)
+    ]);
+  }
+
+  trends.forEach(function(t, i) {
+    if (Array.isArray(t)) {
+      t.forEach(function(trend) {
+        $("#" + table_id + " > tbody").append(createRow(trend));
       });
+    } else {
+      $("#" + table_id + " > tbody").append(createRow(t));
     }
   });
 }
@@ -2357,23 +2344,23 @@ function find_year_of_diagnosis_row() {
 }
 
 function toggleAbsSelect() {
-  $('#absChgFrom').prop('disabled', !$('#showYearTrend').prop('checked'));
-  $('#absChgTo').prop('disabled', !$('#showYearTrend').prop('checked'));
-  $('#absChgFrom').val('');
-  $('#absChgTo').val('');
-  $('#absChgFrom').trigger('change');
-  $('#absChgTo').trigger('change');
-  $('#warning-wrapper').popover('dispose');
+  $("#absChgFrom").prop("disabled", !$("#showYearTrend").prop("checked"));
+  $("#absChgTo").prop("disabled", !$("#showYearTrend").prop("checked"));
+  $("#absChgFrom").val("");
+  $("#absChgTo").val("");
+  $("#absChgFrom").trigger("change");
+  $("#absChgTo").trigger("change");
+  $("#warning-wrapper").popover("dispose");
 }
 
 function setAbsChange() {
-  $('#absChgFrom').empty();
-  $('#absChgTo').empty();
-  $('#absChgFrom').append('<OPTION value="">&nbsp;</OPTION>');
-  $('#absChgTo').append('<OPTION value="">&nbsp;</OPTION>');
+  $("#absChgFrom").empty();
+  $("#absChgTo").empty();
+  $("#absChgFrom").append('<OPTION value="">&nbsp;</OPTION>');
+  $("#absChgTo").append('<OPTION value="">&nbsp;</OPTION>');
   jpsurvData.calculate.static.years.forEach(function(year) {
-    $('#absChgFrom').append('<OPTION>' + year + '</OPTION>');
-    $('#absChgTo').append('<OPTION>' + year + '</OPTION>');
+    $("#absChgFrom").append("<OPTION>" + year + "</OPTION>");
+    $("#absChgTo").append("<OPTION>" + year + "</OPTION>");
   });
   jpsurvData.additional.absTmp = [NaN, NaN];
   jpsurvData.additional.absChgRange = null;
