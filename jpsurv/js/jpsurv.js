@@ -1497,7 +1497,7 @@ function updateTrendGraph(trends, table_id) {
         $('<tr style="border-bottom: 1px solid black">')
           .append(
             $(
-              '<td colspan="100%" class="bg-secondary text-light font-weight-bold">'
+              '<td colspan="100%" class="pt-3 px-1 font-weight-bold" style="font-size: 16px;">'
             ).text('Absolute Change Survival Trend')
           )
           .appendTo('#' + table_id + ' > tbody');
