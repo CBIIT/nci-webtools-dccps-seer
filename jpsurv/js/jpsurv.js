@@ -130,7 +130,7 @@ function validateEmail() {
 function check_multiple() {
   var multiple = false;
   var num_types = $('#cohort-variables fieldset').length;
-  var checked = $('[type=checkbox]').filter(':checked').length;
+  var checked = $('.cohort[type=checkbox]').filter(':checked').length;
 
   if (checked > num_types || checked < num_types) {
     multiple = true;
@@ -752,7 +752,7 @@ function addCohortVariables() {
                 .addClass('custom-control custom-checkbox')
                 .append([
                   $('<input>', {
-                    class: 'custom-control-input cohort-' + i,
+                    class: 'custom-control-input cohort cohort-' + i,
                     id: control_data.VarFormatSecList[
                       key
                     ].ItemValueInDic.replace(/\s/g, '_'),
@@ -781,7 +781,7 @@ function addCohortVariables() {
                       type: 'checkbox',
                       value: value2,
                       id: value2.replace(/\s/g, '_'),
-                      class: 'custom-control-input cohort-' + i
+                      class: 'custom-control-input cohort cohort-' + i
                     }),
                     $('<label>', {
                       for: value2.replace(/\s/g, '_'),
@@ -802,7 +802,7 @@ function addCohortVariables() {
                 .addClass('custom-control custom-checkbox')
                 .append([
                   $('<input>', {
-                    class: 'custom-control-input cohort-' + i,
+                    class: 'custom-control-input cohort cohort-' + i,
                     id: key + cohort_covariance_variables[key],
                     value: cohort_covariance_variables[key],
                     type: 'checkbox'
@@ -821,7 +821,7 @@ function addCohortVariables() {
                 .addClass('custom-control custom-checkbox')
                 .append([
                   $('<input>', {
-                    class: 'custom-control-input cohort-' + i,
+                    class: 'custom-control-input cohort cohort-' + i,
                     id: key + cohort_covariance_variables[key][j],
                     value: cohort_covariance_variables[key][j],
                     type: 'checkbox'
