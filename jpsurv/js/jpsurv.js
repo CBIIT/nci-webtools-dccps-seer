@@ -1479,7 +1479,7 @@ function updateTrendGraph(trends, table_id) {
       if (i != trends.length - 1)
         // seperate jp and user-specified trends
         $('<tr style="border-bottom: 1px solid black">')
-          .append('<td colspan="100%">')
+          .append('<td colspan="100%" class="bg-secondary">')
           .appendTo('#' + table_id + ' > tbody');
     } else {
       $('#' + table_id + ' > tbody').append(createRow(t));
@@ -2145,9 +2145,11 @@ function addSelectYear() {
 
   if (control_data.input_type == undefined) {
     $('#yodLabel').append(
-      $('<select>', {
-        id: 'selectYear'
-      }).append(getYearOptions())
+      $('<select>')
+        .attr({
+          id: 'selectYear'
+        })
+        .append(getYearOptions())
     );
     $('#selectYear').on('select2:select', function() {
       // set diagnosis years and year of diagnosis title
