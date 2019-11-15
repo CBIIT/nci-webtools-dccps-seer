@@ -80,7 +80,7 @@
       <div id="slideoutTab" class="col-md-12 col-lg-4">
         <i id="icon" class="fa fa-caret-left fa-2x hidden-xs hidden-sm" onclick="Slide_menu_Horz()"
           style="visibility: hidden;margin-left:100%"></i>
-        <div id="slideoutForm" class="card bg-white shadow-lg">
+        <div id="slideoutForm" class="card bg-white shadow-sm">
           <div class="card-body">
             <span class="jpsurv-title col-md-6 d-none d-sm-block d-md-block"><img src="./images/jpsurv.png"
                 style="height:60%;width:60%" alt="JPSurv (Joint Point Survival Model)" /></span>
@@ -97,7 +97,7 @@
                   </a>
                 </span>
                 <!-- Upload FORM - STAGE 1 -->
-                <div class="box col-xs-12 shadow" style="overflow:hidden;width:100%">
+                <div class="box col-xs-12 shadow-sm" style="overflow:hidden;width:100%">
                   <form id="upload-form" class="form-horizontal" role="form" method="post" enctype="multipart/form-data"
                     action="jpsurvRest/stage1_upload">
                     <label class="col-xs-3 font-weight-bold" id="inputTypeLabel">File Format:</label>
@@ -205,7 +205,7 @@
                   </form>
                 </div>
                 <!-- Calculate - STAGE 2 -->
-                <div id="stage2-calculate" class="box col-xs-12 shadow" style="display:none;">
+                <div id="stage2-calculate" class="box col-xs-12 shadow-sm" style="display:none;">
                   <form id="parameters" class="form-horizontal" role="form">
                     <h5 class="card-title">
                       Cohort and Model Specifications
@@ -274,7 +274,7 @@
                   </form>
                 </div>
                 <!-- Advanced Options - STAGE 2b -->
-                <div class="box col-md-12 shadow" div id="stage2b-advanced" style="display:none;">
+                <div class="box col-md-12 shadow-sm" div id="stage2b-advanced" style="display:none;">
                   <h2 class="h4">Advanced Options</h2>
                   <hr class="stage-separator" />
                   <div id="adv-options">
@@ -350,7 +350,7 @@
         <!-- </form> -->
         <!-- Main Menu Tabs -->
       </div>
-      <div class="card col-md-12 col-lg-8 shadow-lg bg-white" id="helpCard" style="margin-top:2rem;">
+      <div class="card col-md-12 col-lg-8 shadow-sm bg-white" id="helpCard" style="margin-top:2rem;">
         <div id="help" class="card-body h-auto overflow-auto">
           <div class="row">
             <div class="col-sm-7 col-sm-offset-2" id="jpsurv-help-message-container" style="display:none;margin-top:2%">
@@ -365,7 +365,7 @@
         </div>
       </div>
       <div id="right_panel" class="col-md-12 col-lg-8" style="display:none;margin-top:2%">
-        <div id="cohort-join-points" class="card bg-white shadow-lg mb-4">
+        <div id="cohort-join-points" class="card bg-white shadow-sm mb-4">
           <div class="card-body">
             <div class="d-flex pb-3">
               <div class="d-inline">
@@ -415,7 +415,7 @@
 
         <!-- Message Panel for Error or Warning-->
 
-        <div class="card shadow-lg">
+        <div class="card shadow-sm">
           <div class="card-header">
             <div class="d-flex">
               <ul id="jpsurv-tabs" class="nav nav-tabs card-header-tabs font-weight-bold flex-nowrap">
