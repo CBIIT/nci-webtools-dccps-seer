@@ -146,7 +146,6 @@ function importFrontEnd(
  * that were created from the previous section.
  */
 function updatePageAfterRefresh(e) {
-  console.log('fired');
   try {
     if (
       window.location.search === undefined ||
@@ -278,8 +277,6 @@ function loadUserInput(data) {
     jpsurvData.additional.intervals = intervals;
     jpsurvData.results.yod = data.diagnosisYear;
   }
-
-  console.log(data);
 
   // Convert a comma separated string of numbers into an array of actual number
   var intervals = data.intervals.split(',').map(Number);

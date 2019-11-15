@@ -1453,6 +1453,22 @@ function updateTrend() {
 
 function updateTrendGraph(trends, table_id) {
   function createRow(trend) {
+    if (Array.isArray(trend['start.year'])) {
+      var rows = [];
+      for (i in trend['start.year']) {
+        var tempTrend = {};
+        Object.keys(trend).forEach(function(key) {
+          tempTrend[key] = trend[key][i];
+        });
+        rows.push(buildRow(tempTrend));
+      }
+      return rows;
+    } else {
+      return buildRow(trend);
+    }
+  }
+
+  function buildRow(trend) {
     var trend_sig = '';
     if (trend['lowCI'] > 0) trend_sig = 'Increasing';
     else if (trend['upCI'] < 0) trend_sig = 'Decreasing';
