@@ -1479,7 +1479,11 @@ function updateTrendGraph(trends, table_id) {
       if (i != trends.length - 1)
         // seperate jp and user-specified trends
         $('<tr style="border-bottom: 1px solid black">')
-          .append('<td colspan="100%" class="bg-secondary">')
+          .append(
+            $(
+              '<td colspan="100%" class="bg-secondary text-light font-weight-bold">'
+            ).text('Absolute Change Survival Trend')
+          )
           .appendTo('#' + table_id + ' > tbody');
     } else {
       $('#' + table_id + ' > tbody').append(createRow(t));
