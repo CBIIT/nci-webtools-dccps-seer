@@ -2158,7 +2158,7 @@ function addSelectYear() {
           $('<span>', {
             id: 'yodLabel',
             class: 'jpsurv-label mr-2',
-            html: 'Year of Diagnosis:'
+            html: 'Year of Diagnosis: '
           })
         )
     );
@@ -2395,8 +2395,8 @@ function toggleAbsSelect() {
 function setAbsChange() {
   $('#absChgFrom').empty();
   $('#absChgTo').empty();
-  $('#absChgFrom').append('<OPTION value="">&nbsp;</OPTION>');
-  $('#absChgTo').append('<OPTION value="">&nbsp;</OPTION>');
+  $('#absChgFrom').append('<OPTION value="">----</OPTION>');
+  $('#absChgTo').append('<OPTION value="">----</OPTION>');
   jpsurvData.calculate.static.years.forEach(function(year) {
     $('#absChgFrom').append('<OPTION>' + year + '</OPTION>');
     $('#absChgTo').append('<OPTION>' + year + '</OPTION>');

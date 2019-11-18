@@ -40,8 +40,7 @@
 
 <body role="document" class="bg-light">
   <a class="sr-only sr-only-focusable" title="Skip to content" href="#main">Skip to content</a>
-
-  <div class="header">
+  <header>
     <div class="container px-0">
       <a href="https://cancercontrol.cancer.gov/" target="DCCPS">
         <img class="img-responsive" src="./images/nci_dccps.svg" id="logo"
@@ -60,7 +59,7 @@
         </div>
       </div>
     </div>
-  </div>
+  </header>
   <!-- CONTENTS Section -->
 
   <div id="main" class="container">
@@ -215,7 +214,7 @@
                     <div class="jpsurv-label-container">
                       <span class="jpsurv-label">Year of Diagnosis Range:
                         <span>
-                          <span class="jpsurv-label-content">
+                          <span class="jpsurv-label-content font-weight-normal">
                             <label for="year_of_diagnosis_start" class="d-none">Start Year</label>
                             <select id="year_of_diagnosis_start" name="year_of_diagnosis_start"></select>
                             to
@@ -228,11 +227,11 @@
                     </div>
                     <div class="jpsurv-label-container">
                       <span class="jpsurv-label">Max Intervals from Diagnosis:
-                        <span class="jpsurv-label-content">
+                        <span class="jpsurv-label-content font-weight-normal">
                           <label for="intervals_from_diagnosis" style="display:none">Select</label>
                           <select id="intervals_from_diagnosis" name="intervals_from_diagnosis"></select>
+                          &nbsp;Years
                         </span>
-                        &nbsp;Years
                       </span>
                     </div>
                     <div id="cohort-variables"></div>
@@ -530,7 +529,7 @@
                   </button>
                 </div>
                 <div class="table-responsive" style="max-height:500px">
-                  <table id="graph-year-table" class="table table-condensed">
+                  <table id="graph-year-table" class="table table-hover table-condensed">
                     <thead>
                       <tr>
                         <th scope="col">Year of Diagnosis 1975</th>
@@ -629,7 +628,7 @@
                   </button>
                 </div>
                 <div class="table-responsive" style="max-height:500px">
-                  <table id="graph-death-table" class="table table-condensed">
+                  <table id="graph-death-table" class="table table-hover table-condensed">
                     <thead>
                       <tr>
                         <th scope="col">Year of Diagnosis 1975</th>
@@ -686,7 +685,7 @@
                   </button>
                 </div>
                 <div class="table-responsive">
-                  <table id="graph-time-table" class="table table-condensed">
+                  <table id="graph-time-table" class="table table-hover table-condensed">
                     <thead>
                       <tr>
                         <th scope="col">Year of Diagnosis</th>
@@ -755,7 +754,7 @@
       </div>
     </div>
   </div>
-  <footer class="text-left text-md-center pt-4 pb-4 text-light bg-primary flex-none">
+  <footer class="text-left text-md-center pt-4 pb-4 text-light bg-primary">
     <div class="container">
       <ul class="list-inline text-light">
         <li class="pb-1 d-block d-md-inline">
