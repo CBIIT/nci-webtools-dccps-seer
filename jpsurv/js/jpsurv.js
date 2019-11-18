@@ -2157,8 +2157,8 @@ function addSelectYear() {
         .append(
           $('<span>', {
             id: 'yodLabel',
-            class: 'jpsurv-label mr-2',
-            html: 'Year of Diagnosis: '
+            class: 'jpsurv-label',
+            html: 'Year of Diagnosis:  '
           })
         )
     );

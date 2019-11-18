@@ -517,3 +517,8 @@ tbody tr:last-child td:last-child {
 span.select2 {
   font-weight: normal;
 }
+
+.table-hover tbody tr:hover td,
+.table-hover tbody tr:hover th {
+  background-color: #d9edf7;
+}
