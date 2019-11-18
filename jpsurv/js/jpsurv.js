@@ -1101,10 +1101,10 @@ function updateGraphs(token_id) {
     var timeHeader = [
       'Year of Diagnosis',
       'Interval',
-      data_type,
-      se_col,
-      'Predicted Cumulative Survival',
-      'Predicted Cumulative Survival Std. Err. '
+      data_type + ' %',
+      se_col + ' %',
+      'Predicted Cumulative Survival %',
+      'Predicted Cumulative Survival Std. Err. %'
     ];
     header.push.apply(header, timeHeader);
     //Create the header
@@ -1191,10 +1191,10 @@ function updateGraphs(token_id) {
     var timeHeader = [
       'Year of Diagnosis',
       'Interval',
-      'Probability of Death Interval',
-      'Probability of Death Interval Std. Err.',
-      'Predictive Prob. of Death Interval',
-      'Predictive Prob. of Death Interval Std. Err.'
+      'Probability of Death Interval %',
+      'Probability of Death Interval Std. Err. %',
+      'Predictive Prob. of Death Interval %',
+      'Predictive Prob. of Death Interval Std. Err. %'
     ];
     header.push.apply(header, timeHeader);
     //Create the header
@@ -1285,8 +1285,8 @@ function updateGraphs(token_id) {
     var timeHeader = [
       'Year of Diagnosis',
       'Interval',
-      Cumulative_header,
-      'Predicted Cumulative Relative Survival'
+      Cumulative_header + ' %',
+      'Predicted Cumulative Relative Survival %'
     ];
     header.push.apply(header, timeHeader);
     //Create the header
@@ -1497,7 +1497,7 @@ function updateTrendGraph(trends, table_id) {
         $('<tr style="border-bottom: 1px solid black">')
           .append(
             $(
-              '<td colspan="100%" class="pt-3 px-1 font-weight-bold" style="font-size: 16px;">'
+              '<td colspan="100%" class="pt-3 px-1 font-weight-bold bg-light" style="font-size: 16px;">'
             ).text('Absolute Change Survival Trend')
           )
           .appendTo('#' + table_id + ' > tbody');
