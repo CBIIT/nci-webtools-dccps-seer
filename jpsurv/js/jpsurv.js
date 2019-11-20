@@ -303,6 +303,12 @@ function addEventListeners() {
       return;
     }
     jpsurvData.additional.headerJoinPoints = this.rowIndex - 1;
+
+    // reset view - uncheck "Show Trend Measures" and reset AbsChg Year Range
+    $('#showYearTrend')
+      .prop('checked', false)
+      .trigger('change');
+
     setCalculateData();
   });
 
