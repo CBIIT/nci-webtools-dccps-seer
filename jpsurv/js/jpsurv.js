@@ -1502,9 +1502,19 @@ function updateTrendGraph(trends, table_id) {
         // seperate jp and user-specified trends
         $('<tr style="border-bottom: 1px solid black">')
           .append(
-            $(
-              '<td colspan="100%" class="pt-3 px-1 font-weight-bold bg-white" style="font-size: 16px;">'
-            ).text('Absolute Change Survival Trend')
+            $('<td colspan="100%" class="pt-3 px-0 bg-white">').append(
+              $('<h4>')
+                .text('Trend Measures for User Selected Years')
+                .append(
+                  $('<span>')
+                    .addClass('text-secondary ml-2 pt-1')
+                    .css('font-size', '1rem')
+                    .css('font-weight', '400')
+                    .text(
+                      '(Average Absolute Change in Survival by Diagnosis Year*)'
+                    )
+                )
+            )
           )
           .appendTo('#' + table_id + ' > tbody');
     } else {
