@@ -1737,6 +1737,9 @@ function calculate(run) {
       jpsurvData.additional.use_default = 'true';
       jpsurvData.additional.del = control_data.del;
       //   jpsurvData.additional.rates=control.rates
+      var maxJP = jpsurvData.calculate.form.maxjoinPoints;
+      var headerJP = jpsurvData.additional.headerJoinPoints;
+      if (headerJP > maxJP) jpsurvData.additional.headerJoinPoints = maxJP;
       stage2('calculate'); // This is the initial calculation and setup.
     }
   }
