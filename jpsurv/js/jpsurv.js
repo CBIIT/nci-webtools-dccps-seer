@@ -1845,6 +1845,7 @@ function loadResults(results) {
   jpsurvData.stage2completed = true;
   jpsurvData.additional.recalculate = 'false';
   checkTrends();
+  changePrecision();
 }
 
 // check if trends have been calculated and display them
