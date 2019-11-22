@@ -105,7 +105,7 @@ hr.stage-separator {
   width: 100%;
 }
 
-.table td {
+.table.condense td {
   padding: 0.25rem 0.75rem;
 }
 
@@ -306,8 +306,7 @@ input[type='file'] {
   margin: 0;
   letter-spacing: 0.015em;
   font-weight: normal;
-  background: url('https://surveillance.cancer.gov/images/dccps_logo.png') right -5px
-    no-repeat;
+  background: url('https://surveillance.cancer.gov/images/dccps_logo.png') right -5px no-repeat;
 }
 #ribbon {
   color: #fff;
