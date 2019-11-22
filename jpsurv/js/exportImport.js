@@ -70,10 +70,8 @@ function exportBackEnd(event) {
   data.filename = generateToken(12) + '.jpsurv';
 
   /* Saving the Form Variables */
-  data.yearOfDiagnosisRangeStart =
-    jpsurvData.calculate.form.yearOfDiagnosisRange[0];
-  data.yearOfDiagnosisRangeEnd =
-    jpsurvData.calculate.form.yearOfDiagnosisRange[1];
+  data.yearOfDiagnosisRangeStart = jpsurvData.calculate.form.yearOfDiagnosisRange[0];
+  data.yearOfDiagnosisRangeEnd = jpsurvData.calculate.form.yearOfDiagnosisRange[1];
   data.cohortVariables = jpsurvData.results.Runs;
   data.maxJoinPoints = jpsurvData.calculate.form.maxjoinPoints;
   data.advBetween = jpsurvData.calculate.static.advanced.advBetween;
@@ -117,9 +115,7 @@ function importFrontEnd(
   localStorage.setItem('initialIdCnt', imageIdStartCount.toString());
   localStorage.setItem('delimiter', delimiter);
 
-  var url = [location.protocol, '//', location.host, location.pathname].join(
-    ''
-  );
+  var url = [location.protocol, '//', location.host, location.pathname].join('');
 
   // The URL that will called causing the input window to appear.  The window for the cohor and the window with the
   // three tabs ( Survival Graph/Data, Model Estimates, Trends
@@ -147,15 +143,12 @@ function importFrontEnd(
  */
 function updatePageAfterRefresh(e) {
   try {
-    if (
-      window.location.search === undefined ||
-      window.location.search.length === 0
-    )
-      return;
+    if (window.location.search === undefined || window.location.search.length === 0) return;
 
     jpsurvData.stage2completed = true;
     setIntervalsDefault();
     getIntervals();
+    setAbsChange();
     parse_diagnosis_years();
     setData();
     load_ajax_with_success_callback(generateResultsFilename(), loadResults);
@@ -163,14 +156,13 @@ function updatePageAfterRefresh(e) {
     updateCohortDropdown();
     setRun();
 
-    jpsurvData.plot.static.imageId =
-      parseInt(localStorage.getItem('initialIdCnt')) - 1;
+    jpsurvData.plot.static.imageId = parseInt(localStorage.getItem('initialIdCnt')) - 1;
     jpsurvData.additional.del = localStorage.getItem('delimiter');
     jpsurvData.stage2completed = true;
 
     load_ajax_with_success_callback(createFormValuesFilename(), loadUserInput);
   } catch (err) {
-    console.log('An exception happen.  The error is ' + err.message);
+    console.error(err);
     jpsurvData.stage2completed = 0;
   } finally {
     localStorage.removeItem('importing');
@@ -229,19 +221,22 @@ function loadUserInput(data) {
     var cohortOptions = Array.prototype.slice.call(
       document.querySelectorAll('#cohort-variables fieldset')
     );
-    cohortOptions.forEach(function(element, index) {
-      cohortOptions[index] = Array.prototype.slice.call(
-        element.querySelectorAll('#cohort-variables .custom-control-input')
-      );
-    });
 
-    cohortArrays.forEach(function(array) {
-      array.forEach(function(cohortVal, index) {
-        cohortOptions[index].forEach(function(checkbox) {
-          if (checkbox.value == cohortVal) checkbox.checked = true;
+    if (cohortOptions.length > 0) {
+      cohortOptions.forEach(function(element, index) {
+        cohortOptions[index] = Array.prototype.slice.call(
+          element.querySelectorAll('#cohort-variables .custom-control-input')
+        );
+      });
+
+      cohortArrays.forEach(function(array) {
+        array.forEach(function(cohortVal, index) {
+          cohortOptions[index].forEach(function(checkbox) {
+            if (checkbox.value == cohortVal) checkbox.checked = true;
+          });
         });
       });
-    });
+    }
 
     if (data.advDelInterval === 'T') $('#del-int-yes').prop('checked', true);
     else $('#del-int-no').prop('checked', true);
@@ -260,16 +255,11 @@ function loadUserInput(data) {
    */
   function modifyJPSurv(data, intervals) {
     jpsurvData.queue.email = data.email;
-    jpsurvData.calculate.form.yearOfDiagnosisRange[0] = parseInt(
-      data.yearOfDiagnosisRangeStart
-    );
-    jpsurvData.calculate.form.yearOfDiagnosisRange[1] = parseInt(
-      data.yearOfDiagnosisRangeEnd
-    );
+    jpsurvData.calculate.form.yearOfDiagnosisRange[0] = parseInt(data.yearOfDiagnosisRangeStart);
+    jpsurvData.calculate.form.yearOfDiagnosisRange[1] = parseInt(data.yearOfDiagnosisRangeEnd);
     jpsurvData.calculate.form.maxjoinPoints = parseInt(data.maxJoinPoints);
 
-    jpsurvData.calculate.static.advanced.advDeleteInterval =
-      data.advDelInterval;
+    jpsurvData.calculate.static.advanced.advDeleteInterval = data.advDelInterval;
     jpsurvData.calculate.static.advanced.advBetween = parseInt(data.advBetween);
     jpsurvData.calculate.static.advanced.advFirst = parseInt(data.advFirst);
     jpsurvData.calculate.static.advanced.advLast = parseInt(data.advLast);

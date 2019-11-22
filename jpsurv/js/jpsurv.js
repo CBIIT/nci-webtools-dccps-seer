@@ -1707,7 +1707,6 @@ function calculate(run) {
     ) {
       setIntervalsDefault();
       getIntervals();
-      // getTrendTables();
       setUrlParameter('request', 'true');
       jpsurvData.additional.use_default = 'true';
       jpsurvData.queue.url = encodeURIComponent(window.location.href.toString());
@@ -1857,11 +1856,13 @@ function checkTrends() {
     $('#showYearTrend')
       .prop('checked', true)
       .trigger('change');
-    if (jpsurvData.results.yearData.survTrend[1]) {
-      $('#absChgFrom').val(jpsurvData.results.yearData.survTrend[1][0]['start.year'] || '');
-      $('#absChgTo').val(jpsurvData.results.yearData.survTrend[1][0]['end.year'] || '');
-      $('#absChgFrom').trigger('change');
-      $('#absChgTo').trigger('change');
+    if (jpsurvData.results.yearData.survTrend[1] && jpsurvData.results.yearData.survTrend[1][0]) {
+      $('#absChgFrom')
+        .val(jpsurvData.results.yearData.survTrend[1][0]['start.year'])
+        .trigger('change');
+      $('#absChgTo')
+        .val(jpsurvData.results.yearData.survTrend[1][0]['end.year'])
+        .trigger('change');
     }
   }
   if (jpsurvData.results.deathData.deathTrend && !$('#showDeathTrend').prop('checked')) {
@@ -1897,6 +1898,7 @@ function stage2(action) {
   jpsurvData.recentTrends = 0;
   setIntervalsDefault();
   getIntervals();
+  setAbsChange();
   getTrendTables();
   jpsurvData.additional.yearOfDiagnosis[0] = jpsurvData.calculate.form.yearOfDiagnosisRange[0].toString();
   if (action == 'calculate') {
@@ -1994,7 +1996,6 @@ function loadCohorts() {
   if ($('#selectYear').val() != '(Select one)') {
     set_year_of_diagnosis_select();
     set_intervals_from_diagnosis();
-    setAbsChange();
     addSessionVariables();
     parse_cohort_covariance_variables();
     addCohortVariables();
@@ -2272,16 +2273,17 @@ function toggleAbsSelect() {
 }
 
 function setAbsChange() {
+  jpsurvData.additional.absTmp = [NaN, NaN];
+  jpsurvData.additional.absChgRange = null;
   $('#absChgFrom').empty();
   $('#absChgTo').empty();
   $('#absChgFrom').append('<OPTION value="">----</OPTION>');
   $('#absChgTo').append('<OPTION value="">----</OPTION>');
-  jpsurvData.calculate.static.years.forEach(function(year) {
+  var range = jpsurvData.calculate.form.yearOfDiagnosisRange;
+  for (var year = range[0]; year <= range[1]; year++) {
     $('#absChgFrom').append('<OPTION>' + year + '</OPTION>');
     $('#absChgTo').append('<OPTION>' + year + '</OPTION>');
-  });
-  jpsurvData.additional.absTmp = [NaN, NaN];
-  jpsurvData.additional.absChgRange = null;
+  }
 }
 
 function set_year_of_diagnosis_select() {
