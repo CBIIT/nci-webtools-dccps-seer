@@ -1702,7 +1702,7 @@ function calculate(run) {
     incrementImageId();
     jpsurvData.run = 1;
     if (
-      (parseInt($('#max_join_point_select').val()) > maxJP && validateVariables()) ||
+      (jpsurvData.calculate.form.maxjoinPoints > (maxJP || 2) && validateVariables()) ||
       check_multiple() == true
     ) {
       setIntervalsDefault();
