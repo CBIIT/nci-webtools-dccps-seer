@@ -1857,10 +1857,12 @@ function checkTrends() {
     $('#showYearTrend')
       .prop('checked', true)
       .trigger('change');
-    $('#absChgFrom').val(jpsurvData.results.yearData.survTrend[1][0]['start.year'] || '');
-    $('#absChgTo').val(jpsurvData.results.yearData.survTrend[1][0]['end.year'] || '');
-    $('#absChgFrom').trigger('change');
-    $('#absChgTo').trigger('change');
+    if (jpsurvData.results.yearData.survTrend[1]) {
+      $('#absChgFrom').val(jpsurvData.results.yearData.survTrend[1][0]['start.year'] || '');
+      $('#absChgTo').val(jpsurvData.results.yearData.survTrend[1][0]['end.year'] || '');
+      $('#absChgFrom').trigger('change');
+      $('#absChgTo').trigger('change');
+    }
   }
   if (jpsurvData.results.deathData.deathTrend && !$('#showDeathTrend').prop('checked')) {
     $('#showDeathTrend').prop('checked', true);
