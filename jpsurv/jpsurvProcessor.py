@@ -71,25 +71,25 @@ class jpsurvProcessor(DisconnectListener):
     filepath=parameters['filepath']
     timestamp=['timestamp']
 
-    logging.info(token)
+    logging.debug(token)
     fname=filepath+"/input_"+token+".json"
     logging.info(fname)
     with open(fname) as content_file:
       jpsurvDataString = content_file.read()
 
     data=json.loads(jpsurvDataString)
-    logging.info(data)
+    logging.debug(data)
     try:
       r.source('JPSurvWrapper.R')
-      logging.info("Calculating")
+      logging.debug("Calculating")
       r.getFittedResultWrapper(parameters['filepath'], jpsurvDataString)
-      logging.info("making message")
+      logging.debug("making message")
       url=urllib.parse.unquote(data['queue']['url'])
       success = True
     except:
-      logging.info("calculation failed")
+      logging.error("calculation failed")
       url=urllib.parse.unquote(data['queue']['url'])
-      logging.info(url)
+      logging.error(url)
       url=url+"&calculation=failed"
       success = False
 
@@ -172,7 +172,6 @@ class jpsurvProcessor(DisconnectListener):
 
           #    "\r\n\r\n - JPSurv Team\r\n(Note:  Please do not reply to this email. If you need assistance, please contact xxxx@mail.nih.gov)"+
           #    "\n\n")
-    logging.info("sending")
     self.composeMail(data['queue']['email'],message,files)
     logging.info("end")
 
@@ -216,7 +215,7 @@ if __name__ == '__main__':
   parser.add_argument('port', nargs='+')
   args = parser.parse_args()
 
-  logging.basicConfig(level=logging.DEBUG, filename='../logs/queue.log', filemode='w')
+  logging.basicConfig(level=logging.INFO, filename='../logs/queue.log', filemode='w')
   logging.info("JPSurv processor has started")
   jpsurvProcessor(dev_mode = args.debug).run()
   reactor.run()
