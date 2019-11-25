@@ -3,7 +3,7 @@ import math
 import os
 import rpy2.robjects as robjects
 import smtplib
-import time
+import datetime
 import logging
 import urllib.request
 import urllib.parse
@@ -29,14 +29,15 @@ class jpsurvProcessor(DisconnectListener):
     URL = 'queue.url'
 
     def composeMail(self, recipients, message, files=[]):
+        logging.debug("composing mail")
         config = PropertyUtil(r"config.ini")
-        logging.info("sending message")
         if not isinstance(recipients, list):
             recipients = [recipients]
         packet = MIMEMultipart()
         packet['Subject'] = "JPsurv Analysis Results"
         packet['From'] = "JPSurv Analysis Tool <do.not.reply@nih.gov>"
         packet['To'] = ", ".join(recipients)
+        logging.info("recipients")
         logging.info(recipients)
         # print message
         packet.attach(MIMEText(message, 'html'))
@@ -49,9 +50,11 @@ class jpsurvProcessor(DisconnectListener):
                     Name=os.path.basename(file)
                 ))
         MAIL_HOST = config.getAsString('mail.host')
-        logging.debug(MAIL_HOST)
+        logging.debug("connecting to mail host: " + MAIL_HOST)
         smtp = smtplib.SMTP(MAIL_HOST)
+        logging.debug("connected, attempting to send message")
         smtp.sendmail("do.not.reply@nih.gov", recipients, packet.as_string())
+        logging.debug("sent")
 
     def testQueue(self):
         logging.debug("tested")
@@ -69,20 +72,21 @@ class jpsurvProcessor(DisconnectListener):
         logging.info("New job in consume")
         files = []
         product_name = "JPSurv Analysis Tool"
-        starttime = str(time.time())
         parameters = json.loads(frame.body)
+        logging.debug("params")
         logging.debug(parameters)
         token = parameters['token']
         filepath = parameters['filepath']
         timestamp = ['timestamp']
 
-        logging.debug(token)
+        logging.debug("token: " + token)
         fname = filepath+"/input_"+token+".json"
-        logging.debug(fname)
+        logging.debug("file name: " + fname)
         with open(fname) as content_file:
             jpsurvDataString = content_file.read()
 
         data = json.loads(jpsurvDataString)
+        logging.debug("jpsurv data string")
         logging.debug(data)
         try:
             r.source('JPSurvWrapper.R')
@@ -92,16 +96,15 @@ class jpsurvProcessor(DisconnectListener):
             url = urllib.parse.unquote(data['queue']['url'])
             success = True
         except:
-            logging.error("calculation failed")
+            logging.warning("calculation failed")
             url = urllib.parse.unquote(data['queue']['url'])
-            logging.error(url)
+            logging.warning(url)
             url = url+"&calculation=failed"
             success = False
 
         Link = '<a href='+url+'> Here </a>'
-        logging.debug(parameters['timestamp'])
-        logging.info("Here is the Link to the past:")
-        logging.info(url)
+        # logging.debug(parameters['timestamp'])
+        logging.info("Here is the Link to the past: " + url)
 
         header = """<h2>"""+product_name+"""</h2>"""
         if success == True:
@@ -223,8 +226,12 @@ if __name__ == '__main__':
     parser.add_argument('port', nargs='+')
     args = parser.parse_args()
 
-    logging.basicConfig(level=logging.INFO,
-                        filename='../logs/queue.log', filemode='w')
+    time = datetime.datetime.now().strftime("%Y-%m-%d_%H_%M")
+    fileName = '../logs/queue.log.' + time
+    logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s',
+                        level=logging.DEBUG,
+                        datefmt='%Y-%m-%d %H:%M:%S',
+                        filename=fileName, filemode='w')
     logging.info("JPSurv processor has started")
     jpsurvProcessor(dev_mode=args.debug).run()
     reactor.run()
