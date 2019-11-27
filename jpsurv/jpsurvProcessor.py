@@ -3,9 +3,11 @@ import math
 import os
 import rpy2.robjects as robjects
 import smtplib
-import time
+import datetime
 import logging
-import urllib.request, urllib.parse, urllib.error
+import urllib.request
+import urllib.parse
+import urllib.error
 import sys
 
 from email.mime.application import MIMEApplication
@@ -20,87 +22,93 @@ from stompest.config import StompConfig
 from stompest.protocol import StompSpec
 from rpy2.robjects import r
 
+
 class jpsurvProcessor(DisconnectListener):
-  CONFIG = 'queue.config'
-  NAME = 'queue.name'
-  URL = 'queue.url'
+    CONFIG = 'queue.config'
+    NAME = 'queue.name'
+    URL = 'queue.url'
 
-  def composeMail(self,recipients,message,files=[]):
-    config = PropertyUtil(r"config.ini")
-    logging.info("sending message")
-    if not isinstance(recipients,list):
-      recipients = [recipients]
-    packet = MIMEMultipart()
-    packet['Subject'] = "JPsurv Analysis Results"
-    packet['From'] = "JPSurv Analysis Tool <do.not.reply@nih.gov>"
-    packet['To'] = ", ".join(recipients)
-    logging.info(recipients)
-    # print message
-    packet.attach(MIMEText(message,'html'))
-    for file in files:
-      with open(file,"rb") as openfile:
-        packet.attach(MIMEApplication(
-          openfile.read(),
-          Content_Disposition='attachment; filename="%s"' % os.path.basename(file),
-          Name=os.path.basename(file)
-        ))
-    MAIL_HOST=config.getAsString('mail.host')
-    logging.info(MAIL_HOST)
-    smtp = smtplib.SMTP(MAIL_HOST)
-    smtp.sendmail("do.not.reply@nih.gov",recipients,packet.as_string())
+    def composeMail(self, recipients, message, files=[]):
+        logging.debug("composing mail")
+        config = PropertyUtil(r"config.ini")
+        if not isinstance(recipients, list):
+            recipients = [recipients]
+        packet = MIMEMultipart()
+        packet['Subject'] = "JPsurv Analysis Results"
+        packet['From'] = "JPSurv Analysis Tool <do.not.reply@nih.gov>"
+        packet['To'] = ", ".join(recipients)
+        logging.info("recipients")
+        logging.info(recipients)
+        # print message
+        packet.attach(MIMEText(message, 'html'))
+        for file in files:
+            with open(file, "rb") as openfile:
+                packet.attach(MIMEApplication(
+                    openfile.read(),
+                    Content_Disposition='attachment; filename="%s"' % os.path.basename(
+                        file),
+                    Name=os.path.basename(file)
+                ))
+        MAIL_HOST = config.getAsString('mail.host')
+        logging.debug("connecting to mail host: " + MAIL_HOST)
+        smtp = smtplib.SMTP(MAIL_HOST)
+        logging.debug("connected, attempting to send message")
+        smtp.sendmail("do.not.reply@nih.gov", recipients, packet.as_string())
+        logging.debug("sent")
 
-  def testQueue(self):
-    logging.debug("tested")
+    def testQueue(self):
+        logging.debug("tested")
 
-  def rLength(self, tested):
-    if tested is None:
-      return 0
-    if isinstance(tested,list) or isinstance(tested,set):
-      return len(tested)
-    else:
-      return 1
+    def rLength(self, tested):
+        if tested is None:
+            return 0
+        if isinstance(tested, list) or isinstance(tested, set):
+            return len(tested)
+        else:
+            return 1
 
- # @This is teh consume code which will listen to Queue server.
-  def consume(self, client, frame):
-    logging.info("In consume")
-    files=[]
-    product_name = "JPSurv Analysis Tool"
-    parameters = json.loads(frame.body)
-    logging.info(parameters)
-    token=parameters['token']
-    filepath=parameters['filepath']
-    timestamp=['timestamp']
+       # @This is teh consume code which will listen to Queue server.
+    def consume(self, client, frame):
+        logging.info("New job in consume")
+        files = []
+        product_name = "JPSurv Analysis Tool"
+        parameters = json.loads(frame.body)
+        logging.debug("params")
+        logging.debug(parameters)
+        token = parameters['token']
+        filepath = parameters['filepath']
+        timestamp = ['timestamp']
 
-    logging.info(token)
-    fname=filepath+"/input_"+token+".json"
-    logging.info(fname)
-    with open(fname) as content_file:
-      jpsurvDataString = content_file.read()
+        logging.debug("token: " + token)
+        fname = filepath+"/input_"+token+".json"
+        logging.debug("file name: " + fname)
+        with open(fname) as content_file:
+            jpsurvDataString = content_file.read()
 
-    data=json.loads(jpsurvDataString)
-    logging.info(data)
-    try:
-      r.source('JPSurvWrapper.R')
-      logging.info("Calculating")
-      r.getFittedResultWrapper(parameters['filepath'], jpsurvDataString)
-      logging.info("making message")
-      url=urllib.parse.unquote(data['queue']['url'])
-      success = True
-    except:
-      logging.info("calculation failed")
-      url=urllib.parse.unquote(data['queue']['url'])
-      logging.info(url)
-      url=url+"&calculation=failed"
-      success = False
+        data = json.loads(jpsurvDataString)
+        logging.debug("jpsurv data string")
+        logging.debug(data)
+        try:
+            r.source('JPSurvWrapper.R')
+            logging.debug("Calculating")
+            r.getFittedResultWrapper(parameters['filepath'], jpsurvDataString)
+            logging.debug("making message")
+            url = urllib.parse.unquote(data['queue']['url'])
+            success = True
+        except:
+            logging.warning("calculation failed")
+            url = urllib.parse.unquote(data['queue']['url'])
+            logging.warning(url)
+            url = url+"&calculation=failed"
+            success = False
 
-    Link='<a href='+url+'> Here </a>'
-    logging.info(parameters['timestamp'])
-    logging.info("Here is the Link to the past:")
-    logging.info(Link)
-    
-    header = """<h2>"""+product_name+"""</h2>"""
-    if success == True:
-      body = """
+        Link = '<a href='+url+'> Here </a>'
+        # logging.debug(parameters['timestamp'])
+        logging.info("Here is the Link to the past: " + url)
+
+        header = """<h2>"""+product_name+"""</h2>"""
+        if success == True:
+            body = """
             <div style="background-color:white;border-top:25px solid #142830;border-left:2px solid #142830;border-right:2px solid #142830;border-bottom:2px solid #142830;padding:20px">
               Hello,<br>
               <p>Here are the results you requested on """+parameters['timestamp']+""" from the """+product_name+""".</p>
@@ -112,12 +120,13 @@ class jpsurvProcessor(DisconnectListener):
               <p>The results will be available online for the next 14 days.</p>
             </div>
             """
-    else:
-      if 'data' in data['file']:
-        uploadFiles = data['file']['dictionary'] + " " + data['file']['data']
-      else :
-        uploadFiles = data['file']['dictionary']
-      body = """
+        else:
+            if 'data' in data['file']:
+                uploadFiles = data['file']['dictionary'] + \
+                    " " + data['file']['data']
+            else:
+                uploadFiles = data['file']['dictionary']
+            body = """
             <div style="background-color:white;border-top:25px solid #142830;border-left:2px solid #142830;border-right:2px solid #142830;border-bottom:2px solid #142830;padding:20px">
               Dear User,<br>
               <p>
@@ -134,7 +143,7 @@ class jpsurvProcessor(DisconnectListener):
             </div>
             """
 
-    footer = """
+        footer = """
           <div>
             <p>
               (Note:  Please do not reply to this email. If you need assistance, please contact NCIJPSurvWebAdmin@mail.nih.gov)
@@ -163,60 +172,66 @@ class jpsurvProcessor(DisconnectListener):
                   </p>
                 </div>
                 """
-    message = """
+        message = """
       <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
         <title>html title</title>
       </head>
       <body>"""+header+body+footer+"""</body>"""
 
-          #    "\r\n\r\n - JPSurv Team\r\n(Note:  Please do not reply to this email. If you need assistance, please contact xxxx@mail.nih.gov)"+
-          #    "\n\n")
-    logging.info("sending")
-    self.composeMail(data['queue']['email'],message,files)
-    logging.info("end")
+        #    "\r\n\r\n - JPSurv Team\r\n(Note:  Please do not reply to this email. If you need assistance, please contact xxxx@mail.nih.gov)"+
+        #    "\n\n")
+        self.composeMail(data['queue']['email'], message, files)
+        logging.info("end")
 
-  @defer.inlineCallbacks
-  def run(self):
-    client = Stomp(self.config)
-    yield client.connect()
-    headers = {
-        # client-individual mode is necessary for concurrent processing
-        # (requires ActiveMQ >= 5.2)
-        StompSpec.ACK_HEADER: StompSpec.ACK_CLIENT_INDIVIDUAL,
-        # the maximal number of messages the broker will let you work on at the same time
-        'activemq.prefetchSize': '100',
-    }
+    @defer.inlineCallbacks
+    def run(self):
+        client = Stomp(self.config)
+        yield client.connect()
+        headers = {
+            # client-individual mode is necessary for concurrent processing
+            # (requires ActiveMQ >= 5.2)
+            StompSpec.ACK_HEADER: StompSpec.ACK_CLIENT_INDIVIDUAL,
+            # the maximal number of messages the broker will let you work on at the same time
+            'activemq.prefetchSize': '100',
+        }
 
-    client.subscribe(self.QUEUE, headers, listener=SubscriptionListener(self.consume, errorDestination=self.ERROR_QUEUE))
-    client.add(listener=self)
+        client.subscribe(self.QUEUE, headers, listener=SubscriptionListener(
+            self.consume, errorDestination=self.ERROR_QUEUE))
+        client.add(listener=self)
 
-  # Consumer for Jobs in Queue, needs to be rewrite by the individual projects
+    # Consumer for Jobs in Queue, needs to be rewrite by the individual projects
 
-  def onCleanup(self, connect):
-    logging.info('In clean up ...')
+    def onCleanup(self, connect):
+        logging.info('In clean up ...')
 
-  def onConnectionLost(self, connect, reason):
-    logging.info("in onConnectionLost")
-    self.run()
+    def onConnectionLost(self, connect, reason):
+        logging.info("in onConnectionLost")
+        self.run()
 
- # @read from property file to set up parameters for the queue.
-  def __init__(self, dev_mode = False):
-    config = PropertyUtil(r"config.dev.ini" if dev_mode else r"config.ini")
-     # Initialize Connections to ActiveMQ
-    self.QUEUE=config.getAsString(jpsurvProcessor.NAME)
-    self.ERROR_QUEUE=config.getAsString('queue.error.name')
-    config = StompConfig(config.getAsString(jpsurvProcessor.URL))
-    self.config = config
+       # @read from property file to set up parameters for the queue.
+    def __init__(self, dev_mode=False):
+        config = PropertyUtil(r"config.dev.ini" if dev_mode else r"config.ini")
+        # Initialize Connections to ActiveMQ
+        self.QUEUE = config.getAsString(jpsurvProcessor.NAME)
+        self.ERROR_QUEUE = config.getAsString('queue.error.name')
+        config = StompConfig(config.getAsString(jpsurvProcessor.URL))
+        self.config = config
+
 
 if __name__ == '__main__':
-  from argparse import ArgumentParser
-  parser = ArgumentParser()
-  parser.add_argument('-d', '--debug', action = 'store_true')
-  parser.add_argument('port', nargs='+')
-  args = parser.parse_args()
+    from argparse import ArgumentParser
+    parser = ArgumentParser()
+    parser.add_argument('-d', '--debug', action='store_true')
+    parser.add_argument('port', nargs='+')
+    args = parser.parse_args()
 
-  logging.basicConfig(level=logging.DEBUG, filename='../logs/queue.log', filemode='w')
-  logging.info("JPSurv processor has started")
-  jpsurvProcessor(dev_mode = args.debug).run()
-  reactor.run()
+    time = datetime.datetime.now().strftime("%Y-%m-%d_%H_%M")
+    fileName = '../logs/queue.log.' + time
+    logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s',
+                        level=logging.DEBUG,
+                        datefmt='%Y-%m-%d %H:%M:%S',
+                        filename=fileName, filemode='w')
+    logging.info("JPSurv processor has started")
+    jpsurvProcessor(dev_mode=args.debug).run()
+    reactor.run()
