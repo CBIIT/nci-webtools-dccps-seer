@@ -614,12 +614,27 @@ getGraphWrapper <- function (filePath, jpsurvDataString, first_calc, com, interv
     }
   } else if (type == 'time') {
       years = jpsurvData$additional$yearOfDiagnosis
+      params = jpsurvData$calculate$form
+      seerdata = outputData[['seerdata']]
+      for (i in 1:length(params$cohortVars)) {
+        cohortVar = getCorrectFormat(params$cohortVars[i])
+        cohortVal = removeEscape(params$cohortValues[i])
+        seerdata = seerdata[seerdata[cohortVar] == cohortVal,]
+      }
+      minYear = min(seerdata[,yearVar])
+      if (minYear > years) {
+        years = minYear
+      }
       graph = plot.surv.int.multiyears(graphData, fit, nJP, yearVar, obscumvar, predcumvar, interval, year.select = years)
       graphFile = paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/")
       ggsave(file=paste(filePath, paste("plot_Int-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/"))
       graphData = scaleTo(graphData)
       graphData = graphData[graphData[[yearVar]] %in% years,]
-      results = list("timeGraph" = graphFile, "timeTable" = graphData)
+      results = list("timeGraph" = graphFile, "timeTable" = graphData, "minYear" = minYear)
   }
   return(results)
+}
+
+removeEscape = function(str) {
+  gsub("\"+", "", str)
 }

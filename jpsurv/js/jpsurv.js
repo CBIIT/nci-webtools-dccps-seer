@@ -246,13 +246,15 @@ function addEventListeners() {
       jpsurvData.additional.headerJoinPoints < 4
     ) {
       $('#yearAnno').prop('disabled', false);
-    } else if (jpsurvData.results && Object.keys(jpsurvData.results.yearData).length == 4) {
-      $('#yearAnno').prop('disabled', false);
     } else {
       $('#yearAnno').prop('disabled', true);
       $('#yearAnno').prop('checked', false);
     }
-    if (jpsurvData.results && jpsurvData.results.yearData.survTrend) showTrendTable();
+    if (jpsurvData.results && Object.keys(jpsurvData.results).length > 0) {
+      if (Object.keys(jpsurvData.results.yearData).length == 4)
+        $('#yearAnno').prop('disabled', false);
+      if (jpsurvData.results.yearData.survTrend) showTrendTable();
+    }
   });
 
   $('#showDeathTrend').on('change', function() {
@@ -262,13 +264,15 @@ function addEventListeners() {
       jpsurvData.additional.headerJoinPoints < 4
     ) {
       $('#deathAnno').prop('disabled', false);
-    } else if (jpsurvData.results && Object.keys(jpsurvData.results.deathData).length == 4) {
-      $('#deathAnno').prop('disabled', false);
     } else {
       $('#deathAnno').prop('disabled', true);
       $('#deathAnno').prop('checked', false);
     }
-    if (jpsurvData.results && jpsurvData.results.deathData.deathTrend) showTrendTable();
+    if (jpsurvData.results && Object.keys(jpsurvData.results).length > 0) {
+      if (Object.keys(jpsurvData.results.deathData).length == 4)
+        $('#deathAnno').prop('disabled', false);
+      if (jpsurvData.results && jpsurvData.results.deathData.deathTrend) showTrendTable();
+    }
   });
 
   $('#yearAnno').on('change', function() {
@@ -1487,29 +1491,37 @@ function calculateFittedResults() {
 }
 
 function calculateFittedResultsCallback() {
-  //console.log("calculateFittedResultsCallback..");
   $('#right_panel').show();
   $('#right_panel').css('display', 'inline-block');
   $('#helpCard').hide();
   $('#icon').css('visibility', 'visible');
   Slide_menu_Horz('hide');
 
-  $('#year-of-diagnosis').empty();
-  for (
-    year = jpsurvData.calculate.form.yearOfDiagnosisRange[0];
-    year <= jpsurvData.calculate.form.yearOfDiagnosisRange[1];
-    year++
-  ) {
-    $('#year-of-diagnosis').append('<OPTION>' + year + '</OPTION>\n');
-    $('#year-of-diagnosis').val($('#year-of-diagnosis option:first').val());
-  }
+  retrieveResults();
+  jpsurvData.additional.use_default = 'true';
+
   //Set precision if cookie is available
   var precision = getCookie('precision');
   if (parseInt(precision) > 0) {
     $('#precision>option:eq(' + (parseInt(precision) - 1) + ')').prop('selected', true);
   }
-  retrieveResults();
-  jpsurvData.additional.use_default = 'true';
+}
+
+function buildTimeYod() {
+  var year = jpsurvData.calculate.form.yearOfDiagnosisRange[0];
+  $('#year-of-diagnosis').empty();
+  if (
+    jpsurvData.results &&
+    Object.keys(jpsurvData.results).length > 0 &&
+    jpsurvData.results.timeData.minYear
+  ) {
+    year = jpsurvData.results.timeData.minYear;
+  } else {
+  }
+  for (var i = year; i <= jpsurvData.calculate.form.yearOfDiagnosisRange[1]; i++) {
+    $('#year-of-diagnosis').append('<OPTION>' + i + '</OPTION>\n');
+    $('#year-of-diagnosis').val($('#year-of-diagnosis option:first').val());
+  }
 }
 
 function changePrecision() {
@@ -1797,6 +1809,7 @@ function retrieveResults(cohort_com, jpInd, switch_cohort) {
   }
   $.getJSON(file_name, function(results) {
     loadResults(results);
+    buildTimeYod();
   });
 
   jpsurvData.switch = false;
