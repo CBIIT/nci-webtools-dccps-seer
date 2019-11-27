@@ -246,13 +246,13 @@ function addEventListeners() {
       jpsurvData.additional.headerJoinPoints < 4
     ) {
       $('#yearAnno').prop('disabled', false);
-    } else if (Object.keys(jpsurvData.results.yearData).length == 4) {
+    } else if (jpsurvData.results && Object.keys(jpsurvData.results.yearData).length == 4) {
       $('#yearAnno').prop('disabled', false);
     } else {
       $('#yearAnno').prop('disabled', true);
       $('#yearAnno').prop('checked', false);
     }
-    if (jpsurvData.results.yearData.survTrend) showTrendTable();
+    if (jpsurvData.results && jpsurvData.results.yearData.survTrend) showTrendTable();
   });
 
   $('#showDeathTrend').on('change', function() {
@@ -262,13 +262,13 @@ function addEventListeners() {
       jpsurvData.additional.headerJoinPoints < 4
     ) {
       $('#deathAnno').prop('disabled', false);
-    } else if (Object.keys(jpsurvData.results.deathData).length == 4) {
+    } else if (jpsurvData.results && Object.keys(jpsurvData.results.deathData).length == 4) {
       $('#deathAnno').prop('disabled', false);
     } else {
       $('#deathAnno').prop('disabled', true);
       $('#deathAnno').prop('checked', false);
     }
-    if (jpsurvData.results.deathData.deathTrend) showTrendTable();
+    if (jpsurvData.results && jpsurvData.results.deathData.deathTrend) showTrendTable();
   });
 
   $('#yearAnno').on('change', function() {
@@ -1872,6 +1872,21 @@ function checkTrends() {
   showTrendTable();
 }
 
+function defaultTrends() {
+  $('#showYearTrend')
+    .prop('checked', false)
+    .trigger('change');
+  $('#showDeathTrend')
+    .prop('checked', false)
+    .trigger('change');
+  $('#absChgFrom')
+    .val('')
+    .trigger('change');
+  $('#absChgTo')
+    .val('')
+    .trigger('change');
+}
+
 function preLoadResults(results) {
   jpsurvData.results = results;
   updateCohortDropdown();
@@ -1899,6 +1914,7 @@ function stage2(action) {
   setIntervalsDefault();
   getIntervals();
   setAbsChange();
+  defaultTrends();
   getTrendTables();
   jpsurvData.additional.yearOfDiagnosis[0] = jpsurvData.calculate.form.yearOfDiagnosisRange[0].toString();
   if (action == 'calculate') {
@@ -2265,10 +2281,12 @@ function find_year_of_diagnosis_row() {
 function toggleAbsSelect() {
   $('#absChgFrom').prop('disabled', !$('#showYearTrend').prop('checked'));
   $('#absChgTo').prop('disabled', !$('#showYearTrend').prop('checked'));
-  $('#absChgFrom').val('');
-  $('#absChgTo').val('');
-  $('#absChgFrom').trigger('change');
-  $('#absChgTo').trigger('change');
+  $('#absChgFrom')
+    .val('')
+    .trigger('change');
+  $('#absChgTo')
+    .val('')
+    .trigger('change');
   $('#warning-wrapper').popover('dispose');
 }
 
