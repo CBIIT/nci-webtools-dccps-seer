@@ -21,6 +21,7 @@ from stompest.async.listener import DisconnectListener
 from stompest.config import StompConfig
 from stompest.protocol import StompSpec
 from rpy2.robjects import r
+from logging.handlers import RotatingFileHandler
 
 
 class jpsurvProcessor(DisconnectListener):
@@ -29,7 +30,7 @@ class jpsurvProcessor(DisconnectListener):
     URL = 'queue.url'
 
     def composeMail(self, recipients, message, files=[]):
-        logging.debug("composing mail")
+        logger.debug("composing mail")
         config = PropertyUtil(r"config.ini")
         if not isinstance(recipients, list):
             recipients = [recipients]
@@ -37,8 +38,8 @@ class jpsurvProcessor(DisconnectListener):
         packet['Subject'] = "JPsurv Analysis Results"
         packet['From'] = "JPSurv Analysis Tool <do.not.reply@nih.gov>"
         packet['To'] = ", ".join(recipients)
-        logging.info("recipients")
-        logging.info(recipients)
+        logger.info("recipients")
+        logger.info(recipients)
         # print message
         packet.attach(MIMEText(message, 'html'))
         for file in files:
@@ -50,14 +51,14 @@ class jpsurvProcessor(DisconnectListener):
                     Name=os.path.basename(file)
                 ))
         MAIL_HOST = config.getAsString('mail.host')
-        logging.debug("connecting to mail host: " + MAIL_HOST)
+        logger.debug("connecting to mail host: " + MAIL_HOST)
         smtp = smtplib.SMTP(MAIL_HOST)
-        logging.debug("connected, attempting to send message")
+        logger.debug("connected, attempting to send message")
         smtp.sendmail("do.not.reply@nih.gov", recipients, packet.as_string())
-        logging.debug("sent")
+        logger.debug("sent")
 
     def testQueue(self):
-        logging.debug("tested")
+        logger.debug("tested")
 
     def rLength(self, tested):
         if tested is None:
@@ -69,30 +70,30 @@ class jpsurvProcessor(DisconnectListener):
 
        # @This is teh consume code which will listen to Queue server.
     def consume(self, client, frame):
-        logging.info("New job in consume")
+        logger.info("New job in consume")
         files = []
         product_name = "JPSurv Analysis Tool"
         parameters = json.loads(frame.body)
-        logging.debug("params")
-        logging.debug(parameters)
+        logger.debug("params")
+        logger.debug(parameters)
         token = parameters['token']
         filepath = parameters['filepath']
         timestamp = ['timestamp']
 
-        logging.debug("token: " + token)
+        logger.debug("token: " + token)
         fname = filepath+"/input_"+token+".json"
-        logging.debug("file name: " + fname)
+        logger.debug("file name: " + fname)
         with open(fname) as content_file:
             jpsurvDataString = content_file.read()
 
         data = json.loads(jpsurvDataString)
-        logging.debug("jpsurv data string")
-        logging.debug(data)
+        logger.debug("jpsurv data string")
+        logger.debug(data)
         try:
             r.source('JPSurvWrapper.R')
-            logging.debug("Calculating")
+            logger.debug("Calculating")
             r.getFittedResultWrapper(parameters['filepath'], jpsurvDataString)
-            logging.debug("making message")
+            logger.debug("making message")
             url = urllib.parse.unquote(data['queue']['url'])
             success = True
         except:
@@ -103,8 +104,8 @@ class jpsurvProcessor(DisconnectListener):
             success = False
 
         Link = '<a href='+url+'> Here </a>'
-        # logging.debug(parameters['timestamp'])
-        logging.info("Here is the Link to the past: " + url)
+        # logger.debug(parameters['timestamp'])
+        logger.info("Here is the Link to the past: " + url)
 
         header = """<h2>"""+product_name+"""</h2>"""
         if success == True:
@@ -130,8 +131,8 @@ class jpsurvProcessor(DisconnectListener):
             <div style="background-color:white;border-top:25px solid #142830;border-left:2px solid #142830;border-right:2px solid #142830;border-bottom:2px solid #142830;padding:20px">
               Dear User,<br>
               <p>
-                  Thanks for using the JPSurv Analysis Tool. Unfortunately the job you submitted to the JPSurv processor failed to be processed. 
-                  Please review your dataset to make sure it conforms to the Input Data File format as described in the Help page of the web tool. 
+                  Thanks for using the JPSurv Analysis Tool. Unfortunately the job you submitted to the JPSurv processor failed to be processed.
+                  Please review your dataset to make sure it conforms to the Input Data File format as described in the Help page of the web tool.
                   Please resubmit your data set after the corrections are made.
               </p>
               <p style="margin-left: 1rem;">
@@ -182,7 +183,7 @@ class jpsurvProcessor(DisconnectListener):
         #    "\r\n\r\n - JPSurv Team\r\n(Note:  Please do not reply to this email. If you need assistance, please contact xxxx@mail.nih.gov)"+
         #    "\n\n")
         self.composeMail(data['queue']['email'], message, files)
-        logging.info("end")
+        logger.info("end")
 
     @defer.inlineCallbacks
     def run(self):
@@ -203,14 +204,14 @@ class jpsurvProcessor(DisconnectListener):
     # Consumer for Jobs in Queue, needs to be rewrite by the individual projects
 
     def onCleanup(self, connect):
-        logging.info('In clean up ...')
+        logger.info('In clean up ...')
 
     def onConnectionLost(self, connect, reason):
-        logging.info("in onConnectionLost")
+        logger.info("in onConnectionLost")
         self.run()
 
        # @read from property file to set up parameters for the queue.
-    def __init__(self, dev_mode=False):
+    def __init__(self, dev_mode):
         config = PropertyUtil(r"config.dev.ini" if dev_mode else r"config.ini")
         # Initialize Connections to ActiveMQ
         self.QUEUE = config.getAsString(jpsurvProcessor.NAME)
@@ -219,19 +220,35 @@ class jpsurvProcessor(DisconnectListener):
         self.config = config
 
 
+def create_rotating_log():
+    formatter = logging.Formatter('%(asctime)s %(levelname)-8s %(message)s',
+                                  '%Y-%m-%d %H:%M:%S')
+    time = datetime.datetime.now().strftime("%Y-%m-%d_%H_%M")
+    logFile = '../logs/queue.log.' + time
+
+    config = PropertyUtil(r"config.ini")
+    size = config.getAsInt('logs.size')
+    rollover = config.getAsInt('logs.rollover')
+
+    my_handler = RotatingFileHandler(logFile, mode='a', maxBytes=size,
+                                     backupCount=rollover, encoding=None, delay=0)
+    my_handler.setFormatter(formatter)
+    my_handler.setLevel(logging.DEBUG)
+
+    logger = logging.getLogger('root')
+    logger.setLevel(logging.DEBUG)
+
+    logger.addHandler(my_handler)
+    return logger
+
+
 if __name__ == '__main__':
     from argparse import ArgumentParser
     parser = ArgumentParser()
     parser.add_argument('-d', '--debug', action='store_true')
     parser.add_argument('port', nargs='+')
     args = parser.parse_args()
-
-    time = datetime.datetime.now().strftime("%Y-%m-%d_%H_%M")
-    fileName = '../logs/queue.log.' + time
-    logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s',
-                        level=logging.DEBUG,
-                        datefmt='%Y-%m-%d %H:%M:%S',
-                        filename=fileName, filemode='w')
-    logging.info("JPSurv processor has started")
+    logger = create_rotating_log()
+    logger.info("JPSurv processor has started")
     jpsurvProcessor(dev_mode=args.debug).run()
     reactor.run()
