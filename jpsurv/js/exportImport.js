@@ -84,7 +84,15 @@ function exportBackEnd(event) {
   data.intervals = jpsurvData.additional.intervals.toString();
   data.diagnosisYear = jpsurvData.results.yod;
 
-  if (data.type == 'dic') data.txtFile = jpsurvData.file.data;
+  if (data.type == 'dic') {
+    dataFile = jpsurvData.file.data.split('.')[0];
+    dicFile = jpsurvData.file.dictionary.split('.')[0];
+    if (dataFile != dicFile) {
+      data.txtFile = dicFile + '.txt';
+    } else {
+      data.txtFile = jpsurvData.file.data;
+    }
+  }
 
   $.ajax({
     type: 'GET',
