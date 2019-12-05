@@ -54,7 +54,7 @@ class jpsurvProcessor(DisconnectListener):
         MAIL_HOST = config.getAsString('mail.host')
         try:
             logger.info("connecting to mail host: " + MAIL_HOST)
-            smtp = smtplib.SMTP(host=MAIL_HOST, timeout=30)
+            smtp = smtplib.SMTP(host=MAIL_HOST, timeout=60*10)
             logger.info("connected, attempting to send message")
             smtp.sendmail("do.not.reply@nih.gov",
                           recipients, packet.as_string())
