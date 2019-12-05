@@ -9,7 +9,6 @@ import urllib.request
 import urllib.parse
 import urllib.error
 import sys
-import socket
 
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
@@ -59,10 +58,9 @@ class jpsurvProcessor(DisconnectListener):
             smtp.sendmail("do.not.reply@nih.gov",
                           recipients, packet.as_string())
             logger.info("sent message")
-        except smtplib.SMTPConnectError:
+        except Exception as e:
             logger.info("failed to connect to " + MAIL_HOST)
-        except socket.timeout:
-            logger.info("connection to " + MAIL_HOST + " timed out")
+            logger.debug('Caught Exception: ' + str(e))
 
     def testQueue(self):
         logger.debug("tested")
