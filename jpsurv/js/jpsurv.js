@@ -858,15 +858,15 @@ function checkInputFiles() {
           [i].name.substr($('#file_control').prop('files')[i].name.length - 3);
         if (ext == 'txt' && has_txt == false) {
           $('#file_display').append(
-            "<span'><b>Dictionary file: </b>" +
-              $('#file_control').prop('files')[i].name +
-              '</span></br>'
+            "<span'><b>Data file: </b>" + $('#file_control').prop('files')[i].name + '</span></br>'
           );
           has_txt = true;
         }
         if (ext == 'dic' && has_dic == false) {
           $('#file_display').append(
-            "<span'><b>Data file: </b>" + $('#file_control').prop('files')[i].name + '</span></br>'
+            "<span'><b>Dictionary file: </b>" +
+              $('#file_control').prop('files')[i].name +
+              '</span></br>'
           );
           has_dic = true;
         }
