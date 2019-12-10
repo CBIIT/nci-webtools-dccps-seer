@@ -30,7 +30,7 @@ class jpsurvProcessor(DisconnectListener):
     URL = 'queue.url'
 
     def composeMail(self, recipients, message, files=[]):
-        logger.debug("composing mail")
+        logger.info("composing mail")
         config = PropertyUtil(r"config.ini")
         if not isinstance(recipients, list):
             recipients = [recipients]
@@ -51,11 +51,16 @@ class jpsurvProcessor(DisconnectListener):
                     Name=os.path.basename(file)
                 ))
         MAIL_HOST = config.getAsString('mail.host')
-        logger.debug("connecting to mail host: " + MAIL_HOST)
-        smtp = smtplib.SMTP(MAIL_HOST)
-        logger.debug("connected, attempting to send message")
-        smtp.sendmail("do.not.reply@nih.gov", recipients, packet.as_string())
-        logger.debug("sent")
+        try:
+            logger.info("connecting to mail host: " + MAIL_HOST)
+            smtp = smtplib.SMTP(host=MAIL_HOST, timeout=60*10)
+            logger.info("connected, attempting to send message")
+            smtp.sendmail("do.not.reply@nih.gov",
+                          recipients, packet.as_string())
+            logger.info("sent message")
+        except Exception as e:
+            logger.info("failed to connect to " + MAIL_HOST)
+            logger.debug('Caught Exception: ' + str(e))
 
     def testQueue(self):
         logger.debug("tested")
@@ -91,15 +96,15 @@ class jpsurvProcessor(DisconnectListener):
         logger.debug(data)
         try:
             r.source('JPSurvWrapper.R')
-            logger.debug("Calculating")
+            logger.info("Calculating")
             r.getFittedResultWrapper(parameters['filepath'], jpsurvDataString)
-            logger.debug("making message")
+            logger.info("making message")
             url = urllib.parse.unquote(data['queue']['url'])
             success = True
         except:
-            logging.warning("calculation failed")
+            logging.info("calculation failed")
             url = urllib.parse.unquote(data['queue']['url'])
-            logging.warning(url)
+            # logging.info(url)
             url = url+"&calculation=failed"
             success = False
 
@@ -183,7 +188,7 @@ class jpsurvProcessor(DisconnectListener):
         #    "\r\n\r\n - JPSurv Team\r\n(Note:  Please do not reply to this email. If you need assistance, please contact xxxx@mail.nih.gov)"+
         #    "\n\n")
         self.composeMail(data['queue']['email'], message, files)
-        logger.info("end")
+        logger.info("end job")
 
     @defer.inlineCallbacks
     def run(self):
