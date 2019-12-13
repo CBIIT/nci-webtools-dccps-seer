@@ -2230,9 +2230,18 @@ function setAbsChangeDefault() {
 function absChgDynamic() {
   if (Object.keys(jpsurvData.results).length > 0) {
     if (jpsurvData.results.timeData.minYear) {
+      var tmpRange = jpsurvData.additional.absChgRange;
       clearAbsChg();
       range = [jpsurvData.results.timeData.minYear, jpsurvData.results.timeData.maxYear];
       setAbsRange(range);
+      if (tmpRange != null) {
+        $('#absChgFrom')
+          .val(tmpRange[0])
+          .trigger('change');
+        $('#absChgTo')
+          .val(tmpRange[1])
+          .trigger('change');
+      }
     }
   }
 }
