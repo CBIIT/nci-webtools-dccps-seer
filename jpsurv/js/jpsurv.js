@@ -2233,7 +2233,8 @@ function absChgDynamic() {
       var tmpRange = jpsurvData.additional.absChgRange;
       clearAbsChg();
       range = [jpsurvData.results.timeData.minYear, jpsurvData.results.timeData.maxYear];
-      range[0] = Math.max(range[0], jpsurvData.calculate.form.yearOfDiagnosisRange[0])
+      range[0] = Math.max(range[0], jpsurvData.calculate.form.yearOfDiagnosisRange[0]);
+      range[1] = Math.min(range[1], jpsurvData.calculate.form.yearOfDiagnosisRange[1]);
       setAbsRange(range);
       if (tmpRange != null) {
         $('#absChgFrom')
