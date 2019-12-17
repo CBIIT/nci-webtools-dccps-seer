@@ -1773,7 +1773,7 @@ function checkTrends() {
     $('#showYearTrend')
       .prop('checked', true)
       .trigger('change');
-    if (jpsurvData.results.yearData.survTrend[1] && jpsurvData.results.ÎyearData.survTrend[1][0]) {
+    if (jpsurvData.results.yearData.survTrend[1] && jpsurvData.results.yearData.survTrend[1][0]) {
       $('#absChgFrom')
         .val(jpsurvData.results.yearData.survTrend[1][0]['start.year'])
         .trigger('change');
