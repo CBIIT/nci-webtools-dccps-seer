@@ -156,9 +156,10 @@ function updatePageAfterRefresh(e) {
     jpsurvData.stage2completed = true;
     setIntervalsDefault();
     getIntervals();
-    setAbsChange();
+    setAbsChangeDefault();
     parse_diagnosis_years();
     setData();
+    buildTimeYod();
     load_ajax_with_success_callback(generateResultsFilename(), loadResults);
     calculateFittedResultsCallback();
     updateCohortDropdown();
@@ -202,9 +203,9 @@ function loadUserInput(data) {
     }
 
     $('e-mail').val(data.email);
-    $('#year_of_diagnosis_start').val(data.yearOfDiagnosisRangeStart);
-    $('#year_of_diagnosis_end').val(data.yearOfDiagnosisRangeEnd);
-    $('#max_join_point_select').val(data.maxJoinPoints);
+    $('#year_of_diagnosis_start').val(data.yearOfDiagnosisRangeStart).trigger('change');
+    $('#year_of_diagnosis_end').val(data.yearOfDiagnosisRangeEnd).trigger('change');
+    $('#max_join_point_select').val(data.maxJoinPoints).trigger('change');
 
     $('#cohort-variables')
       .find(':checkbox')
