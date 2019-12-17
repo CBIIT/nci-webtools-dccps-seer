@@ -616,13 +616,15 @@ getGraphWrapper <- function (filePath, jpsurvDataString, first_calc, com, interv
     years = jpsurvData$additional$yearOfDiagnosis
     params = jpsurvData$calculate$form
     seerdata = outputData[['seerdata']]
+    fit = outputData[['fittedResult']]$FitList[[nJP+1]]$predicted 
     if (length(params$cohortVars) > 0) {
       for (i in 1:length(params$cohortVars)) {
         cohortVar = getCorrectFormat(params$cohortVars[i])
         cohortVal = removeEscape(params$cohortValues[i])
         seerdata = seerdata[seerdata[cohortVar] == cohortVal,]
       }
-      maxInterval = max(seerdata$Interval) - 1
+      minInterval = min(fit$Interval)
+      maxInterval = max(fit$Interval) 
       maxYear = max(seerdata[,yearVar])
       minYear = min(seerdata[,yearVar])
       if (minYear > years) {
@@ -635,7 +637,8 @@ getGraphWrapper <- function (filePath, jpsurvDataString, first_calc, com, interv
     graphData = scaleTo(graphData)
     graphData = graphData[graphData[[yearVar]] %in% years,]
     if (exists("minYear")) {
-      results = list("timeGraph" = graphFile, "timeTable" = graphData, "minYear" = minYear, "maxYear" = maxYear, "maxInt" = maxInterval)
+      results = list("timeGraph" = graphFile, "timeTable" = graphData, "minYear" = minYear, "maxYear" = maxYear, 
+      "minInt" = minInterval, "maxInt" = maxInterval)
     } else {
       results = list("timeGraph" = graphFile, "timeTable" = graphData)
     }

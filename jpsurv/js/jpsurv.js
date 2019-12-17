@@ -23,7 +23,7 @@ var jpsurvData = {
   additional: {
     headerJoinPoints: 0,
     yearOfDiagnosis: null,
-    intervals: [1, 4],
+    intervals: [5, 10],
     absTmp: [NaN, NaN],
     absChgRange: null
   },
@@ -2079,46 +2079,54 @@ function parse_cohort_covariance_variables() {
 function setIntervalsDefault() {
   jpsurvData.additional.intervals_default = [];
 
-  var intervals = jpsurvData.calculate.form.interval;
+  var maxInt = jpsurvData.calculate.form.interval;
   var selectedRange =
     jpsurvData.calculate.form.yearOfDiagnosisRange[1] -
     jpsurvData.calculate.form.yearOfDiagnosisRange[0];
 
-  clearIntervalYears();
-
-  intervals = selectedRange < intervals ? selectedRange : intervals;
-  ////console.log(intervals+" : "+selectedRange);
+  maxInt = selectedRange < maxInt ? selectedRange : maxInt;
   var selectedYears = [];
   //Set the ranges based on interval length
-  if (intervals >= 10) {
+  if (maxInt >= 10) {
     selectedYears = [5, 10];
     jpsurvData.additional.intervals_default = selectedYears;
-  } else if (intervals >= 5) {
+  } else if (maxInt >= 5) {
     selectedYears = [5];
     jpsurvData.additional.intervals_default = selectedYears;
-  } else if (intervals < 5) {
-    selectedYears = [intervals];
+  } else if (maxInt < 5) {
+    selectedYears = [maxInt];
     jpsurvData.additional.intervals_default = selectedYears;
   }
 
-  setIntervalYears(intervals, selectedYears);
+  setIntervalYears([1, maxInt]);
 }
 
-function setIntervalYears(maxInt, selected) {
-  for (var i = 1; i <= maxInt; i++) {
-    if ($.inArray(i, selected) >= 0) {
+function setIntervalYears(range) {
+  var defaultInt = jpsurvData.additional.intervals_default;
+  var oldSurvInt = jpsurvData.additional.intervals || [];
+  var oldDeathInt = jpsurvData.additional.intervalsDeath || [];
+  var survSelected = oldSurvInt.length ? oldSurvInt : defaultInt;
+  var deathSelected = oldDeathInt.length ? oldDeathInt : defaultInt;
+
+  clearIntervalYears();
+
+  for (var i = range[0]; i <= range[1]; i++) {
+    if ($.inArray(i, survSelected) >= 0) {
       $('#interval-years').append(
-        $('<option>')
-          .attr('selected', 'selected')
-          .text(i)
-      );
-      $('#interval-years-death').append(
         $('<option>')
           .attr('selected', 'selected')
           .text(i)
       );
     } else {
       $('#interval-years').append($('<option>').text(i));
+    }
+    if ($.inArray(i, deathSelected) >= 0) {
+      $('#interval-years-death').append(
+        $('<option>')
+          .attr('selected', 'selected')
+          .text(i)
+      );
+    } else {
       $('#interval-years-death').append($('<option>').text(i));
     }
   }
@@ -2259,8 +2267,7 @@ function clearIntervalYears() {
 function setIntervalsDynamic() {
   if (Object.keys(jpsurvData.results).length > 0) {
     if (jpsurvData.results.timeData.maxInt) {
-      clearIntervalYears();
-      setIntervalYears(jpsurvData.results.timeData.maxInt, jpsurvData.additional.intervals_default);
+      setIntervalYears([jpsurvData.results.timeData.minInt, jpsurvData.results.timeData.maxInt]);
     }
   }
 }
