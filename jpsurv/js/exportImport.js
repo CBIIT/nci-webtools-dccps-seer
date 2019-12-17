@@ -159,7 +159,6 @@ function updatePageAfterRefresh(e) {
     setAbsChangeDefault();
     parse_diagnosis_years();
     setData();
-    buildTimeYod();
     load_ajax_with_success_callback(generateResultsFilename(), loadResults);
     calculateFittedResultsCallback();
     updateCohortDropdown();
@@ -170,6 +169,8 @@ function updatePageAfterRefresh(e) {
     jpsurvData.stage2completed = true;
 
     load_ajax_with_success_callback(createFormValuesFilename(), loadUserInput);
+    buildTimeYod();
+
   } catch (err) {
     console.error(err);
     jpsurvData.stage2completed = 0;

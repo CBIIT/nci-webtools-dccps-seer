@@ -1423,7 +1423,11 @@ function buildTimeYod() {
   }
   for (var i = minYear; i <= maxYear; i++) {
     $('#year-of-diagnosis').append('<OPTION>' + i + '</OPTION>\n');
-    $('#year-of-diagnosis').val($('#year-of-diagnosis option:first').val());
+  }
+  if (jpsurvData.results && jpsurvData.results.yod) {
+    $('#year-of-diagnosis').val(jpsurvData.results.yod).trigger('change');
+  } else {
+    $('#year-of-diagnosis').val($('#year-of-diagnosis option:first').val()).trigger('change');
   }
 }
 
