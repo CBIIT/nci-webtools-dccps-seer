@@ -1410,16 +1410,18 @@ function calculateFittedResultsCallback() {
 }
 
 function buildTimeYod() {
-  var year = jpsurvData.calculate.form.yearOfDiagnosisRange[0];
+  var minYear = jpsurvData.calculate.form.yearOfDiagnosisRange[0];
+  var maxYear = jpsurvData.calculate.form.yearOfDiagnosisRange[1];
   $('#year-of-diagnosis').empty();
   if (
     jpsurvData.results &&
     Object.keys(jpsurvData.results).length > 0 &&
     jpsurvData.results.timeData.minYear
   ) {
-    year = jpsurvData.results.timeData.minYear;
+    minYear = Math.max(minYear, jpsurvData.results.timeData.minYear);
+    maxYear = Math.min(maxYear, jpsurvData.results.timeData.maxYear);
   }
-  for (var i = year; i <= jpsurvData.results.timeData.maxYear; i++) {
+  for (var i = minYear; i <= maxYear; i++) {
     $('#year-of-diagnosis').append('<OPTION>' + i + '</OPTION>\n');
     $('#year-of-diagnosis').val($('#year-of-diagnosis option:first').val());
   }
@@ -1710,7 +1712,6 @@ function retrieveResults(cohort_com, jpInd, switch_cohort) {
   }
   $.getJSON(file_name, function(results) {
     loadResults(results);
-    buildTimeYod();
   });
 
   jpsurvData.switch = false;
@@ -1830,6 +1831,7 @@ function stage2(action) {
   setIntervalsDefault();
   getIntervals();
   setAbsChangeDefault();
+  buildTimeYod();
   defaultTrends();
   getTrendTables();
   jpsurvData.additional.yearOfDiagnosis[0] = jpsurvData.calculate.form.yearOfDiagnosisRange[0].toString();
