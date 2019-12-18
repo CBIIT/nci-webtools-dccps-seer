@@ -2094,14 +2094,20 @@ function setIntervalsDefault() {
   if (maxInt >= 10) {
     selectedYears = [5, 10];
     jpsurvData.additional.intervals_default = selectedYears;
+    jpsurvData.additional.intervals = selectedYears;
+    jpsurvData.additional.intervalsDeath = selectedYears;
   } else if (maxInt >= 5) {
     selectedYears = [5];
     jpsurvData.additional.intervals_default = selectedYears;
+    jpsurvData.additional.intervals = selectedYears;
+    jpsurvData.additional.intervalsDeath = selectedYears;
   } else if (maxInt < 5) {
     selectedYears = [maxInt];
     jpsurvData.additional.intervals_default = selectedYears;
+    jpsurvData.additional.intervals = selectedYears;
+    jpsurvData.additional.intervalsDeath = selectedYears;
   }
-
+  
   setIntervalYears([1, maxInt]);
 }
 
