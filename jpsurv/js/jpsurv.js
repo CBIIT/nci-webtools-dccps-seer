@@ -133,19 +133,12 @@ function validateEmail() {
 }
 
 function check_multiple() {
-  var multiple = false;
   var num_types = $('#cohort-variables fieldset').length;
   var checked = $('.cohort[type=checkbox]').filter(':checked').length;
 
-  if (checked > num_types || checked < num_types) {
-    multiple = true;
-  }
-  if (checked < num_types) {
-    jpsurvData.none = true;
-  }
-
-  return multiple;
+  return checked > num_types;
 }
+
 function hide_display_email() {
   if (parseInt($('#max_join_point_select').val()) > maxJP || check_multiple() == true) {
     $('.e-mail-grp').fadeIn();
@@ -664,14 +657,13 @@ function updateCohortDisplay() {
   var cohort_message = '';
   $('#cohort-variables fieldset').each(function(index, element) {
     jpsurvData.calculate.form.AllcohortValues[index] = [];
-
+    count = 0;
     var inputs = $(element).find('.' + element.id);
     //Adds all cohorts selected
-    checked = false; //will be used to flag if any cohort vlues are checked, default is false until a vlaue is seen as checked
     $.each(inputs, function(index2, element2) {
       //if checked add to ALL cohorts to be used for populating the drop down (if at least one checkbox is selected)
       if ($(element2).prop('checked')) {
-        checked = true;
+        count++;
         cohort_message += '"' + $(element2).val() + '"';
         if (
           !jpsurvData.calculate.form.AllcohortValues[index].includes('"' + $(element2).val() + '"')
@@ -680,17 +672,9 @@ function updateCohortDisplay() {
         }
       }
     });
-
-    if (checked == false)
-      $.each(inputs, function(index2, element2) {
-        //if checked add to ALL cohorts to be used for populating the drop down (if at least one checkbox is selected)
-        cohort_message += '"' + $(element2).val() + '"';
-        if (
-          !jpsurvData.calculate.form.AllcohortValues[index].includes('"' + $(element2).val() + '"')
-        ) {
-          jpsurvData.calculate.form.AllcohortValues[index].push('"' + $(element2).val() + '"');
-        }
-      });
+    if (count == 0) {
+      jpsurvData.calculate.form.AllcohortValues[index].push('""');
+    }
     //if none was checked lopp back through and add all cohort values for that cohort
     cohort_message += ' and ';
   });
@@ -1425,9 +1409,13 @@ function buildTimeYod() {
     $('#year-of-diagnosis').append('<OPTION>' + i + '</OPTION>\n');
   }
   if (jpsurvData.results && jpsurvData.results.yod) {
-    $('#year-of-diagnosis').val(jpsurvData.results.yod).trigger('change');
+    $('#year-of-diagnosis')
+      .val(jpsurvData.results.yod)
+      .trigger('change');
   } else {
-    $('#year-of-diagnosis').val($('#year-of-diagnosis option:first').val()).trigger('change');
+    $('#year-of-diagnosis')
+      .val($('#year-of-diagnosis option:first').val())
+      .trigger('change');
   }
 }
 
@@ -2107,7 +2095,7 @@ function setIntervalsDefault() {
     jpsurvData.additional.intervals = selectedYears;
     jpsurvData.additional.intervalsDeath = selectedYears;
   }
-  
+
   setIntervalYears([1, maxInt]);
 }
 

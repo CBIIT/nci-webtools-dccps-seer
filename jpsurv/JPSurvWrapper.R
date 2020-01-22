@@ -71,15 +71,21 @@ getSubsetStr <- function (yearOfDiagnosisVarName, yearOfDiagnosisRange, cohortVa
   startYearStr=paste(yearOfDiagnosisVarName, ">=", yearOfDiagnosisRange[1])
   endYearStr=paste(yearOfDiagnosisVarName, "<=", yearOfDiagnosisRange[2])
   yearStr=paste(startYearStr, endYearStr, sep=' & ')
-  subsetStr = ""
+  params = c()
   if( length(cohortVars) > 0 ) {
-    cohortVars=paste0("`",getCorrectFormat(cohortVars), "`")
-    subsetStr=paste(paste(cohortVars, cohortValues, sep="=="), collapse=' & ')
-    subsetStr=paste(subsetStr, yearStr, sep=' & ')
-  } else {
-    subsetStr=paste(subsetStr, yearStr, sep='')
+    for(i in 1:length(cohortValues)){
+      if (cohortValues[i] != "\"\"") {
+        cohortVars=paste0("`",getCorrectFormat(cohortVars), "`")
+        params=c(params, paste(cohortVars[i], cohortValues[i], sep="=="))
+      }
+    }
   }
-  return (subsetStr)
+  if (length(params) > 0) {
+    params = paste(params, collapse=' & ')
+    return (paste(params, yearStr, sep=' & '))
+  } else {
+    return (yearStr)
+  }
 }
 
 #Creates the model.form expression for fitted result
@@ -619,9 +625,11 @@ getGraphWrapper <- function (filePath, jpsurvDataString, first_calc, com, interv
     fit = outputData[['fittedResult']]$FitList[[nJP+1]]$predicted 
     if (length(params$cohortVars) > 0) {
       for (i in 1:length(params$cohortVars)) {
-        cohortVar = getCorrectFormat(params$cohortVars[i])
-        cohortVal = removeEscape(params$cohortValues[i])
-        seerdata = seerdata[seerdata[cohortVar] == cohortVal,]
+        if (params$cohortValues[i] != "\"\"") {
+          cohortVar = getCorrectFormat(params$cohortVars[i])
+          cohortVal = removeEscape(params$cohortValues[i])
+          seerdata = seerdata[seerdata[cohortVar] == cohortVal,]
+        }
       }
       minInterval = min(fit$Interval)
       maxInterval = max(fit$Interval) 
