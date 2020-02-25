@@ -1162,20 +1162,22 @@ function addTable(yodCol, headers, table, data, data_se, graph) {
     var row = $('<tr>');
 
     var cohort_array = jpsurvData.results.Runs.split('jpcom');
-    if (jpsurvData.results.Runs.split('jpcom') != undefined) {
-      var values = cohort_array[jpsurvData.results.com - 1].split(' + ');
-      values.forEach(function(value) {
-        $('<td>')
-          .text(value.replace(/"/g, ''))
-          .appendTo(row);
-      });
-    } else {
-      var values = cohort_array.split(' + ');
-      values.forEach(function(value) {
-        $('<td>')
-          .text(value.replace(/"/g, ''))
-          .appendTo(row);
-      });
+    if (cohort_array[0].length) {
+      if (jpsurvData.results.Runs.split('jpcom')) {
+        var values = cohort_array[jpsurvData.results.com - 1].split(' + ');
+        values.forEach(function(value) {
+          $('<td>')
+            .text(value.replace(/"/g, ''))
+            .appendTo(row);
+        });
+      } else {
+        var values = cohort_array.split(' + ');
+        values.forEach(function(value) {
+          $('<td>')
+            .text(value.replace(/"/g, ''))
+            .appendTo(row);
+        });
+      }
     }
 
     $('<td>')
