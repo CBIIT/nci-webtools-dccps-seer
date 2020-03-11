@@ -1225,18 +1225,19 @@ function updateEstimates(token_id) {
   }
 
   $('#estimates-jp > tbody').empty();
-  row = '<tr>';
-  row +=
-    '<td>Bayesian Information Criterion (BIC)</td>' +
+  row =
+    '<tr><td>Bayesian Information Criterion (BIC)</td>' +
     formatCell(jointpoints['joinpoint' + Model].bic) +
     '</tr>';
   row +=
-    '<td>Akaike Information Criterial (AIC)</td>' +
+    '<tr><td>Akaike Information Criterial (AIC)</td>' +
     formatCell(jointpoints['joinpoint' + Model].aic) +
-    '</td></th>';
-  row += '<td>Log Likelihood</td>' + formatCell(jointpoints['joinpoint' + Model].ll) + '</tr>';
+    '</tr>';
+  row += '<tr><td>Log Likelihood</td>' + 
+    formatCell(jointpoints['joinpoint' + Model].ll) + 
+    '</tr>';
   row +=
-    '<td>Converged</td><td>' +
+    '<tr><td>Converged</td><td>' +
     (String(jointpoints['joinpoint' + Model].converged).toUpperCase() == 'TRUE' ? 'Yes' : 'No') +
     '</td></tr>/n';
   $('#estimates-jp > tbody').append(row);
