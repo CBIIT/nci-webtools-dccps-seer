@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import json
 import os
 import time
@@ -7,7 +7,7 @@ from PropertyUtil import PropertyUtil
 from rpy2.robjects import r
 from stompest.config import StompConfig
 from stompest.sync import Stomp
-from werkzeug import secure_filename
+from werkzeug.utils import secure_filename
 from zipfile import ZipFile, ZIP_DEFLATED
 from os.path import dirname, basename, join
 from shutil import copytree, ignore_patterns, copy2

@@ -4,7 +4,7 @@ class PropertyUtil(dict):
   TRUTHY = ['true','True','1']
 
   def __init__(self, filename):
-    cp = configparser.SafeConfigParser()
+    cp = configparser.ConfigParser()
     cp.optionxform=str
     cp.read(filename)
 
