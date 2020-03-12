@@ -359,7 +359,7 @@ def myImport():
         with open(inputFile, 'r') as inputFile:
            line = inputFile.readline()
 
-        separator = re.search("[,;\s\t]",line).group()
+        separator = re.search(r"[,;\s\t]",line).group()
 
         app.logger.debug("\tThe separator is '%s' for line --> %s" % (separator, line))
         return separator if separator != None else ""
@@ -404,17 +404,17 @@ def myImport():
         # In the zip file itself, I have seen two different token ids used sometimes.  if there were different ids then
         # the filename starting with "form-" has one id and the rest had the other id.
         returnParameters = {}
-        returnParameters['tokenIdForForm'] = getTokenFor("form\-", "(\d+)", zipFilename)
-        returnParameters['tokenIdForRest'] = getTokenFor("output\-", "(\d+)", zipFilename)
+        returnParameters['tokenIdForForm'] = getTokenFor(r"form\-", r"(\d+)", zipFilename)
+        returnParameters['tokenIdForRest'] = getTokenFor(r"output\-", r"(\d+)", zipFilename)
         returnParameters['imageIdStartCount'] = len(getFilenames("plot_Year", zipFilename))
 
-        if( getFilename("\.dic", zipFilename) != None):
-            returnParameters['controlFile'] = fixFilename(getFilename("\.dic", zipFilename), returnParameters['tokenIdForForm'])
-            returnParameters['txtFile'] = fixFilename(getFilename("\.txt", zipFilename), returnParameters['tokenIdForForm'])
+        if( getFilename(r"\.dic", zipFilename) != None):
+            returnParameters['controlFile'] = fixFilename(getFilename(r"\.dic", zipFilename), returnParameters['tokenIdForForm'])
+            returnParameters['txtFile'] = fixFilename(getFilename(r"\.txt", zipFilename), returnParameters['tokenIdForForm'])
             returnParameters['type'] = "DIC"
             returnParameters['delimiter'] = "NA"
         else:
-            fileNameInZipFile = getFilename("\.csv", zipFilename)
+            fileNameInZipFile = getFilename(r"\.csv", zipFilename)
             returnParameters['controlFile'] = getControlFilename(returnParameters['tokenIdForRest'])
             returnParameters['type'] = "CSV"
             returnParameters['delimiter'] = getDelimiter(os.path.join(UPLOAD_DIR, fileNameInZipFile))
