@@ -329,7 +329,7 @@ function addEventListeners() {
   $('#calculate').on('click', function() {
     //Reset main calculation.  This forces a rebuild R Database
     jpsurvData.stage2completed = false;
-    setCalculateData('default');
+    setCalculateData();
   });
 
   $('#file_data').on('change', checkInputFiles);
@@ -1448,8 +1448,8 @@ function formatCell(x) {
   }
 }
 
-function setCalculateData(type) {
-  setData(type);
+function setCalculateData() {
+  setData();
 
   if (validateVariables()) {
     calculate();
@@ -1458,11 +1458,7 @@ function setCalculateData(type) {
   }
 }
 
-function setData(type) {
-  type = type || 0;
-  if (type == 'default') {
-  }
-
+function setData() {
   updateCohortDisplay();
 
   jpsurvData.queue = {};
@@ -1480,6 +1476,8 @@ function setData(type) {
   jpsurvData.calculate.static.allVars = get_cohort_covariance_variable_names();
   jpsurvData.calculate.static.allVars.push(yearOfDiagnosisVarName);
   jpsurvData.calculate.form.covariateVars = '';
+  console.log('set range',parseInt($('#year_of_diagnosis_start').val()));
+  
   jpsurvData.calculate.form.yearOfDiagnosisRange = [
     parseInt($('#year_of_diagnosis_start').val()),
     parseInt($('#year_of_diagnosis_end').val())
@@ -3114,6 +3112,7 @@ function save_params() {
       jpsurvData.mapping.cohorts.push(i + 1);
     } else if (value == 'Year') {
       jpsurvData.mapping.year = i + 1;
+      $('input[id="header_' + i + '"]').val('Year_of_Diagnosis');
     } else if (value == 'Interval') {
       jpsurvData.mapping.interval = i + 1;
       $('input[id="header_' + i + '"]').val('Interval');
