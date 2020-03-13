@@ -2286,21 +2286,15 @@ function set_year_of_diagnosis_select() {
 
 function set_intervals_from_diagnosis() {
   if (control_data.input_type == 'csv') {
-    generateIntervalSelect(
-      control_data.data[Object.keys(control_data.data).length],
-      control_data.data[Object.keys(control_data.data).length].length
-    );
+    generateIntervalSelect(control_data.data[4]);
   } else {
-    generateIntervalSelect(
-      control_data.VarFormatSecList.Interval.ItemNameInDic,
-      control_data.VarFormatSecList.Interval.ItemNameInDic.length
-    );
+    generateIntervalSelect(control_data.VarFormatSecList.Interval.ItemNameInDic);
   }
 }
 
-function generateIntervalSelect(source, length) {
+function generateIntervalSelect(source) {
   $('#intervals_from_diagnosis').empty();
-  for (i = 0; i < length; i++) {
+  for (i = 0; i < source.length; i++) {
     $('#intervals_from_diagnosis').append(
       '<OPTION value=' + source[i] + '> <= ' + source[i] + '</OPTION>'
     );
