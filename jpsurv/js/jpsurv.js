@@ -126,7 +126,6 @@ function validateEmail() {
   //var pattern = new RegExp('^' + $(this).attr('pattern') + '$');
 
   if (typeof $('#' + id).setCustomValidity === 'function') {
-    //console.log("setting error message: "+errorMsg);
     $('#' + id).setCustomValidity(hasError ? errorMsg : '');
   }
   // Not supported by the browser, fallback to manual error display...
@@ -1127,7 +1126,6 @@ function updateGraphs(token_id) {
 
     if (!$('#year-of-diagnosis').data('changed')) {
       $('#year-of-diagnosis').val(jpsurvData.results.yod);
-      //console.log("setting to "+jpsurvData.results.yod+" from json")
     }
     $('#year-of-diagnosis').data('changed', false);
 
@@ -1233,9 +1231,7 @@ function updateEstimates(token_id) {
     '<tr><td>Akaike Information Criterial (AIC)</td>' +
     formatCell(jointpoints['joinpoint' + Model].aic) +
     '</tr>';
-  row += '<tr><td>Log Likelihood</td>' + 
-    formatCell(jointpoints['joinpoint' + Model].ll) + 
-    '</tr>';
+  row += '<tr><td>Log Likelihood</td>' + formatCell(jointpoints['joinpoint' + Model].ll) + '</tr>';
   row +=
     '<tr><td>Converged</td><td>' +
     (String(jointpoints['joinpoint' + Model].converged).toUpperCase() == 'TRUE' ? 'Yes' : 'No') +
@@ -1367,7 +1363,6 @@ function calculateAllData() {
 }
 
 function calculateAllDataCallback() {
-  //console.log("calculateAllDataCallback..");
   var cohort_com = jpsurvData.run;
   var jpInd = jpsurvData.additional.headerJoinPoints;
   retrieveResults(cohort_com, jpInd, jpsurvData.switch);
@@ -1453,8 +1448,6 @@ function setCalculateData() {
 
   if (validateVariables()) {
     calculate();
-  } else {
-    //console.log("Not Calculating - validateVariables did not pass");
   }
 }
 
@@ -1476,8 +1469,7 @@ function setData() {
   jpsurvData.calculate.static.allVars = get_cohort_covariance_variable_names();
   jpsurvData.calculate.static.allVars.push(yearOfDiagnosisVarName);
   jpsurvData.calculate.form.covariateVars = '';
-  console.log('set range',parseInt($('#year_of_diagnosis_start').val()));
-  
+
   jpsurvData.calculate.form.yearOfDiagnosisRange = [
     parseInt($('#year_of_diagnosis_start').val()),
     parseInt($('#year_of_diagnosis_end').val())
@@ -1661,7 +1653,7 @@ function file_submit(event) {
   if ($('#csv').is(':checked')) {
     headers = '';
     del = $('input[name=del]:checked').val();
-    //console.log("del" +del)
+
     for (var i = 0; i < $('#header_row th').length / 2; i++) {
       header = $('#header_' + i).val();
       headers += header + del;
@@ -1837,7 +1829,6 @@ function stage2(action) {
 
 function stage3() {
   //Run initial calculation with setup.
-  //console.log("stage3")
   $('#jpsurv-message-container').hide();
   jpsurvData.recentTrends = 0;
   $('#year_of_diagnosis_start').val(jpsurvData.calculate.form.yearOfDiagnosisRange[0]);
@@ -2046,8 +2037,6 @@ function parse_diagnosis_years() {
   return true;
 }
 function parse_cohort_covariance_variables() {
-  ////console.log('parse_cohort_covariance_variables()');
-
   // First find the variables
   //  They are everything between the Page type and Year Of Diagnosis Label (noninclusive) with the VarName attribute
   if (control_data.input_type == undefined) {
@@ -2142,7 +2131,6 @@ function getNumberOfIntervals() {
 }
 
 function getSessionOptionInfo(var_name) {
-  ////console.log("getSessionOptionInfo()");
   if (control_data.input_type == undefined) {
     var session_value = '-1';
     var options = control_data.SessionOptionInfo.ItemNameInDic;
@@ -2504,7 +2492,6 @@ function jpsurvRest(action, params) {
 }
 
 function showMessage(id, message, message_type) {
-  console.log('error');
   //  Display either a warning an error.
   $('#right_panel').show();
   $('#helpCard').hide();
@@ -2542,7 +2529,6 @@ function showMessage(id, message, message_type) {
 }
 
 function load_ajax(filename) {
-  ////console.log(filename);
   var json = (function() {
     var json = null;
     // // var url = '/jpsruv/tmp/'+filename;
@@ -2589,11 +2575,6 @@ function getUrlParameter(sParam, abbr) {
       }
     }
   }
-}
-
-function inspect(object) {
-  //console.log(typeof object);
-  //console.dir(object);
 }
 
 /**
@@ -2810,8 +2791,6 @@ function certifyResults() {
   if (jpsurvData.results.timeData.timeTable != undefined) {
     $.each(jpsurvData.results.timeData.timeTable, function(index, value) {
       if (index.substring(0, 1) == 'X') {
-        //console.log("jpsurvData.results.RelSurIntData look corrupt:");
-        //console.dir(jpsurvData.results.timeData.timeTable);
         $('#right_panel').hide();
         okAlert(
           'RelSurIntData is corrupt:<br><br>' +
@@ -2839,8 +2818,6 @@ function renewTokenId(refresh_url) {
 
 function setUrlParameter(sParam, value) {
   var sPageURL = window.location.search.substring(1);
-  //console.log(sPageURL);
-  //console.log("So you want to change %s to %s", sParam, value);
 
   var sURLVariables = sPageURL.split('&');
   //console.dir(sURLVariables);
@@ -2850,16 +2827,9 @@ function setUrlParameter(sParam, value) {
     if (sParameterName[0] == sParam) {
       sURLVariables[key] = sParameterName[0] + '=' + value;
     }
-    //console.log(sURLVariables[key]);
   });
 
-  //console.log("Here is your new url");
-  //console.dir(sURLVariables);
-  //console.log("Put this back on the url");
-  //console.log("Will this work: "+sURLVariables.join("&"))
   window.history.pushState({}, '', '?' + sURLVariables.join('&'));
-
-  //console.log(window.location.search.substring(1));
 }
 
 function sprintf() {
@@ -3155,13 +3125,11 @@ function save_params() {
   for (var i = 0; i < params.length; i++) {
     if (jpsurvData.mapping[params[i]] == undefined) {
       alert('Please choose all necessary parameters to continue ' + params[i]);
-      //console.log("Please choose all necessary parameters to continue")
       passed = false;
       jpsurvData.passed = false;
       break;
     }
   }
-  //console.log(jpsurvData.mapping.cohorts)
   if (passed == true) {
     checkInputFiles();
     $('#modal').modal('hide');
@@ -3224,8 +3192,6 @@ function create_table(content, rows, has_headers) {
       };
     });
   }
-  //console.log(headers);
-  //console.log(matrix);
 
   data_table(matrix, first_row, rows);
   var html = '';
@@ -3270,12 +3236,6 @@ function create_table(content, rows, has_headers) {
       $('#header_' + i).val(title);
     }
   }
-}
-
-function myCallbackFunction(updatedCell, updatedRow, oldValue) {
-  //console.log("The new value for the cell is: " + updatedCell.data());
-  //console.log("The old value for that cell was: " + oldValue);
-  //console.log("The values for each cell in that row are: " + updatedRow.data());
 }
 
 function data_table(matrix, headers, rows) {
