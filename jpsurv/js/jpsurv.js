@@ -1036,9 +1036,47 @@ function updateGraphs(token_id) {
         '.png'
     );
 
-  var row;
+  if (jpsurvData.results) {
+    yearData = jpsurvData.results.yearData.survTable;
+    deathData = jpsurvData.results.deathData.deathTable;
+    timeData = jpsurvData.results.timeData.timeTable;
 
-  var header = [];
+    plotLineChart(
+      yearData.Year_of_diagnosis_jpsurv,
+      yearData.Relative_Survival_Cum,
+      yearData.Predicted_Survival_Cum,
+      yearData.Interval,
+      'Average Absolute Change in Relative Survival by Diagnosis Year',
+      'Year at Diagnosis',
+      'Relative Survival (%)',
+      'yearPlot'
+    );
+
+    plotLineChart(
+      deathData.Year_of_diagnosis_jpsurv,
+      deathData.Relative_Survival_Interval.map(function(x) {
+        return 100 - x;
+      }),
+      deathData.Predicted_ProbDeath_Int,
+      deathData.Interval,
+      'Percent Change in the Anual Probability of Dying by Cancer by Diagnosis Year',
+      'Year at Diagnosis',
+      'Anual Probability of Cancer Death (%)',
+      'deathPlot'
+    );
+
+    plotLineChart(
+      timeData.Interval,
+      timeData.Relative_Survival_Cum,
+      timeData.Predicted_Survival_Cum,
+      timeData.Year_of_diagnosis_jpsurv,
+      'Relative Survival by Interval per Diagnosis Year',
+      'Interval',
+      'Relative Survival (%)',
+      'timePlot'
+    );
+  }
+
   var yodVarName = jpsurvData.calculate.static.yearOfDiagnosisVarName.replace(/\(|\)|-/g, '');
   yodVarName = yodVarName.replace(/__/g, '_');
 
