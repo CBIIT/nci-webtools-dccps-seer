@@ -1040,9 +1040,12 @@ function updateGraphs(token_id) {
     yearData = jpsurvData.results.yearData.survTable;
     deathData = jpsurvData.results.deathData.deathTable;
     timeData = jpsurvData.results.timeData.timeTable;
+    yodVarName = jpsurvData.calculate.static.yearOfDiagnosisVarName
+      .replace(/\(|\)|-/g, '')
+      .replace(/__/g, '_');
 
     plotLineChart(
-      yearData.Year_of_diagnosis_jpsurv,
+      yearData[yodVarName],
       yearData.Relative_Survival_Cum,
       yearData.Predicted_Survival_Cum,
       yearData.Interval,
@@ -1053,7 +1056,7 @@ function updateGraphs(token_id) {
     );
 
     plotLineChart(
-      deathData.Year_of_diagnosis_jpsurv,
+      deathData[yodVarName],
       deathData.Relative_Survival_Interval.map(function(x) {
         return 100 - x;
       }),
@@ -1069,7 +1072,7 @@ function updateGraphs(token_id) {
       timeData.Interval,
       timeData.Relative_Survival_Cum,
       timeData.Predicted_Survival_Cum,
-      timeData.Year_of_diagnosis_jpsurv,
+      timeData[yodVarName],
       'Relative Survival by Interval per Diagnosis Year',
       'Interval',
       'Relative Survival (%)',
