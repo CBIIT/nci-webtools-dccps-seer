@@ -1073,7 +1073,7 @@ function updateGraphs(token_id) {
 
     plotLineChart(
       timeData.Interval,
-      timeData.Relative_Survival_Cum || yearData.CauseSpecific_Survival_Cum,
+      timeData.Relative_Survival_Cum || timeData.CauseSpecific_Survival_Cum,
       timeData.Predicted_Survival_Cum,
       timeData[yodVarName],
       'Relative Survival by Interval per Diagnosis Year',
@@ -1235,7 +1235,12 @@ function addTable(yodCol, headers, table, data, data_se, graph) {
     }
 
     if (graph != 'time') {
-      row.append(formatCell(data[jpsurvData.results.statistic][index]));
+      graph == 'survival'
+        ? row.append(formatCell(data[jpsurvData.results.statistic][index]))
+        : row.append(
+            formatCell(100 - data[jpsurvData.results.statistic.replace('Cum', 'Interval')][index])
+          );
+
       row.append(formatCell(data[data_se][index]));
       if (graph == 'survival') {
         row.append(formatCell(data.Predicted_Survival_Cum[index]));
