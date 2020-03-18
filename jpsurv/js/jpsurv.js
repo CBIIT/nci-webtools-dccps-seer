@@ -48,6 +48,7 @@ $(document).ready(function() {
   addEventListeners();
   addMessages();
   hide_display_email();
+  validateCohorts();
   // disable calculate button on document load if there are cohorts to select
   if (
     !jpsurvData.calculate.form.cohortValues ||
@@ -121,6 +122,7 @@ function validateEmail() {
   } else {
     $('#' + id).removeAttr('title');
     $('#calculate').prop('disabled', false);
+    $('#calcTooltip').tooltip('disable');
   }
 
   //var pattern = new RegExp('^' + $(this).attr('pattern') + '$');
@@ -131,22 +133,49 @@ function validateEmail() {
   // Not supported by the browser, fallback to manual error display...
 }
 
+// check if multiple cohorts are selected
 function check_multiple() {
-  var num_types = $('#cohort-variables fieldset').length;
-  var checked = $('.cohort[type=checkbox]').filter(':checked').length;
+  var fieldsets = $('#cohort-variables fieldset').length;
+  for (var i = 0; i < fieldsets; i++) {
+    if ($('#cohort-' + i + ' input').filter(':checked').length > 1) {
+      return true;
+    }
+  }
+  return false;
+}
 
-  return checked > num_types;
+// check if at least one of each cohort is selected
+function validateCohorts() {
+  var fieldsets = $('#cohort-variables fieldset').length;
+  for (var i = 0; i < fieldsets; i++) {
+    if ($('#cohort-' + i + ' input').filter(':checked').length == 0) {
+      $('#calculate').prop('disabled', true);
+      $('#calcTooltip')
+        .attr('data-original-title', 'Must select at least one of each cohort')
+        .tooltip('enable');
+      return false;
+    }
+  }
+  if (!check_multiple()) {
+    $('#calculate').prop('disabled', false);
+    $('#calcTooltip').tooltip('disable');
+  }
 }
 
 function hide_display_email() {
   if (parseInt($('#max_join_point_select').val()) > maxJP || check_multiple() == true) {
     $('.e-mail-grp').fadeIn();
-    $('#calculate').val('Submit');
+    $('#calculate')
+      .val('Submit')
+      .prop('disabled', true);
+    $('#calcTooltip')
+      .attr('data-original-title', 'Enter your email')
+      .tooltip('enable');
     validateEmail();
   } else {
     $('.e-mail-grp').fadeOut();
     $('#calculate').val('Calculate');
-    $('#calculate').prop('disabled', false);
+    // $('#calculate').prop('disabled', false);
   }
 }
 
@@ -195,6 +224,7 @@ function addEventListeners() {
 
   $('#cohort-variables').on('change', function(e) {
     hide_display_email();
+    validateCohorts();
   });
 
   $('#max_join_point_select').on('change', function(e) {
