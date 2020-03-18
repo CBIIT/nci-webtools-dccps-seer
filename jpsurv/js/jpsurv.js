@@ -1042,11 +1042,12 @@ function updateGraphs(token_id) {
     timeData = jpsurvData.results.timeData.timeTable;
     yodVarName = jpsurvData.calculate.static.yearOfDiagnosisVarName
       .replace(/\(|\)|-/g, '')
-      .replace(/__/g, '_');
+      .replace(/__/g, '_')
+      .replace(/([^a-zA-Z0-9_]+)/gi, '');
 
     plotLineChart(
       yearData[yodVarName],
-      yearData.Relative_Survival_Cum,
+      yearData.Relative_Survival_Cum || yearData.CauseSpecific_Survival_Cum,
       yearData.Predicted_Survival_Cum,
       yearData.Interval,
       'Average Absolute Change in Relative Survival by Diagnosis Year',
@@ -1057,9 +1058,11 @@ function updateGraphs(token_id) {
 
     plotLineChart(
       deathData[yodVarName],
-      deathData.Relative_Survival_Interval.map(function(x) {
-        return 100 - x;
-      }),
+      (deathData.Relative_Survival_Interval || deathData.CauseSpecific_Survival_Interval).map(
+        function(x) {
+          return 100 - x;
+        }
+      ),
       deathData.Predicted_ProbDeath_Int,
       deathData.Interval,
       'Percent Change in the Anual Probability of Dying by Cancer by Diagnosis Year',
@@ -1070,7 +1073,7 @@ function updateGraphs(token_id) {
 
     plotLineChart(
       timeData.Interval,
-      timeData.Relative_Survival_Cum,
+      timeData.Relative_Survival_Cum || yearData.CauseSpecific_Survival_Cum,
       timeData.Predicted_Survival_Cum,
       timeData[yodVarName],
       'Relative Survival by Interval per Diagnosis Year',
@@ -1080,8 +1083,10 @@ function updateGraphs(token_id) {
     );
   }
 
-  var yodVarName = jpsurvData.calculate.static.yearOfDiagnosisVarName.replace(/\(|\)|-/g, '');
-  yodVarName = yodVarName.replace(/__/g, '_');
+  var yodVarName = jpsurvData.calculate.static.yearOfDiagnosisVarName
+    .replace(/\(|\)|-/g, '')
+    .replace(/__/g, '_')
+    .replace(/([^a-zA-Z0-9_]+)/gi, '');
 
   //Add the Year Table
   if (jpsurvData.results.yearData.survTable != undefined) {
