@@ -48,7 +48,6 @@ $(document).ready(function() {
   addEventListeners();
   addMessages();
   hide_display_email();
-  validateCohorts();
   // disable calculate button on document load if there are cohorts to select
   if (
     !jpsurvData.calculate.form.cohortValues ||
@@ -122,7 +121,6 @@ function validateEmail() {
   } else {
     $('#' + id).removeAttr('title');
     $('#calculate').prop('disabled', false);
-    $('#calcTooltip').tooltip('disable');
   }
 
   //var pattern = new RegExp('^' + $(this).attr('pattern') + '$');
@@ -144,38 +142,44 @@ function check_multiple() {
   return false;
 }
 
-// check if at least one of each cohort is selected
-function validateCohorts() {
+// check if there are any unselected cohorts
+function checkUnselected() {
   var fieldsets = $('#cohort-variables fieldset').length;
   for (var i = 0; i < fieldsets; i++) {
     if ($('#cohort-' + i + ' input').filter(':checked').length == 0) {
-      $('#calculate').prop('disabled', true);
-      $('#calcTooltip')
-        .attr('data-original-title', 'Must select at least one of each cohort')
-        .tooltip('enable');
-      return false;
+      return true;
     }
   }
-  if (!check_multiple()) {
-    $('#calculate').prop('disabled', false);
-    $('#calcTooltip').tooltip('disable');
+  return false;
+}
+
+// mark cohorts as checked if none are selected
+function checkUnselectedCohorts() {
+  var fieldsets = $('#cohort-variables fieldset').length;
+  for (var i = 0; i < fieldsets; i++) {
+    if ($('#cohort-' + i + ' input').filter(':checked').length == 0) {
+      $('#cohort-' + i + ' input').each(function(i, checkbox) {
+        $(checkbox).prop('checked', true);
+      });
+    }
   }
 }
 
 function hide_display_email() {
-  if (parseInt($('#max_join_point_select').val()) > maxJP || check_multiple() == true) {
+  if (
+    parseInt($('#max_join_point_select').val()) > maxJP ||
+    check_multiple() == true ||
+    checkUnselected() == true
+  ) {
     $('.e-mail-grp').fadeIn();
     $('#calculate')
       .val('Submit')
       .prop('disabled', true);
-    $('#calcTooltip')
-      .attr('data-original-title', 'Enter your email')
-      .tooltip('enable');
     validateEmail();
   } else {
     $('.e-mail-grp').fadeOut();
     $('#calculate').val('Calculate');
-    // $('#calculate').prop('disabled', false);
+    $('#calculate').prop('disabled', false);
   }
 }
 
@@ -224,7 +228,6 @@ function addEventListeners() {
 
   $('#cohort-variables').on('change', function(e) {
     hide_display_email();
-    validateCohorts();
   });
 
   $('#max_join_point_select').on('change', function(e) {
@@ -358,6 +361,7 @@ function addEventListeners() {
   $('#calculate').on('click', function() {
     //Reset main calculation.  This forces a rebuild R Database
     jpsurvData.stage2completed = false;
+    checkUnselectedCohorts();
     setCalculateData();
   });
 
