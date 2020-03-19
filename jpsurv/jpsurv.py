@@ -135,7 +135,13 @@ def stage1_upload():
 
     for k, v in list(request.args.items()):
         print("var: %s = %s" % (k, v))
-    r.source('./JPSurvWrapper.R')
+
+    try:
+        r.source('./JPSurvWrapper.R')
+    except Exception as _:
+        # when calling tests
+        r.source('../JPSurvWrapper.R')
+
     try:
         if(input_type=="dic"):
             uploaded_files = request.files.getlist("file_control")
