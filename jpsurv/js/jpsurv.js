@@ -1079,42 +1079,42 @@ function updateGraphs(token_id) {
       .replace(/__/g, '_')
       .replace(/([^a-zA-Z0-9_]+)/gi, '');
 
-    plotLineChart(
-      yearData[yodVarName],
-      yearData.Relative_Survival_Cum || yearData.CauseSpecific_Survival_Cum,
-      yearData.Predicted_Survival_Cum,
-      yearData.Interval,
-      'Average Absolute Change in Relative Survival by Diagnosis Year',
-      'Year at Diagnosis',
-      'Relative Survival (%)',
-      'yearPlot'
-    );
+    // plotLineChart(
+    //   yearData[yodVarName],
+    //   yearData.Relative_Survival_Cum || yearData.CauseSpecific_Survival_Cum,
+    //   yearData.Predicted_Survival_Cum,
+    //   yearData.Interval,
+    //   'Average Absolute Change in Relative Survival by Diagnosis Year',
+    //   'Year at Diagnosis',
+    //   'Relative Survival (%)',
+    //   'yearPlot'
+    // );
 
-    plotLineChart(
-      deathData[yodVarName],
-      (deathData.Relative_Survival_Interval || deathData.CauseSpecific_Survival_Interval).map(
-        function(x) {
-          return 100 - x;
-        }
-      ),
-      deathData.Predicted_ProbDeath_Int,
-      deathData.Interval,
-      'Percent Change in the Anual Probability of Dying by Cancer by Diagnosis Year',
-      'Year at Diagnosis',
-      'Anual Probability of Cancer Death (%)',
-      'deathPlot'
-    );
+    // plotLineChart(
+    //   deathData[yodVarName],
+    //   (deathData.Relative_Survival_Interval || deathData.CauseSpecific_Survival_Interval).map(
+    //     function(x) {
+    //       return 100 - x;
+    //     }
+    //   ),
+    //   deathData.Predicted_ProbDeath_Int,
+    //   deathData.Interval,
+    //   'Percent Change in the Anual Probability of Dying by Cancer by Diagnosis Year',
+    //   'Year at Diagnosis',
+    //   'Anual Probability of Cancer Death (%)',
+    //   'deathPlot'
+    // );
 
-    plotLineChart(
-      timeData.Interval,
-      timeData.Relative_Survival_Cum || timeData.CauseSpecific_Survival_Cum,
-      timeData.Predicted_Survival_Cum,
-      timeData[yodVarName],
-      'Relative Survival by Interval per Diagnosis Year',
-      'Interval',
-      'Relative Survival (%)',
-      'timePlot'
-    );
+    // plotLineChart(
+    //   timeData.Interval,
+    //   timeData.Relative_Survival_Cum || timeData.CauseSpecific_Survival_Cum,
+    //   timeData.Predicted_Survival_Cum,
+    //   timeData[yodVarName],
+    //   'Relative Survival by Interval per Diagnosis Year',
+    //   'Interval',
+    //   'Relative Survival (%)',
+    //   'timePlot'
+    // );
   }
 
   var yodVarName = jpsurvData.calculate.static.yearOfDiagnosisVarName
