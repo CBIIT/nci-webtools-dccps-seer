@@ -136,11 +136,7 @@ def stage1_upload():
     for k, v in list(request.args.items()):
         print("var: %s = %s" % (k, v))
 
-    try:
-        r.source('./JPSurvWrapper.R')
-    except Exception as _:
-        # when calling tests
-        r.source('../JPSurvWrapper.R')
+    r.source('./JPSurvWrapper.R')
 
     try:
         if(input_type=="dic"):
@@ -548,27 +544,19 @@ def myExport():
 
 @app.route('/jpsurvRest/stage2_calculate', methods=['GET'])
 def stage2_calculate():
-
-
-    print('Execute jpsurvRest/stage2_calculate')
-    print('Yes, yes, yes...')
-
     print(OKGREEN+UNDERLINE+BOLD + "****** Stage 2: CALCULATE BUTTON ***** " + ENDC)
 
     jpsurvDataString = request.args.get('jpsurvData', False)
     jpsurvDataString = fix_jpsurv(jpsurvDataString)
 
-    print(BOLD+"**** jpsurvDataString ****"+ENDC)
-    print(jpsurvDataString)
     print(OKBLUE+"The jpsurv STRING::::::"+ENDC)
     print(jpsurvDataString)
+
     jpsurvData = json.loads(jpsurvDataString)
-    print(BOLD+"**** jpsurvData ****"+ENDC)
+    print(OKBLUE+"**** jpsurvData ****"+ENDC)
     for key, value in list(jpsurvData.items()):
         print("var: %s = %s" % (key, value))
-        print("var: %s = %s" % (key, value))
 
-    #Init the R Source
     r.source('./JPSurvWrapper.R')
 
     print(BOLD+"**** Calling getFittedResultsWrapper ****"+ENDC)
@@ -582,11 +570,7 @@ def stage2_calculate():
 
 @app.route('/jpsurvRest/stage3_recalculate', methods=['GET'])
 def stage3_recalculate():
-
-    print('Go')
-    #time.sleep(3)
     print(OKGREEN+UNDERLINE+BOLD + "****** Stage 3: PLOT BUTTON ***** " + ENDC)
-    print("Recalculating ...")
 
     jpsurvDataString = request.args.get('jpsurvData', False)
     jpsurvDataString = fix_jpsurv(jpsurvDataString)
