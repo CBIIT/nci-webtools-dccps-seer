@@ -560,12 +560,16 @@ def stage2_calculate():
     r.source('./JPSurvWrapper.R')
 
     print(BOLD+"**** Calling getFittedResultsWrapper ****"+ENDC)
-    r.getFittedResultWrapper(UPLOAD_DIR, jpsurvDataString)
-
-    status = '{"status":"OK"}'
-    mimetype = 'application/json'
-    out_json = json.dumps(status)
-    return current_app.response_class(out_json, mimetype=mimetype)
+    try:
+        r.getFittedResultWrapper(UPLOAD_DIR, jpsurvDataString)
+        status = 200
+        out_json = json.dumps( {'status': 'OK'} )
+    except Exception as e:
+        print(e)
+        status = 400
+        out_json = json.dumps( {'msg': str(e)} )
+    finally: 
+        return current_app.response_class(out_json, status=status, mimetype='application/json')
 
 
 @app.route('/jpsurvRest/stage3_recalculate', methods=['GET'])
@@ -621,13 +625,17 @@ def stage3_recalculate():
 
         print(BOLD+"**** Calling getAllData ****"+ENDC)
         # Next line execute the R Program
-        r.getAllData(UPLOAD_DIR, jpsurvDataString,switch,use_default)
-
-    print("GOT RESULTS!")
-    status = '{"status":"OK"}'
-    mimetype = 'application/json'
-    out_json = json.dumps(status)
-    return current_app.response_class(out_json, mimetype=mimetype)
+        try:
+            r.getAllData(UPLOAD_DIR, jpsurvDataString,switch,use_default)
+            print("GOT RESULTS!")
+            status = 200
+            out_json = json.dumps( {'status': 'OK'} )
+        except Exception as e:
+            print(e)
+            status = 400
+            out_json = json.dumps( {'msg': str(e)} )
+        finally:
+            return current_app.response_class(out_json, status=status, mimetype='application/json')
 
 
 @app.route('/jpsurvRest/stage4_trends_calculate', methods=['GET'])

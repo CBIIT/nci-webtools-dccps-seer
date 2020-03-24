@@ -2502,14 +2502,8 @@ function jpsurvRest2(action, callback) {
 }
 
 function displayCommFail(id, jqXHR, textStatus) {
-  console.log('textrStatus', textStatus);
   console.dir('jqXHR', jqXHR);
-  console.warn('CommFail\n' + 'Status: ' + textStatus);
   var message;
-  var errorThrown = '';
-  console.warn(
-    'header: ' + jqXHR + '\ntextStatus: ' + textStatus + '\nerrorThrown: ' + errorThrown
-  );
   // ERROR
   if (jqXHR.status == 500) {
     message =
@@ -2517,6 +2511,8 @@ function displayCommFail(id, jqXHR, textStatus) {
   } else if (jqXHR.status == 404) {
     message =
       'Could not export workspace. Please check that input files are properly named and formatted.';
+  } else if (jqXHR.status == 400) {
+    message = jqXHR.responseJSON.msg;
   } else {
     message = 'code(' + jqXHR.status + ') ' + jqXHR.statusText + ' (' + textStatus + ')';
     message +=
@@ -2608,7 +2604,7 @@ function showMessage(id, message, message_type) {
         .append(
           $('<div>')
             .addClass('card-body')
-            .append($('p').text(message))
+            .append($('<p>').text(message))
         )
     );
 }
