@@ -98,6 +98,27 @@ class BasicTests(unittest.TestCase):
             == "http://localhost/?request=false&file_control_filename=Breast_RelativeSurvival_Head_NA0.csv&output_filename=form-444444.json&status=uploaded&tokenId=444444"
         )
 
+        txt = open("./data/Breast_causespecific.txt", "rb")
+        dic = open("./data/Breast_causespecific.dic", "rb")
+        data = {
+            "file_control": [
+                (txt, "Breast_causespecific.txt"),
+                (dic, "Breast_causespecific.dic"),
+            ]
+        }
+        res = self.app.post(
+            "/jpsurvRest/stage1_upload?tokenId=555555&input_type=dic",
+            data=data,
+            follow_redirects=False,
+        )
+        txt.close()
+        dic.close()
+        assert res.status_code == 302, "Breast_causespecific Failed"
+        assert (
+            res.location
+            == "http://localhost/?request=false&file_control_filename=Breast_causespecific.dic&file_data_filename=Breast_causespecific.txt&output_filename=form-555555.json&status=uploaded&tokenId=555555"
+        )
+
     def test_4_calculate(self):
         res = self.app.get(
             "/jpsurvRest/stage2_calculate?jpsurvData=%7B%22file%22%3A%7B%22dictionary%22%3A%22Rocky.dic%22%2C%22data%22%3A%22Rocky.txt%22%2C%22form%22%3A%22form-111111.json%22%7D%2C%22calculate%22%3A%7B%22form%22%3A%7B%22yearOfDiagnosisRange%22%3A%5B1975%2C2014%5D%2C%22interval%22%3A15%2C%22cohortVars%22%3A%5B%22Site%20Jpsurv_v2%22%5D%2C%22AllcohortValues%22%3A%7B%220%22%3A%5B%22%5C%22Liver%20and%20Intrahepatic%20Bile%20Duct%5C%22%22%2C%22%5C%22Lung%20and%20Bronchus%5C%22%22%2C%22%5C%22Breast_female%5C%22%22%2C%22%5C%22Non-Hodgkin%20Lymphoma%5C%22%22%2C%22%5C%22Chronic%20Myeloid%20Leukemia%5C%22%22%2C%22%5C%22Kidney%20and%20Renal%20Pelvis%5C%22%22%5D%7D%2C%22cohortValues%22%3A%5B%22%5C%22Liver%20and%20Intrahepatic%20Bile%20Duct%5C%22%22%5D%2C%22covariateVars%22%3A%22%22%2C%22maxjoinPoints%22%3A0%7D%2C%22static%22%3A%7B%22yearOfDiagnosisTitle%22%3A%22Year%20of%20diagnosis%20jpsurv%22%2C%22years%22%3A%5B%221975%22%2C%221976%22%2C%221977%22%2C%221978%22%2C%221979%22%2C%221980%22%2C%221981%22%2C%221982%22%2C%221983%22%2C%221984%22%2C%221985%22%2C%221986%22%2C%221987%22%2C%221988%22%2C%221989%22%2C%221990%22%2C%221991%22%2C%221992%22%2C%221993%22%2C%221994%22%2C%221995%22%2C%221996%22%2C%221997%22%2C%221998%22%2C%221999%22%2C%222000%22%2C%222001%22%2C%222002%22%2C%222003%22%2C%222004%22%2C%222005%22%2C%222006%22%2C%222007%22%2C%222008%22%2C%222009%22%2C%222010%22%2C%222011%22%2C%222012%22%2C%222013%22%2C%222014%22%5D%2C%22yearOfDiagnosisVarName%22%3A%22Year_of_diagnosis_jpsurv%22%2C%22seerFilePrefix%22%3A%22Rocky%22%2C%22allVars%22%3A%5B%22Site%20Jpsurv_v2%22%2C%22Year_of_diagnosis_jpsurv%22%5D%2C%22advanced%22%3A%7B%22advDeleteInterval%22%3A%22F%22%2C%22advBetween%22%3A%222%22%2C%22advFirst%22%3A%223%22%2C%22advLast%22%3A%225%22%2C%22advYear%22%3A%225%22%7D%7D%7D%2C%22plot%22%3A%7B%22form%22%3A%7B%7D%2C%22static%22%3A%7B%22imageId%22%3A0%7D%7D%2C%22additional%22%3A%7B%22headerJoinPoints%22%3A0%2C%22yearOfDiagnosis%22%3A%5B%221975%22%5D%2C%22intervals%22%3A%5B5%2C10%5D%2C%22absTmp%22%3A%5Bnull%2Cnull%5D%2C%22absChgRange%22%3Anull%2C%22input_type%22%3A%22dic%22%2C%22statistic%22%3A%22Relative%20Survival%22%2C%22DataTypeVariable%22%3A%22Relative_Survival_Cum%22%2C%22yearOfDiagnosis_default%22%3A%5B1975%5D%2C%22use_default%22%3A%22true%22%2C%22intervals_default%22%3A%5B5%2C10%5D%2C%22intervalsDeath%22%3A%5B5%2C10%5D%2C%22yearTrend%22%3A0%2C%22deathTrend%22%3A0%7D%2C%22tokenId%22%3A%22111111%22%2C%22status%22%3A%22uploaded%22%2C%22stage2completed%22%3Afalse%2C%22mapping%22%3A%7B%7D%2C%22session_tokenId%22%3A%22111111%22%2C%22queue%22%3A%7B%22email%22%3A%22%22%2C%22url%22%3A%22http%253A%252F%252Flocalhost%253A9001%252F%253Frequest%253Dfalse%2526file_control_filename%253DRocky.dic%2526file_data_filename%253DRocky.txt%2526output_filename%253Dform-111111.json%2526status%253Duploaded%2526tokenId%253D111111%2526request%253Dtrue%22%7D%2C%22run%22%3A1%2C%22recentTrends%22%3A0%2C%22results%22%3A%7B%7D%7D&_=1585060469327"
@@ -126,6 +147,13 @@ class BasicTests(unittest.TestCase):
         assert res.status_code == 200, "Breast Failed"
         res = self.app.get("/tmp/results-444444-1-0.json")
         assert res.status_code == 200, "Breast Failed"
+
+        res = self.app.get(
+            "/jpsurvRest/stage2_calculate?jpsurvData=%7B%22file%22%3A%7B%22dictionary%22%3A%22Breast_causespecific.dic%22%2C%22data%22%3A%22Breast_causespecific.txt%22%2C%22form%22%3A%22form-555555.json%22%7D%2C%22calculate%22%3A%7B%22form%22%3A%7B%22yearOfDiagnosisRange%22%3A%5B1975%2C2011%5D%2C%22interval%22%3A36%2C%22cohortVars%22%3A%5B%22Age%20groups%22%2C%22Breast%20stage%22%5D%2C%22AllcohortValues%22%3A%7B%220%22%3A%5B%22%5C%2200-49%5C%22%22%2C%22%5C%2245-65s%5C%22%22%2C%22%5C%2265%7Bplus%7D%5C%22%22%5D%2C%221%22%3A%5B%22%5C%22Localized%5C%22%22%2C%22%5C%22Regional%5C%22%22%2C%22%5C%22Distant%5C%22%22%5D%7D%2C%22cohortValues%22%3A%5B%22%5C%2200-49%5C%22%22%2C%22%5C%22Localized%5C%22%22%5D%2C%22covariateVars%22%3A%22%22%2C%22maxjoinPoints%22%3A0%7D%2C%22static%22%3A%7B%22yearOfDiagnosisTitle%22%3A%22Year%20of%20diagnosis%201975%7Bplus%7D%22%2C%22years%22%3A%5B%221975%22%2C%221976%22%2C%221977%22%2C%221978%22%2C%221979%22%2C%221980%22%2C%221981%22%2C%221982%22%2C%221983%22%2C%221984%22%2C%221985%22%2C%221986%22%2C%221987%22%2C%221988%22%2C%221989%22%2C%221990%22%2C%221991%22%2C%221992%22%2C%221993%22%2C%221994%22%2C%221995%22%2C%221996%22%2C%221997%22%2C%221998%22%2C%221999%22%2C%222000%22%2C%222001%22%2C%222002%22%2C%222003%22%2C%222004%22%2C%222005%22%2C%222006%22%2C%222007%22%2C%222008%22%2C%222009%22%2C%222010%22%2C%222011%22%5D%2C%22yearOfDiagnosisVarName%22%3A%22Year_of_diagnosis_1975%7Bplus%7D%22%2C%22seerFilePrefix%22%3A%22Breast_causespecific%22%2C%22allVars%22%3A%5B%22Age%20groups%22%2C%22Breast%20stage%22%2C%22Year_of_diagnosis_1975%7Bplus%7D%22%5D%2C%22advanced%22%3A%7B%22advDeleteInterval%22%3A%22F%22%2C%22advBetween%22%3A%222%22%2C%22advFirst%22%3A%223%22%2C%22advLast%22%3A%225%22%2C%22advYear%22%3A%225%22%7D%7D%7D%2C%22plot%22%3A%7B%22form%22%3A%7B%7D%2C%22static%22%3A%7B%22imageId%22%3A0%7D%7D%2C%22additional%22%3A%7B%22headerJoinPoints%22%3A0%2C%22yearOfDiagnosis%22%3A%5B%221975%22%5D%2C%22intervals%22%3A%5B5%2C10%5D%2C%22absTmp%22%3A%5Bnull%2Cnull%5D%2C%22absChgRange%22%3Anull%2C%22input_type%22%3A%22dic%22%2C%22statistic%22%3A%22Cause-Specific%20Survival%22%2C%22DataTypeVariable%22%3A%22CauseSpecific_Survival_Cum%22%2C%22yearOfDiagnosis_default%22%3A%5B1975%5D%2C%22use_default%22%3A%22true%22%2C%22intervals_default%22%3A%5B5%2C10%5D%2C%22intervalsDeath%22%3A%5B5%2C10%5D%2C%22yearTrend%22%3A0%2C%22deathTrend%22%3A0%7D%2C%22tokenId%22%3A%22555555%22%2C%22status%22%3A%22uploaded%22%2C%22stage2completed%22%3Afalse%2C%22mapping%22%3A%7B%7D%2C%22session_tokenId%22%3A%22555555%22%2C%22queue%22%3A%7B%22email%22%3A%22%22%2C%22url%22%3A%22http%253A%252F%252Flocalhost%253A9001%252F%253Frequest%253Dfalse%2526file_control_filename%253DBreast_causespecific.dic%2526file_data_filename%253DBreast_causespecific.txt%2526output_filename%253Dform-555555.json%2526status%253Duploaded%2526tokenId%253D555555%2526request%253Dtrue%22%7D%2C%22run%22%3A1%2C%22recentTrends%22%3A0%2C%22results%22%3A%7B%7D%7D&_=1585066284818"
+        )
+        assert res.status_code == 200, "Breast_causespecific Failed"
+        res = self.app.get("/tmp/results-555555-1-0.json")
+        assert res.status_code == 200, "Breast_causespecific Failed"
 
 
 if __name__ == "__main__":
