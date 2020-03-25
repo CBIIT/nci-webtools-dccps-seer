@@ -6,13 +6,23 @@ function plotLineChart(x, yMark, yLine, dimension, plotTitle, xTitle, yTitle, di
   var data = [];
   var uniqueDimensions = Array.from(new Set(dimension));
   var layout = {
-    title: plotTitle,
+    title: '<b>' + plotTitle + '</b>',
     hovermode: 'closest',
+    font: {
+      family: 'Arial, Helvetica, sans-serif'
+    },
+    legend: {
+      orientation: 'h',
+      x: 0.5,
+      y: -0.15,
+      yanchor: 'top',
+      xanchor: 'center'
+    },
     xaxis: {
-      title: xTitle
+      title: '<b>' + xTitle + '</b>'
     },
     yaxis: {
-      title: `${yTitle}\n\t\n\t`,
+      title: '<b>' + yTitle + '<br> </b>',
       showline: true,
       tickformat: '%',
       range: [0, 1],
