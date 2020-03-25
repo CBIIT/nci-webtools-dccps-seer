@@ -1071,8 +1071,8 @@ function updateGraphs(token_id) {
     );
 
   if (jpsurvData.results) {
-    yearData = jpsurvData.results.yearData.survTable;
-    deathData = jpsurvData.results.deathData.deathTable;
+    yearData = jpsurvData.results.yearData;
+    deathData = jpsurvData.results.deathData;
     timeData = jpsurvData.results.timeData.timeTable;
     yodVarName = jpsurvData.calculate.static.yearOfDiagnosisVarName
       .replace(/\(|\)|-/g, '')
@@ -1080,10 +1080,11 @@ function updateGraphs(token_id) {
       .replace(/([^a-zA-Z0-9_]+)/gi, '');
 
     plotLineChart(
-      yearData[yodVarName],
-      yearData.Relative_Survival_Cum || yearData.CauseSpecific_Survival_Cum,
-      yearData.Predicted_Survival_Cum,
-      yearData.Interval,
+      yearData.survTable[yodVarName],
+      yearData.survTable.Relative_Survival_Cum || yearData.CauseSpecific_Survival_Cum,
+      yearData.survTable.Predicted_Survival_Cum,
+      yearData.survTable.Interval,
+      yearData.survTrend,
       'Average Absolute Change in ' + jpsurvData.additional.statistic + ' by Diagnosis Year',
       'Year at Diagnosis',
       jpsurvData.additional.statistic + ' (%)',
@@ -1091,14 +1092,16 @@ function updateGraphs(token_id) {
     );
 
     plotLineChart(
-      deathData[yodVarName],
-      (deathData.Relative_Survival_Interval || deathData.CauseSpecific_Survival_Interval).map(
-        function(x) {
-          return 100 - x;
-        }
-      ),
-      deathData.Predicted_ProbDeath_Int,
-      deathData.Interval,
+      deathData.deathTable[yodVarName],
+      (
+        deathData.deathTable.Relative_Survival_Interval ||
+        deathData.deathTable.CauseSpecific_Survival_Interval
+      ).map(function(x) {
+        return 100 - x;
+      }),
+      deathData.deathTable.Predicted_ProbDeath_Int,
+      deathData.deathTable.Interval,
+      deathData.deathTrend,
       'Percent Change in the Anual Probability of Dying by Cancer by Diagnosis Year',
       'Year at Diagnosis',
       'Anual Probability of Cancer Death (%)',
@@ -1110,7 +1113,8 @@ function updateGraphs(token_id) {
       timeData.Relative_Survival_Cum || timeData.CauseSpecific_Survival_Cum,
       timeData.Predicted_Survival_Cum,
       timeData[yodVarName],
-      jpsurvData.additional.statistic+ ' by Interval per Diagnosis Year',
+      null,
+      jpsurvData.additional.statistic + ' by Interval per Diagnosis Year',
       'Interval',
       jpsurvData.additional.statistic + ' (%)',
       'timePlot'
@@ -1298,7 +1302,7 @@ function addTable(yodCol, headers, table, data, data_se, graph) {
   table.append(tableBody);
 }
 
-function updateEstimates(token_id) {
+function updateEstimates() {
   var row;
   jointpoints = JSON.parse(jpsurvData.results.ModelSelection);
   if (jpsurvData.additional.headerJoinPoints != undefined) {
@@ -1400,7 +1404,7 @@ function updateTrendGraph(trends, table_id) {
     }
   });
 }
-function updateGraphLinks(token_id) {
+function updateGraphLinks() {
   document.querySelector('#graph-year-dataset-link').onclick = function(event) {
     event.preventDefault();
     downloadData('survByYear');
@@ -1421,15 +1425,10 @@ function updateGraphLinks(token_id) {
   });
 }
 
-function updateSelections(token_id) {
-  return;
-}
-
 function updateTabs(tokenId) {
   updateGraphs(tokenId);
-  updateEstimates(tokenId);
-  updateGraphLinks(tokenId);
-  updateSelections(tokenId);
+  updateEstimates();
+  updateGraphLinks();
   updateTrend();
   //Change the precision of all the floats.
   changePrecision();
