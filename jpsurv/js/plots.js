@@ -50,6 +50,7 @@ function plotLineChart(x, yMark, yLine, dimension, trends, plotTitle, xTitle, yT
       if (Array.isArray(trend.interval)) {
         for (var i in trend.interval) {
           var year = Math.floor((trend['start.year'][i] + trend['end.year'][i]) / 2);
+          if (i == trend.interval.length - 1) year = Math.floor(year - trend.interval[i] / 2);
 
           layout.annotations.push({
             x: year,

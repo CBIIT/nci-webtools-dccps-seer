@@ -243,26 +243,26 @@ function addEventListeners() {
 
   $('#interval-years').on('change', function() {
     checkSelect();
-    if ($('#interval-years').val().length > 3) {
-      $('#yearAnno').prop('disabled', true);
-      $('#yearAnno').prop('checked', false);
-    } else {
-      if ($('#showYearTrend').prop('checked')) {
-        $('#yearAnno').prop('disabled', false);
-      }
-    }
+    // if ($('#interval-years').val().length > 3) {
+    //   $('#yearAnno').prop('disabled', true);
+    //   $('#yearAnno').prop('checked', false);
+    // } else {
+    //   if ($('#showYearTrend').prop('checked')) {
+    //     $('#yearAnno').prop('disabled', false);
+    //   }
+    // }
   });
 
   $('#interval-years-death').on('change', function() {
     checkSelect();
-    if ($('#interval-years-death').val().length > 3) {
-      $('#deathAnno').prop('disabled', true);
-      $('#deathAnno').prop('checked', false);
-    } else {
-      if ($('#showDeathTrend').prop('checked')) {
-        $('#deathAnno').prop('disabled', false);
-      }
-    }
+    // if ($('#interval-years-death').val().length > 3) {
+    //   $('#deathAnno').prop('disabled', true);
+    //   $('#deathAnno').prop('checked', false);
+    // } else {
+    //   if ($('#showDeathTrend').prop('checked')) {
+    //     $('#deathAnno').prop('disabled', false);
+    //   }
+    // }
   });
 
   $('#year-of-diagnosis').on('change', function() {
@@ -307,11 +307,13 @@ function addEventListeners() {
   });
 
   $('#yearAnno').on('change', function() {
-    getAnnoGraph();
+    // getAnnoGraph();
+    plot('year');
   });
 
   $('#deathAnno').on('change', function() {
-    getAnnoGraph();
+    // getAnnoGraph();
+    plot('death');
   });
 
   $('#absChgFrom').on('change', function() {
@@ -995,131 +997,156 @@ function createModelSelection() {
   });
 }
 
-function updateGraphs(token_id) {
-  //Populate graph-year
-  $('#graph-year-tab')
-    .find('img')
-    .show();
-  $('#graph-year-tab')
-    .find('img')
-    .attr(
-      'src',
-      'tmp/plot_Year-' +
-        token_id +
-        '-' +
-        jpsurvData.results.com +
-        '-' +
-        jpsurvData.results.jpInd +
-        '-' +
-        jpsurvData.results.imageId +
-        '.png'
-    );
-  $('#graph-year-tab')
-    .find('img')
-    .css('width', '45%');
-  $('#graph-year-table > tbody').empty();
-  $('#graph-year-table > tbody').append(
-    '<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>'
-  );
-
-  //Populate death-year
-  $('#graph-death-tab')
-    .find('img')
-    .show();
-  $('#graph-death-tab')
-    .find('img')
-    .attr(
-      'src',
-      'tmp/plot_Death-' +
-        token_id +
-        '-' +
-        jpsurvData.results.com +
-        '-' +
-        jpsurvData.results.jpInd +
-        '-' +
-        jpsurvData.results.imageId +
-        '.png'
-    );
-  $('#graph-death-tab')
-    .find('img')
-    .css('width', '45%');
-  $('#graph-death-table > tbody').empty();
-  $('#graph-death-table > tbody').append(
-    '<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>'
-  );
-
-  //Populate time-year
-  $('#graph-time-tab')
-    .find('img')
-    .show();
-  $('#graph-time-tab')
-    .find('img')
-    .css('width', '45%');
-  $('#graph-time-tab')
-    .find('img')
-    .attr(
-      'src',
-      'tmp/plot_Int-' +
-        token_id +
-        '-' +
-        jpsurvData.results.com +
-        '-' +
-        jpsurvData.results.jpInd +
-        '-' +
-        jpsurvData.results.imageId +
-        '.png'
-    );
-
+function plot(plot) {
   if (jpsurvData.results) {
-    yearData = jpsurvData.results.yearData;
-    deathData = jpsurvData.results.deathData;
-    timeData = jpsurvData.results.timeData.timeTable;
     yodVarName = jpsurvData.calculate.static.yearOfDiagnosisVarName
       .replace(/\(|\)|-/g, '')
       .replace(/__/g, '_')
       .replace(/([^a-zA-Z0-9_]+)/gi, '');
 
-    plotLineChart(
-      yearData.survTable[yodVarName],
-      yearData.survTable.Relative_Survival_Cum || yearData.CauseSpecific_Survival_Cum,
-      yearData.survTable.Predicted_Survival_Cum,
-      yearData.survTable.Interval,
-      yearData.survTrend,
-      'Average Absolute Change in ' + jpsurvData.additional.statistic + ' by Diagnosis Year',
-      'Year at Diagnosis',
-      jpsurvData.additional.statistic + ' (%)',
-      'yearPlot'
-    );
+    if (plot == 'year') {
+      yearData = jpsurvData.results.yearData;
+      trend =
+        $('#yearAnno').is(':checked') && yearData.survTrend
+          ? Array.isArray(yearData.survTrend[0])
+            ? yearData.survTrend[0]
+            : yearData.survTrend
+          : null;
 
-    plotLineChart(
-      deathData.deathTable[yodVarName],
-      (
-        deathData.deathTable.Relative_Survival_Interval ||
-        deathData.deathTable.CauseSpecific_Survival_Interval
-      ).map(function(x) {
-        return 100 - x;
-      }),
-      deathData.deathTable.Predicted_ProbDeath_Int,
-      deathData.deathTable.Interval,
-      deathData.deathTrend,
-      'Percent Change in the Anual Probability of Dying by Cancer by Diagnosis Year',
-      'Year at Diagnosis',
-      'Anual Probability of Cancer Death (%)',
-      'deathPlot'
-    );
+      plotLineChart(
+        yearData.survTable[yodVarName],
+        yearData.survTable.Relative_Survival_Cum || yearData.CauseSpecific_Survival_Cum,
+        yearData.survTable.Predicted_Survival_Cum,
+        yearData.survTable.Interval,
+        trend,
+        'Average Absolute Change in ' + jpsurvData.additional.statistic + ' by Diagnosis Year',
+        'Year at Diagnosis',
+        jpsurvData.additional.statistic + ' (%)',
+        'yearPlot'
+      );
+    } else if (plot == 'death') {
+      deathData = jpsurvData.results.deathData;
 
-    plotLineChart(
-      timeData.Interval,
-      timeData.Relative_Survival_Cum || timeData.CauseSpecific_Survival_Cum,
-      timeData.Predicted_Survival_Cum,
-      timeData[yodVarName],
-      null,
-      jpsurvData.additional.statistic + ' by Interval per Diagnosis Year',
-      'Interval',
-      jpsurvData.additional.statistic + ' (%)',
-      'timePlot'
-    );
+      plotLineChart(
+        deathData.deathTable[yodVarName],
+        (
+          deathData.deathTable.Relative_Survival_Interval ||
+          deathData.deathTable.CauseSpecific_Survival_Interval
+        ).map(function(x) {
+          return 100 - x;
+        }),
+        deathData.deathTable.Predicted_ProbDeath_Int,
+        deathData.deathTable.Interval,
+        $('#deathAnno').is(':checked') && deathData.deathTrend ? deathData.deathTrend : null,
+        'Percent Change in the Anual Probability of Dying by Cancer by Diagnosis Year',
+        'Year at Diagnosis',
+        'Anual Probability of Cancer Death (%)',
+        'deathPlot'
+      );
+    } else if (plot == 'time') {
+      timeData = jpsurvData.results.timeData.timeTable;
+
+      plotLineChart(
+        timeData.Interval,
+        timeData.Relative_Survival_Cum || timeData.CauseSpecific_Survival_Cum,
+        timeData.Predicted_Survival_Cum,
+        timeData[yodVarName],
+        null,
+        jpsurvData.additional.statistic + ' by Interval per Diagnosis Year',
+        'Interval',
+        jpsurvData.additional.statistic + ' (%)',
+        'timePlot'
+      );
+    }
   }
+}
+
+function updateGraphs(token_id) {
+  //Populate graph-year
+  // $('#graph-year-tab')
+  //   .find('img')
+  //   .show();
+  // $('#graph-year-tab')
+  //   .find('img')
+  //   .attr(
+  //     'src',
+  //     'tmp/plot_Year-' +
+  //       token_id +
+  //       '-' +
+  //       jpsurvData.results.com +
+  //       '-' +
+  //       jpsurvData.results.jpInd +
+  //       '-' +
+  //       jpsurvData.results.imageId +
+  //       '.png'
+  //   );
+  // $('#graph-year-tab')
+  //   .find('img')
+  //   .css('width', '45%');
+  // $('#graph-year-table > tbody').empty();
+  // $('#graph-year-table > tbody').append(
+  //   '<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>'
+  // );
+
+  //Populate death-year
+  // $('#graph-death-tab')
+  //   .find('img')
+  //   .show();
+  // $('#graph-death-tab')
+  //   .find('img')
+  //   .attr(
+  //     'src',
+  //     'tmp/plot_Death-' +
+  //       token_id +
+  //       '-' +
+  //       jpsurvData.results.com +
+  //       '-' +
+  //       jpsurvData.results.jpInd +
+  //       '-' +
+  //       jpsurvData.results.imageId +
+  //       '.png'
+  //   );
+  // $('#graph-death-tab')
+  //   .find('img')
+  //   .css('width', '45%');
+  // $('#graph-death-table > tbody').empty();
+  // $('#graph-death-table > tbody').append(
+  //   '<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>'
+  // );
+
+  //Populate time-year
+  // $('#graph-time-tab')
+  //   .find('img')
+  //   .show();
+  // $('#graph-time-tab')
+  //   .find('img')
+  //   .css('width', '45%');
+  // $('#graph-time-tab')
+  //   .find('img')
+  //   .attr(
+  //     'src',
+  //     'tmp/plot_Int-' +
+  //       token_id +
+  //       '-' +
+  //       jpsurvData.results.com +
+  //       '-' +
+  //       jpsurvData.results.jpInd +
+  //       '-' +
+  //       jpsurvData.results.imageId +
+  //       '.png'
+  //   );
+
+  // Check checkboxes if trend exists
+  jpsurvData.results.yearData.survTrend
+    ? $('#yearAnno').prop('checked', true)
+    : ($('#yearAnno').prop('disabled', true), $('#yearAnno').prop('checked', false));
+  jpsurvData.results.deathData.deathTrend
+    ? $('#deathAnno').prop('checked', true)
+    : ($('#deathAnno').prop('disabled', true), $('#deathAnno').prop('checked', false));
+
+  plot('year');
+  plot('death');
+  plot('time');
 
   var yodVarName = jpsurvData.calculate.static.yearOfDiagnosisVarName
     .replace(/\(|\)|-/g, '')
@@ -1430,16 +1457,8 @@ function updateTabs(tokenId) {
   updateEstimates();
   updateGraphLinks();
   updateTrend();
-  //Change the precision of all the floats.
   changePrecision();
-  // Check checkboxes if annotated graph exists
-  jpsurvData.results.yearData.survGraphAnno
-    ? $('#yearAnno').prop('checked', true)
-    : ($('#yearAnno').prop('disabled', true), $('#yearAnno').prop('checked', false));
-  jpsurvData.results.deathData.deathGraphAnno
-    ? $('#deathAnno').prop('checked', true)
-    : ($('#deathAnno').prop('disabled', true), $('#deathAnno').prop('checked', false));
-  getAnnoGraph();
+  // getAnnoGraph();
 }
 
 function calculateAllData() {
@@ -1939,33 +1958,33 @@ function getIntervals() {
   });
 }
 
-function getImagePath(path) {
-  var start = path.search('tmp');
-  var end = path.length;
-  return path.substring(start, end);
-}
+// function getImagePath(path) {
+//   var start = path.search('tmp');
+//   var end = path.length;
+//   return path.substring(start, end);
+// }
 
-// display trend measures on graph if checked
-function getAnnoGraph() {
-  if ($('#yearAnno').is(':checked') && jpsurvData.results.yearData.survGraphAnno) {
-    $('#graph-year-tab')
-      .find('img')
-      .attr('src', getImagePath(jpsurvData.results.yearData.survGraphAnno));
-  } else {
-    $('#graph-year-tab')
-      .find('img')
-      .attr('src', getImagePath(jpsurvData.results.yearData.survGraph));
-  }
-  if ($('#deathAnno').is(':checked') && jpsurvData.results.deathData.deathGraphAnno) {
-    $('#graph-death-tab')
-      .find('img')
-      .attr('src', getImagePath(jpsurvData.results.deathData.deathGraphAnno));
-  } else {
-    $('#graph-death-tab')
-      .find('img')
-      .attr('src', getImagePath(jpsurvData.results.deathData.deathGraph));
-  }
-}
+// // display trend measures on graph if checked
+// function getAnnoGraph() {
+//   if ($('#yearAnno').is(':checked') && jpsurvData.results.yearData.survTrend) {
+//     $('#graph-year-tab')
+//       .find('img')
+//       .attr('src', getImagePath(jpsurvData.results.yearData.survGraphAnno));
+//   } else {
+//     $('#graph-year-tab')
+//       .find('img')
+//       .attr('src', getImagePath(jpsurvData.results.yearData.survGraph));
+//   }
+//   if ($('#deathAnno').is(':checked') && jpsurvData.results.deathData.deathTrend) {
+//     $('#graph-death-tab')
+//       .find('img')
+//       .attr('src', getImagePath(jpsurvData.results.deathData.deathGraphAnno));
+//   } else {
+//     $('#graph-death-tab')
+//       .find('img')
+//       .attr('src', getImagePath(jpsurvData.results.deathData.deathGraph));
+//   }
+// }
 
 function append_plot_intervals(max_interval) {
   $('#plot_intervals').empty();
