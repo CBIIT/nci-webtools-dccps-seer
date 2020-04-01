@@ -91,36 +91,36 @@ function plotLineChart(x, yMark, yLine, dimension, trends, plotTitle, xTitle, yT
     var precision = $('#precision').val();
     var markerTemplate =
       divID != 'timePlot'
-        ? 'Year at Diagnosis: %{x}' +
+        ? 'Interval: ' +
+          dimension[i] +
+          '<br>Year at Diagnosis: %{x}' +
           '<br>Observed Survival: %{y:.' +
           precision +
           '%}' +
-          '<br>Interval: ' +
-          dimension[i] +
           '<extra></extra>'
-        : 'Interval: %{x}' +
+        : 'Year: ' +
+          dimension[i] +
+          '<br>Interval: %{x}' +
           '<br>Observed Survival: %{y:.' +
           precision +
           '%}' +
-          '<br>Year: ' +
-          dimension[i] +
           '<extra></extra>';
 
     var lineTemplate =
       divID != 'timePlot'
-        ? 'Year at Diagnosis: %{x}' +
+        ? 'Interval: ' +
+          dimension[i] +
+          '<br>Year at Diagnosis: %{x}' +
           '<br>Predicted Survival: %{y:.' +
           precision +
           '%}' +
-          '<br>Interval: ' +
-          dimension[i] +
           '<extra></extra>'
-        : 'Interval: %{x}' +
+        : 'Year: ' +
+          dimension[i] +
+          '<br>Interval: %{x}' +
           '<br>Predicted Survival: %{y:.' +
           precision +
           '%}' +
-          '<br>Year: ' +
-          dimension[i] +
           '<extra></extra>';
 
     mTrace[dimension[i]].x.push(x);
@@ -134,7 +134,7 @@ function plotLineChart(x, yMark, yLine, dimension, trends, plotTitle, xTitle, yT
   });
 
   if (trends) {
-    for (var trend of trends) {
+    function buildTemplate(trend) {
       if (Array.isArray(trend.interval)) {
         trend.interval.forEach(function(interval, i) {
           var year = Math.floor((trend['start.year'][i] + trend['end.year'][i]) / 2);
@@ -170,6 +170,13 @@ function plotLineChart(x, yMark, yLine, dimension, trends, plotTitle, xTitle, yT
 
         lTrace[trend.interval].hovertemplate = newTemplate;
       }
+    }
+    if (trends.length < 4) {
+      for (var trend of trends) {
+        buildTemplate(trend);
+      }
+    } else {
+      buildTemplate(trends[0]);
     }
   }
 
