@@ -8,6 +8,7 @@ from jpsurv import app
 class BasicTests(unittest.TestCase):
     def setUp(self):
         # creates a test client
+        app.testing = True
         self.app = app.test_client()
 
     def tearDown(self):
