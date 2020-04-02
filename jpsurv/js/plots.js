@@ -25,12 +25,12 @@ function plotLineChart(x, yMark, yLine, dimension, trends, plotTitle, xTitle, yT
       title: '<b>' + yTitle + '<br> </b>',
       showline: true,
       tickformat: '%',
-      tickmode: 'linear',
-      dtick: 0.1,
+      tickmode: 'auto',
+      nticks: 11,
       range: [0, 1],
       autorange: false
     },
-    height: 600,
+    height: 700,
     width: 900
   };
   var colors = [
