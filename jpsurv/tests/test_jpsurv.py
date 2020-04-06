@@ -76,7 +76,7 @@ class BasicTests(unittest.TestCase):
         )
         txt.close()
         dic.close()
-        assert res.status_code == 302, "75surv Failed"
+        assert res.status_code == 301, "75surv Failed"
         assert (
             res.location
             == "http://localhost/?request=false&file_control_filename=75surv_jpsurv_example_CTPR.dic&file_data_filename=75surv_jpsurv_example_CTPR.txt&output_filename=form-333333.json&status=uploaded&tokenId=333333"
