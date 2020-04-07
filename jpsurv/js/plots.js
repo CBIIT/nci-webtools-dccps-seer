@@ -9,17 +9,17 @@ function plotLineChart(x, yMark, yLine, dimension, trends, plotTitle, xTitle, yT
     title: '<b>' + plotTitle + '</b>',
     hovermode: 'closest',
     font: {
-      family: 'Arial, Helvetica, sans-serif'
+      family: 'Arial, Helvetica, sans-serif',
     },
     legend: {
       orientation: 'h',
       x: 0.5,
       y: -0.15,
       yanchor: 'top',
-      xanchor: 'center'
+      xanchor: 'center',
     },
     xaxis: {
-      title: '<b>' + xTitle + '</b>'
+      title: '<b>' + xTitle + '</b>',
     },
     yaxis: {
       title: '<b>' + yTitle + '<br> </b>',
@@ -28,10 +28,10 @@ function plotLineChart(x, yMark, yLine, dimension, trends, plotTitle, xTitle, yT
       tickmode: 'auto',
       nticks: 11,
       range: [0, 1],
-      autorange: false
+      autorange: false,
     },
     height: 700,
-    width: 900
+    width: 900,
   };
   var colors = [
     '#1f77b4', // muted blue
@@ -43,10 +43,10 @@ function plotLineChart(x, yMark, yLine, dimension, trends, plotTitle, xTitle, yT
     '#e377c2', // raspberry yogurt pink
     '#7f7f7f', // middle gray
     '#bcbd22', // curry yellow-green
-    '#17becf' // blue-teal
+    '#17becf', // blue-teal
   ];
 
-  uniqueDimensions.forEach(function(interval, i) {
+  uniqueDimensions.forEach(function (interval, i) {
     if (!legend[interval]) {
       mTrace[interval] = {
         x: [],
@@ -56,7 +56,7 @@ function plotLineChart(x, yMark, yLine, dimension, trends, plotTitle, xTitle, yT
         mode: 'markers',
         type: 'scatter',
         marker: { color: colors[i % 10] },
-        legendgroup: interval
+        legendgroup: interval,
       };
 
       lTrace[interval] = {
@@ -70,7 +70,7 @@ function plotLineChart(x, yMark, yLine, dimension, trends, plotTitle, xTitle, yT
         mode: 'lines+text',
         line: { shape: 'spline', color: colors[i % 10] },
         type: 'scatter',
-        legendgroup: interval
+        legendgroup: interval,
       };
 
       legend[interval] = {
@@ -82,12 +82,12 @@ function plotLineChart(x, yMark, yLine, dimension, trends, plotTitle, xTitle, yT
         line: { color: colors[i % 10] },
         name:
           divID != 'timePlot' ? interval + '-year ' + jpsurvData.additional.statistic : interval,
-        legendgroup: interval
+        legendgroup: interval,
       };
     }
   });
 
-  x.forEach(function(x, i) {
+  x.forEach(function (x, i) {
     var precision = $('#precision').val();
     var markerTemplate =
       divID != 'timePlot'
@@ -135,8 +135,9 @@ function plotLineChart(x, yMark, yLine, dimension, trends, plotTitle, xTitle, yT
 
   if (trends) {
     function buildTemplate(trend) {
+      var trendLabel = divID == 'yearPlot' ? 'Trend AAC: ' : 'Trend DAP: ';
       if (Array.isArray(trend.interval)) {
-        trend.interval.forEach(function(interval, i) {
+        trend.interval.forEach(function (interval, i) {
           var year = Math.floor((trend['start.year'][i] + trend['end.year'][i]) / 2);
           if (i == trend.interval.length - 1) year = Math.floor(year - interval / 2);
 
@@ -153,7 +154,7 @@ function plotLineChart(x, yMark, yLine, dimension, trends, plotTitle, xTitle, yT
           for (var j = startYear; j < endYear; j++) {
             newTemplate[j] = newTemplate[j].substr(0, newTemplate[j].indexOf('<extra>'));
             newTemplate[j] +=
-              '<br>Trend AAC: ' + (100 * trend.estimate[i]).toFixed(1) + '<extra></extra>';
+              '<br>' + trendLabel + (100 * trend.estimate[i]).toFixed(1) + '<extra></extra>';
           }
           lTrace[interval].hovertemplate = newTemplate;
         });
@@ -162,10 +163,10 @@ function plotLineChart(x, yMark, yLine, dimension, trends, plotTitle, xTitle, yT
         var yearIndex = lTrace[trend.interval].x.indexOf(year);
         lTrace[trend.interval].text[yearIndex] = (100 * trend.estimate).toFixed(1);
 
-        var newTemplate = lTrace[trend.interval].hovertemplate.map(function(template) {
+        var newTemplate = lTrace[trend.interval].hovertemplate.map(function (template) {
           template = template.substr(0, template.indexOf('<extra>'));
           return (template +=
-            '<br>Trend AAC: ' + (100 * trend.estimate).toFixed(1) + '<extra></extra>');
+            '<br>' + trendLabel + (100 * trend.estimate).toFixed(1) + '<extra></extra>');
         });
 
         lTrace[trend.interval].hovertemplate = newTemplate;
@@ -180,8 +181,8 @@ function plotLineChart(x, yMark, yLine, dimension, trends, plotTitle, xTitle, yT
     }
   }
 
-  [mTrace, lTrace, legend].forEach(function(traceGroup) {
-    Object.keys(traceGroup).forEach(function(trace) {
+  [mTrace, lTrace, legend].forEach(function (traceGroup) {
+    Object.keys(traceGroup).forEach(function (trace) {
       data.push(traceGroup[trace]);
     });
   });
