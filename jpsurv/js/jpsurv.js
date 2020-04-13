@@ -1853,6 +1853,9 @@ function loadResults(results) {
   jpsurvData.additional.recalculate = 'false';
   checkTrends();
   changePrecision();
+  if (results.errors) {
+    showMessage('jpsurv', results.errors, 'Warning')
+  }
 }
 
 // check if trends have been calculated and display them

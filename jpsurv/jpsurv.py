@@ -620,13 +620,11 @@ def stage3_recalculate():
     #Init the R Source
     print(os.path.isfile(fname))
     if(os.path.isfile(fname)==False or recalc=="true"):
-
         r.source('./JPSurvWrapper.R')
-
         print(BOLD+"**** Calling getAllData ****"+ENDC)
         # Next line execute the R Program
         try:
-            r.getAllData(UPLOAD_DIR, jpsurvDataString,switch,use_default)
+            r.getAllData(UPLOAD_DIR, jpsurvDataString,switch,use_default,'tmp/cohortCombo-'+jpsurvData["tokenId"]+'.json')
             print("GOT RESULTS!")
             status = 200
             out_json = json.dumps( {'status': 'OK'} )
@@ -636,6 +634,9 @@ def stage3_recalculate():
             out_json = json.dumps( {'msg': str(e)} )
         finally:
             return current_app.response_class(out_json, status=status, mimetype='application/json')
+    
+    else:
+        return current_app.response_class(json.dumps( {'status': 'OK'} ), 200, mimetype='application/json')
 
 
 @app.route('/jpsurvRest/stage4_trends_calculate', methods=['GET'])
