@@ -2520,7 +2520,7 @@ function jpsurvRest2(action, callback) {
 }
 
 function displayCommFail(id, jqXHR, textStatus) {
-  console.dir('jqXHR', jqXHR);
+  console.warn('jqXHR', jqXHR);
   var message;
   // ERROR
   if (jqXHR.status == 500) {
@@ -2607,7 +2607,7 @@ function showMessage(id, message, message_type) {
     css_class = 'bg-warning';
     header = 'Warning';
   }
-  console.log(message);
+  console.warn(message);
   $('#' + container_id)
     .empty()
     .show()
