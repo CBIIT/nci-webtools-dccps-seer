@@ -34,7 +34,7 @@ class BasicTests(unittest.TestCase):
         )
         txt.close()
         dic.close()
-        assert res.status_code == 302, "Rocky Failed"
+        assert res.status_code == 302, "Rocky Upload Failed"
         assert (
             res.location
             == "http://localhost/?request=false&file_control_filename=Rocky.dic&file_data_filename=Rocky.txt&output_filename=form-111111.json&status=uploaded&tokenId=111111"
@@ -55,7 +55,7 @@ class BasicTests(unittest.TestCase):
         )
         txt.close()
         dic.close()
-        assert res.status_code == 302, "SEER9 Failed"
+        assert res.status_code == 302, "SEER9 Upload Failed"
         assert (
             res.location
             == "http://localhost/?request=false&file_control_filename=SEER9_Survival_6CancerSitesByStage_1975_2007.dic&file_data_filename=SEER9_Survival_6CancerSitesByStage_1975_2007.txt&output_filename=form-222222.json&status=uploaded&tokenId=222222"
@@ -76,7 +76,7 @@ class BasicTests(unittest.TestCase):
         )
         txt.close()
         dic.close()
-        assert res.status_code == 302, "75surv Failed"
+        assert res.status_code == 302, "75surv Upload Failed"
         assert (
             res.location
             == "http://localhost/?request=false&file_control_filename=75surv_jpsurv_example_CTPR.dic&file_data_filename=75surv_jpsurv_example_CTPR.txt&output_filename=form-333333.json&status=uploaded&tokenId=333333"
@@ -90,7 +90,7 @@ class BasicTests(unittest.TestCase):
             follow_redirects=False,
         )
         csv.close()
-        assert res.status_code == 302, "Breast Failed"
+        assert res.status_code == 302, "Breast Upload Failed"
         assert (
             res.location
             == "http://localhost/?request=false&file_control_filename=Breast_RelativeSurvival_Head_NA0.csv&output_filename=form-444444.json&status=uploaded&tokenId=444444"
@@ -111,7 +111,7 @@ class BasicTests(unittest.TestCase):
         )
         txt.close()
         dic.close()
-        assert res.status_code == 302, "Breast_causespecific Failed"
+        assert res.status_code == 302, "Breast_causespecific Upload Failed"
         assert (
             res.location
             == "http://localhost/?request=false&file_control_filename=Breast_causespecific.dic&file_data_filename=Breast_causespecific.txt&output_filename=form-555555.json&status=uploaded&tokenId=555555"
