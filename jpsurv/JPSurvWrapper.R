@@ -149,9 +149,10 @@ getFittedResultWrapper <- function (filePath, jpsurvDataString) {
   jsonl=list()
   valid_com_matrix = matrix(, nrow=0, ncol(com_matrix))
   errors = c()
-  if (length(com_matrix) > 0 && type=="dic") {
+  if (length(com_matrix) > 0) {
     for (i in 1:nrow(com_matrix)) {
-      valid = validateCohohort(jpsurvData, filePath, seerFilePrefix, allVars, yearOfDiagnosisVarName, yearOfDiagnosisRange, cohortVars, com_matrix[i,])
+      valid = validateCohohort(jpsurvData, filePath, seerFilePrefix, allVars, yearOfDiagnosisVarName, 
+      yearOfDiagnosisRange, cohortVars, com_matrix[i,], type, jpsurvData$additional$del)
       if (valid == 1) {
         valid_com_matrix <- rbind(valid_com_matrix, c(com_matrix[i,]))
       } else {
@@ -189,16 +190,22 @@ getFittedResultWrapper <- function (filePath, jpsurvDataString) {
   getAllData(filePath,jpsurvDataString,TRUE,TRUE,cohortComboPath, errors)
 }
 
-validateCohohort <- function(jpsurvData, filePath, seerFilePrefix, allVars, yearOfDiagnosisVarName, yearOfDiagnosisRange, cohortVars, cohortValues) {
+validateCohohort <- function(jpsurvData, filePath, seerFilePrefix, allVars, yearOfDiagnosisVarName, 
+  yearOfDiagnosisRange, cohortVars, cohortValues, type, del) {  
   file_name = paste(jpsurvData$session_tokenId, seerFilePrefix, sep="" )
   file = paste(filePath, file_name, sep="/" )
   varLabels = getCorrectFormat(allVars)
   subsetStr = getSubsetStr(yearOfDiagnosisVarName, yearOfDiagnosisRange, cohortVars, cohortValues)
-  seerdata = joinpoint.seerdata(
-    seerfilename=file,
-    newvarnames=varLabels,
-    NoFit=T,
-    UseVarLabelsInData=varLabels)
+  if (type == 'dic') {
+    seerdata = joinpoint.seerdata(
+      seerfilename=file,
+      newvarnames=varLabels,
+      NoFit=T,
+      UseVarLabelsInData=varLabels)
+  } else {
+    file = paste(file, '.csv', sep='')
+    seerdata = read.table(file, header=TRUE, dec=".", sep=del, na.strings="NA", check.names=FALSE);   
+  }
 
   stdout <- vector('character')
   con <- textConnection('stdout', 'wr', local = TRUE)
