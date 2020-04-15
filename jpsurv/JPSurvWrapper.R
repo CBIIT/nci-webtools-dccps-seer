@@ -37,18 +37,28 @@ ReadCSVFile <- function (inputFile, path, tokenId, jpsurvDataString,input_type) 
   #If delimter is a space or tab change it to ""
   if (del=="\t"||del==" ") { del="" }
 
-  csvdata <- JPSurv:::read.tabledata(fileName=file.path(path, inputFile),  # fileName: Name of file to use in current directory, or filepath.
-                            hasHeader=TRUE,
-                            dlm=del);                             # hasHeader: Boolean variable indicating whether or not the CSV being read in has a header row or not. Default is FALSE.
+  csvdata <- read.table(file.path(path, inputFile), header=TRUE, dec=".", sep=del, na.strings="NA", check.names=FALSE);
   dictionaryCols=c()
   if( length(cohorts) > 0) {
     dictionaryCols = c(cohorts,year,interval)
   } else {
     dictionaryCols = c(year,interval)
   }
-  seerFormData = JPSurv:::write.tabledic(inputData=csvdata,          # inputData: Input data.frame.
-                              idCols=dictionaryCols);
-                                                          # idColNum: Integer value defining how many leading columns to create a dictionary of possible values from. Default is 1. 
+
+  write.tabledic = function(inputData, idCols=c()) {
+    csvDic = list();
+    idColNum = length(idCols);
+    for(Index in 1:idColNum){
+      csvDic[[Index]] = unique(inputData[,idCols[Index]]);
+      names(csvDic)[Index] = idCols[Index];
+    }
+    return(csvDic);
+  }
+
+  # inputData: Input data.frame.
+  # idColNum: Integer value defining how many leading columns to create a dictionary of possible values from. Default is 1. 
+  seerFormData = write.tabledic(inputData=csvdata, idCols=dictionaryCols);          
+
   interval_name=names(csvdata)[interval]
   if (length(cohorts) > 0) {
     cohort_name=names(csvdata)[cohorts]
@@ -139,16 +149,21 @@ getFittedResultWrapper <- function (filePath, jpsurvDataString) {
   jsonl=list()
   valid_com_matrix = matrix(, nrow=0, ncol(com_matrix))
   errors = c()
-  for (i in 1:nrow(com_matrix)) {
-    valid = validateCohohort(jpsurvData, filePath, seerFilePrefix, allVars, yearOfDiagnosisVarName, yearOfDiagnosisRange, cohortVars, com_matrix[i,])
-    if (valid == 1) {
-      valid_com_matrix <- rbind(valid_com_matrix, c(com_matrix[i,]))
-    } else {
-      errors = append(errors, valid)
+  if (length(com_matrix) > 0 && type=="dic") {
+    for (i in 1:nrow(com_matrix)) {
+      valid = validateCohohort(jpsurvData, filePath, seerFilePrefix, allVars, yearOfDiagnosisVarName, yearOfDiagnosisRange, cohortVars, com_matrix[i,])
+      if (valid == 1) {
+        valid_com_matrix <- rbind(valid_com_matrix, c(com_matrix[i,]))
+      } else {
+        errors = append(errors, valid)
+      }
     }
-  }
-  if (length(valid_com_matrix) == 0) {
-    stop(errors)
+    if (length(valid_com_matrix) == 0) {
+      stop(errors)
+    }
+  } else {
+    # use original cohort matrix for csv data
+    valid_com_matrix = com_matrix
   }
   #loops through each combnation in the matrix and creates a R data file
   if (nrow(valid_com_matrix) > 0 ) {
@@ -229,9 +244,7 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,use_default=TRU
     file=paste(filePath, file_name, sep="/" )
     del=jpsurvData$additional$del
     if (del=="\t"||del==" ") { del="" }
-    seerdata =  JPSurv:::read.tabledata(fileName=file,          # fileName: Name of file to use in current directory, or filepath.
-                            hasHeader=TRUE,
-                            dlm=del);    
+    seerdata = read.table(file, header=TRUE, dec=".", sep=del, na.strings="NA", check.names=FALSE);
     observed=names(seerdata)[jpsurvData$additional$observed]
     interval=names(seerdata)[as.integer(jpsurvData$additional$interval)]
     input_type="csv"
@@ -359,9 +372,7 @@ getFittedResult <- function (tokenId,filePath, seerFilePrefix, yearOfDiagnosisVa
     if (del=="\t"||del==" ") {
         del=""
     }
-    seerdata =  JPSurv:::read.tabledata(fileName=file,          # fileName: Name of file to use in current directory, or filepath.
-                            hasHeader=TRUE,
-                            dlm=del);      
+    seerdata = read.table(file, header=TRUE, dec=".", sep=del, na.strings="NA", check.names=FALSE);   
     intervalRange = as.integer(jpsurvData$calculate$form$interval)
     alive_at_start=names(seerdata)[jpsurvData$additional$alive_at_start]
     lost_to_followup=names(seerdata)[jpsurvData$additional$lost_to_followup]
@@ -480,11 +491,13 @@ getSelectedModel<-function(filePath,jpsurvDataString,com) {
 getRunsString<-function(valid_com_matrix){
   cohorts = read_json(valid_com_matrix)
   runs=""
-  for(i in 1:length(cohorts)){
-    row=paste(cohorts[[i]],collapse=" + ")
-    runs=paste(runs,gsub("\"","",row),sep=" jpcom ")
+  if (length(cohorts) > 0) {
+    for(i in 1:length(cohorts)){
+      row=paste(cohorts[[i]],collapse=" + ")
+      runs=paste(runs,gsub("\"","",row),sep=" jpcom ")
+    }
+    runs=substr(runs, 7, nchar(runs))
   }
-  runs=substr(runs, 7, nchar(runs))
   return (unbox(runs))
 }
 
@@ -527,13 +540,15 @@ downloadDataWrapper <- function(jpsurvDataString, filePath, com, runs, yearVar, 
   fit = outputData[['fittedResult']]
   yearOfDiagnosisRange = jpsurvData$calculate$form$yearOfDiagnosisRange
   cohortVars = jpsurvData$calculate$form$cohortVars
-  cohortCombo = strsplit(runs, 'jpcom')[[1]][[com]]
-  cohortCombo = strsplit(cohortCombo, '+', fixed=TRUE)[[1]]
   cohortValues = c()
-  for (cohort in cohortCombo) {
-    value = paste(paste('\"', trimws(cohort), sep = ''), '\"', sep = '')
-    cohortValues = append(cohortValues, value)
-  }
+  if (runs != "") {
+    cohortCombo = strsplit(runs, 'jpcom')[[1]][[com]]
+    cohortCombo = strsplit(cohortCombo, '+', fixed=TRUE)[[1]]
+    for (cohort in cohortCombo) {
+      value = paste(paste('\"', trimws(cohort), sep = ''), '\"', sep = '')
+      cohortValues = append(cohortValues, value)
+    }
+  } 
   subsetStr = getSubsetStr(yearVar, yearOfDiagnosisRange, cohortVars, cohortValues)
   intervals = c()
   if (downloadtype == 'year') {
