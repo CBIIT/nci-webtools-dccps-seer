@@ -148,7 +148,9 @@ getFittedResultWrapper <- function (filePath, jpsurvDataString) {
   com_matrix=as.matrix(expand.grid(combination_array))
   jsonl=list()
   valid_com_matrix = matrix(, nrow=0, ncol(com_matrix))
-  errors = c()
+  errors = list()
+  errors['msg'] = c()
+  errors['invalid'] = c()
   if (length(com_matrix) > 0) {
     for (i in 1:nrow(com_matrix)) {
       valid = validateCohohort(jpsurvData, filePath, seerFilePrefix, allVars, yearOfDiagnosisVarName, 
@@ -156,11 +158,15 @@ getFittedResultWrapper <- function (filePath, jpsurvDataString) {
       if (valid == 1) {
         valid_com_matrix <- rbind(valid_com_matrix, c(com_matrix[i,]))
       } else {
-        errors = append(errors, valid)
+        errors[['msg']] = append(errors[['msg']], valid)
+        cohorts = gsub('\"', '', paste(as.vector(com_matrix[i,]), collapse=' + '))
+        errors[['invalid']] = append(errors[['invalid']], cohorts)
       }
     }
     if (length(valid_com_matrix) == 0) {
-      stop(errors)
+      cohorts = paste0(paste0('<li>', errors[['invalid']], '</li>'), collapse='')
+      msg = paste0('<h6>No data available for the following cohort selections:</h6><ul>', cohorts, '</ul>')
+      stop(msg)
     }
   } else {
     # use original cohort matrix for csv data

@@ -1,15 +1,34 @@
 // yMark - marker, yLine - line
-function plotLineChart(x, yMark, yLine, dimension, trends, plotTitle, xTitle, yTitle, divID) {
+function plotLineChart(x, yMark, yLine, dimension, trends, divID) {
+  var statistic = jpsurvData.additional.statistic;
+  titles = {
+    yearPlot: {
+      plotTitle: 'Average Absolute Change in ' + statistic + ' by Diagnosis Year',
+      xTitle: 'Year at Diagnosis',
+      yTitle: statistic + ' (%)',
+    },
+    deathPlot: {
+      plotTitle: 'Percent Change in the Anual Probability of Dying by Cancer by Diagnosis Year',
+      xTitle: 'Year at Diagnosis',
+      yTitle: 'Anual Probability of Cancer Death (%)',
+    },
+    timePlot: {
+      plotTitle: statistic + ' by Interval per Diagnosis Year',
+      xTitle: 'Interval',
+      yTitle: statistic + ' (%)',
+    },
+  };
+
   var mTrace = {};
   var lTrace = {};
   var legend = {};
   var data = [];
   var uniqueDimensions = Array.from(new Set(dimension));
   var layout = {
-    title: '<b>' + plotTitle + '</b>',
+    title: '<b>' + titles[divID].plotTitle + '</b>',
     hovermode: 'closest',
     font: {
-      family: 'Arial, Helvetica, sans-serif',
+      family: '"Helvetica Neue", Helvetica, Arial, sans-serif',
     },
     legend: {
       orientation: 'h',
@@ -19,10 +38,10 @@ function plotLineChart(x, yMark, yLine, dimension, trends, plotTitle, xTitle, yT
       xanchor: 'center',
     },
     xaxis: {
-      title: '<b>' + xTitle + '</b>',
+      title: '<b>' + titles[divID].xTitle + '</b>',
     },
     yaxis: {
-      title: '<b>' + yTitle + '<br> </b>',
+      title: '<b>' + titles[divID].yTitle + '<br> </b>',
       showline: true,
       tickformat: '%',
       tickmode: 'auto',
@@ -142,7 +161,7 @@ function plotLineChart(x, yMark, yLine, dimension, trends, plotTitle, xTitle, yT
           if (i == trend.interval.length - 1) year = Math.floor(year - interval / 2);
 
           var yearIndex = lTrace[interval].x.indexOf(year);
-          lTrace[interval].text[yearIndex] = (100 * trend.estimate[i]).toFixed(1);
+          lTrace[interval].text[yearIndex] = (100 * trend.estimate[i]).toFixed(2);
 
           var startYear = lTrace[interval].x.indexOf(trend['start.year'][i]);
           var endYear =
@@ -154,19 +173,19 @@ function plotLineChart(x, yMark, yLine, dimension, trends, plotTitle, xTitle, yT
           for (var j = startYear; j < endYear; j++) {
             newTemplate[j] = newTemplate[j].substr(0, newTemplate[j].indexOf('<extra>'));
             newTemplate[j] +=
-              '<br>' + trendLabel + (100 * trend.estimate[i]).toFixed(1) + '<extra></extra>';
+              '<br>' + trendLabel + (100 * trend.estimate[i]).toFixed(2) + '<extra></extra>';
           }
           lTrace[interval].hovertemplate = newTemplate;
         });
       } else {
         var year = Math.floor((trend['start.year'] + trend['end.year'] - trend.interval) / 2);
         var yearIndex = lTrace[trend.interval].x.indexOf(year);
-        lTrace[trend.interval].text[yearIndex] = (100 * trend.estimate).toFixed(1);
+        lTrace[trend.interval].text[yearIndex] = (100 * trend.estimate).toFixed(2);
 
         var newTemplate = lTrace[trend.interval].hovertemplate.map(function (template) {
           template = template.substr(0, template.indexOf('<extra>'));
           return (template +=
-            '<br>' + trendLabel + (100 * trend.estimate).toFixed(1) + '<extra></extra>');
+            '<br>' + trendLabel + (100 * trend.estimate).toFixed(2) + '<extra></extra>');
         });
 
         lTrace[trend.interval].hovertemplate = newTemplate;

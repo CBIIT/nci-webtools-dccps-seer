@@ -996,7 +996,8 @@ function plot(plot) {
         deathData.deathTable.CauseSpecific_Survival_Interval
       ).map(function (x) {
         return 100 - x;
-      })
+      });
+
       plotLineChart(
         deathData.deathTable[yodVarName],
         yMark,
@@ -1793,8 +1794,18 @@ function loadResults(results) {
   jpsurvData.additional.recalculate = 'false';
   checkTrends();
   changePrecision();
-  if (results.errors) {
-    showMessage('jpsurv', results.errors, 'Warning');
+  if (results.errors && Object.keys(results.errors).length) {
+    var msg = $('<div>')
+      .append($('<h6>').text('No data available for the following cohort selections:'))
+      .append(
+        $('<ul>').append(
+          results.errors.invalid.map(function (cohort) {
+            return $('<li>').text(cohort);
+          })
+        )
+      );
+
+    showMessage('jpsurv', msg, 'Warning');
   }
 }
 
@@ -2526,7 +2537,7 @@ function showMessage(id, message, message_type) {
             .addClass('card-header ' + css_class)
             .text(header)
         )
-        .append($('<div>').addClass('card-body').append($('<p>').text(message)))
+        .append($('<div>').addClass('card-body').append($('<p>').html(message)))
     );
 }
 
