@@ -1,20 +1,56 @@
 // yMark - marker, yLine - line
-function plotLineChart(x, yMark, yLine, dimension, plotTitle, xTitle, yTitle, divID) {
+function plotLineChart(x, yMark, yLine, dimension, trends, divID) {
+  var statistic = jpsurvData.additional.statistic;
+  titles = {
+    yearPlot: {
+      plotTitle: 'Average Absolute Change in ' + statistic + ' by Diagnosis Year',
+      xTitle: 'Year at Diagnosis',
+      yTitle: statistic + ' (%)',
+    },
+    deathPlot: {
+      plotTitle: 'Percent Change in the Anual Probability of Dying by Cancer by Diagnosis Year',
+      xTitle: 'Year at Diagnosis',
+      yTitle: 'Anual Probability of Cancer Death (%)',
+    },
+    timePlot: {
+      plotTitle: statistic + ' by Interval per Diagnosis Year',
+      xTitle: 'Interval',
+      yTitle: statistic + ' (%)',
+    },
+  };
+
   var mTrace = {};
   var lTrace = {};
+  var legend = {};
   var data = [];
   var uniqueDimensions = Array.from(new Set(dimension));
   var layout = {
-    title: plotTitle,
+    title: '<b>' + titles[divID].plotTitle + '</b>',
+    hovermode: 'closest',
+    font: {
+      family: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+    },
+    legend: {
+      orientation: 'h',
+      x: 0.5,
+      y: -0.15,
+      yanchor: 'top',
+      xanchor: 'center',
+    },
     xaxis: {
-      title: xTitle
+      title: '<b>' + titles[divID].xTitle + '</b>',
     },
     yaxis: {
-      title: yTitle,
-      tickformat: '.2%'
+      title: '<b>' + titles[divID].yTitle + '<br> </b>',
+      showline: true,
+      tickformat: '%',
+      tickmode: 'auto',
+      nticks: 11,
+      range: [0, 1],
+      autorange: false,
     },
-    height: 600,
-    width: 900
+    height: 700,
+    width: 900,
   };
   var colors = [
     '#1f77b4', // muted blue
@@ -26,41 +62,146 @@ function plotLineChart(x, yMark, yLine, dimension, plotTitle, xTitle, yTitle, di
     '#e377c2', // raspberry yogurt pink
     '#7f7f7f', // middle gray
     '#bcbd22', // curry yellow-green
-    '#17becf' // blue-teal
+    '#17becf', // blue-teal
   ];
 
-  uniqueDimensions.forEach(function(interval, i) {
-    mTrace[interval] = {
-      x: [],
-      y: [],
-      mode: 'markers',
-      type: 'scatter',
-      marker: { color: colors[i % 10] }
-    };
-    lTrace[interval] = {
-      x: [],
-      y: [],
-      mode: 'lines',
-      line: { shape: 'spline' },
-      type: 'scatter',
-      line: { color: colors[i % 10] }
-    };
+  uniqueDimensions.forEach(function (interval, i) {
+    if (!legend[interval]) {
+      mTrace[interval] = {
+        x: [],
+        y: [],
+        showlegend: false,
+        hovertemplate: [],
+        mode: 'markers',
+        type: 'scatter',
+        marker: { color: colors[i % 10] },
+        legendgroup: interval,
+      };
+
+      lTrace[interval] = {
+        x: [],
+        y: [],
+        showlegend: false,
+        hovertemplate: [],
+        text: [],
+        textposition: 'top',
+        textfont: { color: colors[i % 10], size: 14 },
+        mode: 'lines+text',
+        line: { shape: 'spline', color: colors[i % 10] },
+        type: 'scatter',
+        legendgroup: interval,
+      };
+
+      legend[interval] = {
+        x: [null],
+        y: [null],
+        showlegend: true,
+        mode: 'lines+markers',
+        type: 'scatter',
+        line: { color: colors[i % 10] },
+        name:
+          divID != 'timePlot' ? interval + '-year ' + jpsurvData.additional.statistic : interval,
+        legendgroup: interval,
+      };
+    }
   });
 
-  x.forEach(function(x, i) {
+  x.forEach(function (x, i) {
+    var precision = $('#precision').val();
+    var markerTemplate =
+      divID != 'timePlot'
+        ? 'Interval: ' +
+          dimension[i] +
+          '<br>Year at Diagnosis: %{x}' +
+          '<br>Observed Survival: %{y:.' +
+          precision +
+          '%}' +
+          '<extra></extra>'
+        : 'Year: ' +
+          dimension[i] +
+          '<br>Interval: %{x}' +
+          '<br>Observed Survival: %{y:.' +
+          precision +
+          '%}' +
+          '<extra></extra>';
+
+    var lineTemplate =
+      divID != 'timePlot'
+        ? 'Interval: ' +
+          dimension[i] +
+          '<br>Year at Diagnosis: %{x}' +
+          '<br>Predicted Survival: %{y:.' +
+          precision +
+          '%}' +
+          '<extra></extra>'
+        : 'Year: ' +
+          dimension[i] +
+          '<br>Interval: %{x}' +
+          '<br>Predicted Survival: %{y:.' +
+          precision +
+          '%}' +
+          '<extra></extra>';
+
     mTrace[dimension[i]].x.push(x);
     mTrace[dimension[i]].y.push(yMark[i] / 100);
-    mTrace[dimension[i]].name = 'Recorded - ' + dimension[i];
-    mTrace[dimension[i]].legendgroup = dimension[i];
+    mTrace[dimension[i]].hovertemplate.push(markerTemplate);
 
     lTrace[dimension[i]].x.push(x);
     lTrace[dimension[i]].y.push(yLine[i] / 100);
-    lTrace[dimension[i]].name = 'Predicted - ' + dimension[i];
-    lTrace[dimension[i]].legendgroup = dimension[i];
+    lTrace[dimension[i]].hovertemplate.push(lineTemplate);
+    lTrace[dimension[i]].text.push('');
   });
 
-  [mTrace, lTrace].map(function(traceGroup) {
-    Object.keys(traceGroup).forEach(function(trace) {
+  if (trends) {
+    function buildTemplate(trend) {
+      var trendLabel = divID == 'yearPlot' ? 'Trend AAC: ' : 'Trend DAP: ';
+      if (Array.isArray(trend.interval)) {
+        trend.interval.forEach(function (interval, i) {
+          var year = Math.floor((trend['start.year'][i] + trend['end.year'][i]) / 2);
+          if (i == trend.interval.length - 1) year = Math.floor(year - interval / 2);
+
+          var yearIndex = lTrace[interval].x.indexOf(year);
+          lTrace[interval].text[yearIndex] = (100 * trend.estimate[i]).toFixed(2);
+
+          var startYear = lTrace[interval].x.indexOf(trend['start.year'][i]);
+          var endYear =
+            lTrace[interval].x.indexOf(trend['end.year'][i]) > -1
+              ? lTrace[interval].x.indexOf(trend['end.year'][i])
+              : lTrace[interval].x.length;
+          var newTemplate = lTrace[interval].hovertemplate.slice();
+
+          for (var j = startYear; j < endYear; j++) {
+            newTemplate[j] = newTemplate[j].substr(0, newTemplate[j].indexOf('<extra>'));
+            newTemplate[j] +=
+              '<br>' + trendLabel + (100 * trend.estimate[i]).toFixed(2) + '<extra></extra>';
+          }
+          lTrace[interval].hovertemplate = newTemplate;
+        });
+      } else {
+        var year = Math.floor((trend['start.year'] + trend['end.year'] - trend.interval) / 2);
+        var yearIndex = lTrace[trend.interval].x.indexOf(year);
+        lTrace[trend.interval].text[yearIndex] = (100 * trend.estimate).toFixed(2);
+
+        var newTemplate = lTrace[trend.interval].hovertemplate.map(function (template) {
+          template = template.substr(0, template.indexOf('<extra>'));
+          return (template +=
+            '<br>' + trendLabel + (100 * trend.estimate).toFixed(2) + '<extra></extra>');
+        });
+
+        lTrace[trend.interval].hovertemplate = newTemplate;
+      }
+    }
+    if (trends.length < 4) {
+      for (var trend of trends) {
+        buildTemplate(trend);
+      }
+    } else {
+      buildTemplate(trends[0]);
+    }
+  }
+
+  [mTrace, lTrace, legend].forEach(function (traceGroup) {
+    Object.keys(traceGroup).forEach(function (trace) {
       data.push(traceGroup[trace]);
     });
   });

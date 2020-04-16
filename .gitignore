@@ -4,6 +4,6 @@ node_modules
 config.dev.ini
 .DS_Store
 /logs/*.log
-/jpsurv/tests/tmp/
+/jpsurv/.vscode
 /jpsurv/tests/.pytest_cache
 /jpsurv/tests/__pycache__
