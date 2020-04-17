@@ -241,26 +241,10 @@ function addEventListeners() {
 
   $('#interval-years').on('change', function () {
     checkSelect();
-    // if ($('#interval-years').val().length > 3) {
-    //   $('#yearAnno').prop('disabled', true);
-    //   $('#yearAnno').prop('checked', false);
-    // } else {
-    //   if ($('#showYearTrend').prop('checked')) {
-    //     $('#yearAnno').prop('disabled', false);
-    //   }
-    // }
   });
 
   $('#interval-years-death').on('change', function () {
     checkSelect();
-    // if ($('#interval-years-death').val().length > 3) {
-    //   $('#deathAnno').prop('disabled', true);
-    //   $('#deathAnno').prop('checked', false);
-    // } else {
-    //   if ($('#showDeathTrend').prop('checked')) {
-    //     $('#deathAnno').prop('disabled', false);
-    //   }
-    // }
   });
 
   $('#year-of-diagnosis').on('change', function () {
@@ -269,39 +253,28 @@ function addEventListeners() {
 
   $('#showYearTrend').on('change', function () {
     toggleAbsSelect();
-    if (
-      this.checked &&
-      $('#interval-years').val().length < 4 &&
-      jpsurvData.additional.headerJoinPoints < 4
-    ) {
-      $('#yearAnno').prop('disabled', false);
+    if (this.checked) {
+      if (jpsurvData.results.yearData.survTrend) {
+        $('#yearAnnoControl').css('display', 'block');
+      }
     } else {
-      $('#yearAnno').prop('disabled', true);
+      $('#yearAnnoControl').css('display', 'none');
       $('#yearAnno').prop('checked', false);
     }
-    if (jpsurvData.results && Object.keys(jpsurvData.results).length > 0) {
-      if (Object.keys(jpsurvData.results.yearData).length == 4)
-        $('#yearAnno').prop('disabled', false);
-      if (jpsurvData.results.yearData.survTrend) showTrendTable();
-    }
+    showTrendTable();
   });
 
   $('#showDeathTrend').on('change', function () {
-    if (
-      this.checked &&
-      $('#interval-years-death').val().length < 4 &&
-      jpsurvData.additional.headerJoinPoints < 4
-    ) {
-      $('#deathAnno').prop('disabled', false);
+    toggleAbsSelect();
+    if (this.checked) {
+      if (jpsurvData.results.deathData.deathTrend) {
+        $('#deathAnnoControl').css('display', 'block');
+      }
     } else {
-      $('#deathAnno').prop('disabled', true);
+      $('#deathAnnoControl').css('display', 'none');
       $('#deathAnno').prop('checked', false);
     }
-    if (jpsurvData.results && Object.keys(jpsurvData.results).length > 0) {
-      if (Object.keys(jpsurvData.results.deathData).length == 4)
-        $('#deathAnno').prop('disabled', false);
-      if (jpsurvData.results && jpsurvData.results.deathData.deathTrend) showTrendTable();
-    }
+    showTrendTable();
   });
 
   $('#yearAnno').on('change', function () {
@@ -975,7 +948,7 @@ function plot(plot) {
     if (plot == 'year') {
       yearData = jpsurvData.results.yearData;
       trend =
-        $('#yearAnno').is(':checked') && yearData.survTrend
+        !$('#yearAnno').is(':checked') && yearData.survTrend
           ? Array.isArray(yearData.survTrend[0])
             ? yearData.survTrend[0]
             : yearData.survTrend
@@ -1003,7 +976,7 @@ function plot(plot) {
         yMark,
         deathData.deathTable.Predicted_ProbDeath_Int,
         deathData.deathTable.Interval,
-        $('#deathAnno').is(':checked') && deathData.deathTrend ? deathData.deathTrend : null,
+        !$('#deathAnno').is(':checked') && deathData.deathTrend ? deathData.deathTrend : null,
         'deathPlot'
       );
     } else if (plot == 'time') {
@@ -1098,11 +1071,11 @@ function updateGraphs(token_id) {
 
   // Check checkboxes if trend exists
   jpsurvData.results.yearData.survTrend
-    ? $('#yearAnno').prop('checked', true)
-    : ($('#yearAnno').prop('disabled', true), $('#yearAnno').prop('checked', false));
+    ? ($('#yearAnnoControl').css('display', 'block'), $('#yearAnno').prop('checked', false))
+    : ($('#yearAnnoControl').css('display', 'none'), $('#yearAnno').prop('checked', true));
   jpsurvData.results.deathData.deathTrend
-    ? $('#deathAnno').prop('checked', true)
-    : ($('#deathAnno').prop('disabled', true), $('#deathAnno').prop('checked', false));
+    ? ($('#deathAnnoControl').css('display', 'block'), $('#deathAnno').prop('checked', false))
+    : ($('#deathAnnoControl').css('display', 'none'), $('#deathAnno').prop('checked', true));
 
   plot('year');
   plot('death');
@@ -2429,7 +2402,6 @@ function jpsurvRest2(action, callback) {
     .done(function (msg) {
       window[callback]();
       $('#calculating-spinner').modal('hide');
-      showTrendTable();
     })
     .fail(function (jqXHR, textStatus) {
       $('#calculating-spinner').modal('hide');
@@ -3303,16 +3275,16 @@ function getTrendTables() {
 }
 
 function showTrendTable() {
-  if ($('#showYearTrend').is(':checked')) {
-    $('#yearTrendTable').removeClass('d-none');
-  } else {
-    $('#yearTrendTable').addClass('d-none');
+  var results = jpsurvData.results;
+  if (results && results.yearData) {
+    results.yearData.survTrend && $('#showYearTrend').is(':checked')
+      ? $('#yearTrendTable').removeClass('d-none')
+      : $('#yearTrendTable').addClass('d-none');
   }
-
-  if ($('#showDeathTrend').is(':checked')) {
-    $('#deathTrendTable').removeClass('d-none');
-  } else {
-    $('#deathTrendTable').addClass('d-none');
+  if (results && results.deathData) {
+    results.deathData.deathTrend && $('#showDeathTrend').is(':checked')
+      ? $('#deathTrendTable').removeClass('d-none')
+      : $('#deathTrendTable').addClass('d-none');
   }
 }
 
