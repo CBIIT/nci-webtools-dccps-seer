@@ -72,6 +72,12 @@ function plotLineChart(x, yMark, yLine, dimension, trends, divID) {
         y: [],
         showlegend: false,
         hovertemplate: [],
+        hoverlabel: {
+          align: 'left',
+          bgcolor: '#FFF',
+          bordercolor: colors[i % 10],
+          font: { color: 'black' },
+        },
         mode: 'markers',
         type: 'scatter',
         marker: { color: colors[i % 10] },
@@ -83,6 +89,12 @@ function plotLineChart(x, yMark, yLine, dimension, trends, divID) {
         y: [],
         showlegend: false,
         hovertemplate: [],
+        hoverlabel: {
+          align: 'left',
+          bgcolor: '#FFF',
+          bordercolor: colors[i % 10],
+          font: { color: 'black' },
+        },
         text: [],
         textposition: 'top',
         textfont: { color: colors[i % 10], size: 14 },
@@ -99,8 +111,7 @@ function plotLineChart(x, yMark, yLine, dimension, trends, divID) {
         mode: 'lines+markers',
         type: 'scatter',
         line: { color: colors[i % 10] },
-        name:
-          divID != 'timePlot' ? interval + '-year ' + jpsurvData.additional.statistic : interval,
+        name: divID != 'timePlot' ? interval + '-year ' + statistic : interval,
         legendgroup: interval,
       };
     }
@@ -110,37 +121,21 @@ function plotLineChart(x, yMark, yLine, dimension, trends, divID) {
     var precision = $('#precision').val();
     var markerTemplate =
       divID != 'timePlot'
-        ? 'Interval: ' +
-          dimension[i] +
-          '<br>Year at Diagnosis: %{x}' +
-          '<br>Observed Survival: %{y:.' +
-          precision +
-          '%}' +
-          '<extra></extra>'
-        : 'Year: ' +
-          dimension[i] +
-          '<br>Interval: %{x}' +
-          '<br>Observed Survival: %{y:.' +
-          precision +
-          '%}' +
-          '<extra></extra>';
+        ? `<b>${dimension[i]}-year ${statistic}</b>` +
+          `<br>•    Year at Diagnosis: %{x}` +
+          `<br>•    Observed Survival: %{y:.${precision}%}<extra></extra>`
+        : `<b>${dimension[i]}</b>` +
+          `<br>•    Interval: %{x}` +
+          `<br>•    Observed Survival: %{y:.${precision}%}<extra></extra>`;
 
     var lineTemplate =
       divID != 'timePlot'
-        ? 'Interval: ' +
-          dimension[i] +
-          '<br>Year at Diagnosis: %{x}' +
-          '<br>Predicted Survival: %{y:.' +
-          precision +
-          '%}' +
-          '<extra></extra>'
-        : 'Year: ' +
-          dimension[i] +
-          '<br>Interval: %{x}' +
-          '<br>Predicted Survival: %{y:.' +
-          precision +
-          '%}' +
-          '<extra></extra>';
+        ? `<b>${dimension[i]}-year ${statistic}</b>` +
+          `<br>•    Year at Diagnosis: %{x}` +
+          `<br>•    Predicted Survival: %{y:.${precision}%}<extra></extra>`
+        : `<b>${dimension[i]}</b>` +
+          `<br>•    Interval: %{x}` +
+          `<br>•    Observed Survival: %{y:.${precision}%}<extra></extra>`;
 
     mTrace[dimension[i]].x.push(x);
     mTrace[dimension[i]].y.push(yMark[i] / 100);
@@ -154,7 +149,7 @@ function plotLineChart(x, yMark, yLine, dimension, trends, divID) {
 
   if (trends) {
     function buildTemplate(trend) {
-      var trendLabel = divID == 'yearPlot' ? 'Trend AAC: ' : 'Trend DAP: ';
+      var trendLabel = divID == 'yearPlot' ? 'Trend AAC:' : 'Trend DAP:';
       if (Array.isArray(trend.interval)) {
         trend.interval.forEach(function (interval, i) {
           var year = Math.floor((trend['start.year'][i] + trend['end.year'][i]) / 2);
@@ -173,7 +168,8 @@ function plotLineChart(x, yMark, yLine, dimension, trends, divID) {
           for (var j = startYear; j < endYear; j++) {
             newTemplate[j] = newTemplate[j].substr(0, newTemplate[j].indexOf('<extra>'));
             newTemplate[j] +=
-              '<br>' + trendLabel + (100 * trend.estimate[i]).toFixed(2) + '<extra></extra>';
+              `<br>•    ${trendLabel} ${(100 * trend.estimate[i]).toFixed(2)} ` +
+              `(${trend['start.year'][i]} - ${trend['end.year'][i]})<extra></extra>`;
           }
           lTrace[interval].hovertemplate = newTemplate;
         });
@@ -185,7 +181,8 @@ function plotLineChart(x, yMark, yLine, dimension, trends, divID) {
         var newTemplate = lTrace[trend.interval].hovertemplate.map(function (template) {
           template = template.substr(0, template.indexOf('<extra>'));
           return (template +=
-            '<br>' + trendLabel + (100 * trend.estimate).toFixed(2) + '<extra></extra>');
+            `<br>•    ${trendLabel} ${(100 * trend.estimate).toFixed(2)} ` +
+            `(${trend['start.year']} - ${trend['end.year']})<extra></extra>`);
         });
 
         lTrace[trend.interval].hovertemplate = newTemplate;

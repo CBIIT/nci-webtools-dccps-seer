@@ -2,6 +2,11 @@ html {
   font-size: 14px;
 }
 
+/* Plotly hover text */
+.hoverlayer {
+  opacity: .85;
+}
+
 #logo {
   padding: 10px;
   width: 60%;
