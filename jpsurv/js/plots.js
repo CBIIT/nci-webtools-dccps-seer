@@ -123,7 +123,9 @@ function plotLineChart(x, yMark, yLine, dimension, trends, divID) {
       divID != 'timePlot'
         ? `<b>${dimension[i]}-year ${statistic}</b>` +
           `<br>•    Year at Diagnosis: %{x}` +
-          `<br>•    Observed Survival: %{y:.${precision}%}<extra></extra>`
+          (divID == 'yearPlot'
+            ? `<br>•    Observed Survival: %{y:.${precision}%}<extra></extra>`
+            : `<br>•    Observed Death: %{y:.${precision}%}<extra></extra>`)
         : `<b>${dimension[i]}</b>` +
           `<br>•    Interval: %{x}` +
           `<br>•    Observed Survival: %{y:.${precision}%}<extra></extra>`;
@@ -132,7 +134,9 @@ function plotLineChart(x, yMark, yLine, dimension, trends, divID) {
       divID != 'timePlot'
         ? `<b>${dimension[i]}-year ${statistic}</b>` +
           `<br>•    Year at Diagnosis: %{x}` +
-          `<br>•    Predicted Survival: %{y:.${precision}%}<extra></extra>`
+          (divID == 'yearPlot'
+            ? `<br>•    Predicted Survival: %{y:.${precision}%}<extra></extra>`
+            : `<br>•    Predicted Death: %{y:.${precision}%}<extra></extra>`)
         : `<b>${dimension[i]}</b>` +
           `<br>•    Interval: %{x}` +
           `<br>•    Observed Survival: %{y:.${precision}%}<extra></extra>`;
