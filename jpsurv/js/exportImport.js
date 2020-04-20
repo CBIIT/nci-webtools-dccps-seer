@@ -1,4 +1,4 @@
-$(document).ready(function() {
+$(document).ready(function () {
   $('#importButton').on('click', importBackEnd);
   $('#exportButton').on('click', exportBackEnd);
   setEventHandlerForImports();
@@ -16,9 +16,9 @@ function importBackEnd(event) {
     url: 'jpsurvRest/import',
     data: formData,
     contentType: false,
-    processData: false
+    processData: false,
   })
-    .done(function(data) {
+    .done(function (data) {
       importFrontEnd(
         data.tokenIdForForm,
         data.tokenIdForRest,
@@ -29,7 +29,7 @@ function importBackEnd(event) {
         data.delimiter
       );
     })
-    .fail(function(jqXHR, textStatus) {
+    .fail(function (jqXHR, textStatus) {
       handleBackendError();
       console.dir(jqXHR);
       console.log('Error on load_ajax');
@@ -96,12 +96,12 @@ function exportBackEnd(event) {
 
   $.ajax({
     type: 'GET',
-    url: 'jpsurvRest/export' + generateQueryParameterStr(data)
+    url: 'jpsurvRest/export' + generateQueryParameterStr(data),
   })
-    .done(function(res) {
+    .done(function (res) {
       window.location = 'jpsurvRest/export' + generateQueryParameterStr(data);
     })
-    .fail(function(jqXHR, textStatus) {
+    .fail(function (jqXHR, textStatus) {
       displayCommFail('jpsurv', jqXHR, textStatus);
     });
 }
@@ -132,7 +132,7 @@ function importFrontEnd(
     file_control_filename: controlFile,
     output_filename: 'form-' + idOfForm + '.json',
     status: 'uploaded',
-    tokenId: idOfOthers
+    tokenId: idOfOthers,
   };
 
   if (dataType == 'DIC') {
@@ -170,7 +170,6 @@ function updatePageAfterRefresh(e) {
 
     load_ajax_with_success_callback(createFormValuesFilename(), loadUserInput);
     buildTimeYod();
-
   } catch (err) {
     console.error(err);
     jpsurvData.stage2completed = 0;
@@ -193,7 +192,7 @@ function loadUserInput(data) {
     function returnSelectorWithExactText(selectorArray, text) {
       var selectorWithExactText = undefined;
 
-      $.each($(selectorArray), function(index, element) {
+      $.each($(selectorArray), function (index, element) {
         if ($(element).text() === text) {
           selectorWithExactText = element;
           return false;
@@ -208,9 +207,7 @@ function loadUserInput(data) {
     $('#year_of_diagnosis_end').val(data.yearOfDiagnosisRangeEnd).trigger('change');
     $('#max_join_point_select').val(data.maxJoinPoints).trigger('change');
 
-    $('#cohort-variables')
-      .find(':checkbox')
-      .prop('checked', false);
+    $('#cohort-variables').find(':checkbox').prop('checked', false);
 
     // The cohort Stirng which contains (site recode/ARN), Sex ( Male, Female) , Seer Stage A
     // The data.cohoretVaribles.replace  two split tokens : jpcom and + where jpcom splits the
@@ -218,11 +215,11 @@ function loadUserInput(data) {
 
     // Split cohort string into a matrix, each row contains a combination of cohort values
     var cohortLines = data.cohortVariables.split('jpcom');
-    var cohortArrays = cohortLines.map(function(line) {
+    var cohortArrays = cohortLines.map(function (line) {
       return line
         .trim()
         .split('+')
-        .map(function(value) {
+        .map(function (value) {
           return value.trim();
         });
     });
@@ -233,15 +230,15 @@ function loadUserInput(data) {
     );
 
     if (cohortOptions.length > 0) {
-      cohortOptions.forEach(function(element, index) {
+      cohortOptions.forEach(function (element, index) {
         cohortOptions[index] = Array.prototype.slice.call(
           element.querySelectorAll('#cohort-variables .custom-control-input')
         );
       });
 
-      cohortArrays.forEach(function(array) {
-        array.forEach(function(cohortVal, index) {
-          cohortOptions[index].forEach(function(checkbox) {
+      cohortArrays.forEach(function (array) {
+        array.forEach(function (cohortVal, index) {
+          cohortOptions[index].forEach(function (checkbox) {
             if (checkbox.value == cohortVal) checkbox.checked = true;
           });
         });
@@ -297,12 +294,12 @@ function load_ajax_with_success_callback(url, callback) {
     async: false,
     global: false,
     url: url,
-    dataType: 'json'
+    dataType: 'json',
   })
-    .done(function(data) {
+    .done(function (data) {
       callback(data);
     })
-    .fail(function(jqXHR, textStatus) {
+    .fail(function (jqXHR, textStatus) {
       alert('Fail on load_ajax');
       //console.dir(jqXHR);
       //console.warn('Error on load_ajax');
@@ -315,7 +312,7 @@ function load_ajax_with_success_callback(url, callback) {
 // Sets the event handler when data is being imported into the system
 function setEventHandlerForImports() {
   if (localStorage.getItem('importing') === 'YES') {
-    $(function(e) {
+    $(function (e) {
       updatePageAfterRefresh(e);
     });
   }
