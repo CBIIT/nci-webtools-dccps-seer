@@ -167,15 +167,17 @@ function plotLineChart(x, yMark, yLine, dimension, trends, divID) {
             lTrace[interval].x.indexOf(trend['end.year'][i]) > -1
               ? lTrace[interval].x.indexOf(trend['end.year'][i])
               : lTrace[interval].x.length;
-          var newTemplate = lTrace[interval].hovertemplate.slice();
+          if (startYear > -1 && endYear > -1) {
+            var newTemplate = lTrace[interval].hovertemplate.slice();
 
-          for (var j = startYear; j < endYear; j++) {
-            newTemplate[j] = newTemplate[j].substr(0, newTemplate[j].indexOf('<extra>'));
-            newTemplate[j] +=
-              `<br>•    ${trendLabel} ${(100 * trend.estimate[i]).toFixed(2)} ` +
-              `(${trend['start.year'][i]} - ${trend['end.year'][i]})<extra></extra>`;
+            for (var j = startYear; j < endYear; j++) {
+              newTemplate[j] = newTemplate[j].substr(0, newTemplate[j].indexOf('<extra>'));
+              newTemplate[j] +=
+                `<br>•    ${trendLabel} ${(100 * trend.estimate[i]).toFixed(2)} ` +
+                `(${trend['start.year'][i]} - ${trend['end.year'][i]})<extra></extra>`;
+            }
+            lTrace[interval].hovertemplate = newTemplate;
           }
-          lTrace[interval].hovertemplate = newTemplate;
         });
       } else {
         var year = Math.floor((trend['start.year'] + trend['end.year'] - trend.interval) / 2);
