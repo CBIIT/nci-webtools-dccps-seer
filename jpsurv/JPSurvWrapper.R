@@ -705,7 +705,11 @@ getGraphWrapper <- function (filePath, jpsurvDataString, first_calc, com, runs, 
       maxInterval = max(fit$Interval) 
       maxYear = max(seerdata[,yearVar])
       minYear = min(seerdata[,yearVar])
-      if (minYear > years) {
+      if (length(years) > 0) {
+        if (minYear > years) {
+          years = minYear
+        }
+      } else {
         years = minYear
       }
     }
