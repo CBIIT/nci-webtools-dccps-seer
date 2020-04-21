@@ -139,7 +139,7 @@ function plotLineChart(x, yMark, yLine, dimension, trends, divID) {
             : `<br>•    Predicted Death: %{y:.${precision}%}<extra></extra>`)
         : `<b>${dimension[i]}</b>` +
           `<br>•    Interval: %{x}` +
-          `<br>•    Observed Survival: %{y:.${precision}%}<extra></extra>`;
+          `<br>•    Predicted Survival: %{y:.${precision}%}<extra></extra>`;
 
     mTrace[dimension[i]].x.push(x);
     mTrace[dimension[i]].y.push(yMark[i] / 100);
