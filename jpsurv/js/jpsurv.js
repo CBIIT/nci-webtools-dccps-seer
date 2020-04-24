@@ -1813,15 +1813,9 @@ function preLoadResults(results) {
 }
 
 function getParams() {
-  //console.warn("getParams -  when is the vars set?");
-  //console.dir(jpsurvData);
-
   jpsurvData.results = {};
   var params = 'jpsurvData=' + JSON.stringify(jpsurvData);
-  params = replaceAll('None', '', params);
-  params = params.replace(/\+/g, '{plus}');
-
-  return params;
+  return replaceAll('None', '', params);
 }
 
 function incrementImageId() {

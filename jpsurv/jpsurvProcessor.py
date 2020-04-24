@@ -1,15 +1,11 @@
 import json
-import math
 import os
 import rpy2.robjects as robjects
 import smtplib
 import datetime
 import logging
-import urllib.request
-import urllib.parse
-import urllib.error
-import sys
 
+from urllib.parse import unquote
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -99,11 +95,11 @@ class jpsurvProcessor(DisconnectListener):
             logger.info("Calculating")
             r.getFittedResultWrapper(parameters['filepath'], jpsurvDataString)
             logger.info("making message")
-            url = urllib.parse.unquote(data['queue']['url'])
+            url = unquote(data['queue']['url'])
             success = True
         except:
             logging.info("calculation failed")
-            url = urllib.parse.unquote(data['queue']['url'])
+            url = unquote(data['queue']['url'])
             # logging.info(url)
             url = url+"&calculation=failed"
             success = False
