@@ -379,20 +379,15 @@
                           </span>
                         </span>
                       </div>
-                      <div class="jpsurv-label-container">
-                        <span class="jpsurv-label"
-                          >Max Intervals from Diagnosis:
-                          <span class="jpsurv-label-content font-weight-normal">
-                            <label for="intervals_from_diagnosis" style="display: none;"
-                              >Select</label
-                            >
-                            <select
-                              id="intervals_from_diagnosis"
-                              name="intervals_from_diagnosis"
-                            ></select>
-                            &nbsp;Years
-                          </span>
-                        </span>
+                      <div class="jpsurv-label-container d-flex">
+                        <div class="jpsurv-label" style="width: 250px;">
+                          Max No. of Years from Diagnosis (follow-up) to include:
+                        </div>
+                        <div class="jpsurv-label-content font-weight-normal">
+                          <label for="intervals_from_diagnosis" class="d-none">Select</label>
+                          <select id="intervals_from_diagnosis" name="intervals_from_diagnosis">
+                          </select>
+                        </div>
                       </div>
                       <div id="cohort-variables"></div>
 
