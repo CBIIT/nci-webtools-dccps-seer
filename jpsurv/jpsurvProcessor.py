@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 import rpy2.robjects as robjects
 import smtplib
 import datetime
@@ -9,227 +10,150 @@ from urllib.parse import unquote
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from twisted.internet import reactor, defer
-from PropertyUtil import PropertyUtil
-from stompest.async import Stomp
-from stompest.async.listener import SubscriptionListener
-from stompest.async.listener import DisconnectListener
-from stompest.config import StompConfig
-from stompest.protocol import StompSpec
 from rpy2.robjects import r
 from logging.handlers import RotatingFileHandler
+from jinja2 import Template
+from util import Util
+from sqs import Queue, VisibilityExtender
+from s3 import S3Bucket
 
 
-class jpsurvProcessor(DisconnectListener):
-    CONFIG = 'queue.config'
-    NAME = 'queue.name'
-    URL = 'queue.url'
+#  Renders a template given a filepath and template variables
+def render_template(filepath, data):
+    with open(filepath) as template_file:
+        template = Template(template_file.read())
+        return template.render(data)
 
-    def composeMail(self, recipients, message, files=[]):
-        logger.info("composing mail")
-        config = PropertyUtil(r"config.ini")
-        if not isinstance(recipients, list):
-            recipients = [recipients]
-        packet = MIMEMultipart()
-        packet['Subject'] = "JPsurv Analysis Results"
-        packet['From'] = "JPSurv Analysis Tool <do.not.reply@nih.gov>"
-        packet['To'] = ", ".join(recipients)
-        logger.info("recipients")
-        logger.info(recipients)
-        # print message
-        packet.attach(MIMEText(message, 'html'))
-        for file in files:
-            with open(file, "rb") as openfile:
-                packet.attach(MIMEApplication(
-                    openfile.read(),
-                    Content_Disposition='attachment; filename="%s"' % os.path.basename(
-                        file),
-                    Name=os.path.basename(file)
-                ))
-        MAIL_HOST = config.getAsString('mail.host')
-        try:
-            logger.info("connecting to mail host: " + MAIL_HOST)
-            smtp = smtplib.SMTP(host=MAIL_HOST, timeout=60*10)
-            logger.info("connected, attempting to send message")
-            smtp.sendmail("do.not.reply@nih.gov",
-                          recipients, packet.as_string())
-            logger.info("sent message")
-        except Exception as e:
-            logger.info("failed to connect to " + MAIL_HOST)
-            logger.debug('Caught Exception: ' + str(e))
 
-    def testQueue(self):
-        logger.debug("tested")
+def sendMail(recipients, message, config, files=[]):
+    if not isinstance(recipients, list):
+        recipients = [recipients]
+    packet = MIMEMultipart()
+    packet['Subject'] = "JPsurv Analysis Results"
+    packet['From'] = "JPSurv Analysis Tool <do.not.reply@nih.gov>"
+    packet['To'] = ", ".join(recipients)
 
-    def rLength(self, tested):
-        if tested is None:
-            return 0
-        if isinstance(tested, list) or isinstance(tested, set):
-            return len(tested)
-        else:
-            return 1
+    logger.info("recipients")
+    logger.info(recipients)
 
-       # @This is teh consume code which will listen to Queue server.
-    def consume(self, client, frame):
-        logger.info("New job in consume")
-        files = []
-        product_name = "JPSurv Analysis Tool"
-        parameters = json.loads(frame.body)
-        logger.debug("params")
-        logger.debug(parameters)
-        token = parameters['token']
-        filepath = parameters['filepath']
-        timestamp = ['timestamp']
+    packet.attach(MIMEText(message, 'html'))
+    # for file in files:
+    #     with open(file, "rb") as openfile:
+    #         packet.attach(MIMEApplication(
+    #             openfile.read(),
+    #             Content_Disposition='attachment; filename="%s"' % os.path.basename(
+    #                 file),
+    #             Name=os.path.basename(file)
+    #         ))
+    MAIL_HOST = config.MAIL_HOST
+    try:
+        logger.info("connecting to mail host: " + MAIL_HOST)
+        smtp = smtplib.SMTP(host=MAIL_HOST, timeout=60*10)
+        logger.info("connected, attempting to send message")
+        smtp.sendmail("do.not.reply@nih.gov",
+                      recipients, packet.as_string())
+        logger.info("sent message")
+        return True
+    except Exception as e:
+        logger.info("failed to connect to " + MAIL_HOST)
+        logger.error('Caught Exception: ' + str(e))
+        return False
 
-        logger.debug("token: " + token)
-        fname = filepath+"/input_"+token+".json"
-        logger.debug("file name: " + fname)
-        with open(fname) as content_file:
-            jpsurvDataString = content_file.read()
 
+def composeSuccess(WORKING_DIR, jpsurvData, timestamp, logger):
+    logger.info('Composing success email')
+    jpsurvJSON = os.path.join(WORKING_DIR, jpsurvData)
+
+    with open(jpsurvJSON, 'r') as data:
+        jpsurvDataString = data.read()
         data = json.loads(jpsurvDataString)
-        logger.debug("jpsurv data string")
-        logger.debug(data)
-        try:
-            r.source('JPSurvWrapper.R')
-            logger.info("Calculating")
-            r.getFittedResultWrapper(parameters['filepath'], jpsurvDataString)
-            logger.info("making message")
-            url = unquote(data['queue']['url'])
-            success = True
-        except:
-            logging.info("calculation failed")
-            url = unquote(data['queue']['url'])
-            # logging.info(url)
-            url = url+"&calculation=failed"
-            success = False
 
-        Link = '<a href='+url+'> Here </a>'
-        # logger.debug(parameters['timestamp'])
-        logger.info("Here is the Link to the past: " + url)
+    token = data['tokenId']
 
-        header = """<h2>"""+product_name+"""</h2>"""
-        if success == True:
-            body = """
-            <div style="background-color:white;border-top:25px solid #142830;border-left:2px solid #142830;border-right:2px solid #142830;border-bottom:2px solid #142830;padding:20px">
-              Hello,<br>
-              <p>Here are the results you requested on """+parameters['timestamp']+""" from the """+product_name+""".</p>
-              <p>
-              <div style="margin:20px auto 40px auto;width:200px;text-align:center;font-size:14px;font-weight:bold;padding:10px;line-height:25px">
-                <div style="font-size:24px;"><a href='"""+url+"""'>View Results</a></div>
-              </div>
-              </p>
-              <p>The results will be available online for the next 14 days.</p>
-            </div>
-            """
-        else:
-            if 'data' in data['file']:
-                uploadFiles = data['file']['dictionary'] + \
-                    " " + data['file']['data']
-            else:
-                uploadFiles = data['file']['dictionary']
-            body = """
-            <div style="background-color:white;border-top:25px solid #142830;border-left:2px solid #142830;border-right:2px solid #142830;border-bottom:2px solid #142830;padding:20px">
-              Dear User,<br>
-              <p>
-                  Thanks for using the JPSurv Analysis Tool. Unfortunately the job you submitted to the JPSurv processor failed to be processed.
-                  Please review your dataset to make sure it conforms to the Input Data File format as described in the Help page of the web tool.
-                  Please resubmit your data set after the corrections are made.
-              </p>
-              <p style="margin-left: 1rem;">
-                  Job Information<br>
-                  Input Data File: """+uploadFiles+"""<br>
-                  Submitted Time: """+parameters['timestamp']+"""
-              </p>
-              <p>JPSurv Web admin</p>
-            </div>
-            """
+    logger.debug("file name: " + jpsurvData)
+    logger.debug("token: " + token)
+    logger.debug("jpsurvDataString")
+    logger.debug(jpsurvDataString)
 
-        footer = """
-          <div>
-            <p>
-              (Note:  Please do not reply to this email. If you need assistance, please contact NCIJPSurvWebAdmin@mail.nih.gov)
-            </p>
-          </div>
+    product_name = "JPSurv Analysis Tool"
+    url = unquote(data['queue']['url'])
+    params = {'product_name': product_name,
+              'timestamp': timestamp,
+              'url': url
+              }
 
-            <div style="background-color:#ffffff;color:#888888;font-size:13px;line-height:17px;font-family:sans-serif;text-align:left">
-                  <p>
-                      <strong>About <em>"""+product_name+"""</em></strong></em><br>
-                      The JPSurv software has been developed to analyze trends in survival with respect to year at diagnosis. Survival data includes two temporal dimensions that are important to account for: the calendar year at diagnosis and the time since diagnosis. The JPSurv fits a Joinpoint survival model(1) to the hazard of cancer death by year at diagnosis and assumes a common baseline hazard by time since diagnosis. In other words, the probabilities of dying at different time interval, e.g., 0 to 1 year, 1 to 2 years, 2 to 3 years, and 4 to 5 years since diagnosis are proportional and share the same joinpoints. The software uses discrete-time survival data, i.e. survival data grouped by years since diagnosis in the life table format. The software accommodates both relative survival and cause-specific survival.
-                      <br>
-                      The JPSurv tool is useful to estimate when and how much survival changed over time and to predict survival into the future for simulation studies and scenario analyses.
-                      <br>
-                      1. Yu BB, Huang L, Tiwari RC, Feuer EJ, Johnson KA. Modelling population-based cancer survival trends by using join point models for grouped survival data. Journal of the Royal Statistical Society Series a-Statistics in Society. 2009;172:405-25.
-                      <br>
-                      <strong>For more information, visit
-                        <a target="_blank" style="color:#888888" href="https://analysistools.nci.nih.gov/jpsurv">analysistools.nci.nih.gov/jpsurv</a>
-                      </strong>
-                  </p>
-                  <p style="font-size:11px;color:#b0b0b0">If you did not request a calculation please ignore this email.
-    Your privacy is important to us.  Please review our <a target="_blank" style="color:#b0b0b0" href="http://www.cancer.gov/policies/privacy-security">Privacy and Security Policy</a>.
-  </p>
-                  <p align="center"><a href="http://cancercontrol.cancer.gov/">Division of Cancer Control & Population Sciences</a>,
-                  <span style="white-space:nowrap">a Division of <a href="www.cancer.gov">National Cancer Institute</a></span><br>
-                  BG 9609 MSC 9760 | 9609 Medical Center Drive | Bethesda, MD 20892-9760 | <span style="white-space:nowrap"><a target="_blank" value="+18004006916" href="tel:1-800-422-6237">1-800-4-CANCER</a></span>
-                  </p>
-                </div>
-                """
-        message = """
-      <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-        <title>html title</title>
-      </head>
-      <body>"""+header+body+footer+"""</body>"""
-
-        #    "\r\n\r\n - JPSurv Team\r\n(Note:  Please do not reply to this email. If you need assistance, please contact xxxx@mail.nih.gov)"+
-        #    "\n\n")
-        self.composeMail(data['queue']['email'], message, files)
-        logger.info("end job")
-
-    @defer.inlineCallbacks
-    def run(self):
-        client = Stomp(self.config)
-        yield client.connect()
-        headers = {
-            # client-individual mode is necessary for concurrent processing
-            # (requires ActiveMQ >= 5.2)
-            StompSpec.ACK_HEADER: StompSpec.ACK_CLIENT_INDIVIDUAL,
-            # the maximal number of messages the broker will let you work on at the same time
-            'activemq.prefetchSize': '100',
-        }
-
-        client.subscribe(self.QUEUE, headers, listener=SubscriptionListener(
-            self.consume, errorDestination=self.ERROR_QUEUE))
-        client.add(listener=self)
-
-    # Consumer for Jobs in Queue, needs to be rewrite by the individual projects
-
-    def onCleanup(self, connect):
-        logger.info('In clean up ...')
-
-    def onConnectionLost(self, connect, reason):
-        logger.info("in onConnectionLost")
-        self.run()
-
-       # @read from property file to set up parameters for the queue.
-    def __init__(self, dev_mode):
-        config = PropertyUtil(r"config.dev.ini" if dev_mode else r"config.ini")
-        # Initialize Connections to ActiveMQ
-        self.QUEUE = config.getAsString(jpsurvProcessor.NAME)
-        self.ERROR_QUEUE = config.getAsString('queue.error.name')
-        config = StompConfig(config.getAsString(jpsurvProcessor.URL))
-        self.config = config
+    message = render_template('templates/succ_email.html', params)
+    return sendMail(data['queue']['email'], message, config)
 
 
-def create_rotating_log():
+def composeFail(WORKING_DIR, jpsurvData, timestamp, logger):
+    logger.info('Composing error email')
+    jpsurvJSON = os.path.join(WORKING_DIR, jpsurvData)
+
+    with open(jpsurvJSON, 'r') as data:
+        jpsurvDataString = data.read()
+        data = json.loads(jpsurvDataString)
+
+    token = data['tokenId']
+
+    logger.debug("file name: " + jpsurvData)
+    logger.debug("token: " + token)
+    logger.debug("jpsurvDataString")
+    logger.debug(jpsurvDataString)
+
+    product_name = "JPSurv Analysis Tool"
+    if 'data' in data['file']:
+        uploadFiles = data['file']['dictionary'] + \
+            " " + data['file']['data']
+    else:
+        uploadFiles = data['file']['dictionary']
+
+    params = {'product_name': product_name,
+              'timestamp': timestamp,
+              'uploadFiles': uploadFiles
+              }
+
+    message = render_template('templates/succ_email.html', params)
+    return sendMail(data['queue']['email'], message, config)
+
+
+def calculate(WORKING_DIR, jpsurvData, timestamp, logger):
+    jpsurvJSON = os.path.join(WORKING_DIR, jpsurvData)
+
+    print(jpsurvJSON)
+
+    with open(jpsurvJSON, 'r') as data:
+        jpsurvDataString = data.read()
+        data = json.loads(jpsurvDataString)
+
+    token = data['tokenId']
+
+    logger.debug("file name: " + jpsurvData)
+    logger.debug("token: " + token)
+    logger.debug("jpsurvDataString")
+    logger.debug(jpsurvDataString)
+
+    try:
+        r.source('JPSurvWrapper.R')
+        logger.info("Calculating")
+        r.getFittedResultWrapper(WORKING_DIR, jpsurvDataString)
+        logging.info("Calculation succeeded")
+        success = True
+    except:
+        logging.info("Calculation failed")
+        success = False
+
+    return success
+
+
+def create_rotating_log(config):
     formatter = logging.Formatter('%(asctime)s %(levelname)-8s %(message)s',
                                   '%Y-%m-%d %H:%M:%S')
     time = datetime.datetime.now().strftime("%Y-%m-%d_%H_%M")
     logFile = '../logs/queue.log.' + time
 
-    config = PropertyUtil(r"config.ini")
-    size = config.getAsInt('logs.size')
-    rollover = config.getAsInt('logs.rollover')
+    size = config.LOG_SIZE
+    rollover = config.LOG_ROLLOVER
 
     my_handler = RotatingFileHandler(logFile, mode='a', maxBytes=size,
                                      backupCount=rollover, encoding=None, delay=0)
@@ -249,7 +173,86 @@ if __name__ == '__main__':
     parser.add_argument('-d', '--debug', action='store_true')
     parser.add_argument('port', nargs='+')
     args = parser.parse_args()
-    logger = create_rotating_log()
-    logger.info("JPSurv processor has started")
-    jpsurvProcessor(dev_mode=args.debug).run()
-    reactor.run()
+    if (args.debug):
+        config = Util('config.dev.ini')
+    else:
+        config = Util('config.ini')
+    logger = create_rotating_log(config)
+
+    try:
+        sqs = Queue(logger, config)
+        logger.info("JPSurv processor has started")
+        while True:
+            logger.info("Receiving more messages...")
+            for msg in sqs.receiveMsgs():
+                extender = None
+                try:
+                    data = json.loads(msg.body)
+                    if data:
+                        parameters = data['parameters']
+                        jobName = 'JPSurv'
+                        id = data['jobId']
+                        bucketName = parameters['bucket_name']
+                        projectDir = parameters['key']
+                        timestamp = parameters['timestamp']
+                        jpsurvData = parameters['jpsurvData']
+                        bucket = S3Bucket(bucketName, logger)
+                        WORKING_DIR = os.path.join(os.getcwd(), "tmp/" + id)
+
+                        extender = VisibilityExtender(
+                            msg, jobName, id, config.VISIBILITY_TIMEOUT, logger)
+
+                        logger.info(
+                            'Start processing job name: "{}", id: {} ...'.format(jobName, id))
+
+                        # download work files
+                        for object in bucket.bucket.objects.filter(Prefix=projectDir):
+                            if not os.path.exists(WORKING_DIR):
+                                os.makedirs(WORKING_DIR)
+                            bucket.downloadFile(
+                                object.key, object.key.replace('jpsurv/', 'tmp/'))
+
+                        extender.start()
+
+                        job = calculate(WORKING_DIR, jpsurvData,
+                                        timestamp, logger)
+
+                        if job:
+                            # upload to s3 and send email
+                            uploadCount = 0
+                            for root, dirs, files in os.walk(WORKING_DIR):
+                                for file in files:
+                                    localPath = os.path.join(root, file)
+                                    with open(localPath, 'rb') as localFile:
+                                        object = bucket.uploadFileObj(config.getInputFileKey(
+                                            id + '/' + file), localFile)
+                                        if object:
+                                            uploadCount += 1
+                                        else:
+                                            logger.error(
+                                                'Failed to upload ' + file)
+
+                            logger.info(f'Uploaded {uploadCount} files')
+                            sent = composeSuccess(
+                                WORKING_DIR, jpsurvData, timestamp, logger)
+
+                        else:
+                            sent = composeFail(WORKING_DIR, jpsurvData,
+                                               timestamp, logger)
+
+                        msg.delete()
+                        logger.info(
+                            f'Finish processing job name: {jobName}, id: {id} !')
+                    else:
+                        logger.debug(data)
+                        logger.error('Unknown message type!')
+                        msg.delete()
+                except Exception as e:
+                    logger.exception(e)
+
+                finally:
+                    if extender:
+                        extender.stop()
+    except KeyboardInterrupt:
+        logger.info("\nBye!")
+        sys.exit()

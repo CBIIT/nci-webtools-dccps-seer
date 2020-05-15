@@ -524,7 +524,7 @@ function addInputSection() {
 
 function checkInputFile() {
   var results = $.ajax({
-    url: 'tmp/input_' + jpsurvData.tokenId + '.json',
+    url: 'tmp/' + jpsurvData.tokenId + '/input_' + jpsurvData.tokenId + '.json',
     type: 'HEAD',
     async: false,
   });
@@ -1615,7 +1615,7 @@ function calculate(run) {
     setRun();
     stage3(); // This is a recalculation.
   } else {
-    jpsurvData.tokenId = renewTokenId(true);
+    // jpsurvData.tokenId = renewTokenId(true);
     incrementImageId();
     jpsurvData.run = 1;
     if (
@@ -1637,7 +1637,7 @@ function calculate(run) {
       $('#right_panel').hide();
       $('#helpCard').show();
       $('#icon').css('visibility', 'hidden');
-      var comm_results = JSON.parse(jpsurvRest('stage5_queue', params));
+      var comm_results = jpsurvRest('stage5_queue', params);
       $('#calculating-spinner').modal('hide');
       okAlert(
         'Your submission has been queued.  You will receive an e-mail when calculation is completed.',
@@ -1708,7 +1708,16 @@ function file_submit(event) {
 function retrieveResults(cohort_com, jpInd, switch_cohort) {
   var file_name = '';
   if (jpInd != undefined && cohort_com != undefined && switch_cohort == false)
-    file_name = 'tmp/results-' + jpsurvData.tokenId + '-' + cohort_com + '-' + jpInd + '.json';
+    file_name =
+      'tmp/' +
+      jpsurvData.tokenId +
+      '/results-' +
+      jpsurvData.tokenId +
+      '-' +
+      cohort_com +
+      '-' +
+      jpInd +
+      '.json';
   else {
     file_name = generateResultsFilename(cohort_com, jpInd, switch_cohort);
   }
@@ -1725,7 +1734,7 @@ function generateResultsFilename(cohort_com, jpInd, switch_cohort) {
 
   $.ajax({
     // // url: '/jpsurv/tmp/cohort_models-'+jpsurvData.tokenId+'.json',
-    url: 'tmp/cohort_models-' + jpsurvData.tokenId + '.json',
+    url: 'tmp/' + jpsurvData.tokenId + '/cohort_models-' + jpsurvData.tokenId + '.json',
     type: 'GET',
     async: false,
     dataType: 'json', // added data type
@@ -1733,7 +1742,9 @@ function generateResultsFilename(cohort_com, jpInd, switch_cohort) {
       cohort_models = results;
       if (switch_cohort == undefined) cohort_com = 1;
       file_name =
-        'tmp/results-' +
+        'tmp/' +
+        jpsurvData.tokenId +
+        '/results-' +
         jpsurvData.tokenId +
         '-' +
         cohort_com +
@@ -2511,7 +2522,7 @@ function load_ajax(filename) {
   var json = (function () {
     var json = null;
     // // var url = '/jpsruv/tmp/'+filename;
-    var url = 'tmp/' + filename;
+    var url = 'tmp/' + jpsurvData.tokenId + '/' + filename;
     $.ajax({
       async: false,
       global: false,
