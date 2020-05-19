@@ -787,7 +787,7 @@
                       <div class="col-sm-2 d-flex justify-content-center align-items-center">
                         <div class="row">
                           <div class="col">
-                            <div id="warning-wrapper" class="d-inline-flex">
+                            <div id="warning-wrapper">
                               <button class="btn btn-primary btn-sm recalculate" type="button">
                                 Recalculate
                               </button>
@@ -902,37 +902,49 @@
                 <div id="graph-death-tab" class="tab-pane fade">
                   <div class="border rounded mb-1">
                     <div class="row">
-                      <div class="col-md-3 m-3">
-                        <div class="d-flex">
-                          <label for="interval-years-death" class="align-self-center ml-1 mr-3">
-                            Interval Years
-                          </label>
-                          <select id="interval-years-death" class="mx-1" multiple="multiple">
-                            <option selected>1</option>
-                            <option>2</option>
-                            <option>3</option>
-                            <option selected>4</option>
-                          </select>
+                      <div class="col-sm-10 border-right">
+                        <div class="row">
+                          <div class="col-sm-auto m-3">
+                            <label for="interval-years-death" class="align-self-center ml-1 mr-3">
+                              Select years since diagnosis (follow-up) for survival plot and/or
+                              trend measures
+                            </label>
+                            <select id="interval-years-death" class="mx-1" multiple></select>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-auto m-3">
+                            <span class="font-weight-bold">Include Trend Measures</span>
+                          </div>
+                          <div class="col-md-auto m-3">
+                            <div class="custom-control custom-checkbox">
+                              <input
+                                class="custom-control-input"
+                                type="checkbox"
+                                id="showDeathTrend"
+                              />
+                              <label
+                                class="custom-control-label"
+                                for="showDeathTrend"
+                                aria-label="showDeathTrend"
+                                >Show Trend Measures</label
+                              >
+                            </div>
+                          </div>
                         </div>
                       </div>
-                      <div class="col-md-auto m-3">
-                        <div class="custom-control custom-checkbox">
-                          <input class="custom-control-input" type="checkbox" id="showDeathTrend" />
-                          <label
-                            class="custom-control-label"
-                            for="showDeathTrend"
-                            aria-label="showDeathTrend"
-                            >Show Trend Measures</label
-                          >
+                      <div class="col-sm-2 d-flex justify-content-center align-items-center">
+                        <div class="row">
+                          <div class="col">
+                            <button class="btn btn-primary btn-sm recalculate" type="button">
+                              Recalculate
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                      <div class="col-md-auto m-3">
-                        <button class="btn btn-primary btn-sm recalculate" type="button">
-                          Recalculate
-                        </button>
                       </div>
                     </div>
                   </div>
+
                   <div id="deathTrendTable" class="d-none mb-4">
                     <h4>Trend Measures</h4>
                     <h5>
