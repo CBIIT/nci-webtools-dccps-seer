@@ -753,33 +753,41 @@
                             </div>
                           </div>
                           <div class="col-md-auto m-3">
-                            <div class="custom-control custom-checkbox">
-                              <input
-                                class="custom-control-input"
-                                type="checkbox"
-                                id="toggleAbsSelect"
-                              />
-                              <label
-                                class="custom-control-label"
-                                for="toggleAbsSelect"
-                                aria-label="Toggle Absolute Change Years Select"
-                              >
-                                Between Calendar Years of Diagnosis
-                              </label>
-                            </div>
-                          </div>
-                          <div class="col-md-auto m-3">
-                            <div id="absSelect">
-                              <label
-                                class="mr-2"
-                                data-toggle="tooltip"
-                                data-placement="top"
-                                title="Average Absolute Change over Calendar Year Interval"
-                                >From</label
-                              >
-                              <select disabled id="absChgFrom" class="mx-1"></select>
-                              <label for="interval-years" class="mx-2">to</label>
-                              <select disabled id="absChgTo" class="mx-1"></select>
+                            <div class="d-flex">
+                              <span class="custom-control custom-checkbox mr-2">
+                                <input
+                                  class="custom-control-input"
+                                  type="checkbox"
+                                  id="toggleAbsSelect"
+                                />
+                                <label
+                                  class="custom-control-label"
+                                  for="toggleAbsSelect"
+                                  aria-label="Toggle Absolute Change Years Select"
+                                  data-toggle="tooltip"
+                                  data-placement="top"
+                                  title="Average Absolute Change over Calendar Year Interval"
+                                >
+                                  Between Calendar Years of Diagnosis From
+                                </label>
+                              </span>
+                              <span id="absSelect">
+                                <!-- <label
+                                  class="mr-2 custom-control-label"
+                                  data-toggle="tooltip"
+                                  data-placement="top"
+                                  title="Average Absolute Change over Calendar Year Interval"
+                                  >From</label
+                                > -->
+                                <select
+                                  disabled
+                                  aria-label="from"
+                                  id="absChgFrom"
+                                  class="mx-1"
+                                ></select>
+                                <label for="absChgTo" class="mx-2">to</label>
+                                <select disabled id="absChgTo" class="mx-1"></select>
+                              </span>
                             </div>
                           </div>
                         </div>
@@ -927,7 +935,7 @@
                                 class="custom-control-label"
                                 for="showDeathTrend"
                                 aria-label="showDeathTrend"
-                                >Show Trend Measures</label
+                                >Between Joinpoints</label
                               >
                             </div>
                           </div>
