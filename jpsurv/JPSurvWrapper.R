@@ -206,7 +206,7 @@ validateCohohort <- function(jpsurvData, filePath, seerFilePrefix, allVars, year
     seerdata = joinpoint.seerdata(
       seerfilename=file,
       newvarnames=varLabels,
-      NoFit=T,
+      # NoFit=T,
       UseVarLabelsInData=varLabels)
   } else {
     file = paste(file, '.csv', sep='')
@@ -364,7 +364,7 @@ getFittedResult <- function (tokenId,filePath, seerFilePrefix, yearOfDiagnosisVa
     file=paste(filePath, file_name, sep="/" )
     seerdata = joinpoint.seerdata(seerfilename=file,
                                   newvarnames=varLabels,
-                                  NoFit=T,
+                                  # NoFit=T,
                                   UseVarLabelsInData=varLabels)
     # get subset of seerdata containing rows within user defined interval range (Intervals from Diagnosis Range)
     seerdataSub = subset(seerdata, Interval <= intervalRange)
@@ -669,11 +669,12 @@ getGraphWrapper <- function (filePath, jpsurvDataString, first_calc, com, runs, 
       trends = data[[1]]
     } else {
       # both trends
-      trends = aapc.multiints(fit$FitList[[nJP+1]], type="AbsChgSur", int.select=intervals, ACS.range=absRange)
+      type = 'both'
       if (is.null(trend) || trend == 0) {
         # between calendar only
-        trends = trends[[2]]
+        type = 'user'
       }
+      trends = aapc.multiints(fit$FitList[[nJP+1]], type="AbsChgSur", int.select=intervals, ACS.range=absRange, ACS.out=type)
     }
 
     if (length(data) == 2) {   # Trend + plot

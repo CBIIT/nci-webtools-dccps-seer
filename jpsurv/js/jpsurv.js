@@ -220,6 +220,7 @@ function checkAbsChg() {
       removeTooltip();
     }
   } else {
+    jpsurvData.additional.absChgRange = null;
     removeTooltip();
   }
 }
@@ -1349,14 +1350,11 @@ function updateTrendGraph(trends, table_id) {
     $('#yearTrendHeader').text(title);
   }
 
-  trends.forEach(function (t, i) {
-    // if jp and user trends
-    if (Array.isArray(t)) {
-      t.forEach(function (trend) {
-        $('#' + table_id + ' > tbody').append(createRow(trend));
-      });
-      if (i != trends.length - 1)
-        // add user-specified trends
+  // if jp and user trends
+  if (trends['ACS.jp'] && trends['ACS.user']) {
+    [trends['ACS.jp'], trends['ACS.user']].forEach(function (t, i) {
+      if (i == 1) {
+        // add user-specified trends "header" row
         $('<tr style="border-bottom: 1px solid black">')
           .append(
             $('<td colspan="100%" class="pt-3 px-0 bg-white">').append(
@@ -1372,9 +1370,15 @@ function updateTrendGraph(trends, table_id) {
             )
           )
           .appendTo('#' + table_id + ' > tbody');
+      }
+      t.forEach(function (trend) {
+        $('#' + table_id + ' > tbody').append(createRow(trend));
+      });
       // set original title
       setTrendTitle('joinpoint');
-    } else {
+    });
+  } else {
+    trends.forEach(function (t) {
       // if only Between Calendar Years of Diagnosis is checked
       if (jpsurvData.additional.absChgRange && !$('#showYearTrend').is(':checked')) {
         setTrendTitle('calendar');
@@ -1382,8 +1386,8 @@ function updateTrendGraph(trends, table_id) {
         setTrendTitle('joinpoint');
       }
       $('#' + table_id + ' > tbody').append(createRow(t));
-    }
-  });
+    });
+  }
 }
 function updateGraphLinks() {
   document.querySelector('#graph-year-dataset-link').onclick = function (event) {

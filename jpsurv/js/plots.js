@@ -194,6 +194,8 @@ function plotLineChart(x, yMark, yLine, dimension, trends, divID) {
         lTrace[trend.interval].hovertemplate = newTemplate;
       }
     }
+    // select correct trend if both exist
+    if (trends['ACS.jp']) trends = trends['ACS.jp'];
     if (trends.length < 4) {
       for (var trend of trends) {
         buildTemplate(trend);
