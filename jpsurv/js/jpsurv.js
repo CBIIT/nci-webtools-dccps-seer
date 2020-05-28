@@ -1342,7 +1342,7 @@ function updateTrendGraph(trends, table_id) {
 
   function setTrendTitle(type) {
     // between joinpoints
-    title = 'Trend Measures Between Joinpoints';
+    title = 'Average Absolute Change in Survival';
     if (type == 'calendar') {
       // between calendar years
       title = 'Trend Measures for User Selected Years';
@@ -1360,13 +1360,6 @@ function updateTrendGraph(trends, table_id) {
             $('<td colspan="100%" class="pt-3 px-0 bg-white">').append(
               $('<h4>')
                 .text('Trend Measures for User Selected Years')
-                .append(
-                  $('<span>')
-                    .addClass('text-secondary ml-2 pt-1')
-                    .css('font-size', '1rem')
-                    .css('font-weight', '400')
-                    .text('(Average Absolute Change in Survival by Diagnosis Year*)')
-                )
             )
           )
           .appendTo('#' + table_id + ' > tbody');
