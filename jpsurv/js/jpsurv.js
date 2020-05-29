@@ -196,23 +196,32 @@ function checkSelect() {
 
 function checkAbsChg() {
   var absTmp = jpsurvData.additional.absTmp;
-  if (isNaN(absTmp[0]) && isNaN(absTmp[1])) {
-    jpsurvData.additional.absChgRange = null;
-    $('.recalculate').prop('disabled', false);
-  } else if (absTmp.findIndex(Number.isNaN) > -1 || absTmp[1] <= absTmp[0]) {
-    jpsurvData.additional.absChgRange = null;
-    $('#warning-wrapper').css('cursor', 'not-allowed');
-    $('#warning-wrapper').popover({
-      content: 'Selected years must be a progressive range.',
-      trigger: 'focus hover',
-      placement: 'bottom',
-    });
-    $('.recalculate').prop('disabled', true);
+
+  function removeTooltip() {
+    if ($('.recalculate').prop('disabled')) {
+      $('#warning-wrapper').css('cursor', '');
+      $('#warning-wrapper').popover('dispose');
+      $('.recalculate').prop('disabled', false);
+    }
+  }
+
+  if ($('#toggleAbsSelect').is(':checked')) {
+    if (absTmp.findIndex(Number.isNaN) > -1 || absTmp[1] <= absTmp[0]) {
+      jpsurvData.additional.absChgRange = null;
+      $('#warning-wrapper').css('cursor', 'not-allowed');
+      $('#warning-wrapper').popover({
+        content: 'Selected years must be a progressive range.',
+        trigger: 'focus hover',
+        placement: 'bottom',
+      });
+      $('.recalculate').prop('disabled', true);
+    } else {
+      jpsurvData.additional.absChgRange = jpsurvData.additional.absTmp;
+      removeTooltip();
+    }
   } else {
-    jpsurvData.additional.absChgRange = jpsurvData.additional.absTmp;
-    $('#warning-wrapper').css('cursor', '');
-    $('#warning-wrapper').popover('dispose');
-    $('.recalculate').prop('disabled', false);
+    jpsurvData.additional.absChgRange = null;
+    removeTooltip();
   }
 }
 
@@ -251,8 +260,12 @@ function addEventListeners() {
     checkSelect();
   });
 
-  $('#showYearTrend').on('change', function () {
+  $('#toggleAbsSelect').on('change', function () {
     toggleAbsSelect();
+    checkAbsChg();
+  });
+
+  $('#showYearTrend').on('change', function () {
     if (this.checked) {
       if (jpsurvData.results.yearData.survTrend) {
         $('#yearAnnoControl').css('display', 'block');
@@ -265,7 +278,6 @@ function addEventListeners() {
   });
 
   $('#showDeathTrend').on('change', function () {
-    toggleAbsSelect();
     if (this.checked) {
       if (jpsurvData.results.deathData.deathTrend) {
         $('#deathAnnoControl').css('display', 'block');
@@ -1070,7 +1082,7 @@ function updateGraphs(token_id) {
   //   );
 
   // Check checkboxes if trend exists
-  jpsurvData.results.yearData.survTrend
+  jpsurvData.results.yearData.survTrend && $('#showYearTrend').is(':checked')
     ? ($('#yearAnnoControl').css('display', 'block'), $('#yearAnno').prop('checked', false))
     : ($('#yearAnnoControl').css('display', 'none'), $('#yearAnno').prop('checked', true));
   jpsurvData.results.deathData.deathTrend
@@ -1283,11 +1295,11 @@ function updateEstimates() {
 }
 
 function updateTrend() {
-  if ($('#showYearTrend').is(':checked') && jpsurvData.results.yearData.survTrend) {
+  if (jpsurvData.results.yearData.survTrend) {
     $('#trend-aac > tbody').empty();
     updateTrendGraph(jpsurvData.results.yearData.survTrend, 'trend-aac');
   }
-  if ($('#showDeathTrend').is(':checked') && jpsurvData.results.deathData.deathTrend) {
+  if (jpsurvData.results.deathData.deathTrend) {
     $('#trend-dap > tbody').empty();
     updateTrendGraph(jpsurvData.results.deathData.deathTrend, 'trend-dap');
   }
@@ -1328,32 +1340,47 @@ function updateTrendGraph(trends, table_id) {
     ]);
   }
 
-  trends.forEach(function (t, i) {
-    if (Array.isArray(t)) {
-      t.forEach(function (trend) {
-        $('#' + table_id + ' > tbody').append(createRow(trend));
-      });
-      if (i != trends.length - 1)
-        // seperate jp and user-specified trends
+  function setTrendTitle(type) {
+    // between joinpoints
+    title = 'Average Absolute Change in Survival';
+    if (type == 'calendar') {
+      // between calendar years
+      title = 'Trend Measures for User Selected Years';
+    }
+    $('#yearTrendHeader').text(title);
+  }
+
+  // if jp and user trends
+  if (trends['ACS.jp'] && trends['ACS.user']) {
+    [trends['ACS.jp'], trends['ACS.user']].forEach(function (t, i) {
+      if (i == 1) {
+        // add user-specified trends "header" row
         $('<tr style="border-bottom: 1px solid black">')
           .append(
             $('<td colspan="100%" class="pt-3 px-0 bg-white">').append(
               $('<h4>')
                 .text('Trend Measures for User Selected Years')
-                .append(
-                  $('<span>')
-                    .addClass('text-secondary ml-2 pt-1')
-                    .css('font-size', '1rem')
-                    .css('font-weight', '400')
-                    .text('(Average Absolute Change in Survival by Diagnosis Year*)')
-                )
             )
           )
           .appendTo('#' + table_id + ' > tbody');
-    } else {
+      }
+      t.forEach(function (trend) {
+        $('#' + table_id + ' > tbody').append(createRow(trend));
+      });
+      // set original title
+      setTrendTitle('joinpoint');
+    });
+  } else {
+    trends.forEach(function (t) {
+      // if only Between Calendar Years of Diagnosis is checked
+      if (jpsurvData.additional.absChgRange && !$('#showYearTrend').is(':checked')) {
+        setTrendTitle('calendar');
+      } else {
+        setTrendTitle('joinpoint');
+      }
       $('#' + table_id + ' > tbody').append(createRow(t));
-    }
-  });
+    });
+  }
 }
 function updateGraphLinks() {
   document.querySelector('#graph-year-dataset-link').onclick = function (event) {
@@ -1776,7 +1803,8 @@ function loadResults(results) {
   setIntervalsDynamic();
   jpsurvData.stage2completed = true;
   jpsurvData.additional.recalculate = 'false';
-  checkTrends();
+  updateTrend();
+  showTrendTable();
   changePrecision();
   if (results.errors && Object.keys(results.errors).length) {
     var msg = $('<div>')
@@ -1791,24 +1819,6 @@ function loadResults(results) {
 
     showMessage('jpsurv', msg, 'Warning');
   }
-}
-
-// check if trends have been calculated and display them
-function checkTrends() {
-  if (jpsurvData.results.yearData.survTrend && !$('#showYearTrend').prop('checked')) {
-    $('#showYearTrend').prop('checked', true).trigger('change');
-    if (jpsurvData.results.yearData.survTrend[1] && jpsurvData.results.yearData.survTrend[1][0]) {
-      $('#absChgFrom')
-        .val(jpsurvData.results.yearData.survTrend[1][0]['start.year'])
-        .trigger('change');
-      $('#absChgTo').val(jpsurvData.results.yearData.survTrend[1][0]['end.year']).trigger('change');
-    }
-  }
-  if (jpsurvData.results.deathData.deathTrend && !$('#showDeathTrend').prop('checked')) {
-    $('#showDeathTrend').prop('checked', true);
-  }
-  updateTrend();
-  showTrendTable();
 }
 
 function defaultTrends() {
@@ -2202,10 +2212,9 @@ function find_year_of_diagnosis_row() {
 }
 
 function toggleAbsSelect() {
-  $('#absChgFrom').prop('disabled', !$('#showYearTrend').prop('checked'));
-  $('#absChgTo').prop('disabled', !$('#showYearTrend').prop('checked'));
-  $('#absChgFrom').val('').trigger('change');
-  $('#absChgTo').val('').trigger('change');
+  toggled = $('#toggleAbsSelect').prop('checked');
+  $('#absChgFrom').prop('disabled', !toggled).val('').trigger('change');
+  $('#absChgTo').prop('disabled', !toggled).val('').trigger('change');
   $('#warning-wrapper').popover('dispose');
 }
 
@@ -3282,7 +3291,8 @@ function getTrendTables() {
 function showTrendTable() {
   var results = jpsurvData.results;
   if (results && results.yearData) {
-    results.yearData.survTrend && $('#showYearTrend').is(':checked')
+    results.yearData.survTrend &&
+    ($('#showYearTrend').is(':checked') || $('#toggleAbsSelect').is(':checked'))
       ? $('#yearTrendTable').removeClass('d-none')
       : $('#yearTrendTable').addClass('d-none');
   }

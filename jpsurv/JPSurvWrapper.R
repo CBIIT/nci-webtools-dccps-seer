@@ -206,7 +206,7 @@ validateCohohort <- function(jpsurvData, filePath, seerFilePrefix, allVars, year
     seerdata = joinpoint.seerdata(
       seerfilename=file,
       newvarnames=varLabels,
-      NoFit=T,
+      # NoFit=T,
       UseVarLabelsInData=varLabels)
   } else {
     file = paste(file, '.csv', sep='')
@@ -364,7 +364,7 @@ getFittedResult <- function (tokenId,filePath, seerFilePrefix, yearOfDiagnosisVa
     file=paste(filePath, file_name, sep="/" )
     seerdata = joinpoint.seerdata(seerfilename=file,
                                   newvarnames=varLabels,
-                                  NoFit=T,
+                                  # NoFit=T,
                                   UseVarLabelsInData=varLabels)
     # get subset of seerdata containing rows within user defined interval range (Intervals from Diagnosis Range)
     seerdataSub = subset(seerdata, Interval <= intervalRange)
@@ -610,11 +610,11 @@ getGraphWrapper <- function (filePath, jpsurvDataString, first_calc, com, runs, 
     data = NULL
     # check if annotation is possible
     if (!is.null(trend) && trend == 1) {
-      if (nJP <= 3 && length(jpsurvData$additional$intervalsDeath) <= 3) {
-        data = plot.dying.year.annotate(graphData, fit, nJP, yearVar, obsintvar, predintvar, interval, annotation = 1, trend = 1)
-      } else {
+      # if (nJP <= 3 && length(jpsurvData$additional$intervalsDeath) <= 3) {
+        # data = plot.dying.year.annotate(graphData, fit, nJP, yearVar, obsintvar, predintvar, interval, annotation = 1, trend = 1)
+      # } else {
         data = plot.dying.year.annotate(graphData, fit, nJP, yearVar, obsintvar, predintvar, interval, annotation = 0, trend = 1)
-      }
+      # }
     } else {
       plot <- plot.dying.year.annotate(graphData, fit, nJP, yearVar, obsintvar, predintvar, interval, annotation = 0, trend = 0)
       ggsave(file=paste(filePath, paste("plot_Death-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/"))
@@ -631,29 +631,30 @@ getGraphWrapper <- function (filePath, jpsurvDataString, first_calc, com, runs, 
       graphData = (scaleTo(graphData))
       results = list("deathGraph" = graphFile, "deathTable" = graphData, "deathTrend" = trendTable)
       return(results)
-    } else if (length(data) == 3) {   # Trend + plot + anno
-      trendTable = data[[1]]
-      plot.anno <- data[[2]]
-      ggsave(file=paste(filePath, paste("plot_DeathAnno-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/"), plot = plot.anno)
-      plot = data[[3]]
-      ggsave(file=paste(filePath, paste("plot_Death-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/"), plot = plot)
-      graphFile = paste(filePath, paste("plot_Death-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/")
-      graphAnnoFile = paste(filePath, paste("plot_DeathAnno-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/")
-      graphData = (scaleTo(graphData))
-      results = list("deathGraph" = graphFile, "deathGraphAnno" = graphAnnoFile, "deathTable" = graphData, "deathTrend" = trendTable)
-      return(results)
+    # } else if (length(data) == 3) {   # Trend + plot + anno
+    #   trendTable = data[[1]]
+    #   plot.anno <- data[[2]]
+    #   ggsave(file=paste(filePath, paste("plot_DeathAnno-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/"), plot = plot.anno)
+    #   plot = data[[3]]
+    #   ggsave(file=paste(filePath, paste("plot_Death-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/"), plot = plot)
+    #   graphFile = paste(filePath, paste("plot_Death-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/")
+    #   graphAnnoFile = paste(filePath, paste("plot_DeathAnno-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/")
+    #   graphData = (scaleTo(graphData))
+    #   results = list("deathGraph" = graphFile, "deathGraphAnno" = graphAnnoFile, "deathTable" = graphData, "deathTrend" = trendTable)
+    #   return(results)
     }
   } else if (type == 'year') {
     trend = jpsurvData$additional$yearTrend
+    absRange = jpsurvData$additional$absChgRange
     intervals = jpsurvData$additional$intervals
     data = NULL
     # check if annotation is possible
-    if (!is.null(trend) && trend == 1) {
-      if (nJP <= 3 && length(intervals) <= 3) {
-        data = plot.surv.year.annotate(graphData, fit, nJP, yearVar, obscumvar, predcumvar, interval, annotation = 1, trend = 1)
-      } else {
+    if ((!is.null(trend) && trend == 1) || !is.null(absRange)) {
+      # if (nJP <= 3 && length(intervals) <= 3) {
+        # data = plot.surv.year.annotate(graphData, fit, nJP, yearVar, obscumvar, predcumvar, interval, annotation = 1, trend = 1)
+      # } else {
         data = plot.surv.year.annotate(graphData, fit, nJP, yearVar, obscumvar, predcumvar, interval, annotation = 0, trend = 1)
-      }
+      # }
     } else {
       plot = plot.surv.year.annotate(graphData, fit, nJP, yearVar, obscumvar, predcumvar, interval, annotation = 0, trend = 0)
       ggsave(file=paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/"))
@@ -663,10 +664,17 @@ getGraphWrapper <- function (filePath, jpsurvDataString, first_calc, com, runs, 
       return(results)
     }
 
-    if (is.null(jpsurvData$additional$absChgRange)) {
+    if (is.null(absRange)) {
+      # between joinpoint only
       trends = data[[1]]
     } else {
-      trends = aapc.multiints(fit$FitList[[nJP+1]], type="AbsChgSur", int.select=intervals, ACS.range=jpsurvData$additional$absChgRange)
+      # both trends
+      type = 'both'
+      if (is.null(trend) || trend == 0) {
+        # between calendar only
+        type = 'user'
+      }
+      trends = aapc.multiints(fit$FitList[[nJP+1]], type="AbsChgSur", int.select=intervals, ACS.range=absRange, ACS.out=type)
     }
 
     if (length(data) == 2) {   # Trend + plot
@@ -676,16 +684,16 @@ getGraphWrapper <- function (filePath, jpsurvDataString, first_calc, com, runs, 
       graphData = (scaleTo(graphData))
       results = list("survGraph" = graphFile, "survTable" = graphData, "survTrend" = trends)
       return(results)
-    } else if (length(data) == 3) {   # Trend + plot + anno
-      plot.anno = data[[2]]
-      ggsave(file=paste(filePath, paste("plot_YearAnno-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/"), plot = plot.anno)
-      plot = data[[3]]
-      ggsave(file=paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/"), plot = plot)
-      graphFile = paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/")
-      graphAnnoFile = paste(filePath, paste("plot_YearAnno-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/")
-      graphData = (scaleTo(graphData))
-      results = list("survGraph" = graphFile, "survGraphAnno" = graphAnnoFile, "survTable" = graphData, "survTrend" = trends)
-      return(results)
+    # } else if (length(data) == 3) {   # Trend + plot + anno
+    #   plot.anno = data[[2]]
+    #   ggsave(file=paste(filePath, paste("plot_YearAnno-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/"), plot = plot.anno)
+    #   plot = data[[3]]
+    #   ggsave(file=paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/"), plot = plot)
+    #   graphFile = paste(filePath, paste("plot_Year-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/")
+    #   graphAnnoFile = paste(filePath, paste("plot_YearAnno-", jpsurvData$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/")
+    #   graphData = (scaleTo(graphData))
+    #   results = list("survGraph" = graphFile, "survGraphAnno" = graphAnnoFile, "survTable" = graphData, "survTrend" = trends)
+    #   return(results)
     }
   } else if (type == 'time') {
     years = jpsurvData$additional$yearOfDiagnosis

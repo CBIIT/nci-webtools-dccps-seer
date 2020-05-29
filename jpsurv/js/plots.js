@@ -3,17 +3,17 @@ function plotLineChart(x, yMark, yLine, dimension, trends, divID) {
   var statistic = jpsurvData.additional.statistic;
   titles = {
     yearPlot: {
-      plotTitle: 'Average Absolute Change in ' + statistic + ' by Diagnosis Year',
+      plotTitle: statistic + ' by Diagnosis Year',
       xTitle: 'Year at Diagnosis',
       yTitle: statistic + ' (%)',
     },
     deathPlot: {
-      plotTitle: 'Percent Change in the Anual Probability of Dying by Cancer by Diagnosis Year',
+      plotTitle: 'Annual Probability of Dying of Cancer by Diagnosis Year',
       xTitle: 'Year at Diagnosis',
       yTitle: 'Anual Probability of Cancer Death (%)',
     },
     timePlot: {
-      plotTitle: statistic + ' by Interval per Diagnosis Year',
+      plotTitle: statistic + ' by Year Since Diagnosis for Selected Diagnosis Year',
       xTitle: 'Interval',
       yTitle: statistic + ' (%)',
     },
@@ -194,6 +194,8 @@ function plotLineChart(x, yMark, yLine, dimension, trends, divID) {
         lTrace[trend.interval].hovertemplate = newTemplate;
       }
     }
+    // select correct trend if both exist
+    if (trends['ACS.jp']) trends = trends['ACS.jp'];
     if (trends.length < 4) {
       for (var trend of trends) {
         buildTemplate(trend);
