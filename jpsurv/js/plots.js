@@ -151,6 +151,7 @@ function plotLineChart(x, yMark, yLine, dimension, trends, divID) {
     lTrace[dimension[i]].text.push('');
   });
 
+  // draw annotations
   if (trends) {
     function buildTemplate(trend) {
       var trendLabel = divID == 'yearPlot' ? 'Trend AAC:' : 'Trend DAP:';
@@ -196,7 +197,8 @@ function plotLineChart(x, yMark, yLine, dimension, trends, divID) {
     }
     // select correct trend if both exist
     if (trends['ACS.jp']) trends = trends['ACS.jp'];
-    if (trends.length < 4) {
+    // only draw multiple trend annotations for yearPlot and if less than 4 trend measures
+    if (divID == 'yearPlot' && trends.length < 4) {
       for (var trend of trends) {
         buildTemplate(trend);
       }
