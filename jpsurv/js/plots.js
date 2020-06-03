@@ -46,7 +46,7 @@ function plotLineChart(x, yMark, yLine, dimension, trends, divID) {
       tickformat: '%',
       tickmode: 'auto',
       nticks: 11,
-      range: [0, 1],
+      range: [0, 1.05],
       autorange: false,
     },
     height: 700,
