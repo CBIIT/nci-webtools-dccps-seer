@@ -195,15 +195,40 @@ function plotLineChart(x, yMark, yLine, dimension, trends, divID) {
         lTrace[trend.interval].hovertemplate = newTemplate;
       }
     }
-    // select correct trend if both exist
-    if (trends['ACS.jp']) trends = trends['ACS.jp'];
-    // only draw multiple trend annotations for yearPlot and if less than 4 trend measures
-    if (divID == 'yearPlot' && trends.length < 4) {
-      for (var trend of trends) {
-        buildTemplate(trend);
+    if (divID == 'yearPlot') {
+      // select correct trend if both exist
+      if (trends['ACS.jp']) trends = trends['ACS.jp'];
+      // only draw multiple trend annotations if less than 4 trend measures
+      if (trends.length < 4) {
+        for (var trend of trends) {
+          buildTemplate(trend);
+        }
+        // only draw top annotation
+      } else {
+        buildTemplate(trends[0]);
       }
-    } else {
-      buildTemplate(trends[0]);
+      // only draw top annotation for dying plot
+    } else if (divID == 'deathPlot') {
+      // find top-most line trace
+      var max = 0;
+      var targetInt = 0;
+
+      Object.keys(lTrace).forEach(function (interval) {
+        if (lTrace[interval].y[0] > max) {
+          max = lTrace[interval].y[0];
+          targetInt = interval;
+        }
+      });
+
+      trends.forEach(function (trend, i) {
+        if (Array.isArray(trend.interval)) {
+          if (trend.interval[0] == targetInt) {
+            buildTemplate(trends[i]);
+          }
+        } else if (trend.interval == targetInt) {
+          buildTemplate(trends[i]);
+        }
+      });
     }
   }
 
