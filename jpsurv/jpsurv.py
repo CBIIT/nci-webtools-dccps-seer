@@ -655,8 +655,8 @@ def queue():
     jpsurv_json = json.loads(jpsurvDataString)
     tokenId = jpsurv_json['tokenId']
     UPLOAD_DIR = upload_dir(tokenId)
-    filename = "input_%s.json" % tokenId
-    fq = os.path.join(UPLOAD_DIR, filename)
+    paramsFile = "input_%s.json" % tokenId
+    fq = os.path.join(UPLOAD_DIR, paramsFile)
     text_file = open(fq, "w")
     text_file.write("%s" % jpsurvDataString)
     text_file.close()
@@ -665,40 +665,59 @@ def queue():
     timestr = time.strftime("%Y-%m-%d")
 
     bucket = S3Bucket(config.INPUT_BUCKET, app.logger)
-
     try:
-        for root, dirs, files in os.walk(UPLOAD_DIR):
-            for file in files:
-                for ext in ('.json', '.dic', '.txt', '.csv'):
-                    if os.path.splitext(file)[1] == ext:
-                        localPath = os.path.join(root, file)
-                        with open(localPath, 'rb') as localFile:
-                            object = bucket.uploadFileObj(
-                                config.getInputFileKey(tokenId + '/' + file), localFile)
-                            if object:
-                                app.logger.info('Uploaded ' + file)
-                            else:
-                                app.logger.error('Failed to upload ' + file)
+        # zip work directory and upload to s3
+        saveLoc = config.createArchive(UPLOAD_DIR)
 
-        sqs = Queue(app.logger, config)
-        sqs.sendMsgToQueue({
-            'jobId': tokenId,
-            'parameters': {'jpsurvData': filename,
-                           'bucket_name': config.INPUT_BUCKET,
-                           'key': config.getInputFileKey(tokenId),
-                           'timestamp': timestr}
-        }, tokenId)
-        return jsonify({
-            'enqueued': True,
-            'jobId': tokenId,
-            'message': 'Job "{}" has been added to queue successfully!'.format(tokenId)
-        })
+        if saveLoc:
+            zipFilename = tokenId + '.zip'
+            with open(saveLoc, 'rb') as archive:
+                object = bucket.uploadFileObj(
+                    config.getInputFileKey(zipFilename), archive)
+                if object:
+                    app.logger.info('Succesfully Uploaded ' + tokenId + '.zip')
+                else:
+                    app.logger.error('Failed to upload ' + tokenId + '.zip')
+
+            sqs = Queue(app.logger, config)
+            sqs.sendMsgToQueue({
+                'jobId': tokenId,
+                'parameters': {'jpsurvData': paramsFile,
+                               'bucket_name': config.INPUT_BUCKET,
+                               'key': config.getInputFileKey(zipFilename),
+                               'timestamp': timestr}
+            }, tokenId)
+            return jsonify({
+                'enqueued': True,
+                'jobId': tokenId,
+                'message': 'Job "{}" has been added to queue successfully!'.format(tokenId)
+            })
+        else:
+            app.logger
     except Exception as err:
         message = "Upload to S3 failed!\n" + str(err)
         app.logger.error(message)
-        response = jsonify(message)
-        response.status_code = 500
-        return response
+        return current_app.response_class(json.dumps(message), 500, mimetype='application/json')
+
+# Download queued job result from S3
+@app.route('/jpsurvRest/downloadS3', methods=['GET'])
+def downloadS3():
+    file = request.args.get('file')
+    config = Util(config_file)
+    try:
+        bucket = S3Bucket(config.INPUT_BUCKET, app.logger)
+        bucket.downloadFile(config.S3_OUTPUT_FOLDER + file,
+                            config.OUTPUT_DATA_PATH + file)
+        archivePath = os.path.join(os.getcwd(), config.INPUT_DATA_PATH, file)
+
+        with ZipFile(archivePath) as archive:
+            archive.extractall(config.OUTPUT_DATA_PATH)
+
+        return current_app.response_class(json.dumps({'status': 'OK'}), 200, mimetype='application/json')
+    except Exception as err:
+        message = "Download from S3 failed!\n" + str(err)
+        app.logger.error(message)
+        return current_app.response_class(json.dumps(message), 500, mimetype='application/json')
 
 
 def initialize(port, debug=True):

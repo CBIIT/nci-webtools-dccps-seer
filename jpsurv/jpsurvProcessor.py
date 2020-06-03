@@ -6,6 +6,7 @@ import smtplib
 import datetime
 import logging
 
+from zipfile import ZipFile
 from urllib.parse import unquote
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
@@ -16,13 +17,6 @@ from jinja2 import Template
 from util import Util
 from sqs import Queue, VisibilityExtender
 from s3 import S3Bucket
-
-
-#  Renders a template given a filepath and template variables
-def render_template(filepath, data):
-    with open(filepath) as template_file:
-        template = Template(template_file.read())
-        return template.render(data)
 
 
 def sendMail(recipients, message, config, files=[]):
@@ -58,6 +52,13 @@ def sendMail(recipients, message, config, files=[]):
         logger.info("failed to connect to " + MAIL_HOST)
         logger.error('Caught Exception: ' + str(e))
         return False
+
+
+#  Renders a template given a filepath and template variables
+def render_template(filepath, data):
+    with open(filepath) as template_file:
+        template = Template(template_file.read())
+        return template.render(data)
 
 
 def composeSuccess(WORKING_DIR, jpsurvData, timestamp, logger):
@@ -113,35 +114,30 @@ def composeFail(WORKING_DIR, jpsurvData, timestamp, logger):
               'uploadFiles': uploadFiles
               }
 
-    message = render_template('templates/succ_email.html', params)
+    message = render_template('templates/fail_email.html', params)
     return sendMail(data['queue']['email'], message, config)
 
 
 def calculate(WORKING_DIR, jpsurvData, timestamp, logger):
     jpsurvJSON = os.path.join(WORKING_DIR, jpsurvData)
 
-    print(jpsurvJSON)
-
     with open(jpsurvJSON, 'r') as data:
         jpsurvDataString = data.read()
         data = json.loads(jpsurvDataString)
 
-    token = data['tokenId']
+        logger.debug("params: " + jpsurvData)
+        logger.debug("jpsurvDataString")
+        logger.debug(jpsurvDataString)
 
-    logger.debug("file name: " + jpsurvData)
-    logger.debug("token: " + token)
-    logger.debug("jpsurvDataString")
-    logger.debug(jpsurvDataString)
-
-    try:
-        r.source('JPSurvWrapper.R')
-        logger.info("Calculating")
-        r.getFittedResultWrapper(WORKING_DIR, jpsurvDataString)
-        logging.info("Calculation succeeded")
-        success = True
-    except:
-        logging.info("Calculation failed")
-        success = False
+        try:
+            r.source('JPSurvWrapper.R')
+            logger.info("Calculating")
+            r.getFittedResultWrapper(WORKING_DIR, jpsurvDataString)
+            logging.info("Calculation succeeded")
+            success = True
+        except:
+            logging.info("Calculation failed")
+            success = False
 
     return success
 
@@ -189,60 +185,66 @@ if __name__ == '__main__':
                 try:
                     data = json.loads(msg.body)
                     if data:
-                        parameters = data['parameters']
                         jobName = 'JPSurv'
-                        id = data['jobId']
+                        token = data['jobId']
+                        parameters = data['parameters']
                         bucketName = parameters['bucket_name']
-                        projectDir = parameters['key']
+                        s3Key = parameters['key']
                         timestamp = parameters['timestamp']
                         jpsurvData = parameters['jpsurvData']
+
                         bucket = S3Bucket(bucketName, logger)
-                        WORKING_DIR = os.path.join(os.getcwd(), "tmp/" + id)
 
                         extender = VisibilityExtender(
-                            msg, jobName, id, config.VISIBILITY_TIMEOUT, logger)
+                            msg, jobName, token, config.VISIBILITY_TIMEOUT, logger)
 
                         logger.info(
-                            'Start processing job name: "{}", id: {} ...'.format(jobName, id))
-
-                        # download work files
-                        for object in bucket.bucket.objects.filter(Prefix=projectDir):
-                            if not os.path.exists(WORKING_DIR):
-                                os.makedirs(WORKING_DIR)
-                            bucket.downloadFile(
-                                object.key, object.key.replace('jpsurv/', 'tmp/'))
+                            'Start processing job name: "{}", token: {} ...'.format(jobName, token))
 
                         extender.start()
+
+                        saveLoc = os.path.join(config.INPUT_DATA_PATH, token)
+                        savePath = os.path.join(config.INPUT_DATA_PATH, f'{token}.zip')
+                        WORKING_DIR = os.path.join(os.getcwd(), saveLoc)
+
+                        # download work file archive
+                        bucket.downloadFile(s3Key, savePath)
+
+                        # extract work files
+                        with ZipFile(savePath) as archive:
+                            archive.extractall(config.INPUT_DATA_PATH)
 
                         job = calculate(WORKING_DIR, jpsurvData,
                                         timestamp, logger)
 
                         if job:
-                            # upload to s3 and send email
-                            uploadCount = 0
-                            for root, dirs, files in os.walk(WORKING_DIR):
-                                for file in files:
-                                    localPath = os.path.join(root, file)
-                                    with open(localPath, 'rb') as localFile:
-                                        object = bucket.uploadFileObj(config.getInputFileKey(
-                                            id + '/' + file), localFile)
-                                        if object:
-                                            uploadCount += 1
-                                        else:
-                                            logger.error(
-                                                'Failed to upload ' + file)
+                            try:
+                                # zip and upload to s3 and send email
+                                saveLoc = config.createArchive(WORKING_DIR)
 
-                            logger.info(f'Uploaded {uploadCount} files')
-                            sent = composeSuccess(
-                                WORKING_DIR, jpsurvData, timestamp, logger)
+                                if saveLoc:
+                                    with open(savePath, 'rb') as archive:
+                                        object = bucket.uploadFileObj(
+                                            config.getInputFileKey(f'{token}.zip'), archive)
+                                        if object:
+                                            logger.info(f'Succesfully Uploaded {token}.zip')
+                                        else:
+                                            logger.error(f'Failed to upload {token}.zip')
+
+                                    composeSuccess(
+                                        WORKING_DIR, jpsurvData, timestamp, logger)
+
+                            except Exception as err:
+                                logger.error(f'Failed to upload {token}.zip')
+                                composeFail(WORKING_DIR, jpsurvData,
+                                            timestamp, logger)
 
                         else:
-                            sent = composeFail(WORKING_DIR, jpsurvData,
-                                               timestamp, logger)
+                            composeFail(WORKING_DIR, jpsurvData,
+                                        timestamp, logger)
 
                         msg.delete()
-                        logger.info(
-                            f'Finish processing job name: {jobName}, id: {id} !')
+                        logger.info(f'Finish processing job name: {jobName}, token: {token} !')
                     else:
                         logger.debug(data)
                         logger.error('Unknown message type!')
