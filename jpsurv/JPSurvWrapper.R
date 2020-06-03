@@ -235,8 +235,8 @@ getFittedResultForVarCombo<- function(modelIndex,jpsurvData,filePath,seerFilePre
   #cat ('combination',modelIndex,cohortValues,"\n")
   getFittedResult(jpsurvData$session_tokenId,filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange,
     allVars, cohortVars, cohortValues, numJP,advanced_options, delLastIntvl, outputFileName,jpsurvDataString,projyear,type,del)
-  Selected_Model=getSelectedModel(filePath,jpsurvDataString,modelIndex)
-  return (Selected_Model-1)
+  jpInd = getSelectedModel(filePath,jpsurvDataString,modelIndex) - 1
+  return (jpInd)
 }
 
 getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,use_default=TRUE, valid_com_matrix, errors=NULL) { 
@@ -265,13 +265,11 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,use_default=TRU
     alive_at_start=names(seerdata)[jpsurvData$additional$alive_at_start]
     lost_to_followup=names(seerdata)[jpsurvData$additional$lost_to_followup]
     exp_int=names(seerdata)[jpsurvData$additional$exp_int]
-    # interval=names(seerdata)[as.integer(jpsurvData$additional$interval)]
-    # observed=names(seerdata)[jpsurvData$additional$observed]
     statistic=jpsurvData$additional$statistic
     if (statistic=="Relative Survival") {
       headers=list("Died"=died,"Alive_at_Start"=alive_at_start,"Lost_to_followup"=lost_to_followup,"Expected_Survival_Interval"=exp_int,"Interval"=interval,"Relative_Survival_Cum"=observed)
     } else if (statistic=="Cause-Specific Survival") {
-          headers=list("Died"=died,"Alive_at_Start"=alive_at_start,"Lost_to_followup"=lost_to_followup,"Expected_Survival_Interval"=exp_int,"Interval"=interval,"CauseSpecific_Survival_Cum"=observed)
+      headers=list("Died"=died,"Alive_at_Start"=alive_at_start,"Lost_to_followup"=lost_to_followup,"Expected_Survival_Interval"=exp_int,"Interval"=interval,"CauseSpecific_Survival_Cum"=observed)
     } 
   } else {
     observed=jpsurvData$additional$DataTypeVariable
@@ -281,7 +279,7 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,use_default=TRU
   ModelSelection=geALLtModelWrapper(filePath,jpsurvDataString,com)
   Coefficients=getcoefficientsWrapper(filePath,jpsurvDataString,first_calc,com)
   JP=getJPWrapper(filePath,jpsurvDataString,first_calc,com)
-  Selected_Model=getSelectedModel(filePath,jpsurvDataString,com)
+  SelectedModel=getSelectedModel(filePath,jpsurvDataString,com)
   statistic = jpsurvData$additional$statistic
   if (statistic=="Relative Survival") {
     statistic="Relative_Survival_Cum"
@@ -289,9 +287,16 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,use_default=TRU
     statistic="CauseSpecific_Survival_Cum" 
   }
   jpInd=jpsurvData$additional$headerJoinPoints
-  if (is.null(jpInd)) {
-    jpInd = getSelectedModel(filePath, jpsurvDataString, com) - 1
+  if (first_calc==TRUE || is.null(jpInd)) {
+    jpInd = SelectedModel - 1
   }
+  yod=jpsurvData$additional$yearOfDiagnosis
+  intervals=jpsurvData$additional$intervals
+  if (use_default==TRUE) {
+    yod=jpsurvData$additional$yearOfDiagnosis_default
+    intervals=jpsurvData$additional$intervals_default
+  }
+
   # get year column var name
   yearVar = getCorrectFormat(jpsurvData$calculate$static$yearOfDiagnosisVarName) 
   # create datasets for download
@@ -304,16 +309,6 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,use_default=TRU
   yearGraph <- getGraphWrapper(filePath, jpsurvDataString, first_calc, com, NULL, interval, survGraphData, 'year', statistic)
   timeGraph <- getGraphWrapper(filePath, jpsurvDataString, first_calc, com, runs, interval, timeGraphData, 'time', statistic)
 
-  SelectedModel=getSelectedModel(filePath,jpsurvDataString,com)
-  if (first_calc==TRUE||is.null(jpInd)) {
-    jpInd=SelectedModel-1
-  }
-  yod=jpsurvData$additional$yearOfDiagnosis
-  intervals=jpsurvData$additional$intervals
-  if (use_default==TRUE) {
-    yod=jpsurvData$additional$yearOfDiagnosis_default
-    intervals=jpsurvData$additional$intervals_default
-  }
   jsonl =list("Coefficients" = Coefficients,
               "ModelSelection" = ModelSelection, 
               "JP" = JP,
