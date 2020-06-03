@@ -1,5 +1,6 @@
 import os
 from configparser import SafeConfigParser
+from zipfile import ZipFile, ZIP_DEFLATED
 
 
 class Util:
@@ -24,10 +25,6 @@ class Util:
         self.APP_PORT = config.get('jpsurv', 'port')
         self.APP_ROOT = config.get('jpsurv', 'folder.root')
         self.APP_OUT = config.get('jpsurv', 'folder.out')
-
-        # self.QUEUE_URL = config.get('queue', 'url')
-        # self.QUEUE_NAME = config.get('queue', 'name')
-        # self.QUEUE_ERROR = config.get('queue', 'error.name')
 
         # log settings
         self.LOG_SIZE = int(config.get('logs', 'size'))
@@ -60,3 +57,18 @@ class Util:
 
     def getFilePath(self, path, id):
         return os.path.join(path + id)
+
+    # compresses targetDirectory into a zip file
+    def createArchive(self, targetDirectory):
+        rootDir = os.path.basename(targetDirectory)
+        try:
+            with ZipFile(targetDirectory + '.zip', "w", ZIP_DEFLATED) as archive:
+                for dirpath, dirnames, filenames in os.walk(targetDirectory):
+                    for filename in filenames:
+                        filepath = os.path.join(dirpath, filename)
+                        parentpath = os.path.relpath(filepath, targetDirectory)
+                        arcname = os.path.join(rootDir, parentpath)
+                        archive.write(filepath, arcname)
+            return targetDirectory + '.zip'
+        except Exception as err:
+            return False
