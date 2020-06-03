@@ -382,6 +382,26 @@ function addMessages() {
 }
 
 function addInputSection() {
+  if (getUrlParameter('request') == 'true') {
+    // attempt to download queued result from s3
+    if (!checkInputFile()) {
+      var file = `${getUrlParameter('tokenId')}.zip`;
+      $.ajax({
+        type: 'GET',
+        url: `jpsurvRest/downloadS3?file=${file}`,
+        async: false,
+        contentType: 'application/json',
+      })
+        // .done(function (msg) {
+        // })
+        .fail(function (jqXHR, textStatus) {
+          okAlert(
+            'Opps. It looks like the time to view your results has expired.  Please submit another calculation.',
+            'JPSurv Time Expired'
+          );
+        });
+    }
+  }
   var status = getUrlParameter('status');
   if (status == 'uploaded') {
     setUploadData();
@@ -540,14 +560,8 @@ function checkInputFile() {
     type: 'HEAD',
     async: false,
   });
-  var found = results.status == 200;
-  if (found == false) {
-    okAlert(
-      'Opps. It looks like the time to view your results has expired.  Please submit another calculation.',
-      'JPSurv Time Expired'
-    );
-  }
-  return found;
+
+  return results.status == 200;
 }
 
 //loads the form based on selected values
@@ -1358,8 +1372,7 @@ function updateTrendGraph(trends, table_id) {
         $('<tr style="border-bottom: 1px solid black">')
           .append(
             $('<td colspan="100%" class="pt-3 px-0 bg-white">').append(
-              $('<h4>')
-                .text('Trend Measures for User Selected Years')
+              $('<h4>').text('Trend Measures for User Selected Years')
             )
           )
           .appendTo('#' + table_id + ' > tbody');
