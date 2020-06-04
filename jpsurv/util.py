@@ -21,11 +21,6 @@ class Util:
         if not os.path.exists(self.OUTPUT_DATA_PATH):
             os.makedirs(self.OUTPUT_DATA_PATH)
 
-        # App settings
-        self.APP_PORT = config.get('jpsurv', 'port')
-        self.APP_ROOT = config.get('jpsurv', 'folder.root')
-        self.APP_OUT = config.get('jpsurv', 'folder.out')
-
         # log settings
         self.LOG_SIZE = int(config.get('logs', 'size'))
         self.LOG_ROLLOVER = int(config.get('logs', 'rollover'))
