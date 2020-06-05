@@ -66,26 +66,6 @@ def ping():
         return str(e), 400
 
 
-@app.route('/jpsurvRest/debug', methods=['GET'])
-def test():
-    raise
-
-
-@app.route('/jpsurvRest/parse', methods=['GET'])
-def parse():
-    mimetype = 'application/json'
-
-    print('parse JPSURV')
-
-    jpsurvDataString = unquote(request.args.get('jpsurvData', False))
-    print(OKGREEN+"The jpsurv STRING::::::"+ENDC)
-    print(jpsurvDataString)
-    jpsurvData = json.loads(jpsurvDataString)
-    out_json = json.dumps(jpsurvData)
-
-    return current_app.response_class(out_json, mimetype=mimetype)
-
-
 @app.route('/jpsurvRest/status', methods=['GET'])
 def status():
     print(OKGREEN+"Calling status::::::"+ENDC)
@@ -94,19 +74,6 @@ def status():
     mimetype = 'application/json'
     status = [{"status": "OK"}]
     out_json = json.dumps(status)
-
-    return current_app.response_class(out_json, mimetype=mimetype)
-
-
-@app.route('/jpsurvRest/get_form', methods=['GET'])
-def get_upload():
-    print('Execute jpsurvRest/get_form1')
-    print('Gathering Variables from url')
-
-    mimetype = 'application/json'
-    data3 = [{"Systemprint": {"ItemNameInDic": ["Output filename",      "Matrix filename",      "Database name"],    "ItemValueInDic": ["h:\\JPsurv\\DataTest\\Breast_RelativeSurvival.txt",      "h:\\JPsurv\\DataTest\\Breast_RelativeSurvival.ssm",      "Incidence - SEER 18 Regs Research Data + Hurricane Katrina Impacted Louisiana Cases, Nov 2013 Sub (1973-2011 varying) - Linked To County Attributes - Total U.S., 1969-2012 Counties"]},  "SessionOptionInfo": {"ItemNameInDic": ["Type",      "Rate filename",      "Statistic",      "SurvivalMethod",      "SurvivalBeginMonth",      "SurvivalBeginYear",      "SurvivalEndMonth",      "SurvivalEndYear",      "SurvivalVitalStatus",      "StudyCutoffDate",      "LostToFollowupDate",      "NumberOfIntervals",      "MonthsPerInterval",      "RatesDisplayedAs"],    "ItemValueInDic": ["Survival",      "U.S. 1970-2009 by individual year (White, Black, Other (AI\/API), Ages 0-99, All races for Other Unspec 1991+ and Unknown)",      "Relative Survival",      "Actuarial",      "Month of diagnosis recode",      "Year of diagnosis",      "Month of follow-up recode",      "Year of follow-up recode",      "Vital status recode (study cutoff used)",      "12\/2011",      "12\/2011",      "36",      "12",      "Percents"]},  "ExportOptionInfo": {"ItemNameInDic": ["GZipped",      "Variable format",      "File format",      "Field delimiter",      "Missing character",      "Fields with delimiter in quotes",      "Remove thousands separators",      "Flags included",      "Variable names included",      "Column Variables as Stats"],    "ItemValueInDic": ["false",      "numeric",      "DOS\/Windows",      "tab",      "period",      "false",      "true",      "false",      "false",      "false"]},  "VarAllInfo": {"ItemNameInDic": ["Var1Name",      "Var2Name",      "Var2Base",      "Var3Name",      "Var3Base",      "Var4Name",      "Var4Base",      "Var5Name",      "Var6Name",      "Var7Name",      "Var8Name",      "Var9Name",      "Var10Name",      "Var11Name",      "Var12Name",      "Var13Name",      "Var14Name",      "Var15Name",      "Var16Name",      "Var17Name",      "Var18Name"],    "ItemValueInDic": ["Page type",      "Age groups",      "Age recode with <1 year olds",      "Breast stage",      "SEER historic stage A",      "Year of diagnosis 1975+",      "Year of diagnosis",      "Interval",      "Alive at Start",      "Died",      "Lost to Followup",      "Observed Survival (Interval)",      "Observed Survival (Cum)",      "Expected Survival (Interval)",      "Expected Survival (Cum)",      "Relative Survival (Interval)",      "Relative Survival (Cum)",      "Observed SE (Interval)",      "Observed SE (Cum)",      "Relative SE (Interval)",      "Relative SE (Cum)"]},  "VarFormatSecList": {"Page type": {"ItemNameInDic": ["0",        "1",        "2",        "3",        "4"],      "ItemValueInDic": ["Life Page",        "Summary Page",        "Z-Statistics Page",        "Period Life Page",        "Period Summary Page"]},    "Age groups": {"ItemNameInDic": ["0",        "1",        "2"],      "ItemValueInDic": ["00-49",        "45-65s",        "65+"]},    "Breast stage": {"ItemNameInDic": ["0",        "1",        "2"],      "ItemValueInDic": ["Localized",        "Regional",        "Distant"]},    "Year of diagnosis 1975+": {"ItemNameInDic": ["0",        "1",        "2",        "3",        "4",        "5",        "6",        "7",        "8",        "9",        "10",        "11",        "12",        "13",        "14",        "15",        "16",        "17",        "18",        "19",        "20",        "21",        "22",        "23",        "24",        "25",        "26",        "27",        "28",        "29",        "30",        "31",        "32",        "33",        "34",        "35",        "36"],      "ItemValueInDic": [
-        "1975",        "1976",        "1977",        "1978",        "1979",        "1980",        "1981",        "1982",        "1983",        "1984",        "1985",        "1986",        "1987",        "1988",        "1989",        "1990",        "1991",        "1992",        "1993",        "1994",        "1995",        "1996",        "1997",        "1998",        "1999",        "2000",        "2001",        "2002",        "2003",        "2004",        "2005",        "2006",        "2007",        "2008",        "2009",        "2010",        "2011"]},    "Interval": {"ItemNameInDic": ["1",        "2",        "3",        "4",        "5",        "6",        "7",        "8",        "9",        "10",        "11",        "12",        "13",        "14",        "15",        "16",        "17",        "18",        "19",        "20",        "21",        "22",        "23",        "24",        "25",        "26",        "27",        "28",        "29",        "30",        "31",        "32",        "33",        "34",        "35",        "36"],      "ItemValueInDic": ["<1 yr",        "1-<2 yr",        "2-<3 yr",        "3-<4 yr",        "4-<5 yr",        "5-<6 yr",        "6-<7 yr",        "7-<8 yr",        "8-<9 yr",        "9-<10 yr",        "10-<11 yr",        "11-<12 yr",        "12-<13 yr",        "13-<14 yr",        "14-<15 yr",        "15-<16 yr",        "16-<17 yr",        "17-<18 yr",        "18-<19 yr",        "19-<20 yr",        "20-<21 yr",        "21-<22 yr",        "22-<23 yr",        "23-<24 yr",        "24-<25 yr",        "25-<26 yr",        "26-<27 yr",        "27-<28 yr",        "28-<29 yr",        "29-<30 yr",        "30-<31 yr",        "31-<32 yr",        "32-<33 yr",        "33-<34 yr",        "34-<35 yr",        "35-<36 yr"]}},  "VarLabelInfo": {"FirstPart": ["Var",      "Var",      "Var",      "Var",      "Var",      "Var",      "Var",      "Var",      "Var",      "Var",      "Var",      "Var",      "Var",      "Var",      "Var",      "Var",      "Var",      "Var",      "Var",      "Var",      "Var"],    "VarIndex": ["1",      "2",      "2",      "3",      "3",      "4",      "4",      "5",      "6",      "7",      "8",      "9",      "10",      "11",      "12",      "13",      "14",      "15",      "16",      "17",      "18"],    "SecondPart": ["Name",      "Name",      "Base",      "Name",      "Base",      "Name",      "Base",      "Name",      "Name",      "Name",      "Name",      "Name",      "Name",      "Name",      "Name",      "Name",      "Name",      "Name",      "Name",      "Name",      "Name"],    "LabelValue": ["Page type",      "Age groups",      "Age recode with <1 year olds",      "Breast stage",      "SEER historic stage A",      "Year of diagnosis 1975+",      "Year of diagnosis",      "Interval",      "Alive at Start",      "Died",      "Lost to Followup",      "Observed Survival (Interval)",      "Observed Survival (Cum)",      "Expected Survival (Interval)",      "Expected Survival (Cum)",      "Relative Survival (Interval)",      "Relative Survival (Cum)",      "Observed SE (Interval)",      "Observed SE (Cum)",      "Relative SE (Interval)",      "Relative SE (Cum)"]},  "VarWithoutFormatItem": ["Alive at Start",    "Died",    "Lost to Followup",    "Observed Survival (Interval)",    "Observed Survival (Cum)",    "Expected Survival (Interval)",    "Expected Survival (Cum)",    "Relative Survival (Interval)",    "Relative Survival (Cum)",    "Observed SE (Interval)",    "Observed SE (Cum)",    "Relative SE (Interval)",    "Relative SE (Cum)"]}]
-    out_json = json.dumps(data3)
 
     return current_app.response_class(out_json, mimetype=mimetype)
 
@@ -534,8 +501,9 @@ def stage2_calculate():
 
     jpsurvDataString = unquote(request.args.get('jpsurvData', False))
 
-    print(OKBLUE+"The jpsurv STRING::::::"+ENDC)
+    print(OKBLUE+"jpsurv data start::::::"+ENDC)
     print(jpsurvDataString)
+    print(OKBLUE+"jpsurv data end::::::"+ENDC)
 
     jpsurvData = json.loads(jpsurvDataString)
     token = jpsurvData['tokenId']
