@@ -9,7 +9,6 @@ class Util:
         config.read(filename)
 
         # Mail settings
-        self.MAIL_ADMIN = config.get('mail', 'admin')
         self.MAIL_HOST = config.get('mail', 'host')
 
         # Folder settings
