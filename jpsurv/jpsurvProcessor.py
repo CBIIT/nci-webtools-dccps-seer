@@ -167,7 +167,6 @@ if __name__ == '__main__':
     from argparse import ArgumentParser
     parser = ArgumentParser()
     parser.add_argument('-d', '--debug', action='store_true')
-    parser.add_argument('port', nargs='+')
     args = parser.parse_args()
     if (args.debug):
         config = Util('config.dev.ini')
