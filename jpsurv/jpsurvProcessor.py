@@ -257,3 +257,6 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         logger.info("\nBye!")
         sys.exit()
+    except Exception as e:
+        logger.exception(e)
+        logger.error('Failed to connect to SQS queue')
