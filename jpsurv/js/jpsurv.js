@@ -983,6 +983,14 @@ function createModelSelection() {
   });
 }
 
+// make sure inputs are arrays
+function checkArray(arr) {
+  if (!Array.isArray(arr)) {
+    return [arr];
+  }
+  return arr;
+}
+
 function plot(plot) {
   if (jpsurvData.results) {
     yodVarName = jpsurvData.calculate.static.yearOfDiagnosisVarName
@@ -994,17 +1002,17 @@ function plot(plot) {
       yearData = jpsurvData.results.yearData;
       trend =
         !$('#yearAnno').is(':checked') && yearData.survTrend
-          ? Array.isArray(yearData.survTrend[0])
-            ? yearData.survTrend[0]
-            : yearData.survTrend
+          ? yearData.survTrend
           : null;
 
       plotLineChart(
-        yearData.survTable[yodVarName],
-        yearData.survTable.Relative_Survival_Cum ||
-          yearData.survTable.CauseSpecific_Survival_Cum,
-        yearData.survTable.Predicted_Survival_Cum,
-        yearData.survTable.Interval,
+        checkArray(yearData.survTable[yodVarName]),
+        checkArray(
+          yearData.survTable.Relative_Survival_Cum ||
+            yearData.survTable.CauseSpecific_Survival_Cum
+        ),
+        checkArray(yearData.survTable.Predicted_Survival_Cum),
+        checkArray(yearData.survTable.Interval),
         trend,
         'yearPlot'
       );
@@ -1018,10 +1026,10 @@ function plot(plot) {
       });
 
       plotLineChart(
-        deathData.deathTable[yodVarName],
-        yMark,
-        deathData.deathTable.Predicted_ProbDeath_Int,
-        deathData.deathTable.Interval,
+        checkArray(deathData.deathTable[yodVarName]),
+        checkArray(yMark),
+        checkArray(deathData.deathTable.Predicted_ProbDeath_Int),
+        checkArray(deathData.deathTable.Interval),
         !$('#deathAnno').is(':checked') && deathData.deathTrend
           ? deathData.deathTrend
           : null,
@@ -1031,10 +1039,12 @@ function plot(plot) {
       timeData = jpsurvData.results.timeData.timeTable;
 
       plotLineChart(
-        timeData.Interval,
-        timeData.Relative_Survival_Cum || timeData.CauseSpecific_Survival_Cum,
-        timeData.Predicted_Survival_Cum,
-        timeData[yodVarName],
+        checkArray(timeData.Interval),
+        checkArray(
+          timeData.Relative_Survival_Cum || timeData.CauseSpecific_Survival_Cum
+        ),
+        checkArray(timeData.Predicted_Survival_Cum),
+        checkArray(timeData[yodVarName]),
         null,
         'timePlot'
       );
