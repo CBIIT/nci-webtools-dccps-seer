@@ -1204,8 +1204,8 @@ function updateGraphs(token_id) {
     var deathHeader = [
       'Year of Diagnosis',
       'Interval',
-      'Probability of Death Interval (%)',
-      'Probability of Death Interval Std. Err. (%)',
+      'Observed Prob. of Death Interval (%)',
+      'Observed Prob. of Death Interval Std. Err. (%)',
       'Predictive Prob. of Death Interval (%)',
       'Predictive Prob. of Death Interval Std. Err. (%)',
     ];
@@ -3571,7 +3571,7 @@ function settingsSheet() {
 //    [B1, B2, B3],
 //    ...
 //  ]
-function genereateSheet(data) {
+function generateSheet(data) {
   var yearVar = jpsurvData.results.yearVar;
   var input = [
     yearVar,
@@ -3589,19 +3589,21 @@ function genereateSheet(data) {
       'Observed_Survival_Cum',
       'Observed_Survival_Interval',
       'Relative_Survival_Interval',
-      'Relative_Death_Interval',
+      'Observed_ProbDeath_Int',
       'Relative_Survival_Cum',
       'Relative_SE_Interval',
       'Relative_SE_Cum',
+      'Observed_ProbDeath_Int_SE',
     ];
     input = input.concat(cols);
   } else {
     var cols = [
       'CauseSpecific_Survival_Interval',
-      'Relative_Death_Interval',
+      'Observed_ProbDeath_Int',
       'CauseSpecific_Survival_Cum',
       'CauseSpecific_SE_Interval',
       'CauseSpecific_SE_Cum',
+      'Observed_ProbDeath_Int_SE',
     ];
     input = input.concat(cols);
   }
@@ -3624,6 +3626,8 @@ function genereateSheet(data) {
   input.forEach(function (col, index) {
     if (data[col]) {
       data[col].forEach(function (value, row) {
+        // fix NaN values
+        if (isNaN(value)) value = 'NA';
         if (sheet[row + 1]) {
           sheet[row + 1].push(value);
         } else {
@@ -3637,7 +3641,7 @@ function genereateSheet(data) {
       });
     }
   });
-
+  console.log('after', sheet);
   return XLSX.utils.aoa_to_sheet(sheet);
 }
 
@@ -3682,28 +3686,34 @@ function downloadData(type) {
     survByYear = filterTable(survByYear, columns);
     XLSX.utils.book_append_sheet(
       wb,
-      genereateSheet(survByYear),
+      generateSheet(survByYear),
       'Survival vs. Year'
     );
   } else if (type == 'deathByYear') {
+    // change column names
     if (deathByYear['Relative_Survival_Interval']) {
-      deathByYear['Relative_Death_Interval'] = deathByYear[
+      deathByYear['Observed_ProbDeath_Int'] = deathByYear[
         'Relative_Survival_Interval'
       ].map(function (i) {
         return 100 - i;
       });
+
+      deathByYear['Observed_ProbDeath_Int_SE'] =
+        deathByYear['Relative_SE_Interval'];
     } else {
-      deathByYear['Relative_Death_Interval'] = deathByYear[
+      deathByYear['Observed_ProbDeath_Int'] = deathByYear[
         'CauseSpecific_Survival_Interval'
       ].map(function (i) {
         return 100 - i;
       });
+
+      deathByYear['Observed_ProbDeath_Int_SE'] =
+        deathByYear['CauseSpecific_SE_Interval'];
     }
     columns.push(
       'Interval',
-      'Relative_Death_Interval',
-      'Relative_SE_Interval',
-      'CauseSpecific_SE_Interval',
+      'Observed_ProbDeath_Int',
+      'Observed_ProbDeath_Int_SE',
       'Predicted_ProbDeath_Int',
       'Predicted_ProbDeath_Int_SE'
     );
@@ -3714,7 +3724,7 @@ function downloadData(type) {
     deathByYear = filterTable(deathByYear, columns);
     XLSX.utils.book_append_sheet(
       wb,
-      genereateSheet(deathByYear),
+      generateSheet(deathByYear),
       'Death vs. Year'
     );
   } else if (type == 'survByTime') {
@@ -3731,11 +3741,31 @@ function downloadData(type) {
     survByTime = filterTable(survByTime, columns);
     XLSX.utils.book_append_sheet(
       wb,
-      genereateSheet(survByTime),
+      generateSheet(survByTime),
       'Survival vs. Time'
     );
   } else if (type == 'fullData') {
-    XLSX.utils.book_append_sheet(wb, genereateSheet(fullPred), 'Full Dataset');
+    // add Observed_ProbDeath columns
+    if (fullPred['Relative_Survival_Interval']) {
+      fullPred['Observed_ProbDeath_Int'] = fullPred[
+        'Relative_Survival_Interval'
+      ].map(function (i) {
+        return 100 - i;
+      });
+
+      fullPred['Observed_ProbDeath_Int_SE'] = fullPred['Relative_SE_Interval'];
+    } else {
+      fullPred['Observed_ProbDeath_Int'] = fullPred[
+        'CauseSpecific_Survival_Interval'
+      ].map(function (i) {
+        return 100 - i;
+      });
+
+      fullPred['Observed_ProbDeath_Int_SE'] =
+        fullPred['CauseSpecific_SE_Interval'];
+    }
+
+    XLSX.utils.book_append_sheet(wb, generateSheet(fullPred), 'Full Dataset');
   }
 
   XLSX.utils.book_append_sheet(wb, settingsSheet(), 'Settings');

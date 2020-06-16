@@ -6,7 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>JPsurv Analysis Tool</title>
     <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-62346354-12"></script>
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=UA-62346354-12"
+    ></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag() {
@@ -18,11 +21,11 @@
     <script src="https://assets.adobedtm.com/f1bfa9f7170c81b1a9a9ecdcc6c5215ee0b03c84/satelliteLib-4b219b82c4737db0e1797b6c511cf10c802c95cb.js"></script>
     <script
       lang="javascript"
-      src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.14.3/shim.min.js"
+      src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.2/shim.min.js"
     ></script>
     <script
       lang="javascript"
-      src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.14.3/xlsx.full.min.js"
+      src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.2/xlsx.full.min.js"
     ></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/7.8.7/polyfill.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
@@ -57,7 +60,9 @@
   </head>
 
   <body role="document" class="bg-light">
-    <a class="sr-only sr-only-focusable" title="Skip to content" href="#main">Skip to content</a>
+    <a class="sr-only sr-only-focusable" title="Skip to content" href="#main"
+      >Skip to content</a
+    >
     <header>
       <div class="container px-0">
         <a href="https://cancercontrol.cancer.gov/" target="DCCPS">
@@ -75,7 +80,9 @@
           <div id="ribbon" class="clearfix bg-primary">
             <div class="wrapper">
               <h1>
-                <a href="/" title="Return to SRP Home">Surveillance Research Program</a>
+                <a href="/" title="Return to SRP Home"
+                  >Surveillance Research Program</a
+                >
               </h1>
             </div>
           </div>
@@ -137,7 +144,10 @@
                     </a>
                   </span>
                   <!-- Upload FORM - STAGE 1 -->
-                  <div class="box col-xs-12 shadow-sm" style="overflow: hidden; width: 100%;">
+                  <div
+                    class="box col-xs-12 shadow-sm"
+                    style="overflow: hidden; width: 100%;"
+                  >
                     <form
                       id="upload-form"
                       class="form-horizontal"
@@ -146,10 +156,16 @@
                       enctype="multipart/form-data"
                       action="jpsurvRest/stage1_upload"
                     >
-                      <label class="col-xs-3 font-weight-bold" id="inputTypeLabel"
+                      <label
+                        class="col-xs-3 font-weight-bold"
+                        id="inputTypeLabel"
                         >File Format:</label
                       >
-                      <div id="input_type_select" style="margin-bottom: 2%;" class="d-flex">
+                      <div
+                        id="input_type_select"
+                        style="margin-bottom: 2%;"
+                        class="d-flex"
+                      >
                         <div
                           class="custom-control custom-radio custom-control-inline"
                           data-toggle="tooltip"
@@ -164,7 +180,10 @@
                             class="custom-control-input"
                             checked
                           />
-                          <label class="custom-control-label" for="dic" aria-label="dictionary"
+                          <label
+                            class="custom-control-label"
+                            for="dic"
+                            aria-label="dictionary"
                             >Dic/Data Files</label
                           >
                         </div>
@@ -181,7 +200,10 @@
                             value="csv"
                             class="custom-control-input"
                           />
-                          <label class="custom-control-label" for="csv" aria-label="csv"
+                          <label
+                            class="custom-control-label"
+                            for="csv"
+                            aria-label="csv"
                             >CSV Files</label
                           >
                         </div>
@@ -240,7 +262,9 @@
                                 multiple
                                 max-uploads="2"
                               />
-                              <label class="custom-file-label" for="file_control"
+                              <label
+                                class="custom-file-label"
+                                for="file_control"
                                 >Choose files (dic, txt)</label
                               >
                             </div>
@@ -265,7 +289,11 @@
                       <div id="csv_container" style="display: none;">
                         <div id="file_control_container_csv" class="mx-0 mb-0">
                           <div class="mb-2">
-                            <label class="font-weight-bold" for="file_control_csv">CSV File:</label>
+                            <label
+                              class="font-weight-bold"
+                              for="file_control_csv"
+                              >CSV File:</label
+                            >
                             <a
                               style="font-size: small; color: #3273ab;"
                               href="./data/Breast_RelativeSurvival_Head_NA0.csv"
@@ -293,7 +321,9 @@
                                 accept=".csv, .txt"
                                 aria-label="csv file chooser"
                               />
-                              <label class="custom-file-label" for="file_control_csv"
+                              <label
+                                class="custom-file-label"
+                                for="file_control_csv"
                                 >Choose file (csv, txt)</label
                               >
                             </div>
@@ -315,7 +345,10 @@
                       </div>
                       <div id="import_container" style="display: none;">
                         <div class="mb-2">
-                          <label class="font-weight-bold" for="import_container">
+                          <label
+                            class="font-weight-bold"
+                            for="import_container"
+                          >
                             Workspace file:
                           </label>
                         </div>
@@ -354,7 +387,11 @@
                     </form>
                   </div>
                   <!-- Calculate - STAGE 2 -->
-                  <div id="stage2-calculate" class="box col-xs-12 shadow-sm" style="display: none;">
+                  <div
+                    id="stage2-calculate"
+                    class="box col-xs-12 shadow-sm"
+                    style="display: none;"
+                  >
                     <form id="parameters" class="form-horizontal" role="form">
                       <h5 class="card-title">
                         Cohort and Model Specifications
@@ -365,15 +402,26 @@
                         <span class="jpsurv-label"
                           >Year of Diagnosis Range:
                           <span>
-                            <span class="jpsurv-label-content font-weight-normal">
-                              <label for="year_of_diagnosis_start" class="d-none">Start Year</label>
+                            <span
+                              class="jpsurv-label-content font-weight-normal"
+                            >
+                              <label
+                                for="year_of_diagnosis_start"
+                                class="d-none"
+                                >Start Year</label
+                              >
                               <select
                                 id="year_of_diagnosis_start"
                                 name="year_of_diagnosis_start"
                               ></select>
                               to
-                              <label for="year_of_diagnosis_end" class="d-none">End Year</label>
-                              <select id="year_of_diagnosis_end" name="year_of_diagnosis_end">
+                              <label for="year_of_diagnosis_end" class="d-none"
+                                >End Year</label
+                              >
+                              <select
+                                id="year_of_diagnosis_end"
+                                name="year_of_diagnosis_end"
+                              >
                               </select>
                             </span>
                           </span>
@@ -381,11 +429,17 @@
                       </div>
                       <div class="jpsurv-label-container d-flex">
                         <div class="jpsurv-label" style="width: 250px;">
-                          Max No. of Years from Diagnosis (follow-up) to include:
+                          Max No. of Years from Diagnosis (follow-up) to
+                          include:
                         </div>
                         <div class="jpsurv-label-content font-weight-normal">
-                          <label for="intervals_from_diagnosis" class="d-none">Select</label>
-                          <select id="intervals_from_diagnosis" name="intervals_from_diagnosis">
+                          <label for="intervals_from_diagnosis" class="d-none"
+                            >Select</label
+                          >
+                          <select
+                            id="intervals_from_diagnosis"
+                            name="intervals_from_diagnosis"
+                          >
                           </select>
                         </div>
                       </div>
@@ -396,7 +450,9 @@
                         class="mx-0 mb-0 jpsurv-label-container"
                         style="display: none;"
                       >
-                        <label class="jpsurv-label" for="covariate_select">Covariates:</label>
+                        <label class="jpsurv-label" for="covariate_select"
+                          >Covariates:</label
+                        >
                         <select
                           id="covariate_select"
                           class="jpsurv-label-content"
@@ -438,8 +494,14 @@
                             style="padding: 5px 15px; display: none;"
                           ></div>
                         </div>
-                        <div class="mx-0 mb-0 e-mail-grp" style="display: none;">
-                          <label for="e-mail" class="jpsurv-label" title="Enter a valid e-mail"
+                        <div
+                          class="mx-0 mb-0 e-mail-grp"
+                          style="display: none;"
+                        >
+                          <label
+                            for="e-mail"
+                            class="jpsurv-label"
+                            title="Enter a valid e-mail"
                             >E-mail:</label
                           >
                           <input
@@ -481,7 +543,9 @@
                         >
                         <div class="ml-auto">
                           <form id="adv-delete-interval">
-                            <div class="custom-control custom-radio custom-control-inline">
+                            <div
+                              class="custom-control custom-radio custom-control-inline"
+                            >
                               <input
                                 class="custom-control-input"
                                 type="radio"
@@ -490,9 +554,15 @@
                                 name="adv-delete-interval"
                                 aria-label="Yes"
                               />
-                              <label class="custom-control-label" for="del-int-yes">Yes</label>
+                              <label
+                                class="custom-control-label"
+                                for="del-int-yes"
+                                >Yes</label
+                              >
                             </div>
-                            <div class="custom-control custom-radio custom-control-inline">
+                            <div
+                              class="custom-control custom-radio custom-control-inline"
+                            >
                               <input
                                 class="custom-control-input"
                                 type="radio"
@@ -502,7 +572,11 @@
                                 aria-label="No"
                                 checked
                               />
-                              <label class="custom-control-label" for="del-int-no">No</label>
+                              <label
+                                class="custom-control-label"
+                                for="del-int-no"
+                                >No</label
+                              >
                             </div>
                           </form>
                         </div>
@@ -510,7 +584,8 @@
                       <!-- Skipped Observations between (adv-between)-->
                       <div class="row form-inline pb-3">
                         <label for="adv-between" class="mr-auto"
-                          >Minimum Number of Years between Joinpoints (Excluding Joinpoints):
+                          >Minimum Number of Years between Joinpoints (Excluding
+                          Joinpoints):
                         </label>
                         <input
                           id="adv-between"
@@ -526,7 +601,8 @@
                       <!-- Skipped Obervations from First (adv-first) -->
                       <div class="row form-inline pb-3">
                         <label for="adv-first" class="mr-auto"
-                          >Minimum Number of Years before First Joinpoint (Excluding Joinpoint):
+                          >Minimum Number of Years before First Joinpoint
+                          (Excluding Joinpoint):
                         </label>
                         <input
                           id="adv-first"
@@ -542,7 +618,8 @@
                       <!-- Skipped Obervations to Last (adv-last) -->
                       <div class="row form-inline pb-3">
                         <label for="adv-last" class="mr-auto"
-                          >Minimum Number of Years after Last Joinpoint (Excluding Joinpoint):
+                          >Minimum Number of Years after Last Joinpoint
+                          (Excluding Joinpoint):
                         </label>
                         <input
                           id="adv-last"
@@ -556,7 +633,8 @@
                       <!-- Number of Calendar Year of Project (adv-year) -->
                       <div class="row form-inline pb-3">
                         <label for="adv-year" class="mr-auto"
-                          >Number of Calendar Years of Projected Survival:</label
+                          >Number of Calendar Years of Projected
+                          Survival:</label
                         >
                         <input
                           id="adv-year"
@@ -626,14 +704,26 @@
             </div>
           </div>
         </div>
-        <div id="right_panel" class="col-md-12 col-lg-8" style="display: none; margin-top: 2%;">
+        <div
+          id="right_panel"
+          class="col-md-12 col-lg-8"
+          style="display: none; margin-top: 2%;"
+        >
           <div id="cohort-join-points" class="card bg-white shadow-sm mb-4">
             <div class="card-body">
               <div class="d-flex pb-3">
                 <div class="d-inline">
-                  <label for="cohort-display" class="font-weight-bold">Cohort</label>
-                  <select id="cohort-display" aria-label="cohort display"></select>
-                  <label for="precision" title="Rounded to decimal places." class="ml-3"
+                  <label for="cohort-display" class="font-weight-bold"
+                    >Cohort</label
+                  >
+                  <select
+                    id="cohort-display"
+                    aria-label="cohort display"
+                  ></select>
+                  <label
+                    for="precision"
+                    title="Rounded to decimal places."
+                    class="ml-3"
                     >Number of Decimal Places</label
                   >
                   <select name="abcselect" id="precision" aria-label="Round">
@@ -668,7 +758,10 @@
                 </div>
               </div>
               <div class="table-responsive">
-                <table id="model-selection-table" class="table table-hover condense">
+                <table
+                  id="model-selection-table"
+                  class="table table-hover condense"
+                >
                   <thead>
                     <tr>
                       <th scope="col">Model #</th>
@@ -695,22 +788,33 @@
                   class="nav nav-tabs card-header-tabs font-weight-bold flex-nowrap"
                 >
                   <li class="nav-item">
-                    <a class="nav-link active" href="#graph-year-tab" data-toggle="tab"
+                    <a
+                      class="nav-link active"
+                      href="#graph-year-tab"
+                      data-toggle="tab"
                       >Survival vs. Year at Diagnosis</a
                     >
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href=" #graph-death-tab" data-toggle="tab"
+                    <a
+                      class="nav-link"
+                      href=" #graph-death-tab"
+                      data-toggle="tab"
                       >Death vs. Year at Diagnosis</a
                     >
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href=" #graph-time-tab" data-toggle="tab"
+                    <a
+                      class="nav-link"
+                      href=" #graph-time-tab"
+                      data-toggle="tab"
                       >Survival vs. Time Since Diagnosis</a
                     >
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="#estimates-tab" data-toggle="tab">Model Estimates</a>
+                    <a class="nav-link" href="#estimates-tab" data-toggle="tab"
+                      >Model Estimates</a
+                    >
                   </li>
                 </ul>
               </div>
@@ -726,16 +830,25 @@
                       <div class="col-sm-10 border-right">
                         <div class="row">
                           <div class="col-sm-auto m-3">
-                            <label for="interval-years" class="align-self-center ml-1 mr-3">
-                              Select years since diagnosis (follow-up) for survival plot and/or
-                              trend measures
+                            <label
+                              for="interval-years"
+                              class="align-self-center ml-1 mr-3"
+                            >
+                              Select years since diagnosis (follow-up) for
+                              survival plot and/or trend measures
                             </label>
-                            <select id="interval-years" class="mx-1" multiple></select>
+                            <select
+                              id="interval-years"
+                              class="mx-1"
+                              multiple
+                            ></select>
                           </div>
                         </div>
                         <div class="row">
                           <div class="col-md-auto m-3">
-                            <span class="font-weight-bold">Include Trend Measures</span>
+                            <span class="font-weight-bold"
+                              >Include Trend Measures</span
+                            >
                           </div>
                           <div class="col-md-auto m-3">
                             <div class="custom-control custom-checkbox">
@@ -786,17 +899,26 @@
                                   class="mx-1"
                                 ></select>
                                 <label for="absChgTo" class="mx-2">to</label>
-                                <select disabled id="absChgTo" class="mx-1"></select>
+                                <select
+                                  disabled
+                                  id="absChgTo"
+                                  class="mx-1"
+                                ></select>
                               </span>
                             </div>
                           </div>
                         </div>
                       </div>
-                      <div class="col-sm-2 d-flex pl-0 justify-content-center align-items-center">
+                      <div
+                        class="col-sm-2 d-flex pl-0 justify-content-center align-items-center"
+                      >
                         <div class="row">
                           <div class="col">
                             <div id="warning-wrapper">
-                              <button class="btn btn-primary btn-sm recalculate" type="button">
+                              <button
+                                class="btn btn-primary btn-sm recalculate"
+                                type="button"
+                              >
                                 Recalculate
                               </button>
                             </div>
@@ -808,7 +930,9 @@
 
                   <div id="yearTrendTable" class="d-none mb-4">
                     <div class="d-flex">
-                      <h4 id="yearTrendHeader">Average Absolute Change in Survival</h4>
+                      <h4 id="yearTrendHeader">
+                        Average Absolute Change in Survival
+                      </h4>
                       <span class="text-secondary ml-2 pt-1">*</span>
                     </div>
                     <div class="table-responsive">
@@ -833,19 +957,23 @@
                     </div>
                     <div id="footnote">
                       <sup
-                        >*Numbers represent the difference in cumulative survival rate (as the
-                        percent surviving) from one year at diagnosis to the previous.</sup
+                        >*Numbers represent the difference in cumulative
+                        survival rate (as the percent surviving) from one year
+                        at diagnosis to the previous.</sup
                       >
                     </div>
                     <div>
                       <sup
-                        >Plot: Annotations only available when less than four interval years or four
-                        joinpoints are selected.</sup
+                        >Plot: Annotations only available when less than four
+                        interval years or four joinpoints are selected.</sup
                       >
                     </div>
                   </div>
                   <div class="d-flex">
-                    <div id="yearAnnoControl" class="custom-control custom-checkbox mx-auto">
+                    <div
+                      id="yearAnnoControl"
+                      class="custom-control custom-checkbox mx-auto"
+                    >
                       <input
                         class="custom-control-input"
                         type="checkbox"
@@ -911,16 +1039,25 @@
                       <div class="col-sm-10 border-right">
                         <div class="row">
                           <div class="col-sm-auto m-3">
-                            <label for="interval-years-death" class="align-self-center ml-1 mr-3">
-                              Select years since diagnosis (follow-up) for survival plot and/or
-                              trend measures
+                            <label
+                              for="interval-years-death"
+                              class="align-self-center ml-1 mr-3"
+                            >
+                              Select years since diagnosis (follow-up) for
+                              survival plot and/or trend measures
                             </label>
-                            <select id="interval-years-death" class="mx-1" multiple></select>
+                            <select
+                              id="interval-years-death"
+                              class="mx-1"
+                              multiple
+                            ></select>
                           </div>
                         </div>
                         <div class="row">
                           <div class="col-md-auto m-3">
-                            <span class="font-weight-bold">Include Trend Measures</span>
+                            <span class="font-weight-bold"
+                              >Include Trend Measures</span
+                            >
                           </div>
                           <div class="col-md-auto m-3">
                             <div class="custom-control custom-checkbox">
@@ -939,10 +1076,15 @@
                           </div>
                         </div>
                       </div>
-                      <div class="col-sm-2 d-flex pl-0 justify-content-center align-items-center">
+                      <div
+                        class="col-sm-2 d-flex pl-0 justify-content-center align-items-center"
+                      >
                         <div class="row">
                           <div class="col">
-                            <button class="btn btn-primary btn-sm recalculate" type="button">
+                            <button
+                              class="btn btn-primary btn-sm recalculate"
+                              type="button"
+                            >
                               Recalculate
                             </button>
                           </div>
@@ -952,9 +1094,15 @@
                   </div>
 
                   <div id="deathTrendTable" class="d-none mb-4">
-                    <h4>Percent Change in the Annual Probability of Dying of Cancer by Diagnosis Year</h4>
+                    <h4>
+                      Percent Change in the Annual Probability of Dying of
+                      Cancer by Diagnosis Year
+                    </h4>
                     <div class="table-responsive">
-                      <table id="trend-dap" class="table table-striped table-condensed condense">
+                      <table
+                        id="trend-dap"
+                        class="table table-striped table-condensed condense"
+                      >
                         <thead>
                           <tr>
                             <th scope="col">Interval</th>
@@ -972,13 +1120,16 @@
                     </div>
                     <div>
                       <sup
-                        >Plot: Annotations only available when less than four interval years or four
-                        joinpoints are selected.</sup
+                        >Plot: Annotations only available when less than four
+                        interval years or four joinpoints are selected.</sup
                       >
                     </div>
                   </div>
                   <div class="d-flex">
-                    <div id="deathAnnoControl" class="custom-control custom-checkbox mx-auto">
+                    <div
+                      id="deathAnnoControl"
+                      class="custom-control custom-checkbox mx-auto"
+                    >
                       <input
                         class="custom-control-input"
                         type="checkbox"
@@ -1045,13 +1196,20 @@
                           <label for="year-of-diagnosis" class="mx-1 mr-3">
                             Year of Diagnosis
                           </label>
-                          <select id="year-of-diagnosis" class="mx-1" multiple="multiple">
+                          <select
+                            id="year-of-diagnosis"
+                            class="mx-1"
+                            multiple="multiple"
+                          >
                             <option selected>1975</option>
                           </select>
                         </div>
                       </div>
                       <div class="col m-3">
-                        <button class="btn btn-primary btn-sm recalculate" type="button">
+                        <button
+                          class="btn btn-primary btn-sm recalculate"
+                          type="button"
+                        >
                           Recalculate
                         </button>
                       </div>
@@ -1104,11 +1262,16 @@
                     <span id="yod-range">1975</span>
                   </div>
                   <div class="table-responsive">
-                    <table id="estimates-jp" class="table table-condensed condense">
+                    <table
+                      id="estimates-jp"
+                      class="table table-condensed condense"
+                    >
                       <thead>
                         <tr>
                           <th scope="col">Estimates</th>
-                          <th scope="col">Joinpoint <span id="estimates-jp-selected">0</span></th>
+                          <th scope="col">
+                            Joinpoint <span id="estimates-jp-selected">0</span>
+                          </th>
                         </tr>
                       </thead>
                       <tbody></tbody>
@@ -1117,7 +1280,10 @@
 
                   <h3>Coefficients</h3>
                   <div class="table-responsive">
-                    <table id="estimates-coefficients" class="table table-condensed condense">
+                    <table
+                      id="estimates-coefficients"
+                      class="table table-condensed condense"
+                    >
                       <thead>
                         <tr>
                           <th scope="col">Parameter</th>
@@ -1130,7 +1296,11 @@
                   </div>
                 </div>
                 <!-- Help Tab -->
-                <div id="help-tab" class="tab-pane fade" style="font-size: 14px;"></div>
+                <div
+                  id="help-tab"
+                  class="tab-pane fade"
+                  style="font-size: 14px;"
+                ></div>
               </div>
             </div>
           </div>
@@ -1141,7 +1311,12 @@
       <div class="container">
         <ul class="list-inline text-light">
           <li class="pb-1 d-block d-md-inline">
-            <a class="text-light m-1" target="_blank" href="https://www.cancer.gov/">Home</a>
+            <a
+              class="text-light m-1"
+              target="_blank"
+              href="https://www.cancer.gov/"
+              >Home</a
+            >
           </li>
           <li class="pb-1 d-none d-md-inline">|</li>
           <li class="pb-1 d-block d-md-inline">
@@ -1172,7 +1347,10 @@
           </li>
           <li class="pb-1 d-none d-md-inline">|</li>
           <li class="pb-1 d-block d-md-inline">
-            <a class="text-light m-1" target="_blank" href="https://cancer.gov/global/viewing-files"
+            <a
+              class="text-light m-1"
+              target="_blank"
+              href="https://cancer.gov/global/viewing-files"
               >Viewing Files</a
             >
           </li>
@@ -1188,7 +1366,10 @@
         </ul>
         <ul class="list-inline">
           <li class="pb-1 d-block d-md-inline">
-            <a class="text-light m-1" target="_blank" href="https://www.hhs.gov/"
+            <a
+              class="text-light m-1"
+              target="_blank"
+              href="https://www.hhs.gov/"
               >U.S. Department of Health and Human Services</a
             >
           </li>
@@ -1200,13 +1381,18 @@
           </li>
           <li class="pb-1 d-none d-md-inline">|</li>
           <li class="pb-1 d-block d-md-inline">
-            <a class="text-light m-1" target="_blank" href="https://www.cancer.gov/"
+            <a
+              class="text-light m-1"
+              target="_blank"
+              href="https://www.cancer.gov/"
               >National Cancer Institute</a
             >
           </li>
           <li class="pb-1 d-none d-md-inline">|</li>
           <li class="pb-1 d-block d-md-inline">
-            <a class="text-light m-1" target="_blank" href="https://usa.gov">USA.gov</a>
+            <a class="text-light m-1" target="_blank" href="https://usa.gov"
+              >USA.gov</a
+            >
           </li>
         </ul>
         <div>
