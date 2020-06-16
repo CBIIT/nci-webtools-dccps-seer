@@ -559,15 +559,13 @@ function preLoadValues() {
 
   var inputData = load_ajax('input_' + jpsurvData.tokenId + '.json');
   if (inputData) {
-    //Form section
-    load_input_form(inputData);
-    jpsurvData = inputData;
     //Set jpsurvData and update everything....
+    jpsurvData = inputData;
     setIntervalsDefault();
     getIntervals();
+    load_input_form(inputData);
     stage2('no calculate'); // This is the initial calculation and setup.
     retrieveResults();
-    var status = getUrlParameter('status');
   }
 }
 
@@ -599,6 +597,7 @@ function load_input_form(inputData) {
     });
   });
 
+  $('#intervals_from_diagnosis').val(inputData.calculate.form.interval);
   $('#max_join_point_select').val(inputData.calculate.form.maxjoinPoints);
   $('#e-mail').val(inputData.queue.email);
 
