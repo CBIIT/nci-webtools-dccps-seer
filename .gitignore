@@ -1,7 +1,6 @@
 /jpsurv/tmp/
 *.pyc
 node_modules
-config.dev.ini
 .DS_Store
 /logs/*
 /jpsurv/.vscode
