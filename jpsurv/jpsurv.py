@@ -18,8 +18,6 @@ from util import Util
 from sqs import Queue
 from s3 import S3Bucket
 
-app = Flask(__name__, static_folder='', static_url_path='')
-app.logger.setLevel(logging.DEBUG)
 
 args = None
 config_file = "config.ini"
@@ -34,6 +32,10 @@ if __name__ == "__main__":
 
 if not os.path.exists('tmp'):
     os.makedirs('tmp')
+
+app = Flask(__name__, static_folder='', static_url_path='')
+config = Util(config_file)
+app.logger.setLevel(config.LOG_LEVEL)
 
 
 def upload_dir(token):

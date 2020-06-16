@@ -23,6 +23,7 @@ class Util:
         # log settings
         self.LOG_SIZE = int(config.get('logs', 'size'))
         self.LOG_ROLLOVER = int(config.get('logs', 'rollover'))
+        self.LOG_LEVEL = config.get('logs', 'loglevel')
 
         # S3 settings
         self.INPUT_BUCKET = config.get('s3', 'input_bucket')

@@ -154,10 +154,10 @@ def create_rotating_log(config):
     my_handler = RotatingFileHandler(logFile, mode='a', maxBytes=size,
                                      backupCount=rollover, encoding=None, delay=0)
     my_handler.setFormatter(formatter)
-    my_handler.setLevel(logging.DEBUG)
+    my_handler.setLevel(config.LOG_LEVEL)
 
     logger = logging.getLogger('root')
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(config.LOG_LEVEL)
 
     logger.addHandler(my_handler)
     return logger
