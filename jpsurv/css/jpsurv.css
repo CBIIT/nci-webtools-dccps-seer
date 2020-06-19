@@ -311,7 +311,8 @@ input[type='file'] {
   margin: 0;
   letter-spacing: 0.015em;
   font-weight: normal;
-  background: url('https://surveillance.cancer.gov/images/dccps_logo.png') right -5px no-repeat;
+  background: url('https://surveillance.cancer.gov/images/dccps_logo.png') right -5px
+    no-repeat;
 }
 #ribbon {
   color: #fff;
@@ -525,4 +526,9 @@ span.select2 {
 .table-hover tbody tr:hover td,
 .table-hover tbody tr:hover th {
   background-color: #d9edf780;
+}
+
+.fontControl {
+  max-width: 4em;
+  height: 2em;
 }
