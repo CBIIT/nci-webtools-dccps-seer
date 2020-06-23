@@ -1,6 +1,7 @@
 var control_data;
 var cohort_covariance_variables;
 var advfields = ['adv-between', 'adv-first', 'adv-last', 'adv-year'];
+var fontSize = getCookie('fontSize') || 14;
 
 var jpsurvData = {
   file: {
@@ -344,7 +345,31 @@ function addEventListeners() {
   $('#file_control_csv').on('change', checkInputFiles);
   $('#fileSelect').on('change', checkInputFiles);
 
-  $('#upload-form').on('submit', function (event) {});
+  $('#yearFont').on('change', function (e) {
+    fontSize = parseInt(e.target.value);
+    setCookie('fontSize', fontSize);
+    $('#deathFont').val(fontSize);
+    $('#timeFont').val(fontSize);
+    plot('year');
+    plot('death');
+    plot('time');
+  });
+  $('#deathFont').on('change', function (e) {
+    fontSize = parseInt(e.target.value);
+    $('#yearFont').val(fontSize);
+    $('#timeFont').val(fontSize);
+    plot('year');
+    plot('death');
+    plot('time');
+  });
+  $('#timeFont').on('change', function (e) {
+    fontSize = parseInt(e.target.value);
+    $('#yearFont').val(fontSize);
+    $('#deathFont').val(fontSize);
+    plot('year');
+    plot('death');
+    plot('time');
+  });
 }
 
 // reset view - uncheck "Show Trend Measures" and reset AbsChg Year Range

@@ -1,5 +1,6 @@
 // yMark - marker, yLine - line
 function plotLineChart(x, yMark, yLine, dimension, trends, divID) {
+  // fontSize defined in jpsurv.js
   var statistic = jpsurvData.additional.statistic;
   titles = {
     yearPlot: {
@@ -29,6 +30,7 @@ function plotLineChart(x, yMark, yLine, dimension, trends, divID) {
     title: '<b>' + titles[divID].plotTitle + '</b>',
     hovermode: 'closest',
     font: {
+      size: fontSize,
       family: '"Helvetica Neue", Helvetica, Arial, sans-serif',
     },
     legend: {
@@ -77,7 +79,7 @@ function plotLineChart(x, yMark, yLine, dimension, trends, divID) {
           align: 'left',
           bgcolor: '#FFF',
           bordercolor: colors[i % 10],
-          font: { color: 'black' },
+          font: { size: fontSize, color: 'black' },
         },
         mode: 'markers',
         type: 'scatter',
@@ -94,11 +96,11 @@ function plotLineChart(x, yMark, yLine, dimension, trends, divID) {
           align: 'left',
           bgcolor: '#FFF',
           bordercolor: colors[i % 10],
-          font: { color: 'black' },
+          font: { size: fontSize, color: 'black' },
         },
         text: [],
         textposition: 'top',
-        textfont: { color: colors[i % 10], size: 14 },
+        textfont: { color: colors[i % 10], size: fontSize },
         mode: 'lines+text',
         line: { dash: 'dot', shape: 'spline', color: colors[i % 10] },
         type: 'scatter',
