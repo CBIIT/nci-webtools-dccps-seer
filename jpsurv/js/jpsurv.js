@@ -971,14 +971,17 @@ function setupModel() {
 function createModelSelection() {
   setupModel();
   var ModelSelection = JSON.parse(jpsurvData.results.ModelSelection);
-
-  $('#model-selection-table > tbody').empty();
   var jp = 0;
   var title = 'Click row to change Number of Joinpoints to ';
-  $.each(ModelSelection, function (index, value) {
+  var locations = jpsurvData.results.jpLocation;
+
+  if (!Array.isArray(locations)) locations = [locations];
+  $('#model-selection-table > tbody').empty();
+  Object.values(ModelSelection).forEach(function (value, index) {
     row = '<tr  id="jp_' + jp + '" title="' + title + jp.toString() + '">';
     row += '"<td class="model-number">' + (jp + 1) + '</td>';
-    row += '<td>' + jp + '</td>';
+    row += '<td>' + jp || 'None' + '</td>';
+    row += '<td>' + locations[index] + '</td>';
     row += formatCell(value.bic);
     row += formatCell(value.aic);
     row += formatCell(value.ll);

@@ -308,6 +308,8 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,use_default=TRU
   deathGraph <- getGraphWrapper(filePath, jpsurvDataString, first_calc, com, NULL, interval, deathGraphData, 'death', statistic)
   yearGraph <- getGraphWrapper(filePath, jpsurvDataString, first_calc, com, NULL, interval, survGraphData, 'year', statistic)
   timeGraph <- getGraphWrapper(filePath, jpsurvDataString, first_calc, com, runs, interval, timeGraphData, 'time', statistic)
+  # get jp locations
+  jpLocation <- getAllJP(filePath, jpsurvDataString, com)
 
   jsonl =list("Coefficients" = Coefficients,
               "ModelSelection" = ModelSelection, 
@@ -327,6 +329,7 @@ getAllData<- function(filePath,jpsurvDataString,first_calc=FALSE,use_default=TRU
               "yearData" = yearGraph,
               "timeData" = timeGraph,
               "fullDownload" = fullDownload,
+              "jpLocation" = jpLocation,
               "errors" = errors
               )
   exportJson <- rjson::toJSON(jsonl)
@@ -484,6 +487,21 @@ getJPWrapper<-function(filePath,jpsurvDataString,first_calc,com) {
   JP_List=outputData$fittedResult$FitList[[jpInd+1]]$jp
   JP=paste(JP_List,collapse=" ")
   return(JP)
+}
+
+getAllJP = function(filePath, jpsurvDataString, com) {
+  jpsurvData <- rjson::fromJSON(jpsurvDataString)
+  file = paste(filePath, paste("output-", jpsurvData$tokenId,"-",com,".rds", sep=""), sep="/")
+  outputData = readRDS(file)
+  maxJP = jpsurvData$calculate$form$maxjoinPoints
+  allJP = c('None')
+  if (maxJP > 1) {
+    for (i in 1:maxJP) {
+      JP_List=outputData$fittedResult$FitList[[i+1]]$jp
+      allJP = append(allJP, paste(JP_List,collapse=" "))
+    }
+  }
+  return(allJP)
 }
 
 getSelectedModel<-function(filePath,jpsurvDataString,com) {
