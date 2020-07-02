@@ -995,7 +995,7 @@ function createModelSelection() {
     row = '<tr  id="jp_' + jp + '" title="' + title + jp.toString() + '">';
     row += '"<td class="model-number">' + (jp + 1) + '</td>';
     row += '<td>' + jp || 'None' + '</td>';
-    row += '<td>' + locations[index] + '</td>';
+    row += '<td>' + locations[index].replace(/\s+/g, ', ') + '</td>';
     row += formatCell(value.bic);
     row += formatCell(value.aic);
     row += formatCell(value.ll);
