@@ -1906,7 +1906,12 @@ function generateResultsFilename(cohort_com, jpInd, switch_cohort) {
 
   $.ajax({
     // // url: '/jpsurv/tmp/cohort_models-'+jpsurvData.tokenId+'.json',
-    url: 'tmp/' + jpsurvData.tokenId + '/cohort_models-' + jpsurvData.tokenId + '.json',
+    url:
+      'tmp/' +
+      jpsurvData.tokenId +
+      '/cohort_models-' +
+      jpsurvData.tokenId +
+      '.json',
     type: 'GET',
     async: false,
     dataType: 'json', // added data type
