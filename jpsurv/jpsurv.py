@@ -120,7 +120,7 @@ def stage1_upload():
     try:
         if(input_type=="dic"):
             uploaded_files = request.files.getlist("file_control")
-            print("got files")
+
             for file in uploaded_files:
                 name, ext = os.path.splitext(file.filename)
                 if(ext==".dic"):
@@ -138,9 +138,10 @@ def stage1_upload():
             print("Dictionary Name = " + dictionary_name)
             print("Data Name = " + data_name)
 
-            if(dictionary_name!=data_name):
-                os.rename(os.path.join(UPLOAD_DIR, file_data_filename), os.path.join(UPLOAD_DIR, tokenId+dictionary_name+".txt"))
-            #PRINT FILE_CONTROL
+            # RENAME DATA FILE TO MATCH DICTIONARY
+            if(dictionary_name != data_name):
+                os.rename(os.path.join(UPLOAD_DIR, file_data_filename), os.path.join(
+                    UPLOAD_DIR, tokenId+file_control_filename_clean[:-4]+".txt"))
 
             file_control = os.path.join(UPLOAD_DIR,file_control_filename)
             fo = open(file_control, "r+")
