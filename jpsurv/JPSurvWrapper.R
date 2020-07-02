@@ -495,7 +495,7 @@ getAllJP = function(filePath, jpsurvDataString, com) {
   outputData = readRDS(file)
   maxJP = jpsurvData$calculate$form$maxjoinPoints
   allJP = c('None')
-  if (maxJP > 1) {
+  if (maxJP > 0) {
     for (i in 1:maxJP) {
       JP_List=outputData$fittedResult$FitList[[i+1]]$jp
       allJP = append(allJP, paste(JP_List,collapse=" "))
