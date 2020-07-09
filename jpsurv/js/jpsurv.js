@@ -41,7 +41,7 @@ $(document).ready(function () {
   hide_display_email();
   // disable calculate button on document load if there are cohorts to select
   if (
-    getUrlParameter('request') == 'false' &&
+    !getUrlParameter('request') &&
     (!jpsurvData.calculate.form.cohortValues ||
       jpsurvData.calculate.form.cohortValues.length != 0)
   ) {
