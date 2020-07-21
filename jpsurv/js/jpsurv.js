@@ -565,7 +565,7 @@ function addInputSection() {
 
 function checkInputFile() {
   var results = $.ajax({
-    url: 'tmp/input_' + jpsurvData.tokenId + '.json',
+    url: '/jpsurv/results?filename=input_' + jpsurvData.tokenId + '.json',
     type: 'HEAD',
     async: false,
   });
@@ -1867,7 +1867,7 @@ function retrieveResults(cohort_com, jpInd, switch_cohort) {
   var file_name = '';
   if (jpInd != undefined && cohort_com != undefined && switch_cohort == false)
     file_name =
-      'tmp/results-' +
+      '/jpsurv/results?filename=results-' +
       jpsurvData.tokenId +
       '-' +
       cohort_com +
@@ -1890,24 +1890,28 @@ function generateResultsFilename(cohort_com, jpInd, switch_cohort) {
 
   $.ajax({
     // // url: '/jpsurv/tmp/cohort_models-'+jpsurvData.tokenId+'.json',
-    url: 'tmp/cohort_models-' + jpsurvData.tokenId + '.json',
+    url: '/jpsurv/results?filename=cohort_models-' + jpsurvData.tokenId + '.json',
     type: 'GET',
     async: false,
-    dataType: 'json', // added data type
-    success: function (results) {
+    dataType: 'json',
+  })
+    .done(function (results) {
       cohort_models = results;
-      if (switch_cohort == undefined) cohort_com = 1;
+      if (!switch_cohort) cohort_com = 1;
       file_name =
-        'tmp/results-' +
+        '/jpsurv/results?filename=results-' +
         jpsurvData.tokenId +
         '-' +
         cohort_com +
         '-' +
         results[cohort_com - 1] +
         '.json';
-    },
-  });
+    })
+    .fail(function (jqXHR, textStatus, errorThrown) {
+      console.warn(jqXHR, textStatus, errorThrown);
+    });
 
+  console.log(file_name, 'ajax');
   return file_name;
 }
 
@@ -2731,32 +2735,21 @@ function showMessage(id, message, message_type) {
 }
 
 function load_ajax(filename) {
-  var json = (function () {
-    var json = null;
-    // // var url = '/jpsruv/tmp/'+filename;
-    var url = 'tmp/' + filename;
-    $.ajax({
-      async: false,
-      global: false,
-      url: url,
-      dataType: 'json',
-      success: function (data) {
-        json = data;
-      },
-      fail: function (jqXHR, textStatus) {
-        alert('Fail on load_ajax');
-      },
-      error: function (jqXHR, textStatus) {
-        //console.dir(jqXHR);
-        //console.warn('Error on load_ajax');
-        //console.log(jqXHR.status);
-        //console.log(jqXHR.statusText);
-        //console.log(textStatus);
-        return undefined;
-      },
+  var json = null;
+
+  $.ajax({
+    async: false,
+    global: false,
+    url: '/jpsurv/results?filename=' + filename,
+    dataType: 'json',
+  })
+    .done(function (data) {
+      json = data;
+    })
+    .fail(function (jqXHR, textStatus) {
+      console.log(filename, 'not found');
     });
-    return json;
-  })();
+
   return json;
 }
 
