@@ -75,6 +75,8 @@ function exportBackEnd(event) {
   data.cohortVariables = jpsurvData.results.Runs;
   data.maxJoinPoints = jpsurvData.calculate.form.maxjoinPoints;
   data.intFromDiagnosis = jpsurvData.calculate.form.interval;
+  data.cohortVars = JSON.stringify(jpsurvData.calculate.form.cohortVars);
+  data.cohortValues = JSON.stringify(jpsurvData.calculate.form.cohortValues);
   data.advBetween = jpsurvData.calculate.static.advanced.advBetween;
   data.advDelInterval = jpsurvData.calculate.static.advanced.advDeleteInterval;
   data.advFirst = jpsurvData.calculate.static.advanced.advFirst;
@@ -267,6 +269,8 @@ function loadUserInput(data) {
     jpsurvData.calculate.form.yearOfDiagnosisRange[0] = parseInt(data.yearOfDiagnosisRangeStart);
     jpsurvData.calculate.form.yearOfDiagnosisRange[1] = parseInt(data.yearOfDiagnosisRangeEnd);
     jpsurvData.calculate.form.maxjoinPoints = parseInt(data.maxJoinPoints);
+    jpsurvData.calculate.form.cohortVars = JSON.parse(data.cohortVars);
+    jpsurvData.calculate.form.cohortValues = JSON.parse(data.cohortValues);
 
     jpsurvData.calculate.static.advanced.advDeleteInterval = data.advDelInterval;
     jpsurvData.calculate.static.advanced.advBetween = parseInt(data.advBetween);
