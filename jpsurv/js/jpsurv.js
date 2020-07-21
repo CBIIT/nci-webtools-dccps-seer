@@ -3565,6 +3565,18 @@ function settingsSheet() {
     }
   });
 
+  // add selected model joinpoint information
+  var currentJP = jpsurvData.results.jpInd;
+  var locations = jpsurvData.results.jpLocation;
+  if (!Array.isArray(locations)) locations = [locations];
+  sheet.push(
+    [],
+    [],
+    ['Model'],
+    ['Number of joinpoints', currentJP.toString()],
+    ['Joinpoint locations', locations[currentJP]]
+  );
+
   // set column width
   var ws = XLSX.utils.aoa_to_sheet(sheet);
   var colWidth = [{ wch: 60 }, { wch: 10 }];
