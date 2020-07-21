@@ -255,6 +255,7 @@ function loadUserInput(data) {
     $('#adv-year').val(parseInt(data.advYear));
 
     $('#interval-years').val(intervals);
+    $('#interval-years-death').val(intervals)
     $('#year-of-diagnosis').val(data.diagnosisYear);
   }
 
