@@ -74,6 +74,7 @@ function exportBackEnd(event) {
   data.yearOfDiagnosisRangeEnd = jpsurvData.calculate.form.yearOfDiagnosisRange[1];
   data.cohortVariables = jpsurvData.results.Runs;
   data.maxJoinPoints = jpsurvData.calculate.form.maxjoinPoints;
+  data.intFromDiagnosis = jpsurvData.calculate.form.interval;
   data.advBetween = jpsurvData.calculate.static.advanced.advBetween;
   data.advDelInterval = jpsurvData.calculate.static.advanced.advDeleteInterval;
   data.advFirst = jpsurvData.calculate.static.advanced.advFirst;
@@ -206,7 +207,7 @@ function loadUserInput(data) {
     $('#year_of_diagnosis_start').val(data.yearOfDiagnosisRangeStart).trigger('change');
     $('#year_of_diagnosis_end').val(data.yearOfDiagnosisRangeEnd).trigger('change');
     $('#max_join_point_select').val(data.maxJoinPoints).trigger('change');
-
+    $('#intervals_from_diagnosis').val(data.intFromDiagnosis).trigger('change')
     $('#cohort-variables').find(':checkbox').prop('checked', false);
 
     // The cohort Stirng which contains (site recode/ARN), Sex ( Male, Female) , Seer Stage A
