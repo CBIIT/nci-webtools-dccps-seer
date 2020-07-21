@@ -70,8 +70,10 @@ function exportBackEnd(event) {
   data.filename = generateToken(12) + '.jpsurv';
 
   /* Saving the Form Variables */
-  data.yearOfDiagnosisRangeStart = jpsurvData.calculate.form.yearOfDiagnosisRange[0];
-  data.yearOfDiagnosisRangeEnd = jpsurvData.calculate.form.yearOfDiagnosisRange[1];
+  data.yearOfDiagnosisRangeStart =
+    jpsurvData.calculate.form.yearOfDiagnosisRange[0];
+  data.yearOfDiagnosisRangeEnd =
+    jpsurvData.calculate.form.yearOfDiagnosisRange[1];
   data.cohortVariables = jpsurvData.results.Runs;
   data.maxJoinPoints = jpsurvData.calculate.form.maxjoinPoints;
   data.intFromDiagnosis = jpsurvData.calculate.form.interval;
@@ -126,7 +128,9 @@ function importFrontEnd(
   localStorage.setItem('initialIdCnt', imageIdStartCount.toString());
   localStorage.setItem('delimiter', delimiter);
 
-  var url = [location.protocol, '//', location.host, location.pathname].join('');
+  var url = [location.protocol, '//', location.host, location.pathname].join(
+    ''
+  );
 
   // The URL that will called causing the input window to appear.  The window for the cohor and the window with the
   // three tabs ( Survival Graph/Data, Model Estimates, Trends
@@ -154,7 +158,11 @@ function importFrontEnd(
  */
 function updatePageAfterRefresh(e) {
   try {
-    if (window.location.search === undefined || window.location.search.length === 0) return;
+    if (
+      window.location.search === undefined ||
+      window.location.search.length === 0
+    )
+      return;
 
     jpsurvData.stage2completed = true;
     setIntervalsDefault();
@@ -167,7 +175,8 @@ function updatePageAfterRefresh(e) {
     updateCohortDropdown();
     setRun();
 
-    jpsurvData.plot.static.imageId = parseInt(localStorage.getItem('initialIdCnt')) - 1;
+    jpsurvData.plot.static.imageId =
+      parseInt(localStorage.getItem('initialIdCnt')) - 1;
     jpsurvData.additional.del = localStorage.getItem('delimiter');
     jpsurvData.stage2completed = true;
 
@@ -206,10 +215,14 @@ function loadUserInput(data) {
     }
 
     $('e-mail').val(data.email);
-    $('#year_of_diagnosis_start').val(data.yearOfDiagnosisRangeStart).trigger('change');
-    $('#year_of_diagnosis_end').val(data.yearOfDiagnosisRangeEnd).trigger('change');
+    $('#year_of_diagnosis_start')
+      .val(data.yearOfDiagnosisRangeStart)
+      .trigger('change');
+    $('#year_of_diagnosis_end')
+      .val(data.yearOfDiagnosisRangeEnd)
+      .trigger('change');
     $('#max_join_point_select').val(data.maxJoinPoints).trigger('change');
-    $('#intervals_from_diagnosis').val(data.intFromDiagnosis).trigger('change')
+    $('#intervals_from_diagnosis').val(data.intFromDiagnosis).trigger('change');
     $('#cohort-variables').find(':checkbox').prop('checked', false);
 
     // The cohort Stirng which contains (site recode/ARN), Sex ( Male, Female) , Seer Stage A
@@ -257,7 +270,7 @@ function loadUserInput(data) {
     $('#adv-year').val(parseInt(data.advYear));
 
     $('#interval-years').val(intervals);
-    $('#interval-years-death').val(intervals)
+    $('#interval-years-death').val(intervals);
     $('#year-of-diagnosis').val(data.diagnosisYear);
   }
 
@@ -266,13 +279,18 @@ function loadUserInput(data) {
    */
   function modifyJPSurv(data, intervals) {
     jpsurvData.queue.email = data.email;
-    jpsurvData.calculate.form.yearOfDiagnosisRange[0] = parseInt(data.yearOfDiagnosisRangeStart);
-    jpsurvData.calculate.form.yearOfDiagnosisRange[1] = parseInt(data.yearOfDiagnosisRangeEnd);
+    jpsurvData.calculate.form.yearOfDiagnosisRange[0] = parseInt(
+      data.yearOfDiagnosisRangeStart
+    );
+    jpsurvData.calculate.form.yearOfDiagnosisRange[1] = parseInt(
+      data.yearOfDiagnosisRangeEnd
+    );
     jpsurvData.calculate.form.maxjoinPoints = parseInt(data.maxJoinPoints);
     jpsurvData.calculate.form.cohortVars = JSON.parse(data.cohortVars);
     jpsurvData.calculate.form.cohortValues = JSON.parse(data.cohortValues);
 
-    jpsurvData.calculate.static.advanced.advDeleteInterval = data.advDelInterval;
+    jpsurvData.calculate.static.advanced.advDeleteInterval =
+      data.advDelInterval;
     jpsurvData.calculate.static.advanced.advBetween = parseInt(data.advBetween);
     jpsurvData.calculate.static.advanced.advFirst = parseInt(data.advFirst);
     jpsurvData.calculate.static.advanced.advLast = parseInt(data.advLast);
