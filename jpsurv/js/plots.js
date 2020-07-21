@@ -102,7 +102,7 @@ function plotLineChart(x, yMark, yLine, dimension, trends, divID) {
         textposition: 'top',
         textfont: { color: colors[i % 10], size: fontSize },
         mode: 'lines+text',
-        line: { dash: 'dot', shape: 'spline', color: colors[i % 10] },
+        line: { shape: 'spline', color: colors[i % 10] },
         type: 'scatter',
         legendgroup: interval,
       };

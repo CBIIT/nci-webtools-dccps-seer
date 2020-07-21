@@ -41,7 +41,7 @@ $(document).ready(function () {
   hide_display_email();
   // disable calculate button on document load if there are cohorts to select
   if (
-    getUrlParameter('request') == 'false' &&
+    !getUrlParameter('request') &&
     (!jpsurvData.calculate.form.cohortValues ||
       jpsurvData.calculate.form.cohortValues.length != 0)
   ) {
@@ -1906,12 +1906,7 @@ function generateResultsFilename(cohort_com, jpInd, switch_cohort) {
 
   $.ajax({
     // // url: '/jpsurv/tmp/cohort_models-'+jpsurvData.tokenId+'.json',
-    url:
-      'tmp/' +
-      jpsurvData.tokenId +
-      '/cohort_models-' +
-      jpsurvData.tokenId +
-      '.json',
+    url: 'tmp/cohort_models-' + jpsurvData.tokenId + '.json',
     type: 'GET',
     async: false,
     dataType: 'json', // added data type
@@ -3588,6 +3583,18 @@ function settingsSheet() {
     }
   });
 
+  // add selected model joinpoint information
+  var currentJP = jpsurvData.results.jpInd;
+  var locations = jpsurvData.results.jpLocation;
+  if (!Array.isArray(locations)) locations = [locations];
+  sheet.push(
+    [],
+    [],
+    ['Model'],
+    ['Number of joinpoints', currentJP.toString()],
+    ['Joinpoint locations', locations[currentJP]]
+  );
+
   // set column width
   var ws = XLSX.utils.aoa_to_sheet(sheet);
   var colWidth = [{ wch: 60 }, { wch: 10 }];
@@ -3660,7 +3667,7 @@ function generateSheet(data) {
     if (data[col]) {
       data[col].forEach(function (value, row) {
         // fix NaN values
-        if (isNaN(value)) value = 'NA';
+        if (isNaN(value) && typeof value != 'string') value = 'NA';
         if (sheet[row + 1]) {
           sheet[row + 1].push(value);
         } else {

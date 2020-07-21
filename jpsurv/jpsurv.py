@@ -453,21 +453,8 @@ def myExport():
         return fileList
 
     def writeApplicationStateToFile():
-        data = {}
-        data['yearOfDiagnosisRangeStart'] = request.args['yearOfDiagnosisRangeStart']
-        data['yearOfDiagnosisRangeEnd'] = request.args['yearOfDiagnosisRangeEnd']
-        data['cohortVariables'] = request.args['cohortVariables']
-        data['maxJoinPoints'] = request.args['maxJoinPoints']
-        data['advBetween'] = request.args['advBetween']
-        data['advDelInterval'] = request.args['advDelInterval']
-        data['advFirst'] = request.args['advFirst']
-        data['advLast'] = request.args['advLast']
-        data['advYear'] = request.args['advYear']
-        data['controlFilename'] = request.args['controlFilename']
-        data['email'] = request.args['email']
-        data['intervals'] = request.args['intervals']
-        data['diagnosisYear'] = request.args['diagnosisYear']
 
+        data = request.args
         filename = "currentState-" + request.args['tokenId'] + ".json"
         with open(os.path.join(UPLOAD_DIR, filename), 'w+') as outFile:
             json.dump(data, outFile)
