@@ -3637,7 +3637,7 @@ function generateSheet(data) {
     if (data[col]) {
       data[col].forEach(function (value, row) {
         // fix NaN values
-        if (isNaN(value)) value = 'NA';
+        if (isNaN(value) && typeof value != 'string') value = 'NA';
         if (sheet[row + 1]) {
           sheet[row + 1].push(value);
         } else {
