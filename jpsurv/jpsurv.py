@@ -673,9 +673,11 @@ def queue():
 @app.route('/results', methods=['GET'])
 def sendResultsFile():
 
-    fileName = unquote(request.args.get('filename', False))
-    filePath = '../results/'+fileName
-    if os.path.exists(filePath):
+    req = unquote(request.args.get('filename', False))
+    filePath = '../results/'+req
+    fileName = filePath.split('/')[-1]
+
+    if (os.path.exists(filePath) and is_safe_path(fileName, filePath)):
         return send_file(filePath)
     else:
         return ('', 404)
@@ -692,6 +694,14 @@ def sendqueue(tokenId):
     client.disconnect()
 
     return
+
+
+def is_safe_path(fileName, path, follow_symlinks=True):
+      # resolves symbolic links
+    if follow_symlinks:
+        return os.path.realpath(path).endswith('results/'+fileName)
+
+    return os.path.abspath(path).endswith('results/'+fileName)
 
 
 def initialize(port, debug=True):

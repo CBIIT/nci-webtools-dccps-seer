@@ -565,7 +565,11 @@ function addInputSection() {
 
 function checkInputFile() {
   var results = $.ajax({
-    url: '/jpsurv/results?filename=input_' + jpsurvData.tokenId + '.json',
+    url:
+      window.location.pathname +
+      'results?filename=input_' +
+      jpsurvData.tokenId +
+      '.json',
     type: 'HEAD',
     async: false,
   });
@@ -1867,7 +1871,8 @@ function retrieveResults(cohort_com, jpInd, switch_cohort) {
   var file_name = '';
   if (jpInd != undefined && cohort_com != undefined && switch_cohort == false)
     file_name =
-      '/jpsurv/results?filename=results-' +
+      window.location.pathname +
+      'results?filename=results-' +
       jpsurvData.tokenId +
       '-' +
       cohort_com +
@@ -1889,8 +1894,12 @@ function generateResultsFilename(cohort_com, jpInd, switch_cohort) {
   var file_name = '';
 
   $.ajax({
-    // // url: '/jpsurv/tmp/cohort_models-'+jpsurvData.tokenId+'.json',
-    url: '/jpsurv/results?filename=cohort_models-' + jpsurvData.tokenId + '.json',
+    // // url: window.location.pathname + 'tmp/cohort_models-'+jpsurvData.tokenId+'.json',
+    url:
+      window.location.pathname +
+      'results?filename=cohort_models-' +
+      jpsurvData.tokenId +
+      '.json',
     type: 'GET',
     async: false,
     dataType: 'json',
@@ -1899,7 +1908,8 @@ function generateResultsFilename(cohort_com, jpInd, switch_cohort) {
       cohort_models = results;
       if (!switch_cohort) cohort_com = 1;
       file_name =
-        '/jpsurv/results?filename=results-' +
+        window.location.pathname +
+        'results?filename=results-' +
         jpsurvData.tokenId +
         '-' +
         cohort_com +
@@ -2740,7 +2750,7 @@ function load_ajax(filename) {
   $.ajax({
     async: false,
     global: false,
-    url: '/jpsurv/results?filename=' + filename,
+    url: window.location.pathname + 'results?filename=' + filename,
     dataType: 'json',
   })
     .done(function (data) {
