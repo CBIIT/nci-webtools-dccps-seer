@@ -1921,7 +1921,6 @@ function generateResultsFilename(cohort_com, jpInd, switch_cohort) {
       console.warn(jqXHR, textStatus, errorThrown);
     });
 
-  console.log(file_name, 'ajax');
   return file_name;
 }
 
@@ -3666,7 +3665,6 @@ function generateSheet(data) {
       });
     }
   });
-  console.log('after', sheet);
   return XLSX.utils.aoa_to_sheet(sheet);
 }
 
