@@ -308,7 +308,12 @@ function loadUserInput(data) {
 
 // Creates the filename for the storage for the values of the form
 function createFormValuesFilename() {
-  return '../results/currentState-' + jpsurvData.tokenId + '.json';
+  return (
+    window.location.pathname +
+    'results?filename=currentState-' +
+    jpsurvData.tokenId +
+    '.json'
+  );
 }
 
 // Loads data using ajax and then calls a function.  This routine is needed since the GetJSON is asynchronous and the
