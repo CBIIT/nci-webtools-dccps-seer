@@ -89,6 +89,13 @@ function exportBackEnd(event) {
   data.intervals = jpsurvData.additional.intervals.toString();
   data.diagnosisYear = jpsurvData.results.yod;
 
+  // Save UI controsl
+  data.showYearTrend = $('#showYearTrend').is(':checked');
+  data.showDeathTrend = $('#showDeathTrend').is(':checked');
+  data.toggleAbsSelect = $('#toggleAbsSelect').is(':checked');
+  data.absChgFrom = $('#absChgFrom').val();
+  data.absChgTo = $('#absChgTo').val();
+
   if (data.type == 'dic') {
     dataFile = jpsurvData.file.data.split('.')[0];
     dicFile = jpsurvData.file.dictionary.split('.')[0];
@@ -167,13 +174,13 @@ function updatePageAfterRefresh(e) {
     jpsurvData.stage2completed = true;
     setIntervalsDefault();
     getIntervals();
-    setAbsChangeDefault();
     parse_diagnosis_years();
     setData();
     load_ajax_with_success_callback(generateResultsFilename(), loadResults);
     calculateFittedResultsCallback();
     updateCohortDropdown();
     setRun();
+    setAbsChangeDefault();
 
     jpsurvData.plot.static.imageId =
       parseInt(localStorage.getItem('initialIdCnt')) - 1;
@@ -272,6 +279,15 @@ function loadUserInput(data) {
     $('#interval-years').val(intervals);
     $('#interval-years-death').val(intervals);
     $('#year-of-diagnosis').val(data.diagnosisYear);
+
+    // Restore UI controls
+    $('#showYearTrend').prop('checked', data.showYearTrend).trigger('change');
+    $('#showDeathTrend').prop('checked', data.showDeathTrend).trigger('change');
+    $('#toggleAbsSelect')
+      .prop('checked', data.toggleAbsSelect)
+      .trigger('change');
+    $('#absChgFrom').val(data.absChgFrom).trigger('change');
+    $('#absChgTo').val(data.absChgTo).trigger('change');
   }
 
   /*
