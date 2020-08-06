@@ -929,43 +929,6 @@
                     </div>
                   </div>
 
-                  <div class="border rounded mb-1">
-                    <div class="row p-3">
-                      <span class="font-weight-bold col-sm-auto"
-                        >Plot Controls
-                      </span>
-                      <div class="form-group m-0 col-sm-auto d-flex">
-                        <label for="yearFont">Font Size</label>
-                        <input
-                          type="number"
-                          id="yearFont"
-                          name="yearFont"
-                          class="form-control ml-2 fontControl"
-                          min="12"
-                          max="20"
-                          value="14"
-                        />
-                      </div>
-                      <div
-                        id="yearAnnoControl"
-                        class="col-sm-auto custom-control custom-checkbox m-0"
-                      >
-                        <input
-                          class="custom-control-input"
-                          type="checkbox"
-                          id="yearAnno"
-                          name="yearAnno"
-                        />
-                        <label
-                          class="custom-control-label"
-                          for="yearAnno"
-                          aria-label="showTrendsOnGraph"
-                          >Hide Annotations</label
-                        >
-                      </div>
-                    </div>
-                  </div>
-
                   <div id="yearTrendTable" class="d-none mb-4">
                     <div class="d-flex">
                       <h4 id="yearTrendHeader">
@@ -1005,6 +968,43 @@
                         >Plot: Annotations only available when less than four
                         interval years or four joinpoints are selected.</sup
                       >
+                    </div>
+                  </div>
+
+                  <div class="mb-1">
+                    <div class="row p-3">
+                      <span class="font-weight-bold col-sm-auto"
+                        >Plot Controls
+                      </span>
+                      <div class="form-group m-0 col-sm-auto d-flex">
+                        <label for="yearFont">Font Size</label>
+                        <input
+                          type="number"
+                          id="yearFont"
+                          name="yearFont"
+                          class="form-control ml-2 fontControl"
+                          min="12"
+                          max="20"
+                          value="14"
+                        />
+                      </div>
+                      <div
+                        id="yearAnnoControl"
+                        class="col-sm-auto custom-control custom-checkbox m-0"
+                      >
+                        <input
+                          class="custom-control-input"
+                          type="checkbox"
+                          id="yearAnno"
+                          name="yearAnno"
+                        />
+                        <label
+                          class="custom-control-label"
+                          for="yearAnno"
+                          aria-label="showTrendsOnGraph"
+                          >Hide Annotations</label
+                        >
+                      </div>
                     </div>
                   </div>
 
@@ -1112,7 +1112,40 @@
                     </div>
                   </div>
 
-                  <div class="border rounded mb-1">
+                  <div id="deathTrendTable" class="d-none mb-4">
+                    <h4>
+                      Percent Change in the Annual Probability of Dying of
+                      Cancer by Diagnosis Year
+                    </h4>
+                    <div class="table-responsive">
+                      <table
+                        id="trend-dap"
+                        class="table table-striped table-condensed condense"
+                      >
+                        <thead>
+                          <tr>
+                            <th scope="col">Interval</th>
+                            <th scope="col">Start Year</th>
+                            <th scope="col">End Year</th>
+                            <th scope="col">Estimate %</th>
+                            <th scope="col">Standard Error %</th>
+                            <th scope="col">Lower Limit 95% C.I.</th>
+                            <th scope="col">Upper Limit 95% C.I.</th>
+                            <th scope="col">Significance</th>
+                          </tr>
+                        </thead>
+                        <tbody></tbody>
+                      </table>
+                    </div>
+                    <div>
+                      <sup
+                        >Plot: Annotations only available when less than four
+                        interval years or four joinpoints are selected.</sup
+                      >
+                    </div>
+                  </div>
+
+                  <div class="mb-1">
                     <div class="row p-3">
                       <span class="font-weight-bold col-sm-auto"
                         >Plot Controls
@@ -1146,39 +1179,6 @@
                           >Hide Annotations</label
                         >
                       </div>
-                    </div>
-                  </div>
-
-                  <div id="deathTrendTable" class="d-none mb-4">
-                    <h4>
-                      Percent Change in the Annual Probability of Dying of
-                      Cancer by Diagnosis Year
-                    </h4>
-                    <div class="table-responsive">
-                      <table
-                        id="trend-dap"
-                        class="table table-striped table-condensed condense"
-                      >
-                        <thead>
-                          <tr>
-                            <th scope="col">Interval</th>
-                            <th scope="col">Start Year</th>
-                            <th scope="col">End Year</th>
-                            <th scope="col">Estimate %</th>
-                            <th scope="col">Standard Error %</th>
-                            <th scope="col">Lower Limit 95% C.I.</th>
-                            <th scope="col">Upper Limit 95% C.I.</th>
-                            <th scope="col">Significance</th>
-                          </tr>
-                        </thead>
-                        <tbody></tbody>
-                      </table>
-                    </div>
-                    <div>
-                      <sup
-                        >Plot: Annotations only available when less than four
-                        interval years or four joinpoints are selected.</sup
-                      >
                     </div>
                   </div>
 
@@ -1253,7 +1253,7 @@
                       </div>
                     </div>
                   </div>
-                  <div class="border rounded mb-1">
+                  <div class="mb-1">
                     <div class="row p-3">
                       <span class="font-weight-bold col-sm-auto"
                         >Plot Controls
