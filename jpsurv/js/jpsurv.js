@@ -377,6 +377,7 @@ function addEventListeners() {
 function resetShowTrend() {
   $('#showYearTrend').prop('checked', false).trigger('change');
   $('#showDeathTrend').prop('checked', false).trigger('change');
+  $('#toggleAbsSelect').prop('checked', false).trigger('change');
 }
 
 /* The Original Code for submitting the a (Dictionary/Data Files) and CSV */
@@ -2400,6 +2401,7 @@ function clearAbsChg() {
   $('#absChgTo').empty();
   $('#absChgFrom').append('<OPTION value="">----</OPTION>');
   $('#absChgTo').append('<OPTION value="">----</OPTION>');
+  $('#toggleAbsSelect').prop('checked', false).trigger('change');
 }
 
 function setAbsRange(range) {
