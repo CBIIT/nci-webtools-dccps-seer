@@ -1929,13 +1929,14 @@ function loadResults(results) {
   jpsurvData.results = results;
   if (!jpsurvData.stage2completed) {
     updateCohortDropdown();
-    setupModel();
-    createModelSelection();
   } else {
-    setupModel();
-    createModelSelection();
-    createModelSelection();
+    if (jpsurvData.results.yearData.survTrend)
+      $('#showYearTrend').prop('checked', true).trigger('change');
+    if (jpsurvData.results.deathData.deathTrend)
+      $('#showDeathTrend').prop('checked', true).trigger('change');
   }
+  setupModel();
+  createModelSelection();
   if (certifyResults() == false) {
     //console.warn("Results are corrupt.");
   }
