@@ -674,7 +674,7 @@ function dropdownListener() {
 
     jpsurvData.switch = true;
     jpsurvData.additional.use_default = 'true';
-    jpsurvData.additional.Runs = jpsurvData.results.Runs;
+
     resetShowTrend();
     calculate(true);
   });
@@ -1625,6 +1625,7 @@ function setCalculateData() {
 }
 
 function setData() {
+  
   updateCohortDisplay();
 
   jpsurvData.queue = {};
@@ -1935,11 +1936,7 @@ function loadResults(results) {
     if (jpsurvData.results.deathData.deathTrend)
       $('#showDeathTrend').prop('checked', true).trigger('change');
   }
-  setupModel();
   createModelSelection();
-  if (certifyResults() == false) {
-    //console.warn("Results are corrupt.");
-  }
   updateTabs(jpsurvData.tokenId);
   absChgDynamic();
   setIntervalsDynamic();
@@ -3002,23 +2999,6 @@ function getRestServerStatus() {
       $('#calculating-spinner').modal('hide');
       displayCommFail(id || 'jquery', jqXHR, textStatus);
     });
-}
-
-function certifyResults() {
-  if (jpsurvData.results.timeData.timeTable != undefined) {
-    $.each(jpsurvData.results.timeData.timeTable, function (index, value) {
-      if (index.substring(0, 1) == 'X') {
-        $('#right_panel').hide();
-        okAlert(
-          'RelSurIntData is corrupt:<br><br>' +
-            JSON.stringify(jpsurvData.results.timeData.timeTable),
-          'Corrupt Data'
-        );
-        return false;
-      }
-    });
-  }
-  return true;
 }
 
 function renewTokenId(refresh_url) {
