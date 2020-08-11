@@ -274,10 +274,14 @@ function loadUserInput(data) {
     $('#year-of-diagnosis').val(data.diagnosisYear);
 
     // Restore UI controls
-    $('#showYearTrend').prop('checked', data.showYearTrend).trigger('change');
-    $('#showDeathTrend').prop('checked', data.showDeathTrend).trigger('change');
+    $('#showYearTrend')
+      .prop('checked', data.showYearTrend == 'true')
+      .trigger('change');
+    $('#showDeathTrend')
+      .prop('checked', data.showDeathTrend == 'true')
+      .trigger('change');
     $('#toggleAbsSelect')
-      .prop('checked', data.toggleAbsSelect)
+      .prop('checked', data.toggleAbsSelect == 'true')
       .trigger('change');
     $('#absChgFrom').val(data.absChgFrom).trigger('change');
     $('#absChgTo').val(data.absChgTo).trigger('change');
