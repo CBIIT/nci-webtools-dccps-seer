@@ -96,6 +96,12 @@ function exportBackEnd(event) {
   data.absChgFrom = $('#absChgFrom').val();
   data.absChgTo = $('#absChgTo').val();
 
+  // save selected model
+  data.headerJP = jpsurvData.additional.headerJoinPoints;
+  // data.selectedCohort = JSON.stringify(
+  //   $('#cohort-display option:selected').text().trim().split(' + ')
+  // );
+
   if (data.type == 'dic') {
     dataFile = jpsurvData.file.data.split('.')[0];
     dicFile = jpsurvData.file.dictionary.split('.')[0];
@@ -208,19 +214,6 @@ function loadUserInput(data) {
    * Import the user input into the HTML Form itself
    */
   function modifyForm(data, intervals) {
-    function returnSelectorWithExactText(selectorArray, text) {
-      var selectorWithExactText = undefined;
-
-      $.each($(selectorArray), function (index, element) {
-        if ($(element).text() === text) {
-          selectorWithExactText = element;
-          return false;
-        }
-      });
-
-      return selectorWithExactText;
-    }
-
     $('e-mail').val(data.email);
     $('#year_of_diagnosis_start')
       .val(data.yearOfDiagnosisRangeStart)
@@ -313,6 +306,13 @@ function loadUserInput(data) {
     jpsurvData.calculate.static.advanced.advYear = parseInt(data.advYear);
     jpsurvData.additional.intervals = intervals;
     jpsurvData.results.yod = data.diagnosisYear;
+
+    // restore selected model
+    var headerJP = parseInt(data.headerJP);
+    if (jpsurvData.additional.headerJoinPoints != headerJP) {
+      jpsurvData.additional.headerJoinPoints = headerJP;
+      calculate(true);
+    }
   }
 
   // Convert a comma separated string of numbers into an array of actual number

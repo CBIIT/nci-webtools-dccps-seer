@@ -1625,7 +1625,6 @@ function setCalculateData() {
 }
 
 function setData() {
-  
   updateCohortDisplay();
 
   jpsurvData.queue = {};
