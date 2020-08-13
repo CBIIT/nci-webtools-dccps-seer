@@ -301,8 +301,6 @@ function addEventListeners() {
     checkAbsChg();
   });
 
-  // $("#icon").on('click', slideToggle);
-
   $(document).on('click', '#model-selection-table tbody tr', function (e) {
     e.stopPropagation();
     $(this).addClass('info').siblings().removeClass('info');
@@ -659,16 +657,16 @@ function updateCohortDropdown() {
 //populates the inpout json with the desired cohort combination based on the cohort dropdown window
 function dropdownListener() {
   $('#cohort-display').on('select2:select', function () {
-    jpsurvData.calculate.form.cohortValues = [];
     //splits the cohorts based on a " + "
     var cohorts = $('#cohort-display option:selected')
       .text()
       .trim()
       .split(' + ');
     //adds each cohort to the json
-    for (var j = 0; j < cohorts.length; j++) {
-      jpsurvData.calculate.form.cohortValues.push('"' + cohorts[j] + '"');
-    }
+
+    jpsurvData.calculate.form.cohortValues = cohorts.map(function (cohort) {
+      return '"' + cohort + '"';
+    });
     //resets the image id
     jpsurvData.plot.static.imageId = 0;
 
@@ -2839,10 +2837,6 @@ function openHelpWindow(pageURL) {
     'alwaysRaised,dependent,status,scrollbars,resizable,width=1000,height=800'
   );
   helpWin.focus();
-}
-
-function slideToggle() {
-  $('#slideout').toggleClass('slide');
 }
 
 function Slide_menu_Horz(action) {
