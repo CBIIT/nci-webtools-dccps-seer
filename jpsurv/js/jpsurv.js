@@ -1928,6 +1928,7 @@ function loadResults(results) {
   if (!jpsurvData.stage2completed) {
     updateCohortDropdown();
   } else {
+    // restore calculated trend if available
     if (jpsurvData.results.yearData.survTrend)
       $('#showYearTrend').prop('checked', true).trigger('change');
     if (jpsurvData.results.deathData.deathTrend)
@@ -1936,6 +1937,15 @@ function loadResults(results) {
   createModelSelection();
   updateTabs(jpsurvData.tokenId);
   absChgDynamic();
+
+  // restore user trend if available
+  var survTrend = jpsurvData.results.yearData.survTrend;
+  if (survTrend && survTrend['ACS.user']) {
+    var trend = survTrend['ACS.user'][0];
+    $('#toggleAbsSelect').prop('checked', true).trigger('change');
+    $('#absChgFrom').val(trend['start.year']).trigger('change');
+    $('#absChgTo').val(trend['end.year']).trigger('change');
+  }
   setIntervalsDynamic();
   jpsurvData.stage2completed = true;
   jpsurvData.additional.recalculate = 'false';
@@ -2384,9 +2394,15 @@ function find_year_of_diagnosis_row() {
 
 function toggleAbsSelect() {
   toggled = $('#toggleAbsSelect').prop('checked');
-  $('#absChgFrom').prop('disabled', !toggled).val('').trigger('change');
-  $('#absChgTo').prop('disabled', !toggled).val('').trigger('change');
-  $('#warning-wrapper').popover('dispose');
+  if (!toggled) {
+    $('#absChgFrom').prop('disabled', !toggled).val('').trigger('change');
+    $('#absChgTo').prop('disabled', !toggled).val('').trigger('change');
+    $('#warning-wrapper').popover('dispose');
+  } else {
+    $('#absChgFrom').prop('disabled', !toggled);
+    $('#absChgTo').prop('disabled', !toggled);
+    $('#warning-wrapper').popover('dispose');
+  }
 }
 
 function clearAbsChg() {
@@ -2416,7 +2432,8 @@ function absChgDynamic() {
   if (Object.keys(jpsurvData.results).length > 0) {
     if (jpsurvData.results.timeData.minYear) {
       var tmpRange = jpsurvData.additional.absChgRange;
-      clearAbsChg();
+      var checked = $('#toggleAbsSelect').is(':checked');
+      // clearAbsChg();
       range = [
         jpsurvData.results.timeData.minYear,
         jpsurvData.results.timeData.maxYear,
@@ -2434,6 +2451,7 @@ function absChgDynamic() {
         $('#absChgFrom').val(tmpRange[0]).trigger('change');
         $('#absChgTo').val(tmpRange[1]).trigger('change');
       }
+      $('#toggleAbsSelect').prop('checked', checked);
     }
   }
 }

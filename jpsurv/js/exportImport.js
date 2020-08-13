@@ -89,13 +89,6 @@ function exportBackEnd(event) {
   data.intervals = jpsurvData.additional.intervals.toString();
   data.diagnosisYear = jpsurvData.results.yod;
 
-  // Save UI controsl
-  data.showYearTrend = $('#showYearTrend').is(':checked');
-  data.showDeathTrend = $('#showDeathTrend').is(':checked');
-  data.toggleAbsSelect = $('#toggleAbsSelect').is(':checked');
-  data.absChgFrom = $('#absChgFrom').val();
-  data.absChgTo = $('#absChgTo').val();
-
   // save selected model and cohort
   data.headerJP = jpsurvData.additional.headerJoinPoints;
   data.selectedCohort = $('#cohort-display').val();
@@ -308,19 +301,6 @@ function loadUserInput(data) {
     $('#interval-years').val(intervals);
     $('#interval-years-death').val(intervals);
     $('#year-of-diagnosis').val(data.diagnosisYear);
-
-    // Restore UI controls
-    $('#showYearTrend')
-      .prop('checked', data.showYearTrend == 'true')
-      .trigger('change');
-    $('#showDeathTrend')
-      .prop('checked', data.showDeathTrend == 'true')
-      .trigger('change');
-    $('#toggleAbsSelect')
-      .prop('checked', data.toggleAbsSelect == 'true')
-      .trigger('change');
-    $('#absChgFrom').val(data.absChgFrom).trigger('change');
-    $('#absChgTo').val(data.absChgTo).trigger('change');
   }
 
   /*
