@@ -169,9 +169,9 @@ if __name__ == '__main__':
     parser.add_argument('-d', '--debug', action='store_true')
     args = parser.parse_args()
     if (args.debug):
-        config = Util('config.dev.ini')
+        config = Util('../config/config.dev.ini')
     else:
-        config = Util('config.ini')
+        config = Util('../config/config.ini')
     logger = create_rotating_log(config)
 
     try:
@@ -203,7 +203,8 @@ if __name__ == '__main__':
                         extender.start()
 
                         saveLoc = os.path.join(config.INPUT_DATA_PATH, token)
-                        savePath = os.path.join(config.INPUT_DATA_PATH, f'{token}.zip')
+                        savePath = os.path.join(
+                            config.INPUT_DATA_PATH, f'{token}.zip')
                         WORKING_DIR = os.path.join(os.getcwd(), saveLoc)
 
                         # download work file archive
@@ -226,9 +227,11 @@ if __name__ == '__main__':
                                         object = bucket.uploadFileObj(
                                             config.getInputFileKey(f'{token}.zip'), archive)
                                         if object:
-                                            logger.info(f'Succesfully Uploaded {token}.zip')
+                                            logger.info(
+                                                f'Succesfully Uploaded {token}.zip')
                                         else:
-                                            logger.error(f'Failed to upload {token}.zip')
+                                            logger.error(
+                                                f'Failed to upload {token}.zip')
 
                                     composeSuccess(
                                         WORKING_DIR, jpsurvData, timestamp, logger)
@@ -243,7 +246,8 @@ if __name__ == '__main__':
                                         timestamp, logger)
 
                         msg.delete()
-                        logger.info(f'Finish processing job name: {jobName}, token: {token} !')
+                        logger.info(
+                            f'Finish processing job name: {jobName}, token: {token} !')
                     else:
                         logger.debug(data)
                         logger.error('Unknown message type!')

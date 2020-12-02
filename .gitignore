@@ -1,4 +1,6 @@
 /results
+/config/config.ini
+/config/config.dev.ini
 *.pyc
 node_modules
 .DS_Store

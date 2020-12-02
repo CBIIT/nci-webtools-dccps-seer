@@ -22,7 +22,7 @@ from s3 import S3Bucket
 
 
 args = None
-config_file = "config.ini"
+config_file = "../config/config.ini"
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument('-d', '--debug', action='store_true')
@@ -30,7 +30,7 @@ if __name__ == "__main__":
                         default="9001", help="Sets the Port")
     args = parser.parse_args()
     if args.debug:
-        config_file = "config.dev.ini"
+        config_file = "../config/config.dev.ini"
 
 
 app = Flask(__name__, static_folder='', static_url_path='')
