@@ -402,23 +402,33 @@ function addMessages() {
 function addInputSection() {
   if (getUrlParameter('request') == 'true') {
     // attempt to download queued result from s3
-    if (!checkInputFile()) {
-      var file = `${getUrlParameter('tokenId')}.zip`;
-      $.ajax({
-        type: 'GET',
-        url: `jpsurvRest/downloadS3?file=${file}`,
-        async: false,
-        contentType: 'application/json',
-      })
-        // .done(function (msg) {
-        // })
-        .fail(function (jqXHR, textStatus) {
-          okAlert(
-            'Opps. It looks like the time to view your results has expired.  Please submit another calculation.',
-            'JPSurv Time Expired'
-          );
-        });
-    }
+    // let check = $.ajax({
+    //   async: false,
+    //   type: 'HEAD',
+    //   url: 'jpsurvRest/results',
+    //   data: {
+    //     file: 'cohort_models-' + jpsurvData.tokenId + '.json',
+    //     tokenId: jpsurvData.tokenId,
+    //   },
+    // });
+
+    // if (check.status != 200) {
+    var file = `${getUrlParameter('tokenId')}.zip`;
+    $.ajax({
+      type: 'GET',
+      url: `jpsurvRest/downloadS3?file=${file}`,
+      async: false,
+      contentType: 'application/json',
+    })
+      // .done(function (msg) {
+      // })
+      .fail(function (jqXHR, textStatus) {
+        okAlert(
+          'Opps. It looks like the time to view your results has expired.  Please submit another calculation.',
+          'JPSurv Time Expired'
+        );
+      });
+    // }
   }
   var status = getUrlParameter('status');
   if (status == 'uploaded') {
