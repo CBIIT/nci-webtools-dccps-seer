@@ -143,6 +143,9 @@ def calculate(WORKING_DIR, jpsurvData, timestamp, logger):
 
 
 def create_rotating_log(config):
+    if not os.path.exists('../logs'):
+        os.makedirs('../logs')
+
     formatter = logging.Formatter('%(asctime)s %(levelname)-8s %(message)s',
                                   '%Y-%m-%d %H:%M:%S')
     time = datetime.datetime.now().strftime("%Y-%m-%d_%H_%M")
