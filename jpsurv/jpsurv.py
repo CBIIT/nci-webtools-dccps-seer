@@ -11,6 +11,8 @@ from werkzeug.utils import secure_filename
 from zipfile import ZipFile, ZIP_DEFLATED
 from os.path import dirname, basename, join
 from glob import glob
+from pathlib import Path
+import shutil
 from werkzeug.urls import Href
 from urllib.parse import unquote
 from argparse import ArgumentParser
@@ -30,16 +32,17 @@ if __name__ == "__main__":
     if args.debug:
         config_file = "config.dev.ini"
 
-if not os.path.exists('tmp'):
-    os.makedirs('tmp')
 
 app = Flask(__name__, static_folder='', static_url_path='')
 config = Util(config_file)
 app.logger.setLevel(config.LOG_LEVEL)
 
+if not os.path.exists(config.INPUT_DATA_PATH):
+    os.makedirs(config.INPUT_DATA_PATH)
+
 
 def upload_dir(token):
-    path = os.path.join(os.getcwd(), 'tmp/' + token)
+    path = os.path.join(os.getcwd(), config.INPUT_DATA_PATH + token)
     if not os.path.exists(path):
         os.makedirs(path)
     return path
@@ -356,6 +359,7 @@ def myImport():
         if (uploadedArchive.filename.split('.', 1)[1] in ['jpsurv'] == False):
             return jsonify("The filename has the wrong extension.  It should end in jpsurv"), 400
 
+        UPLOAD_DIR = upload_dir('tmp')
         zipFilename = uploadFile(uploadedArchive)
         unzipFile(zipFilename)
 
@@ -384,6 +388,15 @@ def myImport():
             returnParameters['delimiter'] = getDelimiter(
                 os.path.join(UPLOAD_DIR, fileNameInZipFile))
 
+        # move contents of tmp to respective folder with tokenId name
+        tokenId = returnParameters['tokenIdForRest']
+        saveDir = upload_dir(tokenId)
+        importFiles = os.listdir(UPLOAD_DIR)
+
+        for fileName in importFiles:
+            shutil.move(os.path.join(UPLOAD_DIR, fileName),
+                        os.path.join(saveDir, fileName))
+
         return jsonify(returnParameters)
 
     except Exception as e:
@@ -396,7 +409,7 @@ def myImport():
     return response
 
 
-@app.route('/jpsurvRest/export', methods=['GET'])
+@ app.route('/jpsurvRest/export', methods=['GET'])
 # Exports the JPSurv Data from the application to a file that is download to the user's computer
 def myExport():
     type = request.args['type']
@@ -418,7 +431,8 @@ def myExport():
             fileNameSet.add(os.path.join(UPLOAD_DIR, tokenForInput + txtFile))
 
         for filename in getFileBySubstringSearch(tokenId):
-            fileNameSet.add(os.path.join(UPLOAD_DIR, filename))
+            if not re.match(r'^.*\.jpsurv$', filename):
+                fileNameSet.add(os.path.join(UPLOAD_DIR, filename))
 
         app.logger.debug(
             "\tThe set of names to be zipped are: " + str(fileNameSet))
@@ -474,9 +488,9 @@ def myExport():
 
         type = request.args['type']
         dictFile = request.args['dictionary']
-        file_name = '.'.join(dictFile.split('.')[:-1])
+        file_name = request.args['filename']
         timestamp = time.strftime('%Y%m%d', time.localtime())
-        file_name += '-{}.jpsurv'.format(timestamp)
+
         return send_from_directory(UPLOAD_DIR, request.args['filename'],  as_attachment=True, attachment_filename=file_name)
 
     except Exception as e:
@@ -484,7 +498,7 @@ def myExport():
         return abort(404, 'Export failed')
 
 
-@app.route('/jpsurvRest/stage2_calculate', methods=['GET'])
+@ app.route('/jpsurvRest/stage2_calculate', methods=['GET'])
 def stage2_calculate():
     print(OKGREEN+UNDERLINE+BOLD + "****** Stage 2: CALCULATE BUTTON ***** " + ENDC)
 
@@ -513,7 +527,7 @@ def stage2_calculate():
         return current_app.response_class(out_json, status=status, mimetype='application/json')
 
 
-@app.route('/jpsurvRest/stage3_recalculate', methods=['GET'])
+@ app.route('/jpsurvRest/stage3_recalculate', methods=['GET'])
 def stage3_recalculate():
     print(OKGREEN+UNDERLINE+BOLD + "****** Stage 3: PLOT BUTTON ***** " + ENDC)
 
@@ -602,7 +616,7 @@ def stage3_recalculate():
 #     return current_app.response_class(out_json, mimetype=mimetype)
 
 
-@app.route('/jpsurvRest/stage5_queue', methods=['GET'])
+@ app.route('/jpsurvRest/stage5_queue', methods=['GET'])
 def queue():
 
     print(OKGREEN+UNDERLINE+BOLD + "****** Stage 5: Queue ***** " + ENDC)
@@ -657,7 +671,9 @@ def queue():
         return current_app.response_class(json.dumps(message), 500, mimetype='application/json')
 
 # Download queued job result from S3
-@app.route('/jpsurvRest/downloadS3', methods=['GET'])
+
+
+@ app.route('/jpsurvRest/downloadS3', methods=['GET'])
 def downloadS3():
     file = request.args.get('file')
     config = Util(config_file)
@@ -677,12 +693,44 @@ def downloadS3():
         return current_app.response_class(json.dumps(message), 500, mimetype='application/json')
 
 
+@ app.route('/jpsurvRest/results', methods=['GET'])
+def sendResultsFile():
+    file = (request.args.get('file'))
+    tokenId = request.args.get('tokenId')
+    filePath = config.INPUT_DATA_PATH+tokenId+'/'+file
+    fileName = filePath.split('/')[-1]
+
+    if (is_safe_path(tokenId, filePath)):
+        return send_file(filePath)
+    else:
+        return ('', 404)
+
+
+def sendqueue(tokenId):
+    timestr = time.strftime("%Y-%m-%d")
+    QUEUE = jpsurvConfig.getAsString(QUEUE_NAME)
+    QUEUE_CONFIG = StompConfig(jpsurvConfig.getAsString(QUEUE_URL))
+    client = Stomp(QUEUE_CONFIG)
+    client.connect()
+    client.send(QUEUE, json.dumps(
+        {"filepath": UPLOAD_DIR, "token": tokenId, "timestamp": timestr}).encode())
+    client.disconnect()
+
+
+def is_safe_path(tokenId, path, follow_symlinks=True):
+    # resolves symbolic links
+    if follow_symlinks:
+        return os.path.realpath(path).startswith(os.path.realpath(upload_dir(tokenId)))
+
+    return os.path.abspath(path).startswith(os.path.realpath(upload_dir(tokenId)))
+
+
 def initialize(port, debug=True):
     app.run(host='0.0.0.0', port=port, debug=True)
 
 
 if __name__ == '__main__':
-    @app.route('/', strict_slashes=False)
+    @ app.route('/', strict_slashes=False)
     def index():
         return send_file('index.html')
 

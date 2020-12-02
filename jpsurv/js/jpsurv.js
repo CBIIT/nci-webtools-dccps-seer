@@ -301,8 +301,6 @@ function addEventListeners() {
     checkAbsChg();
   });
 
-  // $("#icon").on('click', slideToggle);
-
   $(document).on('click', '#model-selection-table tbody tr', function (e) {
     e.stopPropagation();
     $(this).addClass('info').siblings().removeClass('info');
@@ -319,17 +317,18 @@ function addEventListeners() {
   $('#precision').on('change', userChangePrecision);
 
   // recalculate button
-  Array.prototype.map.call(document.querySelectorAll('.recalculate'), function (
-    link
-  ) {
-    link.onclick = function (event) {
-      event.preventDefault();
-      jpsurvData.additional.recalculate = 'true';
-      jpsurvData.additional.use_default = 'false';
-      setCalculateData();
-      jpsurvData.additional.use_default = 'true';
-    };
-  });
+  Array.prototype.map.call(
+    document.querySelectorAll('.recalculate'),
+    function (link) {
+      link.onclick = function (event) {
+        event.preventDefault();
+        jpsurvData.additional.recalculate = 'true';
+        jpsurvData.additional.use_default = 'false';
+        setCalculateData();
+        jpsurvData.additional.use_default = 'true';
+      };
+    }
+  );
 
   //
   // Set click listeners
@@ -377,6 +376,7 @@ function addEventListeners() {
 function resetShowTrend() {
   $('#showYearTrend').prop('checked', false).trigger('change');
   $('#showDeathTrend').prop('checked', false).trigger('change');
+  $('#toggleAbsSelect').prop('checked', false).trigger('change');
 }
 
 /* The Original Code for submitting the a (Dictionary/Data Files) and CSV */
@@ -424,9 +424,12 @@ function addInputSection() {
   if (status == 'uploaded') {
     setUploadData();
 
-    control_data = load_ajax(jpsurvData.file.form);
+    control_data = load_ajax(jpsurvData.file.form, jpsurvData.tokenId);
     // load input data if exists (from queued result)
-    inputData = load_ajax('input_' + jpsurvData.tokenId + '.json');
+    inputData = load_ajax(
+      'input_' + jpsurvData.tokenId + '.json',
+      jpsurvData.tokenId
+    );
     if (inputData) {
       jpsurvData = inputData;
     }
@@ -568,7 +571,10 @@ function addInputSection() {
     showMessage(id, message, message_type);
     $('#right_panel').hide();
     $('#helpCard').show();
-    var inputData = load_ajax('input_' + jpsurvData.tokenId + '.json');
+    var inputData = load_ajax(
+      'input_' + jpsurvData.tokenId + '.json',
+      jpsurvData.tokenId
+    );
 
     //console.warn("inputData");
     //console.dir(inputData);
@@ -585,9 +591,13 @@ function addInputSection() {
 
 function checkInputFile() {
   var results = $.ajax({
-    url: 'tmp/' + jpsurvData.tokenId + '/input_' + jpsurvData.tokenId + '.json',
-    type: 'HEAD',
     async: false,
+    type: 'HEAD',
+    url: 'jpsurvRest/results',
+    data: {
+      file: 'input_' + jpsurvData.tokenId + '.json',
+      tokenId: jpsurvData.tokenId,
+    },
   });
 
   return results.status == 200;
@@ -597,7 +607,10 @@ function checkInputFile() {
 function preLoadValues() {
   //Check to see if input file exists.
 
-  var inputData = load_ajax('input_' + jpsurvData.tokenId + '.json');
+  var inputData = load_ajax(
+    'input_' + jpsurvData.tokenId + '.json',
+    jpsurvData.tokenId
+  );
   if (inputData) {
     //Set jpsurvData and update everything....
     jpsurvData = inputData;
@@ -668,22 +681,22 @@ function updateCohortDropdown() {
 //populates the inpout json with the desired cohort combination based on the cohort dropdown window
 function dropdownListener() {
   $('#cohort-display').on('select2:select', function () {
-    jpsurvData.calculate.form.cohortValues = [];
     //splits the cohorts based on a " + "
     var cohorts = $('#cohort-display option:selected')
       .text()
       .trim()
       .split(' + ');
     //adds each cohort to the json
-    for (var j = 0; j < cohorts.length; j++) {
-      jpsurvData.calculate.form.cohortValues.push('"' + cohorts[j] + '"');
-    }
+
+    jpsurvData.calculate.form.cohortValues = cohorts.map(function (cohort) {
+      return '"' + cohort + '"';
+    });
     //resets the image id
     jpsurvData.plot.static.imageId = 0;
 
     jpsurvData.switch = true;
     jpsurvData.additional.use_default = 'true';
-    jpsurvData.additional.Runs = jpsurvData.results.Runs;
+
     resetShowTrend();
     calculate(true);
   });
@@ -792,28 +805,28 @@ function addCohortVariables() {
                 ])
             );
           } else {
-            $.each(control_data.VarFormatSecList[key].ItemValueInDic, function (
-              key2,
-              value2
-            ) {
-              $('#cohort-' + i).append(
-                $('<div>')
-                  .addClass('custom-control custom-checkbox')
-                  .append([
-                    $('<input>', {
-                      type: 'checkbox',
-                      value: value2,
-                      id: value2.replace(/\s/g, '_'),
-                      class: 'custom-control-input cohort cohort-' + i,
-                    }),
-                    $('<label>', {
-                      for: value2.replace(/\s/g, '_'),
-                      class: 'custom-control-label cohort-' + i,
-                      html: value2,
-                    }),
-                  ])
-              );
-            });
+            $.each(
+              control_data.VarFormatSecList[key].ItemValueInDic,
+              function (key2, value2) {
+                $('#cohort-' + i).append(
+                  $('<div>')
+                    .addClass('custom-control custom-checkbox')
+                    .append([
+                      $('<input>', {
+                        type: 'checkbox',
+                        value: value2,
+                        id: value2.replace(/\s/g, '_'),
+                        class: 'custom-control-input cohort cohort-' + i,
+                      }),
+                      $('<label>', {
+                        for: value2.replace(/\s/g, '_'),
+                        class: 'custom-control-label cohort-' + i,
+                        html: value2,
+                      }),
+                    ])
+                );
+              }
+            );
           }
         } else if (control_data.input_type == 'csv') {
           if (
@@ -1881,15 +1894,14 @@ function retrieveResults(cohort_com, jpInd, switch_cohort) {
   var file_name = '';
   if (jpInd != undefined && cohort_com != undefined && switch_cohort == false)
     file_name =
-      'tmp/' +
-      jpsurvData.tokenId +
-      '/results-' +
+      'jpsurvRest/results?file=results-' +
       jpsurvData.tokenId +
       '-' +
       cohort_com +
       '-' +
       jpInd +
-      '.json';
+      '.json&tokenId=' +
+      jpsurvData.tokenId;
   else {
     file_name = generateResultsFilename(cohort_com, jpInd, switch_cohort);
   }
@@ -1905,26 +1917,31 @@ function generateResultsFilename(cohort_com, jpInd, switch_cohort) {
   var file_name = '';
 
   $.ajax({
-    // // url: '/jpsurv/tmp/cohort_models-'+jpsurvData.tokenId+'.json',
-    url: 'tmp/cohort_models-' + jpsurvData.tokenId + '.json',
-    type: 'GET',
     async: false,
-    dataType: 'json', // added data type
-    success: function (results) {
+    type: 'GET',
+    url: 'jpsurvRest/results',
+    data: {
+      file: 'cohort_models-' + jpsurvData.tokenId + '.json',
+      tokenId: jpsurvData.tokenId,
+    },
+    dataType: 'json',
+  })
+    .done(function (results) {
       cohort_models = results;
-      if (switch_cohort == undefined) cohort_com = 1;
+      if (!switch_cohort) cohort_com = 1;
       file_name =
-        'tmp/' +
-        jpsurvData.tokenId +
-        '/results-' +
+        'jpsurvRest/results?file=results-' +
         jpsurvData.tokenId +
         '-' +
         cohort_com +
         '-' +
         results[cohort_com - 1] +
-        '.json';
-    },
-  });
+        '.json&tokenId=' +
+        jpsurvData.tokenId;
+    })
+    .fail(function (jqXHR, textStatus, errorThrown) {
+      console.warn(jqXHR, textStatus, errorThrown);
+    });
 
   return file_name;
 }
@@ -1933,18 +1950,25 @@ function loadResults(results) {
   jpsurvData.results = results;
   if (!jpsurvData.stage2completed) {
     updateCohortDropdown();
-    setupModel();
-    createModelSelection();
   } else {
-    setupModel();
-    createModelSelection();
-    createModelSelection();
+    // restore calculated trend if available
+    if (jpsurvData.results.yearData.survTrend)
+      $('#showYearTrend').prop('checked', true).trigger('change');
+    if (jpsurvData.results.deathData.deathTrend)
+      $('#showDeathTrend').prop('checked', true).trigger('change');
   }
-  if (certifyResults() == false) {
-    //console.warn("Results are corrupt.");
-  }
+  createModelSelection();
   updateTabs(jpsurvData.tokenId);
   absChgDynamic();
+
+  // restore user trend if available
+  var survTrend = jpsurvData.results.yearData.survTrend;
+  if (survTrend && survTrend['ACS.user']) {
+    var trend = survTrend['ACS.user'][0];
+    $('#toggleAbsSelect').prop('checked', true).trigger('change');
+    $('#absChgFrom').val(trend['start.year']).trigger('change');
+    $('#absChgTo').val(trend['end.year']).trigger('change');
+  }
   setIntervalsDynamic();
   jpsurvData.stage2completed = true;
   jpsurvData.additional.recalculate = 'false';
@@ -2393,9 +2417,15 @@ function find_year_of_diagnosis_row() {
 
 function toggleAbsSelect() {
   toggled = $('#toggleAbsSelect').prop('checked');
-  $('#absChgFrom').prop('disabled', !toggled).val('').trigger('change');
-  $('#absChgTo').prop('disabled', !toggled).val('').trigger('change');
-  $('#warning-wrapper').popover('dispose');
+  if (!toggled) {
+    $('#absChgFrom').prop('disabled', !toggled).val('').trigger('change');
+    $('#absChgTo').prop('disabled', !toggled).val('').trigger('change');
+    $('#warning-wrapper').popover('dispose');
+  } else {
+    $('#absChgFrom').prop('disabled', !toggled);
+    $('#absChgTo').prop('disabled', !toggled);
+    $('#warning-wrapper').popover('dispose');
+  }
 }
 
 function clearAbsChg() {
@@ -2405,6 +2435,7 @@ function clearAbsChg() {
   $('#absChgTo').empty();
   $('#absChgFrom').append('<OPTION value="">----</OPTION>');
   $('#absChgTo').append('<OPTION value="">----</OPTION>');
+  $('#toggleAbsSelect').prop('checked', false).trigger('change');
 }
 
 function setAbsRange(range) {
@@ -2424,7 +2455,8 @@ function absChgDynamic() {
   if (Object.keys(jpsurvData.results).length > 0) {
     if (jpsurvData.results.timeData.minYear) {
       var tmpRange = jpsurvData.additional.absChgRange;
-      clearAbsChg();
+      var checked = $('#toggleAbsSelect').is(':checked');
+      // clearAbsChg();
       range = [
         jpsurvData.results.timeData.minYear,
         jpsurvData.results.timeData.maxYear,
@@ -2442,6 +2474,7 @@ function absChgDynamic() {
         $('#absChgFrom').val(tmpRange[0]).trigger('change');
         $('#absChgTo').val(tmpRange[1]).trigger('change');
       }
+      $('#toggleAbsSelect').prop('checked', checked);
     }
   }
 }
@@ -2748,33 +2781,27 @@ function showMessage(id, message, message_type) {
     );
 }
 
-function load_ajax(filename) {
-  var json = (function () {
-    var json = null;
-    // // var url = '/jpsruv/tmp/'+filename;
-    var url = 'tmp/' + jpsurvData.tokenId + '/' + filename;
-    $.ajax({
-      async: false,
-      global: false,
-      url: url,
-      dataType: 'json',
-      success: function (data) {
-        json = data;
-      },
-      fail: function (jqXHR, textStatus) {
-        alert('Fail on load_ajax');
-      },
-      error: function (jqXHR, textStatus) {
-        //console.dir(jqXHR);
-        //console.warn('Error on load_ajax');
-        //console.log(jqXHR.status);
-        //console.log(jqXHR.statusText);
-        //console.log(textStatus);
-        return undefined;
-      },
+function load_ajax(filename, tokenId) {
+  var json = null;
+
+  $.ajax({
+    async: false,
+    global: false,
+    type: 'GET',
+    url: 'jpsurvRest/results',
+    data: {
+      file: filename,
+      tokenId: tokenId,
+    },
+    dataType: 'json',
+  })
+    .done(function (data) {
+      json = data;
+    })
+    .fail(function (jqXHR, textStatus) {
+      console.log(filename, 'not found');
     });
-    return json;
-  })();
+
   return json;
 }
 
@@ -2856,10 +2883,6 @@ function openHelpWindow(pageURL) {
     'alwaysRaised,dependent,status,scrollbars,resizable,width=1000,height=800'
   );
   helpWin.focus();
-}
-
-function slideToggle() {
-  $('#slideout').toggleClass('slide');
 }
 
 function Slide_menu_Horz(action) {
@@ -3015,23 +3038,6 @@ function getRestServerStatus() {
       $('#calculating-spinner').modal('hide');
       displayCommFail(id || 'jquery', jqXHR, textStatus);
     });
-}
-
-function certifyResults() {
-  if (jpsurvData.results.timeData.timeTable != undefined) {
-    $.each(jpsurvData.results.timeData.timeTable, function (index, value) {
-      if (index.substring(0, 1) == 'X') {
-        $('#right_panel').hide();
-        okAlert(
-          'RelSurIntData is corrupt:<br><br>' +
-            JSON.stringify(jpsurvData.results.timeData.timeTable),
-          'Corrupt Data'
-        );
-        return false;
-      }
-    });
-  }
-  return true;
 }
 
 function renewTokenId(refresh_url) {
@@ -3681,7 +3687,6 @@ function generateSheet(data) {
       });
     }
   });
-  console.log('after', sheet);
   return XLSX.utils.aoa_to_sheet(sheet);
 }
 

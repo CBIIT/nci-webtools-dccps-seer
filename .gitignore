@@ -1,4 +1,4 @@
-/jpsurv/tmp/
+/results
 *.pyc
 node_modules
 .DS_Store
