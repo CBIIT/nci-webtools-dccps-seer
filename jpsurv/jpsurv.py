@@ -4,6 +4,8 @@ import os
 import time
 import re
 import logging
+import shutil
+import datetime
 
 from flask import Flask, request, redirect, current_app, Response, send_from_directory, jsonify, send_file, abort
 from rpy2.robjects import r
@@ -12,13 +14,13 @@ from zipfile import ZipFile, ZIP_DEFLATED
 from os.path import dirname, basename, join
 from glob import glob
 from pathlib import Path
-import shutil
 from werkzeug.urls import Href
 from urllib.parse import unquote
 from argparse import ArgumentParser
 from util import Util
 from sqs import Queue
 from s3 import S3Bucket
+from logging.handlers import RotatingFileHandler
 
 
 args = None
@@ -35,7 +37,29 @@ if __name__ == "__main__":
 
 app = Flask(__name__, static_folder='', static_url_path='')
 config = Util(config_file)
-app.logger.setLevel(config.LOG_LEVEL)
+
+if not os.path.exists('../logs'):
+    os.makedirs('../logs')
+
+formatter = logging.Formatter('%(asctime)s %(levelname)-8s %(message)s',
+                              '%Y-%m-%d %H:%M:%S')
+time = datetime.datetime.now().strftime("%Y-%m-%d_%H_%M")
+logFile = '../logs/jpsurv.log.' + time
+
+size = config.LOG_SIZE
+rollover = config.LOG_ROLLOVER
+
+my_handler = RotatingFileHandler(logFile, mode='a', maxBytes=size,
+                                 backupCount=rollover, encoding=None, delay=0)
+my_handler.setFormatter(formatter)
+my_handler.setLevel(config.LOG_LEVEL)
+
+logger = logging.getLogger('root')
+logger.setLevel(config.LOG_LEVEL)
+
+logger.addHandler(my_handler)
+
+app.logger = logger
 
 if not os.path.exists(config.INPUT_DATA_PATH):
     os.makedirs(config.INPUT_DATA_PATH)
@@ -48,7 +72,7 @@ def upload_dir(token):
     return path
 
 
-print('JPSurv is starting...')
+app.logger.debug('JPSurv is starting...')
 
 # COLORS TO Make logging Mover visible
 HEADER = '\033[95m'
@@ -66,15 +90,15 @@ def ping():
     try:
         return r('"true"')[0]
     except Exception as e:
-        print('------------EXCEPTION------------')
-        traceback.print_exc(1)
+        app.logger.debug('------------EXCEPTION------------')
+        traceback.app.logger.debug_exc(1)
         return str(e), 400
 
 
 @app.route('/jpsurvRest/status', methods=['GET'])
 def status():
-    print(OKGREEN+"Calling status::::::"+ENDC)
-    print('Execute jpsurvRest/status status:OK')
+    app.logger.debug(OKGREEN+"Calling status::::::"+ENDC)
+    app.logger.debug('Execute jpsurvRest/status status:OK')
 
     mimetype = 'application/json'
     status = [{"status": "OK"}]
@@ -85,16 +109,18 @@ def status():
 
 @app.route('/jpsurvRest/stage1_upload', methods=['POST'])
 def stage1_upload():
-    print(OKGREEN+UNDERLINE+BOLD + "****** Stage 1: UPLOAD BUTTON ***** " + ENDC)
+    app.logger.debug(OKGREEN+UNDERLINE+BOLD +
+                     "****** Stage 1: UPLOAD BUTTON ***** " + ENDC)
     tokenId = request.args.get('tokenId', False)
     UPLOAD_DIR = upload_dir(tokenId)
     input_type = request.args.get('input_type')
 
-    print("Input type", input_type)
-    print((BOLD + "****** Stage 1: tokenId = %s" + ENDC) % (tokenId))
+    app.logger.debug("Input type", input_type)
+    app.logger.debug(
+        (BOLD + "****** Stage 1: tokenId = %s" + ENDC) % (tokenId))
 
     for k, v in list(request.args.items()):
-        print("var: %s = %s" % (k, v))
+        app.logger.debug("var: %s = %s" % (k, v))
 
     r.source('./JPSurvWrapper.R')
 
@@ -119,8 +145,8 @@ def stage1_upload():
 
                 file.save(os.path.join(UPLOAD_DIR, filename))
 
-            print("Dictionary Name = " + dictionary_name)
-            print("Data Name = " + data_name)
+            app.logger.debug("Dictionary Name = " + dictionary_name)
+            app.logger.debug("Data Name = " + data_name)
 
             # RENAME DATA FILE TO MATCH DICTIONARY
             if(dictionary_name != data_name):
@@ -160,16 +186,16 @@ def stage1_upload():
 
             return redirect(url)
     except Exception as e:
-        print(e)
+        app.logger.debug(e)
 
     if(input_type == "csv"):
 
         mapping = request.args.get('map', False)
         has_headers = request.args.get('has_headers', False)
         headers = request.args.get('headers', False)
-        print(headers)
-        print("has headers?")
-        print(has_headers)
+        app.logger.debug(headers)
+        app.logger.debug("has headers?")
+        app.logger.debug(has_headers)
 
         file = request.files['file_control_csv']
         if file and file.filename:
@@ -177,18 +203,19 @@ def stage1_upload():
             filename = tokenId+secure_filename(file.filename)
             file.save(os.path.join(UPLOAD_DIR, filename))
             file_control_filename = filename
-            print("Saving file_control_csv: %s" % file_control_filename)
+            app.logger.debug("Saving file_control_csv: %s" %
+                             file_control_filename)
 
         if(request.files['file_control_csv'] == ''):
-            print("file_control_csv not assigned")
+            app.logger.debug("file_control_csv not assigned")
 
         # PRINT FILE_DATA
         file_data = os.path.join(UPLOAD_DIR, filename)
-        print(file_data)
+        app.logger.debug(file_data)
         # If headers already exist replace with with custom headers user specified frm the UI: headers from json
         if(str(has_headers) == "true"):
-            print("replacing headers")
-            print(file_data)
+            app.logger.debug("replacing headers")
+            app.logger.debug(file_data)
             with open(file_data, 'r') as file:
                 data = file.readlines()
             data[0] = headers+"\n"
@@ -196,8 +223,8 @@ def stage1_upload():
                 file.writelines(data)
         # If headers do not exist insert headers before data: headers from json
         if(str(has_headers) == "false"):
-            print("inserting headers")
-            print(file_data)
+            app.logger.debug("inserting headers")
+            app.logger.debug(file_data)
             with open(file_data, 'r') as file:
                 data = file.readlines()
             data.insert(0, headers+"\n")
@@ -207,7 +234,7 @@ def stage1_upload():
         fo = open(file_data, "r+")
         stri = fo.read(500)
         fo.close()
-        print("SENDING.....")
+        app.logger.debug("SENDING.....")
         try:
             r.ReadCSVFile(file_control_filename, UPLOAD_DIR,
                           tokenId, mapping, input_type)
@@ -234,9 +261,9 @@ def stage1_upload():
 
         except:
             status = "failed_upload"
-            print("FAILED")
+            app.logger.debug("FAILED")
             return_url = "?request=false&status=failed_upload"
-            print(return_url)
+            app.logger.debug(return_url)
             return redirect(return_url)
 
 
@@ -345,7 +372,7 @@ def myImport():
             data = json.load(inFile)
             controlFile = data["controlFilename"]
 
-        print("The control file name is " + controlFile)
+        app.logger.debug("The control file name is " + controlFile)
 
         return controlFile
 
@@ -400,7 +427,7 @@ def myImport():
         return jsonify(returnParameters)
 
     except Exception as e:
-        print(str(e))
+        app.logger.debug(str(e))
         return_url = "?request=false&status=failed_import"
         return redirect(return_url)
 
@@ -494,19 +521,20 @@ def myExport():
         return send_from_directory(UPLOAD_DIR, request.args['filename'],  as_attachment=True, attachment_filename=file_name)
 
     except Exception as e:
-        print(str(e))
+        app.logger.debug(str(e))
         return abort(404, 'Export failed')
 
 
 @ app.route('/jpsurvRest/stage2_calculate', methods=['GET'])
 def stage2_calculate():
-    print(OKGREEN+UNDERLINE+BOLD + "****** Stage 2: CALCULATE BUTTON ***** " + ENDC)
+    app.logger.debug(OKGREEN+UNDERLINE+BOLD +
+                     "****** Stage 2: CALCULATE BUTTON ***** " + ENDC)
 
     jpsurvDataString = unquote(request.args.get('jpsurvData', False))
 
-    print(OKBLUE+"jpsurv data start::::::"+ENDC)
-    print(jpsurvDataString)
-    print(OKBLUE+"jpsurv data end::::::"+ENDC)
+    app.logger.debug(OKBLUE+"jpsurv data start::::::"+ENDC)
+    app.logger.debug(jpsurvDataString)
+    app.logger.debug(OKBLUE+"jpsurv data end::::::"+ENDC)
 
     jpsurvData = json.loads(jpsurvDataString)
     token = jpsurvData['tokenId']
@@ -514,13 +542,13 @@ def stage2_calculate():
 
     r.source('./JPSurvWrapper.R')
 
-    print(BOLD+"**** Calling getFittedResultsWrapper ****"+ENDC)
+    app.logger.debug(BOLD+"**** Calling getFittedResultsWrapper ****"+ENDC)
     try:
         r.getFittedResultWrapper(UPLOAD_DIR, jpsurvDataString)
         status = 200
         out_json = json.dumps({'status': 'OK'})
     except Exception as e:
-        print(e)
+        app.logger.debug(e)
         status = 400
         out_json = json.dumps({'msg': str(e)})
     finally:
@@ -529,61 +557,62 @@ def stage2_calculate():
 
 @ app.route('/jpsurvRest/stage3_recalculate', methods=['GET'])
 def stage3_recalculate():
-    print(OKGREEN+UNDERLINE+BOLD + "****** Stage 3: PLOT BUTTON ***** " + ENDC)
+    app.logger.debug(OKGREEN+UNDERLINE+BOLD +
+                     "****** Stage 3: PLOT BUTTON ***** " + ENDC)
 
     jpsurvDataString = unquote(request.args.get('jpsurvData', False))
-    print(OKBLUE+"The jpsurv STRING::::::"+ENDC)
+    app.logger.debug(OKBLUE+"The jpsurv STRING::::::"+ENDC)
     jpsurvData = json.loads(jpsurvDataString)
     cohort_com = str(jpsurvData["run"])
-    print(cohort_com)
+    app.logger.debug(cohort_com)
 
     token = jpsurvData['tokenId']
     UPLOAD_DIR = upload_dir(token)
 
-    print("JPIND")
+    app.logger.debug("JPIND")
     jpInd = str(jpsurvData["additional"]["headerJoinPoints"])
-    print(jpInd)
+    app.logger.debug(jpInd)
 
-    print("RECALC?")
+    app.logger.debug("RECALC?")
     recalc = str(jpsurvData["additional"]["recalculate"])
-    print(recalc)
+    app.logger.debug(recalc)
 
-    print("SWITCH?")
+    app.logger.debug("SWITCH?")
     switch = jpsurvData["switch"]
-    print(switch)
+    app.logger.debug(switch)
 
     use_default = False
     if(str(jpsurvData["additional"]["use_default"]) == "true"):
         use_default = True
 
-    print("USE_DEFAULT")
-    print(use_default)
+    app.logger.debug("USE_DEFAULT")
+    app.logger.debug(use_default)
 
     if (switch == True):
         with open(UPLOAD_DIR + '/cohort_models-'+jpsurvData["tokenId"]+'.json') as data_file:
             data = json.load(data_file)
-            print(data)
-            print("NEW JPIND")
-            print(data[int(cohort_com)-1])
+            app.logger.debug(data)
+            app.logger.debug("NEW JPIND")
+            app.logger.debug(data[int(cohort_com)-1])
             jpInd = str(data[int(cohort_com)-1])
 
     fname = UPLOAD_DIR + '/results-' + \
         jpsurvData["tokenId"]+"-"+cohort_com+"-"+jpInd+'.json'
-    print(fname)
+    app.logger.debug(fname)
     # Init the R Source
-    print(os.path.isfile(fname))
+    app.logger.debug(os.path.isfile(fname))
     if(os.path.isfile(fname) == False or recalc == "true"):
         r.source('./JPSurvWrapper.R')
-        print(BOLD+"**** Calling getAllData ****"+ENDC)
+        app.logger.debug(BOLD+"**** Calling getAllData ****"+ENDC)
         # Next line execute the R Program
         try:
             r.getAllData(UPLOAD_DIR, jpsurvDataString, switch, use_default,
                          UPLOAD_DIR + '/cohortCombo-'+jpsurvData["tokenId"]+'.json')
-            print("GOT RESULTS!")
+            app.logger.debug("GOT RESULTS!")
             status = 200
             out_json = json.dumps({'status': 'OK'})
         except Exception as e:
-            print(e)
+            app.logger.debug(e)
             status = 400
             out_json = json.dumps({'msg': str(e)})
         finally:
@@ -595,11 +624,11 @@ def stage3_recalculate():
 # @app.route('/jpsurvRest/stage4_trends_calculate', methods=['GET'])
 # def stage4_trends_calculate():
 
-#     print('Go')
+#     app.logger.debug('Go')
 
-#     print(OKGREEN+UNDERLINE+BOLD + "****** Stage 4: Trends BUTTON ***** " + ENDC)
-#     print("Recalculating ...")
-#     print(BOLD+"**** Calling getTrendsData ****"+ENDC)
+#     app.logger.debug(OKGREEN+UNDERLINE+BOLD + "****** Stage 4: Trends BUTTON ***** " + ENDC)
+#     app.logger.debug("Recalculating ...")
+#     app.logger.debug(BOLD+"**** Calling getTrendsData ****"+ENDC)
 
 #     jpsurvDataString = unquote(request.args.get('jpsurvData', False))
 
@@ -619,8 +648,9 @@ def stage3_recalculate():
 @ app.route('/jpsurvRest/stage5_queue', methods=['GET'])
 def queue():
 
-    print(OKGREEN+UNDERLINE+BOLD + "****** Stage 5: Queue ***** " + ENDC)
-    print("Sending info to queue ...")
+    app.logger.debug(OKGREEN+UNDERLINE+BOLD +
+                     "****** Stage 5: Queue ***** " + ENDC)
+    app.logger.debug("Sending info to queue ...")
 
     jpsurvDataString = unquote(request.args.get('jpsurvData', False))
     jpsurv_json = json.loads(jpsurvDataString)
@@ -734,5 +764,5 @@ if __name__ == '__main__':
     def index():
         return send_file('index.html')
 
-    print("The root path is " + app.root_path)
+    app.logger.debug("The root path is " + app.root_path)
     initialize(args.port_number)
