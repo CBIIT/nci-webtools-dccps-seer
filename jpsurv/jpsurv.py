@@ -516,7 +516,7 @@ def myExport():
         type = request.args['type']
         dictFile = request.args['dictionary']
         file_name = request.args['filename']
-        timestamp = time.strftime('%Y%m%d', time.localtime())
+        # timestamp = time.strftime('%Y%m%d', time.localtime())
 
         return send_from_directory(UPLOAD_DIR, request.args['filename'],  as_attachment=True, attachment_filename=file_name)
 
