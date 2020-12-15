@@ -640,7 +640,7 @@ def queue():
     text_file.close()
 
     config = Util(config_file)
-    timestr = time.strftime("%Y-%m-%d")
+    timestr = datetime.datetime.now().strftime("%Y-%m-%d")
 
     bucket = S3Bucket(config.INPUT_BUCKET, app.logger)
     try:
@@ -714,7 +714,7 @@ def sendResultsFile():
 
 
 def sendqueue(tokenId):
-    timestr = time.strftime("%Y-%m-%d")
+    timestr = datetime.datetime.now().strftime("%Y-%m-%d")
     QUEUE = jpsurvConfig.getAsString(QUEUE_NAME)
     QUEUE_CONFIG = StompConfig(jpsurvConfig.getAsString(QUEUE_URL))
     client = Stomp(QUEUE_CONFIG)
