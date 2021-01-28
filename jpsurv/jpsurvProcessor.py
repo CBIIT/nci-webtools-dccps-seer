@@ -41,15 +41,15 @@ def sendMail(recipients, message, config, files=[]):
     #         ))
     MAIL_HOST = config.MAIL_HOST
     try:
-        logger.info("connecting to mail host: " + MAIL_HOST)
+        # logger.info("connecting to mail host: " + MAIL_HOST)
         smtp = smtplib.SMTP(host=MAIL_HOST, timeout=60*10)
-        logger.info("connected, attempting to send message")
+        # logger.info("connected, attempting to send message")
         smtp.sendmail("do.not.reply@nih.gov",
                       recipients, packet.as_string())
         logger.info("sent message")
         return True
     except Exception as e:
-        logger.info("failed to connect to " + MAIL_HOST)
+        logger.info("failed to connect to mail host: " + MAIL_HOST)
         logger.error('Caught Exception: ' + str(e))
         return False
 
@@ -181,7 +181,6 @@ if __name__ == '__main__':
         sqs = Queue(logger, config)
         logger.info("JPSurv processor has started")
         while True:
-            logger.info("Receiving more messages...")
             for msg in sqs.receiveMsgs():
                 extender = None
                 try:
