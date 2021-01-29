@@ -679,15 +679,15 @@ getGraphWrapper <- function (filePath, jpsurvDataString, first_calc, com, runs, 
 
     if (is.null(absRange)) {
       # between joinpoint only
-      trends = data[[1]]
+      trends = list("ACS.jp" = data[[1]])
     } else {
-      # both trends
-      type = 'both'
+      # check if both trends
       if (is.null(trend) || trend == 0) {
         # between calendar only
-        type = 'user'
+        trends = list("ACS.user" = aapc.multiints(fit$FitList[[nJP+1]], type="AbsChgSur", int.select=intervals, ACS.range=absRange, ACS.out="user"))
+      } else {
+        trends = aapc.multiints(fit$FitList[[nJP+1]], type="AbsChgSur", int.select=intervals, ACS.range=absRange, ACS.out="both")
       }
-      trends = aapc.multiints(fit$FitList[[nJP+1]], type="AbsChgSur", int.select=intervals, ACS.range=absRange, ACS.out=type)
     }
 
     if (length(data) == 2) {   # Trend + plot

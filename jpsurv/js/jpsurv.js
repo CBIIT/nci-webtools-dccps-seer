@@ -255,11 +255,15 @@ function addEventListeners() {
   $('#toggleAbsSelect').on('change', function () {
     toggleAbsSelect();
     checkAbsChg();
+    showTrendTable();
   });
 
   $('#showYearTrend').on('change', function () {
     if (this.checked) {
-      if (jpsurvData.results.yearData.survTrend) {
+      if (
+        jpsurvData.results.yearData.survTrend &&
+        jpsurvData.results.yearData.survTrend['ACS.jp']
+      ) {
         $('#yearAnnoControl').css('display', 'block');
       }
     } else {
@@ -1066,8 +1070,10 @@ function plot(plot) {
     if (plot == 'year') {
       yearData = jpsurvData.results.yearData;
       trend =
-        !$('#yearAnno').is(':checked') && yearData.survTrend
-          ? yearData.survTrend
+        !$('#yearAnno').is(':checked') &&
+        yearData.survTrend &&
+        yearData.survTrend['ACS.jp']
+          ? yearData.survTrend['ACS.jp']
           : null;
 
       plotLineChart(
@@ -1192,8 +1198,10 @@ function updateGraphs(token_id) {
   //       '.png'
   //   );
 
-  // Check checkboxes if trend exists
-  jpsurvData.results.yearData.survTrend && $('#showYearTrend').is(':checked')
+  // Display annotation on graph if trend exists
+  jpsurvData.results.yearData.survTrend &&
+  jpsurvData.results.yearData.survTrend['ACS.jp'] &&
+  $('#showYearTrend').is(':checked')
     ? ($('#yearAnnoControl').css('display', 'block'),
       $('#yearAnno').prop('checked', false))
     : ($('#yearAnnoControl').css('display', 'none'),
@@ -1488,37 +1496,43 @@ function updateTrendGraph(trends, table_id) {
     }
     $('#yearTrendHeader').text(title);
   }
-
-  // if jp and user trends
-  if (trends['ACS.jp'] && trends['ACS.user']) {
-    [trends['ACS.jp'], trends['ACS.user']].forEach(function (t, i) {
-      if (i == 1) {
-        // add user-specified trends "header" row
-        $('<tr style="border-bottom: 1px solid black">')
-          .append(
-            $('<td colspan="100%" class="pt-3 px-0 bg-white">').append(
-              $('<h4>').text('Trend Measures for User Selected Years')
+  if (table_id == 'trend-aac') {
+    // if jp and user trends
+    if (trends['ACS.jp'] && trends['ACS.user']) {
+      [trends['ACS.jp'], trends['ACS.user']].forEach(function (t, i) {
+        if (i == 1) {
+          // add user-specified trends "header" row
+          $('<tr style="border-bottom: 1px solid black">')
+            .append(
+              $('<td colspan="100%" class="pt-3 px-0 bg-white">').append(
+                $('<h4>').text('Trend Measures for User Selected Years')
+              )
             )
-          )
-          .appendTo('#' + table_id + ' > tbody');
-      }
-      t.forEach(function (trend) {
-        $('#' + table_id + ' > tbody').append(createRow(trend));
-      });
-      // set original title
-      setTrendTitle('joinpoint');
-    });
-  } else {
-    trends.forEach(function (t) {
-      // if only Between Calendar Years of Diagnosis is checked
-      if (
-        jpsurvData.additional.absChgRange &&
-        !$('#showYearTrend').is(':checked')
-      ) {
-        setTrendTitle('calendar');
-      } else {
+            .appendTo('#' + table_id + ' > tbody');
+        }
+        t.forEach(function (trend) {
+          $('#' + table_id + ' > tbody').append(createRow(trend));
+        });
+        // set original title
         setTrendTitle('joinpoint');
+      });
+    } else {
+      if (trends['ACS.jp']) {
+        setTrendTitle('joinpoint');
+        trends['ACS.jp'].forEach(function (t) {
+          $('#' + table_id + ' > tbody').append(createRow(t));
+        });
       }
+      if (trends['ACS.user']) {
+        setTrendTitle('calendar');
+        trends['ACS.user'].forEach(function (t) {
+          $('#' + table_id + ' > tbody').append(createRow(t));
+        });
+      }
+    }
+  }
+  if (table_id == 'trend-dap') {
+    trends.forEach(function (t) {
       $('#' + table_id + ' > tbody').append(createRow(t));
     });
   }
@@ -1962,8 +1976,12 @@ function loadResults(results) {
     updateCohortDropdown();
   } else {
     // restore calculated trend if available
-    if (jpsurvData.results.yearData.survTrend)
-      $('#showYearTrend').prop('checked', true).trigger('change');
+    if (jpsurvData.results.yearData.survTrend) {
+      if (jpsurvData.results.yearData.survTrend['ACS.jp'])
+        $('#showYearTrend').prop('checked', true).trigger('change');
+      if (jpsurvData.results.yearData.survTrend['ACS.user'])
+        $('#toggleAbsSelect').prop('checked', true).trigger('change');
+    }
     if (jpsurvData.results.deathData.deathTrend)
       $('#showDeathTrend').prop('checked', true).trigger('change');
   }
@@ -3539,9 +3557,11 @@ function getTrendTables() {
 
 function showTrendTable() {
   var results = jpsurvData.results;
-  if (results && results.yearData) {
-    results.yearData.survTrend &&
-    ($('#showYearTrend').is(':checked') || $('#toggleAbsSelect').is(':checked'))
+  if (results && results.yearData.survTrend) {
+    (results.yearData.survTrend['ACS.jp'] &&
+      $('#showYearTrend').is(':checked')) ||
+    (results.yearData.survTrend['ACS.user'] &&
+      $('#toggleAbsSelect').is(':checked'))
       ? $('#yearTrendTable').removeClass('d-none')
       : $('#yearTrendTable').addClass('d-none');
   }
