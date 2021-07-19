@@ -31,8 +31,6 @@ if __name__ == "__main__":
     parser.add_argument("-p", dest="port_number",
                         default="9001", help="Sets the Port")
     args = parser.parse_args()
-    if args.debug:
-        config_file = "../config/config.dev.ini"
 
 
 app = Flask(__name__, static_folder='', static_url_path='')

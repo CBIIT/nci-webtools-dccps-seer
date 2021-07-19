@@ -8,7 +8,7 @@ from threading import Timer
 class Queue:
     def __init__(self, log, config):
         self.log = log
-        self.sqs = boto3.resource('sqs')
+        self.sqs = boto3.resource('sqs', region_name=config.REGION_NAME)
         self.queue = self.sqs.get_queue_by_name(QueueName=config.QUEUE_NAME)
         self.config = config
 

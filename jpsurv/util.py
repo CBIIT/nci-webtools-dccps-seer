@@ -33,6 +33,7 @@ class Util:
         self.S3_OUTPUT_FOLDER = config.get('s3', 'output_folder')
 
         # SQS settings
+        self.REGION_NAME = config.get('sqs', 'region_name')
         self.QUEUE_NAME = config.get('sqs', 'queue_name')
         self.VISIBILITY_TIMEOUT = int(config.get('sqs', 'visibility_timeout'))
         self.QUEUE_LONG_PULL_TIME = int(
