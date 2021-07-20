@@ -27,32 +27,40 @@ COPY ../r-packages/JPSurv_R_package.tar.gz /tmp/jpsurv.tar.gz
 
 RUN R -e "install.packages('/tmp/jpsurv.tar.gz', repos = NULL)"
 
-COPY docker/wsgi.conf /etc/httpd/conf.d/wsgi.conf
 
-RUN mkdir -p /deploy/app /deploy/logs
+RUN mkdir -p /deploy/app /deploy/logs /deploy/apache_logs /deploy/wsgi
 
 COPY ../jpsurv /deploy/app/
+COPY docker/additional-configuration.conf /deploy/wsgi/additional-configuration.conf
 
 WORKDIR /deploy/app
 
 ## building locally - need to provide aws credentials to use queue 
 # docker build -t jpsurv -f docker/app.dockerfile <PATH_TO_REPO>
-# docker run -d -p 8110:8000 -v <PATH_TO_REPO>/logs:/deploy/logs -v <PATH_TO_REPO>/results:/deploy/results -v <PATH_TO_REPO>/config:/deploy/config --name jpsurv-server jpsurv
+# docker run -d -p 8110:8110 -v <PATH_TO_REPO>/logs:/deploy/logs -v <PATH_TO_REPO>/results:/deploy/results -v <PATH_TO_REPO>/config:/deploy/config --name jpsurv-server jpsurv
 # docker run -d -v <PATH_TO_REPO>/logs:/deploy/logs -v <PATH_TO_REPO>/results:/deploy/results -v <PATH_TO_REPO>/config:/deploy/config --name jpsurv-processor jpsurv python3 jpsurvProcessor.py
 
 CMD mod_wsgi-express start-server /deploy/app/jpsurv.wsgi \
-    --port 8000 \
     --user apache \
     --group apache \
+    --port 8110 \
+    --server-root /deploy/wsgi \
     --document-root /deploy/app \
     --working-directory /deploy/app \
     --directory-index index.html \
+    --log-directory /deploy/apache_logs \
+    --rotate-logs \
+    --error-log-name jpsurv.log \
+    --include-file /deploy/wsgi/additional-configuration.conf \
+    --initial-workers 1 \
+    --socket-timeout 900 \
+    --queue-timeout 900 \
+    --shutdown-timeout 900 \
+    --graceful-timeout 900 \
+    --connect-timeout 900 \
+    --request-timeout 900 \
     --processes 3 \
     --threads 1 \
-    --initial-workers 1 \
-    --request-timeout 900 \
-    --queue-timeout 900 \
-    --connect-timeout 900 \
     --compress-responses \
     --log-to-terminal \
-    --include-file /etc/httpd/conf.d/wsgi.conf
+    --mount-point /jpsurv 
