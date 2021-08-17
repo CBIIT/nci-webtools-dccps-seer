@@ -31,7 +31,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
 
-app = Flask(__name__, static_folder='', static_url_path='')
+app = Flask(__name__, static_folder=None)
 
 # Load configuration from file
 app.config.update(read_config('../config/config.ini'))

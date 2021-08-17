@@ -48,10 +48,13 @@ CMD mod_wsgi-express start-server /deploy/app/jpsurv.wsgi \
     --document-root /deploy/app \
     --working-directory /deploy/app \
     --directory-index index.html \
-    --log-directory /deploy/apache_logs \
+    --log-directory /deploy/logs \
     --rotate-logs \
-    --error-log-name jpsurv.log \
+    --error-log-name apache.log \
     --include-file /deploy/wsgi/additional-configuration.conf \
+    --header-buffer-size 50000000 \
+    --response-buffer-size 50000000 \
+    --limit-request-body 5368709120 \
     --initial-workers 1 \
     --socket-timeout 900 \
     --queue-timeout 900 \
@@ -61,6 +64,6 @@ CMD mod_wsgi-express start-server /deploy/app/jpsurv.wsgi \
     --request-timeout 900 \
     --processes 3 \
     --threads 1 \
+    --reload-on-changes \
     --compress-responses \
-    --log-to-terminal \
-    --mount-point /jpsurv 
+    --log-to-terminal 
