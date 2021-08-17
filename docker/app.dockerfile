@@ -1,4 +1,4 @@
-FROM quay.io/centos/centos:stream8
+FROM ncidockerhub.nci.nih.gov/docker-linux-poc/centos-base-image:1.0
 
 RUN dnf -y update \
     && dnf -y install \
@@ -37,8 +37,8 @@ WORKDIR /deploy/app
 
 ## building locally - need to provide aws credentials to use queue 
 # docker build -t jpsurv -f docker/app.dockerfile <PATH_TO_REPO>
-# docker run -d -p 8110:8110 -v <PATH_TO_REPO>/logs:/deploy/logs -v <PATH_TO_REPO>/results:/deploy/results -v <PATH_TO_REPO>/config:/deploy/config --name jpsurv-server jpsurv
-# docker run -d -v <PATH_TO_REPO>/logs:/deploy/logs -v <PATH_TO_REPO>/results:/deploy/results -v <PATH_TO_REPO>/config:/deploy/config --name jpsurv-processor jpsurv python3 jpsurvProcessor.py
+# docker run -d -p 8110:8110 -v <PATH_TO_REPO>/logs:/deploy/logs -v <PATH_TO_REPO>/tmp:/deploy/tmp -v <PATH_TO_REPO>/config:/deploy/config --name jpsurv-server jpsurv
+# docker run -d -v <PATH_TO_REPO>/logs:/deploy/logs -v <PATH_TO_REPO>/tmp:/deploy/tmp -v <PATH_TO_REPO>/config:/deploy/config --name jpsurv-processor jpsurv python3 jpsurvProcessor.py
 
 CMD mod_wsgi-express start-server /deploy/app/jpsurv.wsgi \
     --user apache \
