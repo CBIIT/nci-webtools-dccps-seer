@@ -27,13 +27,18 @@ COPY ../r-packages/JPSurv_R_package.tar.gz /tmp/jpsurv.tar.gz
 
 RUN R -e "install.packages('/tmp/jpsurv.tar.gz', repos = NULL)"
 
-
-RUN mkdir -p /deploy/app /deploy/logs /deploy/apache_logs /deploy/wsgi
+RUN mkdir -p /deploy/app /deploy/logs /deploy/wsgi
 
 COPY ../jpsurv /deploy/app/
 COPY docker/additional-configuration.conf /deploy/wsgi/additional-configuration.conf
 
 WORKDIR /deploy/app
+
+# create ncianalysis user
+RUN groupadd -g 4004 -o ncianalysis \
+    && useradd -m -u 4004 -g 4004 -o -s /bin/bash ncianalysis
+RUN chown -R ncianalysis:ncianalysis /deploy
+USER ncianalysis
 
 ## building locally - need to provide aws credentials to use queue 
 # docker build -t jpsurv -f docker/app.dockerfile <PATH_TO_REPO>
@@ -41,8 +46,10 @@ WORKDIR /deploy/app
 # docker run -d -v <PATH_TO_REPO>/logs:/deploy/logs -v <PATH_TO_REPO>/tmp:/deploy/tmp -v <PATH_TO_REPO>/config:/deploy/config --name jpsurv-processor jpsurv python3 jpsurvProcessor.py
 
 CMD mod_wsgi-express start-server /deploy/app/jpsurv.wsgi \
-    --user apache \
-    --group apache \
+    --user ncianalysis \
+    --group ncianalysis \
+    --compress-responses \
+    --log-to-terminal \
     --port 8110 \
     --server-root /deploy/wsgi \
     --document-root /deploy/app \
@@ -64,6 +71,4 @@ CMD mod_wsgi-express start-server /deploy/app/jpsurv.wsgi \
     --request-timeout 900 \
     --processes 3 \
     --threads 1 \
-    --reload-on-changes \
-    --compress-responses \
-    --log-to-terminal 
+    --reload-on-changes 
