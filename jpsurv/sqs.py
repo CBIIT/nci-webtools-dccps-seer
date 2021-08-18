@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import boto3
 import json
-from pprint import pprint
 from threading import Timer
 
 

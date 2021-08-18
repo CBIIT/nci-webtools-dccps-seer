@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 import json
-import time
 import re
-import logging
 import shutil
 import datetime
 
@@ -20,7 +18,6 @@ from argparse import ArgumentParser
 from utils import make_dirs, read_config, createArchive, create_rotating_log
 from sqs import Queue
 from s3 import S3Bucket
-from logging.handlers import RotatingFileHandler
 
 
 if __name__ == "__main__":
