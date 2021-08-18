@@ -97,7 +97,8 @@ function checkInput(id) {
 }
 
 function checkEmail(email) {
-  var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  var re =
+    /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   var result = re.test(email);
 
   return result;
@@ -1686,10 +1687,8 @@ function setData() {
 
   //Remove spaces and replace with underscore
   jpsurvData.calculate.static.yearOfDiagnosisVarName = yearOfDiagnosisVarName;
-  jpsurvData.calculate.static.seerFilePrefix = jpsurvData.file.dictionary.replace(
-    /.\w*$/,
-    ''
-  );
+  jpsurvData.calculate.static.seerFilePrefix =
+    jpsurvData.file.dictionary.replace(/.\w*$/, '');
   jpsurvData.calculate.static.allVars = get_cohort_covariance_variable_names();
   jpsurvData.calculate.static.allVars.push(yearOfDiagnosisVarName);
   jpsurvData.calculate.form.covariateVars = '';
@@ -1833,7 +1832,8 @@ function calculate(run) {
       jpsurvData.queue.url = encodeURIComponent(
         window.location.href.toString()
       );
-      jpsurvData.additional.yearOfDiagnosis[0] = jpsurvData.calculate.form.yearOfDiagnosisRange[0].toString();
+      jpsurvData.additional.yearOfDiagnosis[0] =
+        jpsurvData.calculate.form.yearOfDiagnosisRange[0].toString();
       jpsurvData.additional.yearOfDiagnosis_default = [
         parseInt($('#year_of_diagnosis_start').val()),
       ];
@@ -2051,7 +2051,8 @@ function stage2(action) {
   buildTimeYod();
   defaultTrends();
   getTrendTables();
-  jpsurvData.additional.yearOfDiagnosis[0] = jpsurvData.calculate.form.yearOfDiagnosisRange[0].toString();
+  jpsurvData.additional.yearOfDiagnosis[0] =
+    jpsurvData.calculate.form.yearOfDiagnosisRange[0].toString();
   if (action == 'calculate') {
     calculateFittedResults();
   } else {
@@ -2297,12 +2298,10 @@ function parse_cohort_covariance_variables() {
     var cohortVarNames = get_cohort_covariance_variable_names();
     cohort_covariance_variables = new Object();
     for (var i = 0; i < cohortVarNames.length; i++) {
-      var cohort_covariance_variable_values = get_cohort_covariance_variable_values(
-        cohortVarNames[i]
-      );
-      cohort_covariance_variables[
-        cohortVarNames[i]
-      ] = cohort_covariance_variable_values;
+      var cohort_covariance_variable_values =
+        get_cohort_covariance_variable_values(cohortVarNames[i]);
+      cohort_covariance_variables[cohortVarNames[i]] =
+        cohort_covariance_variable_values;
     }
   } else if (control_data.input_type == 'csv') {
     cohort_covariance_variables = new Object();
@@ -3845,4 +3844,13 @@ function downloadData(type) {
 
   XLSX.utils.book_append_sheet(wb, settingsSheet(), 'Settings');
   XLSX.writeFile(wb, wb.props.Title + '.xlsx');
+}
+
+// reset Advanced Options to their default settings
+function resetAdvancedOptions() {
+  $('#del-int-no').click();
+  $('#adv-between').val('2')
+  $('#adv-first').val('3')
+  $('#adv-last').val('5')
+  $('#adv-year').val('5')
 }
