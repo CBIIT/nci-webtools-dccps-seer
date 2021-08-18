@@ -1,4 +1,4 @@
-FROM ncidockerhub.nci.nih.gov/docker-linux-poc/centos-base-image:1.0
+FROM quay.io/centos/centos:stream8
 
 RUN dnf -y update \
     && dnf -y install \
@@ -50,6 +50,9 @@ CMD mod_wsgi-express start-server /deploy/app/jpsurv.wsgi \
     --group ncianalysis \
     --compress-responses \
     --log-to-terminal \
+    --access-log \
+    --access-log-format "%h %{X-Forwarded-For}i %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined \
+    --access-log-name access.log \
     --port 8110 \
     --server-root /deploy/wsgi \
     --document-root /deploy/app \
