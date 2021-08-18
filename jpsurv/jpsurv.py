@@ -20,15 +20,17 @@ from sqs import Queue
 from s3 import S3Bucket
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument('-d', '--debug', action='store_true')
     parser.add_argument("-p", dest="port_number",
                         default="9001", help="Sets the Port")
     args = parser.parse_args()
-
-
-app = Flask(__name__, static_folder=None)
+    # Serve current directory using Flask for local development
+    app = Flask(__name__, static_folder='', static_url_path='')
+else:
+    # Otherwise, assume mod_wsgi/apache will serve static files
+    app = Flask(__name__, static_folder=None)
 
 # Load configuration from file
 app.config.update(read_config('../config/config.ini'))
