@@ -1,7 +1,7 @@
 var control_data;
 var cohort_covariance_variables;
 var advfields = ['adv-between', 'adv-first', 'adv-last', 'adv-year'];
-var fontSize = getCookie('fontSize') || 14;
+let fontSize = getCookie('fontSize') || 14;
 
 var jpsurvData = {
   file: {
@@ -288,12 +288,12 @@ function addEventListeners() {
 
   $('#yearAnno').on('change', function () {
     // getAnnoGraph();
-    plot('year');
+    drawPlot('year', true);
   });
 
   $('#deathAnno').on('change', function () {
     // getAnnoGraph();
-    plot('death');
+    drawPlot('death', true);
   });
 
   $('#absChgFrom').on('change', function () {
@@ -350,31 +350,20 @@ function addEventListeners() {
   $('#file_control_csv').on('change', checkInputFiles);
   $('#fileSelect').on('change', checkInputFiles);
 
-  $('#yearFont').on('change', function (e) {
-    fontSize = parseInt(e.target.value);
-    setCookie('fontSize', fontSize);
-    $('#deathFont').val(fontSize);
-    $('#timeFont').val(fontSize);
-    plot('year');
-    plot('death');
-    plot('time');
-  });
-  $('#deathFont').on('change', function (e) {
-    fontSize = parseInt(e.target.value);
-    $('#yearFont').val(fontSize);
-    $('#timeFont').val(fontSize);
-    plot('year');
-    plot('death');
-    plot('time');
-  });
-  $('#timeFont').on('change', function (e) {
-    fontSize = parseInt(e.target.value);
-    $('#yearFont').val(fontSize);
-    $('#deathFont').val(fontSize);
-    plot('year');
-    plot('death');
-    plot('time');
-  });
+  $('#yearFont').on('change', (e) => updateFontSize(parseInt(e.target.value)));
+  $('#deathFont').on('change', (e) => updateFontSize(parseInt(e.target.value)));
+  $('#timeFont').on('change', (e) => updateFontSize(parseInt(e.target.value)));
+}
+
+function updateFontSize(size) {
+  fontSize = size;
+  setCookie('fontSize', size);
+  $('#yearFont').val(size);
+  $('#deathFont').val(size);
+  $('#timeFont').val(size);
+  updatePlotFontSize('yearPlot', size);
+  updatePlotFontSize('deathPlot', size);
+  updatePlotFontSize('timePlot', size);
 }
 
 // reset view - uncheck "Show Trend Measures" and reset AbsChg Year Range
@@ -1061,7 +1050,7 @@ function checkArray(arr) {
   return arr;
 }
 
-function plot(plot) {
+function drawPlot(plot, update = false) {
   if (jpsurvData.results) {
     yodVarName = jpsurvData.calculate.static.yearOfDiagnosisVarName
       .replace(/\(|\)|-/g, '')
@@ -1077,17 +1066,29 @@ function plot(plot) {
           ? yearData.survTrend['ACS.jp']
           : null;
 
-      plotLineChart(
-        checkArray(yearData.survTable[yodVarName]),
-        checkArray(
-          yearData.survTable.Relative_Survival_Cum ||
-            yearData.survTable.CauseSpecific_Survival_Cum
-        ),
-        checkArray(yearData.survTable.Predicted_Survival_Cum),
-        checkArray(yearData.survTable.Interval),
-        trend,
-        'yearPlot'
-      );
+      update
+        ? updatePlotData(
+            'yearPlot',
+            checkArray(yearData.survTable[yodVarName]),
+            checkArray(
+              yearData.survTable.Relative_Survival_Cum ||
+                yearData.survTable.CauseSpecific_Survival_Cum
+            ),
+            checkArray(yearData.survTable.Predicted_Survival_Cum),
+            checkArray(yearData.survTable.Interval),
+            trend
+          )
+        : drawLineChart(
+            'yearPlot',
+            checkArray(yearData.survTable[yodVarName]),
+            checkArray(
+              yearData.survTable.Relative_Survival_Cum ||
+                yearData.survTable.CauseSpecific_Survival_Cum
+            ),
+            checkArray(yearData.survTable.Predicted_Survival_Cum),
+            checkArray(yearData.survTable.Interval),
+            trend
+          );
     } else if (plot == 'death') {
       deathData = jpsurvData.results.deathData;
       yMark = (
@@ -1097,108 +1098,45 @@ function plot(plot) {
         return 100 - x;
       });
 
-      plotLineChart(
-        checkArray(deathData.deathTable[yodVarName]),
-        checkArray(yMark),
-        checkArray(deathData.deathTable.Predicted_ProbDeath_Int),
-        checkArray(deathData.deathTable.Interval),
-        !$('#deathAnno').is(':checked') && deathData.deathTrend
-          ? deathData.deathTrend
-          : null,
-        'deathPlot'
-      );
+      update
+        ? updatePlotData(
+            'deathPlot',
+            checkArray(deathData.deathTable[yodVarName]),
+            checkArray(yMark),
+            checkArray(deathData.deathTable.Predicted_ProbDeath_Int),
+            checkArray(deathData.deathTable.Interval),
+            !$('#deathAnno').is(':checked') && deathData.deathTrend
+              ? deathData.deathTrend
+              : null
+          )
+        : drawLineChart(
+            'deathPlot',
+            checkArray(deathData.deathTable[yodVarName]),
+            checkArray(yMark),
+            checkArray(deathData.deathTable.Predicted_ProbDeath_Int),
+            checkArray(deathData.deathTable.Interval),
+            !$('#deathAnno').is(':checked') && deathData.deathTrend
+              ? deathData.deathTrend
+              : null
+          );
     } else if (plot == 'time') {
       timeData = jpsurvData.results.timeData.timeTable;
 
-      plotLineChart(
+      drawLineChart(
+        'timePlot',
         checkArray(timeData.Interval),
         checkArray(
           timeData.Relative_Survival_Cum || timeData.CauseSpecific_Survival_Cum
         ),
         checkArray(timeData.Predicted_Survival_Cum),
         checkArray(timeData[yodVarName]),
-        null,
-        'timePlot'
+        null
       );
     }
   }
 }
 
 function updateGraphs(token_id) {
-  //Populate graph-year
-  // $('#graph-year-tab')
-  //   .find('img')
-  //   .show();
-  // $('#graph-year-tab')
-  //   .find('img')
-  //   .attr(
-  //     'src',
-  //     'tmp/plot_Year-' +
-  //       token_id +
-  //       '-' +
-  //       jpsurvData.results.com +
-  //       '-' +
-  //       jpsurvData.results.jpInd +
-  //       '-' +
-  //       jpsurvData.results.imageId +
-  //       '.png'
-  //   );
-  // $('#graph-year-tab')
-  //   .find('img')
-  //   .css('width', '45%');
-  // $('#graph-year-table > tbody').empty();
-  // $('#graph-year-table > tbody').append(
-  //   '<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>'
-  // );
-
-  //Populate death-year
-  // $('#graph-death-tab')
-  //   .find('img')
-  //   .show();
-  // $('#graph-death-tab')
-  //   .find('img')
-  //   .attr(
-  //     'src',
-  //     'tmp/plot_Death-' +
-  //       token_id +
-  //       '-' +
-  //       jpsurvData.results.com +
-  //       '-' +
-  //       jpsurvData.results.jpInd +
-  //       '-' +
-  //       jpsurvData.results.imageId +
-  //       '.png'
-  //   );
-  // $('#graph-death-tab')
-  //   .find('img')
-  //   .css('width', '45%');
-  // $('#graph-death-table > tbody').empty();
-  // $('#graph-death-table > tbody').append(
-  //   '<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>'
-  // );
-
-  //Populate time-year
-  // $('#graph-time-tab')
-  //   .find('img')
-  //   .show();
-  // $('#graph-time-tab')
-  //   .find('img')
-  //   .css('width', '45%');
-  // $('#graph-time-tab')
-  //   .find('img')
-  //   .attr(
-  //     'src',
-  //     'tmp/plot_Int-' +
-  //       token_id +
-  //       '-' +
-  //       jpsurvData.results.com +
-  //       '-' +
-  //       jpsurvData.results.jpInd +
-  //       '-' +
-  //       jpsurvData.results.imageId +
-  //       '.png'
-  //   );
-
   // Display annotation on graph if trend exists
   jpsurvData.results.yearData.survTrend &&
   jpsurvData.results.yearData.survTrend['ACS.jp'] &&
@@ -1213,9 +1151,9 @@ function updateGraphs(token_id) {
     : ($('#deathAnnoControl').css('display', 'none'),
       $('#deathAnno').prop('checked', true));
 
-  plot('year');
-  plot('death');
-  plot('time');
+  drawPlot('year');
+  drawPlot('death');
+  drawPlot('time');
 
   var yodVarName = jpsurvData.calculate.static.yearOfDiagnosisVarName
     .replace(/\(|\)|-/g, '')
@@ -2074,9 +2012,6 @@ function stage3() {
 }
 
 function getIntervals() {
-  //
-  // SET INTERVALS
-  //
   var intervals = $('#interval-years').val();
   jpsurvData.additional.intervals = [];
   $.each(intervals, function (index, value) {
@@ -2090,49 +2025,11 @@ function getIntervals() {
   });
 }
 
-// function getImagePath(path) {
-//   var start = path.search('tmp');
-//   var end = path.length;
-//   return path.substring(start, end);
-// }
-
-// // display trend measures on graph if checked
-// function getAnnoGraph() {
-//   if ($('#yearAnno').is(':checked') && jpsurvData.results.yearData.survTrend) {
-//     $('#graph-year-tab')
-//       .find('img')
-//       .attr('src', getImagePath(jpsurvData.results.yearData.survGraphAnno));
-//   } else {
-//     $('#graph-year-tab')
-//       .find('img')
-//       .attr('src', getImagePath(jpsurvData.results.yearData.survGraph));
-//   }
-//   if ($('#deathAnno').is(':checked') && jpsurvData.results.deathData.deathTrend) {
-//     $('#graph-death-tab')
-//       .find('img')
-//       .attr('src', getImagePath(jpsurvData.results.deathData.deathGraphAnno));
-//   } else {
-//     $('#graph-death-tab')
-//       .find('img')
-//       .attr('src', getImagePath(jpsurvData.results.deathData.deathGraph));
-//   }
-// }
-
 function append_plot_intervals(max_interval) {
   $('#plot_intervals').empty();
   for (var i = 1; i <= max_interval; i++) {
     $('#plot_intervals').append($('<option>').val(i).html(i));
   }
-}
-
-function jpTrim(str, len) {
-  //Trim to the right if too long...
-  var newstr = str;
-  if (str.length > len) {
-    newstr = str.substr(0, len) + ' ...';
-  }
-
-  return newstr;
 }
 
 function load_form() {
@@ -3849,8 +3746,8 @@ function downloadData(type) {
 // reset Advanced Options to their default settings
 function resetAdvancedOptions() {
   $('#del-int-no').click();
-  $('#adv-between').val('2')
-  $('#adv-first').val('3')
-  $('#adv-last').val('5')
-  $('#adv-year').val('5')
+  $('#adv-between').val('2');
+  $('#adv-first').val('3');
+  $('#adv-last').val('5');
+  $('#adv-year').val('5');
 }

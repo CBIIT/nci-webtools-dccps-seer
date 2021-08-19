@@ -1,61 +1,14 @@
-// yMark - marker, yLine - line
-function plotLineChart(x, yMark, yLine, dimension, trends, divID) {
-  // fontSize defined in jpsurv.js
-  var statistic = jpsurvData.additional.statistic;
-  titles = {
-    yearPlot: {
-      plotTitle: statistic + ' by Diagnosis Year',
-      xTitle: 'Year at Diagnosis',
-      yTitle: statistic + ' (%)',
-    },
-    deathPlot: {
-      plotTitle: 'Annual Probability of Dying of Cancer by Diagnosis Year',
-      xTitle: 'Year at Diagnosis',
-      yTitle: 'Anual Probability of Cancer Death (%)',
-    },
-    timePlot: {
-      plotTitle:
-        statistic + ' by Year Since Diagnosis for Selected Diagnosis Year',
-      xTitle: 'Interval',
-      yTitle: statistic + ' (%)',
-    },
-  };
+// draw a line chart plot
 
-  var mTrace = {};
-  var lTrace = {};
-  var legend = {};
-  var data = [];
-  var uniqueDimensions = Array.from(new Set(dimension));
-  var layout = {
-    title: '<b>' + titles[divID].plotTitle + '</b>',
-    hovermode: 'closest',
-    font: {
-      size: fontSize,
-      family: '"Helvetica Neue", Helvetica, Arial, sans-serif',
-    },
-    legend: {
-      orientation: 'h',
-      x: 0.5,
-      y: -0.15,
-      yanchor: 'top',
-      xanchor: 'center',
-    },
-    xaxis: {
-      title: '<b>' + titles[divID].xTitle + '</b>',
-    },
-    yaxis: {
-      title: '<b>' + titles[divID].yTitle + '<br> </b>',
-      showline: true,
-      tickformat: '%',
-      tickmode: 'auto',
-      nticks: 11,
-      range: [0, 1.05],
-      autorange: false,
-    },
-    height: 700,
-    width: 900,
-  };
-  var colors = [
+function processPlotData(divID, x, yMark, yLine, dimension, trends) {
+  let markerTrace = {};
+  let lineTrace = {};
+  let legend = {};
+  let data = [];
+  const uniqueDimensions = Array.from(new Set(dimension));
+
+  const statistic = jpsurvData.additional.statistic;
+  const colors = [
     '#1f77b4', // muted blue
     '#ff7f0e', // safety orange
     '#2ca02c', // cooked asparagus green
@@ -70,7 +23,7 @@ function plotLineChart(x, yMark, yLine, dimension, trends, divID) {
 
   uniqueDimensions.forEach(function (interval, i) {
     if (!legend[interval]) {
-      mTrace[interval] = {
+      markerTrace[interval] = {
         x: [],
         y: [],
         showlegend: false,
@@ -87,7 +40,7 @@ function plotLineChart(x, yMark, yLine, dimension, trends, divID) {
         legendgroup: interval,
       };
 
-      lTrace[interval] = {
+      lineTrace[interval] = {
         x: [],
         y: [],
         showlegend: false,
@@ -144,14 +97,14 @@ function plotLineChart(x, yMark, yLine, dimension, trends, divID) {
           `<br>•    Interval: %{x}` +
           `<br>•    Predicted Survival: %{y:.${precision}%}<extra></extra>`;
 
-    mTrace[dimension[i]].x.push(x);
-    mTrace[dimension[i]].y.push(yMark[i] / 100);
-    mTrace[dimension[i]].hovertemplate.push(markerTemplate);
+    markerTrace[dimension[i]].x.push(x);
+    markerTrace[dimension[i]].y.push(yMark[i] / 100);
+    markerTrace[dimension[i]].hovertemplate.push(markerTemplate);
 
-    lTrace[dimension[i]].x.push(x);
-    lTrace[dimension[i]].y.push(yLine[i] / 100);
-    lTrace[dimension[i]].hovertemplate.push(lineTemplate);
-    lTrace[dimension[i]].text.push('');
+    lineTrace[dimension[i]].x.push(x);
+    lineTrace[dimension[i]].y.push(yLine[i] / 100);
+    lineTrace[dimension[i]].hovertemplate.push(lineTemplate);
+    lineTrace[dimension[i]].text.push('');
   });
 
   // draw annotations
@@ -166,18 +119,18 @@ function plotLineChart(x, yMark, yLine, dimension, trends, divID) {
           if (i == trend.interval.length - 1)
             year = Math.floor(year - interval / 2);
 
-          var yearIndex = lTrace[interval].x.indexOf(year);
-          lTrace[interval].text[yearIndex] = (100 * trend.estimate[i]).toFixed(
-            2
-          );
+          var yearIndex = lineTrace[interval].x.indexOf(year);
+          lineTrace[interval].text[yearIndex] = (
+            100 * trend.estimate[i]
+          ).toFixed(2);
 
-          var startYear = lTrace[interval].x.indexOf(trend['start.year'][i]);
+          var startYear = lineTrace[interval].x.indexOf(trend['start.year'][i]);
           var endYear =
-            lTrace[interval].x.indexOf(trend['end.year'][i]) > -1
-              ? lTrace[interval].x.indexOf(trend['end.year'][i])
-              : lTrace[interval].x.length;
+            lineTrace[interval].x.indexOf(trend['end.year'][i]) > -1
+              ? lineTrace[interval].x.indexOf(trend['end.year'][i])
+              : lineTrace[interval].x.length;
           if (startYear > -1 && endYear > -1) {
-            var newTemplate = lTrace[interval].hovertemplate.slice();
+            var newTemplate = lineTrace[interval].hovertemplate.slice();
 
             for (var j = startYear; j < endYear; j++) {
               newTemplate[j] = newTemplate[j].substr(
@@ -190,19 +143,19 @@ function plotLineChart(x, yMark, yLine, dimension, trends, divID) {
                 )} ` +
                 `(${trend['start.year'][i]} - ${trend['end.year'][i]})<extra></extra>`;
             }
-            lTrace[interval].hovertemplate = newTemplate;
+            lineTrace[interval].hovertemplate = newTemplate;
           }
         });
       } else {
         var year = Math.floor(
           (trend['start.year'] + trend['end.year'] - trend.interval) / 2
         );
-        var yearIndex = lTrace[trend.interval].x.indexOf(year);
-        lTrace[trend.interval].text[yearIndex] = (100 * trend.estimate).toFixed(
-          2
-        );
+        var yearIndex = lineTrace[trend.interval].x.indexOf(year);
+        lineTrace[trend.interval].text[yearIndex] = (
+          100 * trend.estimate
+        ).toFixed(2);
 
-        var newTemplate = lTrace[trend.interval].hovertemplate.map(function (
+        var newTemplate = lineTrace[trend.interval].hovertemplate.map(function (
           template
         ) {
           template = template.substr(0, template.indexOf('<extra>'));
@@ -211,7 +164,7 @@ function plotLineChart(x, yMark, yLine, dimension, trends, divID) {
             `(${trend['start.year']} - ${trend['end.year']})<extra></extra>`);
         });
 
-        lTrace[trend.interval].hovertemplate = newTemplate;
+        lineTrace[trend.interval].hovertemplate = newTemplate;
       }
     }
     if (divID == 'yearPlot') {
@@ -232,9 +185,9 @@ function plotLineChart(x, yMark, yLine, dimension, trends, divID) {
       var max = 0;
       var targetInt = 0;
 
-      Object.keys(lTrace).forEach(function (interval) {
-        if (lTrace[interval].y[0] > max) {
-          max = lTrace[interval].y[0];
+      Object.keys(lineTrace).forEach(function (interval) {
+        if (lineTrace[interval].y[0] > max) {
+          max = lineTrace[interval].y[0];
           targetInt = interval;
         }
       });
@@ -251,11 +204,86 @@ function plotLineChart(x, yMark, yLine, dimension, trends, divID) {
     }
   }
 
-  [mTrace, lTrace, legend].forEach(function (traceGroup) {
+  [markerTrace, lineTrace, legend].forEach(function (traceGroup) {
     Object.keys(traceGroup).forEach(function (trace) {
       data.push(traceGroup[trace]);
     });
   });
+  return data;
+}
 
-  Plotly.newPlot(divID, data, layout);
+function drawLineChart(divID, x, yMark, yLine, dimension, trends) {
+  // fontSize defined in jpsurv.js
+  const statistic = jpsurvData.additional.statistic;
+  titles = {
+    yearPlot: {
+      plotTitle: statistic + ' by Diagnosis Year',
+      xTitle: 'Year at Diagnosis',
+      yTitle: statistic + ' (%)',
+    },
+    deathPlot: {
+      plotTitle: 'Annual Probability of Dying of Cancer by Diagnosis Year',
+      xTitle: 'Year at Diagnosis',
+      yTitle: 'Anual Probability of Cancer Death (%)',
+    },
+    timePlot: {
+      plotTitle:
+        statistic + ' by Year Since Diagnosis for Selected Diagnosis Year',
+      xTitle: 'Interval',
+      yTitle: statistic + ' (%)',
+    },
+  };
+
+  var layout = {
+    title: '<b>' + titles[divID].plotTitle + '</b>',
+    hovermode: 'closest',
+    font: {
+      size: fontSize,
+      family: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+    },
+    legend: {
+      orientation: 'h',
+      x: 0.5,
+      y: -0.15,
+      yanchor: 'top',
+      xanchor: 'center',
+    },
+    xaxis: {
+      title: '<b>' + titles[divID].xTitle + '</b>',
+    },
+    yaxis: {
+      title: '<b>' + titles[divID].yTitle + '<br> </b>',
+      showline: true,
+      tickformat: '%',
+      tickmode: 'auto',
+      nticks: 11,
+      range: [0, 1.05],
+      autorange: false,
+    },
+    height: 700,
+    width: 900,
+  };
+
+  const data = processPlotData(divID, x, yMark, yLine, dimension, trends);
+
+  Plotly.react(divID, data, layout);
+}
+
+function updatePlotFontSize(divID, size) {
+  // layout
+  Plotly.relayout(divID, { font: { size: size } });
+  // data (traces)
+  Plotly.restyle(divID, {
+    textFont: { size: size },
+    hoverlabel: { font: { size: size } },
+  });
+}
+
+function updatePlotData(divID, x, yMark, yLine, dimension, trends) {
+  const data = processPlotData(divID, x, yMark, yLine, dimension, trends);
+
+  data.forEach((trace, i) => {
+    Plotly.deleteTraces(divID, i);
+    Plotly.addTraces(divID, trace, i);
+  });
 }
