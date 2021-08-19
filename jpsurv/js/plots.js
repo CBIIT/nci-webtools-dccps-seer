@@ -3,7 +3,8 @@
 function processPlotData(divID, x, yMark, yLine, dimension, trends) {
   let markerTrace = {};
   let lineTrace = {};
-  let legend = {};
+  let lineTrendLabel = {}; // place trend labels on an invisible trace 2% higher than the line trace to avoid overlap
+  let legend = {}; // group intervals in the legend with a custom title
   let data = [];
   const uniqueDimensions = Array.from(new Set(dimension));
 
@@ -51,11 +52,21 @@ function processPlotData(divID, x, yMark, yLine, dimension, trends) {
           bordercolor: colors[i % 10],
           font: { size: fontSize, color: 'black' },
         },
+        mode: 'lines',
+        line: { shape: 'spline', color: colors[i % 10] },
+        type: 'scatter',
+        legendgroup: interval,
+      };
+
+      lineTrendLabel[interval] = {
+        x: [],
+        y: [],
+        showlegend: false,
+        hoverinfo: 'skip',
         text: [],
         textposition: 'top',
         textfont: { color: colors[i % 10], size: fontSize },
-        mode: 'lines+text',
-        line: { shape: 'spline', color: colors[i % 10] },
+        mode: 'text',
         type: 'scatter',
         legendgroup: interval,
       };
@@ -74,8 +85,8 @@ function processPlotData(divID, x, yMark, yLine, dimension, trends) {
   });
 
   x.forEach(function (x, i) {
-    var precision = $('#precision').val();
-    var markerTemplate =
+    const precision = $('#precision').val();
+    const markerTemplate =
       divID != 'timePlot'
         ? `<b>${dimension[i]}-year ${statistic}</b>` +
           `<br>•    Year at Diagnosis: %{x}` +
@@ -86,7 +97,7 @@ function processPlotData(divID, x, yMark, yLine, dimension, trends) {
           `<br>•    Interval: %{x}` +
           `<br>•    Observed Survival: %{y:.${precision}%}<extra></extra>`;
 
-    var lineTemplate =
+    const lineTemplate =
       divID != 'timePlot'
         ? `<b>${dimension[i]}-year ${statistic}</b>` +
           `<br>•    Year at Diagnosis: %{x}` +
@@ -104,35 +115,41 @@ function processPlotData(divID, x, yMark, yLine, dimension, trends) {
     lineTrace[dimension[i]].x.push(x);
     lineTrace[dimension[i]].y.push(yLine[i] / 100);
     lineTrace[dimension[i]].hovertemplate.push(lineTemplate);
-    lineTrace[dimension[i]].text.push('');
+    // lineTrace[dimension[i]].text.push('');
+
+    lineTrendLabel[dimension[i]].x.push(x);
+    lineTrendLabel[dimension[i]].y.push(yLine[i] / 98);
+    lineTrendLabel[dimension[i]].text.push('');
   });
 
   // draw annotations
   if (trends) {
     function buildTemplate(trend) {
-      var trendLabel = divID == 'yearPlot' ? 'Trend AAC:' : 'Trend DAP:';
+      const trendLabel = divID == 'yearPlot' ? 'Trend AAC:' : 'Trend DAP:';
       if (Array.isArray(trend.interval)) {
         trend.interval.forEach(function (interval, i) {
-          var year = Math.floor(
+          let year = Math.floor(
             (trend['start.year'][i] + trend['end.year'][i]) / 2
           );
           if (i == trend.interval.length - 1)
             year = Math.floor(year - interval / 2);
 
-          var yearIndex = lineTrace[interval].x.indexOf(year);
-          lineTrace[interval].text[yearIndex] = (
+          const yearIndex = lineTrace[interval].x.indexOf(year);
+          lineTrendLabel[interval].text[yearIndex] = (
             100 * trend.estimate[i]
           ).toFixed(2);
 
-          var startYear = lineTrace[interval].x.indexOf(trend['start.year'][i]);
-          var endYear =
+          const startYear = lineTrace[interval].x.indexOf(
+            trend['start.year'][i]
+          );
+          const endYear =
             lineTrace[interval].x.indexOf(trend['end.year'][i]) > -1
               ? lineTrace[interval].x.indexOf(trend['end.year'][i])
               : lineTrace[interval].x.length;
           if (startYear > -1 && endYear > -1) {
-            var newTemplate = lineTrace[interval].hovertemplate.slice();
+            let newTemplate = lineTrace[interval].hovertemplate.slice();
 
-            for (var j = startYear; j < endYear; j++) {
+            for (let j = startYear; j < endYear; j++) {
               newTemplate[j] = newTemplate[j].substr(
                 0,
                 newTemplate[j].indexOf('<extra>')
@@ -147,22 +164,22 @@ function processPlotData(divID, x, yMark, yLine, dimension, trends) {
           }
         });
       } else {
-        var year = Math.floor(
+        const year = Math.floor(
           (trend['start.year'] + trend['end.year'] - trend.interval) / 2
         );
-        var yearIndex = lineTrace[trend.interval].x.indexOf(year);
-        lineTrace[trend.interval].text[yearIndex] = (
+        const yearIndex = lineTrace[trend.interval].x.indexOf(year);
+        lineTrendLabel[trend.interval].text[yearIndex] = (
           100 * trend.estimate
         ).toFixed(2);
 
-        var newTemplate = lineTrace[trend.interval].hovertemplate.map(function (
-          template
-        ) {
-          template = template.substr(0, template.indexOf('<extra>'));
-          return (template +=
-            `<br>•    ${trendLabel} ${(100 * trend.estimate).toFixed(2)} ` +
-            `(${trend['start.year']} - ${trend['end.year']})<extra></extra>`);
-        });
+        const newTemplate = lineTrace[trend.interval].hovertemplate.map(
+          function (template) {
+            template = template.substr(0, template.indexOf('<extra>'));
+            return (template +=
+              `<br>•    ${trendLabel} ${(100 * trend.estimate).toFixed(2)} ` +
+              `(${trend['start.year']} - ${trend['end.year']})<extra></extra>`);
+          }
+        );
 
         lineTrace[trend.interval].hovertemplate = newTemplate;
       }
@@ -172,7 +189,7 @@ function processPlotData(divID, x, yMark, yLine, dimension, trends) {
       if (trends['ACS.jp']) trends = trends['ACS.jp'];
       // only draw multiple trend annotations if less than 4 trend measures
       if (trends.length < 4) {
-        for (var trend of trends) {
+        for (const trend of trends) {
           buildTemplate(trend);
         }
         // only draw top annotation
@@ -182,8 +199,8 @@ function processPlotData(divID, x, yMark, yLine, dimension, trends) {
       // only draw top annotation for dying plot
     } else if (divID == 'deathPlot') {
       // find top-most line trace
-      var max = 0;
-      var targetInt = 0;
+      let max = 0;
+      let targetInt = 0;
 
       Object.keys(lineTrace).forEach(function (interval) {
         if (lineTrace[interval].y[0] > max) {
@@ -204,8 +221,8 @@ function processPlotData(divID, x, yMark, yLine, dimension, trends) {
     }
   }
 
-  [markerTrace, lineTrace, legend].forEach(function (traceGroup) {
-    Object.keys(traceGroup).forEach(function (trace) {
+  [markerTrace, lineTrace, lineTrendLabel, legend].forEach((traceGroup) => {
+    Object.keys(traceGroup).forEach((trace) => {
       data.push(traceGroup[trace]);
     });
   });
@@ -215,7 +232,7 @@ function processPlotData(divID, x, yMark, yLine, dimension, trends) {
 function drawLineChart(divID, x, yMark, yLine, dimension, trends) {
   // fontSize defined in jpsurv.js
   const statistic = jpsurvData.additional.statistic;
-  titles = {
+  const titles = {
     yearPlot: {
       plotTitle: statistic + ' by Diagnosis Year',
       xTitle: 'Year at Diagnosis',
@@ -233,8 +250,7 @@ function drawLineChart(divID, x, yMark, yLine, dimension, trends) {
       yTitle: statistic + ' (%)',
     },
   };
-
-  var layout = {
+  const layout = {
     title: '<b>' + titles[divID].plotTitle + '</b>',
     hovermode: 'closest',
     font: {
