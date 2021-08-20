@@ -25,8 +25,8 @@ function processPlotData(divID, x, yMark, yLine, dimension, trends) {
   uniqueDimensions.forEach(function (interval, i) {
     if (!legend[interval]) {
       markerTrace[interval] = {
-        x: [],
-        y: [],
+        x: divID == 'timePlot' ? [0] : [],
+        y: divID == 'timePlot' ? [1] : [],
         showlegend: false,
         hovertemplate: [],
         hoverlabel: {
@@ -42,8 +42,8 @@ function processPlotData(divID, x, yMark, yLine, dimension, trends) {
       };
 
       lineTrace[interval] = {
-        x: [],
-        y: [],
+        x: divID == 'timePlot' ? [0] : [],
+        y: divID == 'timePlot' ? [1] : [],
         showlegend: false,
         hovertemplate: [],
         hoverlabel: {
@@ -266,6 +266,7 @@ function drawLineChart(divID, x, yMark, yLine, dimension, trends) {
     },
     xaxis: {
       title: '<b>' + titles[divID].xTitle + '</b>',
+      autorange: true,
     },
     yaxis: {
       title: '<b>' + titles[divID].yTitle + '<br> </b>',
