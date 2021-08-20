@@ -2033,7 +2033,51 @@ function append_plot_intervals(max_interval) {
 }
 
 function load_form() {
-  addSelectYear();
+  $('#diagnosis_title')
+    .empty()
+    .append(
+      $('<div>')
+        .addClass('jpsurv-label-container')
+        .append(
+          $('<span>', {
+            id: 'yodLabel',
+            class: 'jpsurv-label',
+            html: 'Year of Diagnosis<span class="text-danger">*</span>:',
+          })
+        )
+    );
+
+  if (control_data.input_type == undefined) {
+    $('#yodLabel').append(
+      $('<select>')
+        .attr({
+          id: 'selectYear',
+        })
+        .append(getYearOptions())
+    );
+    $('#selectYear').on('select2:select', function () {
+      // set diagnosis years and year of diagnosis title
+      jpsurvData.calculate.static.years =
+        control_data.VarFormatSecList[
+          $('#selectYear option:selected').text()
+        ].ItemValueInDic;
+      jpsurvData.calculate.static.yearOfDiagnosisTitle = $(
+        '#selectYear option:selected'
+      ).text();
+      loadCohorts();
+    });
+  } else {
+    jpsurvData.calculate.static.yearOfDiagnosisTitle = control_data.year[0];
+    jpsurvData.calculate.static.years = control_data.data[control_data.year[1]];
+    $('#yodLabel').append(
+      $('<span>', {
+        class: 'jpsurv-label-content',
+        title: 'Year of diagnosis label',
+        html: jpsurvData.calculate.static.yearOfDiagnosisTitle,
+      })
+    );
+  }
+
   loadCohorts();
   $('#stage2-calculate').fadeIn();
 }
@@ -2088,6 +2132,11 @@ function getYearOptions() {
     });
     return html.join('');
   } else {
+    showMessage(
+      'jpsurv',
+      'Year of Diagnosis not found. Please select it manually and ensure it is included with your file input.',
+      'Warning'
+    );
     var html = dicOptions.map(function (option) {
       return (
         '<option value=' +
@@ -2098,53 +2147,6 @@ function getYearOptions() {
       );
     });
     return '<option>(Select one)</option>' + html;
-  }
-}
-
-function addSelectYear() {
-  $('#diagnosis_title')
-    .empty()
-    .append(
-      $('<div>')
-        .addClass('jpsurv-label-container')
-        .append(
-          $('<span>', {
-            id: 'yodLabel',
-            class: 'jpsurv-label',
-            html: 'Year of Diagnosis:  ',
-          })
-        )
-    );
-
-  if (control_data.input_type == undefined) {
-    $('#yodLabel').append(
-      $('<select>')
-        .attr({
-          id: 'selectYear',
-        })
-        .append(getYearOptions())
-    );
-    $('#selectYear').on('select2:select', function () {
-      // set diagnosis years and year of diagnosis title
-      jpsurvData.calculate.static.years =
-        control_data.VarFormatSecList[
-          $('#selectYear option:selected').text()
-        ].ItemValueInDic;
-      jpsurvData.calculate.static.yearOfDiagnosisTitle = $(
-        '#selectYear option:selected'
-      ).text();
-      loadCohorts();
-    });
-  } else {
-    jpsurvData.calculate.static.yearOfDiagnosisTitle = control_data.year[0];
-    jpsurvData.calculate.static.years = control_data.data[control_data.year[1]];
-    $('#yodLabel').append(
-      $('<span>', {
-        class: 'jpsurv-label-content',
-        title: 'Year of diagnosis label',
-        html: jpsurvData.calculate.static.yearOfDiagnosisTitle,
-      })
-    );
   }
 }
 
