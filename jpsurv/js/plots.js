@@ -115,9 +115,8 @@ function processPlotData(divID, x, yMark, yLine, dimension, trends) {
     lineTrace[dimension[i]].x.push(x);
     lineTrace[dimension[i]].y.push(yLine[i] / 100);
     lineTrace[dimension[i]].hovertemplate.push(lineTemplate);
-    // lineTrace[dimension[i]].text.push('');
 
-    lineTrendLabel[dimension[i]].x.push(x);
+    lineTrendLabel[dimension[i]].x.push(x + 0.5);
     lineTrendLabel[dimension[i]].y.push(yLine[i] / 98);
     lineTrendLabel[dimension[i]].text.push('');
   });
