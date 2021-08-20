@@ -4,7 +4,7 @@ import re
 import shutil
 import datetime
 
-from os import path, getcwd
+from os import path, getcwd, rename
 from traceback import format_exc
 from flask import Flask, request, redirect, Response, send_from_directory, jsonify, send_file, abort
 from rpy2.robjects import r
