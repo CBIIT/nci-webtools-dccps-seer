@@ -283,7 +283,7 @@ function drawLineChart(divID, x, yMark, yLine, dimension, trends) {
 
   const data = processPlotData(divID, x, yMark, yLine, dimension, trends);
 
-  Plotly.react(divID, data, layout);
+  Plotly.newPlot(divID, data, layout);
 }
 
 function updatePlotFontSize(divID, size) {
