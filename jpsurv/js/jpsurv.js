@@ -3526,8 +3526,21 @@ function settingsSheet() {
     [],
     ['Model'],
     ['Number of joinpoints', currentJP.toString()],
-    ['Joinpoint locations', locations[currentJP]]
+    ['Joinpoint locations', locations[currentJP]],
+    [],
+    []
   );
+
+  // covarariate input data
+  const cohorts = Object.keys(cohort_covariance_variables);
+  sheet.push(['Covariates']);
+  if (cohorts.length) {
+    cohorts.forEach((cohort) =>
+      sheet.push([cohort, cohort_covariance_variables[cohort].join(', ')])
+    );
+  } else {
+    sheet.push(['No cohorts available']);
+  }
 
   // set column width
   var ws = XLSX.utils.aoa_to_sheet(sheet);
