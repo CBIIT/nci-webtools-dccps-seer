@@ -3537,6 +3537,44 @@ function settingsSheet() {
   return ws;
 }
 
+// Creates a sheet containing data from the Model Estimates tab
+function modelEstimates(type) {
+  const modelSelection = jpsurvData.results.ModelSelection;
+  const jpLocations = jpsurvData.results.JP;
+  const selectedModel = jpsurvData.results.SelectedModel;
+  const coefficients = jpsurvData.results.Coefficients;
+  const xvectors = coefficients.Xvectors.split(', ');
+  const estimates = coefficients.Estimates.split(', ');
+  const stdError = coefficients.Std_Error.split(', ');
+
+  // Estimates of the Joinpoints
+  var sheet = [['Estimates of the Joinpoints']];
+  sheet.push(['Locations', jpLocations || 'None'], []);
+  Object.values(modelSelection).forEach((jp, i) => {
+    if (type == 'fullData' || selectedModel == i + 1) {
+      sheet.push(['Estimates', `Joinpoint ${i + 1}`]);
+      sheet.push(['Bayesian Information Criterion (BIC)', jp.aic]);
+      sheet.push(['Akaike Information Criterial (AIC)', jp.bic]);
+      sheet.push(['Log Likelihood', jp.ll]);
+      sheet.push(['Converged', jp.converged ? 'Yes' : 'No'], []);
+    }
+  });
+
+  // Coefficients
+  sheet.push(['Coefficients']);
+  sheet.push(['Parameter', 'Estimate (%)', 'Standard Error (%)']);
+  xvectors.forEach((xvector, i) => {
+    sheet.push([xvector, estimates[i], stdError[i]]);
+  });
+
+  // set column width
+  var ws = XLSX.utils.aoa_to_sheet(sheet);
+  var colWidth = [{ wch: 30 }, { wch: 25 }, { wch: 25 }];
+  ws['!cols'] = colWidth;
+
+  return ws;
+}
+
 // Creates an excel worksheet from JSON parameter.
 // Destructures JSON into an array of arrays.
 // Inner arrays and values corespond to rows and columns e.g.
@@ -3741,6 +3779,7 @@ function downloadData(type) {
     XLSX.utils.book_append_sheet(wb, generateSheet(fullPred), 'Full Dataset');
   }
 
+  XLSX.utils.book_append_sheet(wb, modelEstimates(type), 'Model Estimates');
   XLSX.utils.book_append_sheet(wb, settingsSheet(), 'Settings');
   XLSX.writeFile(wb, wb.props.Title + '.xlsx');
 }
