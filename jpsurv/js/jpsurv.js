@@ -1001,7 +1001,7 @@ function setupModel() {
 
 function createModelSelection() {
   setupModel();
-  var ModelSelection = JSON.parse(jpsurvData.results.ModelSelection);
+  var ModelSelection = jpsurvData.results.ModelSelection;
   var jp = 0;
   var title = 'Click row to change Number of Joinpoints to ';
   var locations = jpsurvData.results.jpLocation;
@@ -1347,7 +1347,7 @@ function addTable(yodCol, headers, table, data, data_se, graph) {
 
 function updateEstimates() {
   var row;
-  jointpoints = JSON.parse(jpsurvData.results.ModelSelection);
+  jointpoints = jpsurvData.results.ModelSelection;
   if (jpsurvData.additional.headerJoinPoints != undefined) {
     Model = jpsurvData.additional.headerJoinPoints + 1;
   } else {

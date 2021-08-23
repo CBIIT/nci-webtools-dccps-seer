@@ -452,8 +452,7 @@ geALLtModelWrapper <- function(filePath, jpsurvDataString, com) {
     joints[[name]] = list("aic" = aicJson, "bic" = bicJson, "ll" = llJson, "converged" = convergedJson)
   }
   ModelSelection = joints
-  jsonl = rjson::toJSON(ModelSelection)
-  return(jsonl)
+  return(ModelSelection)
 }
 
 getTrendWrapper <- function(filePath, jpsurvDataString, com) {
