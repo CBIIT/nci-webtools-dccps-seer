@@ -58,6 +58,8 @@ CMD mod_wsgi-express start-server /deploy/app/jpsurv.wsgi \
     --document-root /deploy/app \
     --working-directory /deploy/app \
     --directory-index index.html \
+    --mount-point /jpsurvRest \
+    --url-alias /jpsurv /deploy/app \
     --log-directory /deploy/logs \
     --rotate-logs \
     --error-log-name apache.log \
