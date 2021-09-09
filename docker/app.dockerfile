@@ -39,7 +39,7 @@ WORKDIR /deploy/app
 RUN groupadd -g 4004 -o ncianalysis \
     && useradd -m -u 4004 -g 4004 -o -s /bin/bash ncianalysis
 RUN chown -R ncianalysis:ncianalysis /deploy
-USER ncianalysis
+# USER ncianalysis
 
 ## building locally - need to provide aws credentials to use queue 
 # docker build -t jpsurv -f docker/app.dockerfile <PATH_TO_REPO>
