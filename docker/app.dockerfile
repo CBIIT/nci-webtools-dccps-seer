@@ -30,6 +30,7 @@ RUN R -e "install.packages('/tmp/jpsurv.tar.gz', repos = NULL)"
 RUN mkdir -p /deploy/app /deploy/logs /deploy/wsgi
 
 COPY ../jpsurv /deploy/app/
+COPY ../jpsurv /deploy/app/jpsurv
 COPY docker/additional-configuration.conf /deploy/wsgi/additional-configuration.conf
 
 WORKDIR /deploy/app
@@ -58,8 +59,7 @@ CMD mod_wsgi-express start-server /deploy/app/jpsurv.wsgi \
     --document-root /deploy/app \
     --working-directory /deploy/app \
     --directory-index index.html \
-    --mount-point /jpsurvRest \
-    --url-alias /jpsurv /deploy/app \
+    --mount-point /jpsurv \
     --log-directory /deploy/logs \
     --rotate-logs \
     --error-log-name apache.log \
