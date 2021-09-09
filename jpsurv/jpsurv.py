@@ -4,7 +4,7 @@ import re
 import shutil
 import datetime
 
-from os import path, getcwd, rename
+from os import path, getcwd, rename, chdir
 from traceback import format_exc
 from flask import Flask, request, redirect, Response, send_from_directory, jsonify, send_file, abort
 from rpy2.robjects import r
@@ -155,7 +155,7 @@ def stage1_upload():
             stri = fo.read(500)
             fo.close()
 
-            base_href = '/'
+            base_href = '/jpsurv'
 
             # app.logger.debug(request.url_root + base_href)
             url = Href(base_href)(
@@ -229,7 +229,7 @@ def stage1_upload():
             stri = fo.read(500)
             fo.close()
 
-            base_href = '/'
+            base_href = '/jpsurv'
 
             # app.logger.debug(request.url_root + base_href)
             url = Href(base_href)(
@@ -340,8 +340,8 @@ def myImport():
     def fixFilename(absolutePath, tokenId):
         ''' Removes the Token Id from the file name '''
         dirName = dirname(absolutePath)
-        baseName = basename(absolutePath)
-        baseName = baseName[len(tokenId):]
+        baseName = path.basename(absolutePath)
+        baseName = path.baseName[len(tokenId):]
 
         fixedAbsolutePath = join(dirName, baseName)
 
@@ -459,7 +459,7 @@ def myExport():
             zip = ZipFile(zipName, "w")
 
         for file in files:
-            zip.write(file, basename(file), compress_type=ZIP_DEFLATED)
+            zip.write(file, path.basename(file), compress_type=ZIP_DEFLATED)
 
         # app.logger.debug("\tThe files were written to zip file ")
 
