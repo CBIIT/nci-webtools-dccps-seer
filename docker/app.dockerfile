@@ -54,7 +54,7 @@ CMD mod_wsgi-express start-server /deploy/app/jpsurv.wsgi \
     --access-log \
     --access-log-format "%h %{X-Forwarded-For}i %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined \
     --access-log-name access.log \
-    --port 8110 \
+    --port 80 \
     --server-root /deploy/wsgi \
     --document-root /deploy/app \
     --working-directory /deploy/app \
