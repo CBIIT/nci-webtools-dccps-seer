@@ -28,6 +28,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     # Serve current directory using Flask for local development
     app = Flask(__name__, static_folder='', static_url_path='')
+
 else:
     # Otherwise, assume mod_wsgi/apache will serve static files
     app = Flask(__name__, static_folder=None)
@@ -155,7 +156,7 @@ def stage1_upload():
             stri = fo.read(500)
             fo.close()
 
-            base_href = '/jpsurv'
+            base_href = '/' if __name__ == '__main__' else '/jpsurv'
 
             # app.logger.debug(request.url_root + base_href)
             url = Href(base_href)(
@@ -229,7 +230,7 @@ def stage1_upload():
             stri = fo.read(500)
             fo.close()
 
-            base_href = '/jpsurv'
+            base_href = '/' if __name__ == '__main__' else '/jpsurv'
 
             # app.logger.debug(request.url_root + base_href)
             url = Href(base_href)(
