@@ -265,7 +265,8 @@ function drawLineChart(divID, x, yMark, yLine, dimension, trends) {
     },
     xaxis: {
       title: '<b>' + titles[divID].xTitle + '</b>',
-      autorange: true,
+      range: [divID == 'timePlot' ? 0 : Math.min(...x), Math.max(...x)],
+      autorange: false,
     },
     yaxis: {
       title: '<b>' + titles[divID].yTitle + '<br> </b>',
