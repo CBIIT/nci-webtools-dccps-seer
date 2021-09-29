@@ -1477,28 +1477,26 @@ function updateTrendGraph(trends, table_id) {
   }
 }
 function updateGraphLinks() {
-  document.querySelector('#graph-year-dataset-link').onclick = function (
-    event
-  ) {
+  document.querySelector('#graph-year-dataset-link').onclick = (event) => {
     event.preventDefault();
     downloadData('survByYear');
   };
-  document.querySelector('#graph-death-dataset-link').onclick = function (
-    event
-  ) {
+  document.querySelector('#graph-death-dataset-link').onclick = (event) => {
     event.preventDefault();
     downloadData('deathByYear');
   };
-  document.querySelector('#graph-time-dataset-link').onclick = function (
-    event
-  ) {
+  document.querySelector('#graph-time-dataset-link').onclick = (event) => {
     event.preventDefault();
     downloadData('survByTime');
   };
+  document.querySelector('#model-estimates-link').onclick = (event) => {
+    event.preventDefault();
+    downloadData('modelEstimates');
+  };
   Array.prototype.map.call(
     document.querySelectorAll('.full-dataset-link'),
-    function (link) {
-      link.onclick = function (event) {
+    (link) => {
+      link.onclick = (event) => {
         event.preventDefault();
         downloadData('fullData');
       };
