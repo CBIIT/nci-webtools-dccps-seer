@@ -673,7 +673,7 @@ function load_input_form(inputData) {
 //populates the chort dropdown window based on the form selection
 function updateCohortDropdown() {
   $('#cohort-display').empty();
-  var cohort_array = jpsurvData.results.Runs.split('jpcom');
+  var cohort_array = jpsurvData.results.Runs.trim().split(' jpcom ');
   for (var i = 0; i < cohort_array.length; i++) {
     var option = new Option(cohort_array[i], i + 1);
     $('#cohort-display').append(option);
@@ -686,10 +686,7 @@ function updateCohortDropdown() {
 function dropdownListener() {
   $('#cohort-display').on('select2:select', function () {
     //splits the cohorts based on a " + "
-    var cohorts = $('#cohort-display option:selected')
-      .text()
-      .trim()
-      .split(' + ');
+    var cohorts = $('#cohort-display option:selected').text().split(' + ');
     //adds each cohort to the json
 
     jpsurvData.calculate.form.cohortValues = cohorts.map(function (cohort) {
@@ -1498,7 +1495,7 @@ function updateGraphLinks() {
     (link) => {
       link.onclick = (event) => {
         event.preventDefault();
-        downloadData('fullData');
+        downloadFullData();
       };
     }
   );
@@ -1733,11 +1730,7 @@ function validateRule1() {
 }
 
 function validateVariables() {
-  if (validateYearRange() && validateRule1()) {
-    return true;
-  } else {
-    return false;
-  }
+  return validateYearRange() && validateRule1();
 }
 
 function calculate(run) {
@@ -1969,8 +1962,8 @@ function preLoadResults(results) {
 }
 
 function getParams() {
-  jpsurvData.results = {};
-  var params = 'jpsurvData=' + JSON.stringify(jpsurvData);
+  const { results, ...rest } = jpsurvData;
+  const params = JSON.stringify(rest);
   return replaceAll('None', '', params);
 }
 
@@ -2570,10 +2563,7 @@ function jpsurvRest2(action, callback) {
   $('#calculating-spinner').modal({ backdrop: 'static' });
   $('#calculating-spinner').modal('show');
   var url =
-    'jpsurvRest/' +
-    action +
-    '?jpsurvData=' +
-    encodeURIComponent(params.substring(params.indexOf('{')));
+    'jpsurvRest/' + action + '?jpsurvData=' + encodeURIComponent(params);
   return $.ajax({
     type: 'GET',
     url: url,
@@ -2622,10 +2612,7 @@ function jpsurvRest(action, params) {
     var json = null;
 
     var url =
-      'jpsurvRest/' +
-      action +
-      '?jpsurvData=' +
-      encodeURIComponent(params.substring(params.indexOf('{')));
+      'jpsurvRest/' + action + '?jpsurvData=' + encodeURIComponent(params);
 
     $.ajax({
       async: false,
@@ -3549,11 +3536,11 @@ function settingsSheet() {
 }
 
 // Creates a sheet containing data from the Model Estimates tab
-function modelEstimates(type) {
-  const modelSelection = jpsurvData.results.ModelSelection;
-  const jpLocations = jpsurvData.results.JP;
-  const selectedModel = jpsurvData.results.SelectedModel;
-  const coefficients = jpsurvData.results.Coefficients;
+function modelEstimates(results = jpsurvData.results) {
+  const modelSelection = results.ModelSelection;
+  const jpLocations = results.JP;
+  const jpInd = results.jpInd;
+  const coefficients = results.Coefficients;
   const xvectors = coefficients.Xvectors.split(', ');
   const estimates = coefficients.Estimates.split(', ');
   const stdError = coefficients.Std_Error.split(', ');
@@ -3562,7 +3549,7 @@ function modelEstimates(type) {
   var sheet = [['Estimates of the Joinpoints']];
   sheet.push(['Locations', jpLocations || 'None'], []);
   Object.values(modelSelection).forEach((jp, i) => {
-    if (type == 'fullData' || selectedModel == i + 1) {
+    if (jpInd == i) {
       sheet.push(['Estimates', `Joinpoint ${i + 1}`]);
       sheet.push(['Bayesian Information Criterion (BIC)', jp.aic]);
       sheet.push(['Akaike Information Criterial (AIC)', jp.bic]);
@@ -3681,7 +3668,6 @@ function downloadData(type) {
   var survByYear = jpsurvData.results.yearData.survTable;
   var deathByYear = jpsurvData.results.deathData.deathTable;
   var survByTime = jpsurvData.results.timeData.timeTable;
-  var fullPred = jpsurvData.results.fullDownload;
   var cohort = document.querySelector('#cohort-display').value;
   var jp = jpsurvData.results.jpInd;
   var wb = XLSX.utils.book_new();
@@ -3766,33 +3752,101 @@ function downloadData(type) {
       generateSheet(survByTime),
       'Survival vs. Time'
     );
-  } else if (type == 'fullData') {
-    // add Observed_ProbDeath columns
-    if (fullPred['Relative_Survival_Interval']) {
-      fullPred['Observed_ProbDeath_Int'] = fullPred[
-        'Relative_Survival_Interval'
-      ].map(function (i) {
-        return 100 - i;
-      });
-
-      fullPred['Observed_ProbDeath_Int_SE'] = fullPred['Relative_SE_Interval'];
-    } else {
-      fullPred['Observed_ProbDeath_Int'] = fullPred[
-        'CauseSpecific_Survival_Interval'
-      ].map(function (i) {
-        return 100 - i;
-      });
-
-      fullPred['Observed_ProbDeath_Int_SE'] =
-        fullPred['CauseSpecific_SE_Interval'];
-    }
-
-    XLSX.utils.book_append_sheet(wb, generateSheet(fullPred), 'Full Dataset');
   }
 
-  XLSX.utils.book_append_sheet(wb, modelEstimates(type), 'Model Estimates');
+  XLSX.utils.book_append_sheet(wb, modelEstimates(), 'Model Estimates');
   XLSX.utils.book_append_sheet(wb, settingsSheet(), 'Settings');
   XLSX.writeFile(wb, wb.props.Title + '.xlsx');
+}
+
+async function downloadFullData() {
+  try {
+    let wb = XLSX.utils.book_new();
+    wb.props = {
+      Title: 'JPSurv-' + jpsurvData.file.data.replace(/\.[^/.]+$/, ''),
+    };
+
+    const allResults = await getData();
+
+    allResults.forEach((data, i) => {
+      let results = data.fullDownload;
+      delete results.errors;
+
+      // add Observed_ProbDeath columns
+      if (results['Relative_Survival_Interval']) {
+        results['Observed_ProbDeath_Int'] = results[
+          'Relative_Survival_Interval'
+        ].map((i) => 100 - i);
+
+        results['Observed_ProbDeath_Int_SE'] = results['Relative_SE_Interval'];
+      } else {
+        results['Observed_ProbDeath_Int'] = results[
+          'CauseSpecific_Survival_Interval'
+        ].map((i) => 100 - i);
+
+        results['Observed_ProbDeath_Int_SE'] =
+          results['CauseSpecific_SE_Interval'];
+      }
+
+      const sheetname = `Cohort ${i + 1}`;
+
+      XLSX.utils.book_append_sheet(wb, generateSheet(results), sheetname);
+    });
+    allResults.forEach((data, i) =>
+      XLSX.utils.book_append_sheet(
+        wb,
+        modelEstimates(data),
+        'Model Estimates ' + ++i
+      )
+    );
+
+    XLSX.utils.book_append_sheet(wb, settingsSheet(), 'Settings');
+    XLSX.writeFile(wb, wb.props.Title + '.xlsx');
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// retrieve results data for all cohorts/models
+async function getData() {
+  const cohorts = jpsurvData.results.Runs.trim().split(' jpcom ');
+  const models = Object.keys(jpsurvData.results.ModelSelection);
+  const queries = cohorts.map((cohort, cohortIndex) =>
+    models.map(async (_, jp) => {
+      let { results, ...params } = jpsurvData;
+      params.run = cohortIndex + 1;
+      params.additional.headerJoinPoints = jp;
+      params.calculate.form.cohortValues = cohort.split(' + ');
+
+      try {
+        const query = await fetch(
+          'jpsurvRest/stage3_recalculate?jpsurvData=' +
+            encodeURIComponent(JSON.stringify(params))
+        );
+        if (query.ok) {
+          const file =
+            'jpsurvRest/results?file=results-' +
+            jpsurvData.tokenId +
+            '-' +
+            (cohortIndex + 1) +
+            '-' +
+            jp +
+            '.json&tokenId=' +
+            jpsurvData.tokenId;
+
+          return await (await fetch(file)).json();
+        }
+      } catch (error) {
+        return null;
+      }
+    })
+  );
+
+  try {
+    return await Promise.all(queries.flat());
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 // reset Advanced Options to their default settings
