@@ -350,20 +350,56 @@ function addEventListeners() {
   $('#file_control_csv').on('change', checkInputFiles);
   $('#fileSelect').on('change', checkInputFiles);
 
-  $('#yearFont').on('change', (e) => updateFontSize(parseInt(e.target.value)));
-  $('#deathFont').on('change', (e) => updateFontSize(parseInt(e.target.value)));
-  $('#timeFont').on('change', (e) => updateFontSize(parseInt(e.target.value)));
-}
+  //  ** font size
+  $('.fontControl').on('input', (e) => {
+    const size = parseInt(e.target.value);
+    fontSize = size;
+    setCookie('fontSize', size);
+    document.querySelectorAll('.fontControl').forEach((v) => {
+      v.value = size;
+      updatePlotFontSize(`${v.id.split(/font/i)[0]}Plot`, size);
+    });
+  });
 
-function updateFontSize(size) {
-  fontSize = size;
-  setCookie('fontSize', size);
-  $('#yearFont').val(size);
-  $('#deathFont').val(size);
-  $('#timeFont').val(size);
-  updatePlotFontSize('yearPlot', size);
-  updatePlotFontSize('deathPlot', size);
-  updatePlotFontSize('timePlot', size);
+  // ** advanced plot control
+  // toggles
+  const $yearAdv = $('#yearAdv');
+  const $deathAdv = $('#deathAdv');
+  const $timeAdv = $('#timeAdv');
+  $('.togglePlotAdv').on('click', (e) => {
+    const id = e.target.id;
+    if (id.match(/year/i)) $yearAdv.toggleClass('d-none');
+    if (id.match(/death/i)) $deathAdv.toggleClass('d-none');
+    if (id.match(/time/i)) $timeAdv.toggleClass('d-none');
+  });
+  // add annotation
+  $('.addPlotAnno').on('click', (e) => {
+    const id = e.target.id;
+
+    if (id.match(/year/i)) addAnnotation(document.querySelector('#yearPlot'));
+    if (id.match(/death/i)) addAnnotation(document.querySelector('#deathPlot'));
+    if (id.match(/time/i)) addAnnotation(document.querySelector('#timePlot'));
+  });
+
+  // add annotation
+  $('.addPlotCohorts').on('click', (e) => {
+    const id = e.target.id;
+
+    const cohortVars = jpsurvData.calculate.form.cohortVars;
+    const cohortValues = jpsurvData.calculate.form.cohortValues.map((v) =>
+      v.replace(/\"/g, '')
+    );
+    const cohorts = cohortValues
+      .map((v, i) => `${cohortVars[i]}: ${v}`)
+      .join('<br>');
+
+    if (id.match(/year/i))
+      addCohortAnnotation(document.querySelector('#yearPlot'), cohorts);
+    if (id.match(/death/i))
+      addCohortAnnotation(document.querySelector('#deathPlot'), cohorts);
+    if (id.match(/time/i))
+      addCohortAnnotation(document.querySelector('#timePlot'), cohorts);
+  });
 }
 
 // reset view - uncheck "Show Trend Measures" and reset AbsChg Year Range

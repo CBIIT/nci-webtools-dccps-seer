@@ -228,29 +228,30 @@ function processPlotData(divID, x, yMark, yLine, dimension, trends) {
   return data;
 }
 
-function drawLineChart(divID, x, yMark, yLine, dimension, trends) {
+const titles = (statistic) => ({
+  yearPlot: {
+    plotTitle: statistic + ' by Diagnosis Year',
+    xTitle: 'Year at Diagnosis',
+    yTitle: statistic + ' (%)',
+  },
+  deathPlot: {
+    plotTitle: 'Annual Probability of Dying of Cancer by Diagnosis Year',
+    xTitle: 'Year at Diagnosis',
+    yTitle: 'Anual Probability of Cancer Death (%)',
+  },
+  timePlot: {
+    plotTitle:
+      statistic + ' by Year Since Diagnosis for Selected Diagnosis Year',
+    xTitle: 'Interval',
+    yTitle: statistic + ' (%)',
+  },
+});
+
+async function drawLineChart(divID, x, yMark, yLine, dimension, trends) {
   // fontSize defined in jpsurv.js
   const statistic = jpsurvData.additional.statistic;
-  const titles = {
-    yearPlot: {
-      plotTitle: statistic + ' by Diagnosis Year',
-      xTitle: 'Year at Diagnosis',
-      yTitle: statistic + ' (%)',
-    },
-    deathPlot: {
-      plotTitle: 'Annual Probability of Dying of Cancer by Diagnosis Year',
-      xTitle: 'Year at Diagnosis',
-      yTitle: 'Anual Probability of Cancer Death (%)',
-    },
-    timePlot: {
-      plotTitle:
-        statistic + ' by Year Since Diagnosis for Selected Diagnosis Year',
-      xTitle: 'Interval',
-      yTitle: statistic + ' (%)',
-    },
-  };
   const layout = {
-    title: '<b>' + titles[divID].plotTitle + '</b>',
+    title: '<b>' + titles(statistic)[divID].plotTitle + '</b>',
     hovermode: 'closest',
     font: {
       size: fontSize,
@@ -264,12 +265,12 @@ function drawLineChart(divID, x, yMark, yLine, dimension, trends) {
       xanchor: 'center',
     },
     xaxis: {
-      title: '<b>' + titles[divID].xTitle + '</b>',
+      title: '<b>' + titles(statistic)[divID].xTitle + '</b>',
       range: [divID == 'timePlot' ? 0 : Math.min(...x), Math.max(...x)],
       autorange: false,
     },
     yaxis: {
-      title: '<b>' + titles[divID].yTitle + '<br> </b>',
+      title: '<b>' + titles(statistic)[divID].yTitle + '</b>',
       showline: true,
       tickformat: '%',
       tickmode: 'auto',
@@ -283,7 +284,90 @@ function drawLineChart(divID, x, yMark, yLine, dimension, trends) {
 
   const data = processPlotData(divID, x, yMark, yLine, dimension, trends);
 
-  Plotly.newPlot(divID, data, layout);
+  const plot = await Plotly.newPlot(divID, data, layout, { editable: true });
+
+  // remove context menu from plotly
+  plot.addEventListener('contextmenu', (ev) => {
+    ev.preventDefault();
+  });
+
+  // add click events for annotations
+  plot
+    // .on('plotly_click', (data) => {
+    //   data.event.preventDefault();
+    //   console.log(data);
+    //   if (data.event.button == 0) {
+    //     const point = data.points[0],
+    //       newAnnotation = {
+    //         x: point.xaxis.d2l(point.x),
+    //         y: point.yaxis.d2l(point.y),
+    //         ax: 0,
+    //         ay: -80,
+    //         bgcolor: 'rgba(255, 255, 255, 0.9)',
+    //         arrowcolor: point.fullData.marker.color,
+    //         bordercolor: point.fullData.marker.color,
+    //         borderwidth: 1,
+    //         borderpad: 3,
+    //         text: `${point.x} ${point.y}`,
+    //         captureevents: true,
+    //       },
+    //       newIndex = (plot.layout.annotations || []).length;
+
+    //     // delete instead if clicked twice
+    //     if (newIndex) {
+    //       var foundCopy = false;
+    //       plot.layout.annotations.forEach(function (ann, sameIndex) {
+    //         if (ann.text === newAnnotation.text) {
+    //           Plotly.relayout(
+    //             divID,
+    //             'annotations[' + sameIndex + ']',
+    //             'remove'
+    //           );
+    //           foundCopy = true;
+    //         }
+    //       });
+    //       if (foundCopy) return;
+    //     }
+    //     Plotly.relayout(divID, 'annotations[' + newIndex + ']', newAnnotation);
+    //   } else if (data.event.button == 2) {
+    //     Plotly.relayout(divID, 'annotations[' + data.index + ']', 'remove');
+    //   }
+    // })
+    // remove annotation on right click
+    .on('plotly_clickannotation', (data) => {
+      if (data.event.button == 2)
+        Plotly.relayout(divID, 'annotations[' + data.index + ']', 'remove');
+    });
+}
+
+function addAnnotation(plot) {
+  const index = plot.layout.annotations ? plot.layout.annotations.length : 0;
+  Plotly.relayout(plot, `annotations[${index}]`, {
+    x: 0.5,
+    y: 1,
+    xref: 'paper',
+    yref: 'paper',
+    text: `Annotation ${index + 1}`,
+    bgcolor: 'rgba(255, 255, 255, 0.9)',
+    captureevents: true,
+  });
+}
+
+function addCohortAnnotation(plot, cohorts) {
+  const index = plot.layout.annotations ? plot.layout.annotations.length : 0;
+  Plotly.relayout(plot, `annotations[${index}]`, {
+    text: cohorts,
+    x: 1,
+    y: 1,
+    xref: 'paper',
+    yref: 'paper',
+    showarrow: false,
+    borderwidth: 1,
+    borderpad: 3,
+    bordercolor: '#1f77b4',
+    align: 'left',
+    captureevents: true,
+  });
 }
 
 function updatePlotFontSize(divID, size) {
