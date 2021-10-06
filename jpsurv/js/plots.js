@@ -365,6 +365,7 @@ function addCohortAnnotation(plot, cohorts) {
     borderwidth: 1,
     borderpad: 3,
     bordercolor: '#1f77b4',
+    bgcolor: 'rgba(255, 255, 255, 0.9)',
     align: 'left',
     captureevents: true,
   });
