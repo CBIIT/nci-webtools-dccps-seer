@@ -4,7 +4,7 @@ import re
 import shutil
 import datetime
 
-from os import path, getcwd, rename, chdir
+from os import path, getcwd, rename, chdir, listdir
 from traceback import format_exc
 from flask import Flask, request, redirect, Response, send_from_directory, jsonify, send_file, abort
 from rpy2.robjects import r
@@ -277,7 +277,7 @@ def myImport():
         #     "\tUnzipping the contents of the zip " + absoluteFilename)
 
         archive = ZipFile(absoluteFilename)
-        archive.extractall(dirname(absoluteFilename))
+        archive.extractall(path.dirname(absoluteFilename))
 
     def getTokenFor(searchFileListRegularExpression, searchFilenameRegularExpression, archive):
         ''' Will return the first token found from the zip file ( archive ) for the filename containing the serarchRegularExpression '''
@@ -340,11 +340,11 @@ def myImport():
 
     def fixFilename(absolutePath, tokenId):
         ''' Removes the Token Id from the file name '''
-        dirName = dirname(absolutePath)
+        dirName = path.dirname(absolutePath)
         baseName = path.basename(absolutePath)
-        baseName = path.baseName[len(tokenId):]
+        baseName = baseName[len(tokenId):]
 
-        fixedAbsolutePath = join(dirName, baseName)
+        fixedAbsolutePath = path.join(dirName, baseName)
 
         # app.logger.debug("\tRemoving the token %s for absolutePath %s equates to %s" % (
         #     tokenId, absolutePath, fixedAbsolutePath))
