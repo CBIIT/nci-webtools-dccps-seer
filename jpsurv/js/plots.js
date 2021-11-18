@@ -350,26 +350,27 @@ function addAnnotation(plot) {
     text: `Annotation ${index + 1}`,
     bgcolor: 'rgba(255, 255, 255, 0.9)',
     captureevents: true,
+    showarrow: false,
   });
 }
 
-function addCohortAnnotation(plot, cohorts) {
-  const index = plot.layout.annotations ? plot.layout.annotations.length : 0;
-  Plotly.relayout(plot, `annotations[${index}]`, {
-    text: cohorts,
-    x: 1,
-    y: 1,
-    xref: 'paper',
-    yref: 'paper',
-    showarrow: false,
-    borderwidth: 1,
-    borderpad: 3,
-    bordercolor: '#1f77b4',
-    bgcolor: 'rgba(255, 255, 255, 0.9)',
-    align: 'left',
-    captureevents: true,
-  });
-}
+// function addCohortAnnotation(plot, cohorts) {
+//   const index = plot.layout.annotations ? plot.layout.annotations.length : 0;
+//   Plotly.relayout(plot, `annotations[${index}]`, {
+//     text: cohorts,
+//     x: 1,
+//     y: 1,
+//     xref: 'paper',
+//     yref: 'paper',
+//     showarrow: false,
+//     borderwidth: 1,
+//     borderpad: 3,
+//     bordercolor: '#1f77b4',
+//     bgcolor: 'rgba(255, 255, 255, 0.9)',
+//     align: 'left',
+//     captureevents: true,
+//   });
+// }
 
 function updatePlotFontSize(divID, size) {
   // layout

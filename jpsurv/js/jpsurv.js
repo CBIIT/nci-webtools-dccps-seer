@@ -382,24 +382,24 @@ function addEventListeners() {
   });
 
   // add annotation
-  $('.addPlotCohorts').on('click', (e) => {
-    const id = e.target.id;
+//   $('.addPlotCohorts').on('click', (e) => {
+//     const id = e.target.id;
 
-    const cohortVars = jpsurvData.calculate.form.cohortVars;
-    const cohortValues = jpsurvData.calculate.form.cohortValues.map((v) =>
-      v.replace(/\"/g, '')
-    );
-    const cohorts = cohortValues
-      .map((v, i) => `${cohortVars[i]}: ${v}`)
-      .join('<br>');
+//     const cohortVars = jpsurvData.calculate.form.cohortVars;
+//     const cohortValues = jpsurvData.calculate.form.cohortValues.map((v) =>
+//       v.replace(/\"/g, '')
+//     );
+//     const cohorts = cohortValues
+//       .map((v, i) => `${cohortVars[i]}: ${v}`)
+//       .join('<br>');
 
-    if (id.match(/year/i))
-      addCohortAnnotation(document.querySelector('#yearPlot'), cohorts);
-    if (id.match(/death/i))
-      addCohortAnnotation(document.querySelector('#deathPlot'), cohorts);
-    if (id.match(/time/i))
-      addCohortAnnotation(document.querySelector('#timePlot'), cohorts);
-  });
+//     if (id.match(/year/i))
+//       addCohortAnnotation(document.querySelector('#yearPlot'), cohorts);
+//     if (id.match(/death/i))
+//       addCohortAnnotation(document.querySelector('#deathPlot'), cohorts);
+//     if (id.match(/time/i))
+//       addCohortAnnotation(document.querySelector('#timePlot'), cohorts);
+//   });
 }
 
 // reset view - uncheck "Show Trend Measures" and reset AbsChg Year Range
