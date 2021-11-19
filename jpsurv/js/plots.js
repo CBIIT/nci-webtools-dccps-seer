@@ -228,30 +228,43 @@ function processPlotData(divID, x, yMark, yLine, dimension, trends) {
   return data;
 }
 
-const titles = (statistic) => ({
+const titles = (statistic, cohorts) => ({
   yearPlot: {
-    plotTitle: statistic + ' by Diagnosis Year',
+    plotTitle: `<b>${statistic} by Diagnosis Year</b>${
+      cohorts ? '<br>' + cohorts : ''
+    }`,
     xTitle: 'Year at Diagnosis',
     yTitle: statistic + ' (%)',
   },
   deathPlot: {
-    plotTitle: 'Annual Probability of Dying of Cancer by Diagnosis Year',
+    plotTitle: `<b>Annual Probability of Dying of Cancer by Diagnosis Year</b>${
+      cohorts ? '<br>' + cohorts : ''
+    }`,
     xTitle: 'Year at Diagnosis',
     yTitle: 'Anual Probability of Cancer Death (%)',
   },
   timePlot: {
-    plotTitle:
-      statistic + ' by Year Since Diagnosis for Selected Diagnosis Year',
+    plotTitle: `<b>${statistic} by Year Since Diagnosis for Selected Diagnosis Year</b>${
+      cohorts ? '<br>' + cohorts : ''
+    }`,
     xTitle: 'Interval',
     yTitle: statistic + ' (%)',
   },
 });
 
-async function drawLineChart(divID, x, yMark, yLine, dimension, trends) {
+async function drawLineChart(
+  divID,
+  x,
+  yMark,
+  yLine,
+  dimension,
+  trends,
+  cohorts
+) {
   // fontSize defined in jpsurv.js
   const statistic = jpsurvData.additional.statistic;
   const layout = {
-    title: '<b>' + titles(statistic)[divID].plotTitle + '</b>',
+    title: titles(statistic, cohorts)[divID].plotTitle,
     hovermode: 'closest',
     font: {
       size: fontSize,
@@ -293,46 +306,6 @@ async function drawLineChart(divID, x, yMark, yLine, dimension, trends) {
 
   // add click events for annotations
   plot
-    // .on('plotly_click', (data) => {
-    //   data.event.preventDefault();
-    //   console.log(data);
-    //   if (data.event.button == 0) {
-    //     const point = data.points[0],
-    //       newAnnotation = {
-    //         x: point.xaxis.d2l(point.x),
-    //         y: point.yaxis.d2l(point.y),
-    //         ax: 0,
-    //         ay: -80,
-    //         bgcolor: 'rgba(255, 255, 255, 0.9)',
-    //         arrowcolor: point.fullData.marker.color,
-    //         bordercolor: point.fullData.marker.color,
-    //         borderwidth: 1,
-    //         borderpad: 3,
-    //         text: `${point.x} ${point.y}`,
-    //         captureevents: true,
-    //       },
-    //       newIndex = (plot.layout.annotations || []).length;
-
-    //     // delete instead if clicked twice
-    //     if (newIndex) {
-    //       var foundCopy = false;
-    //       plot.layout.annotations.forEach(function (ann, sameIndex) {
-    //         if (ann.text === newAnnotation.text) {
-    //           Plotly.relayout(
-    //             divID,
-    //             'annotations[' + sameIndex + ']',
-    //             'remove'
-    //           );
-    //           foundCopy = true;
-    //         }
-    //       });
-    //       if (foundCopy) return;
-    //     }
-    //     Plotly.relayout(divID, 'annotations[' + newIndex + ']', newAnnotation);
-    //   } else if (data.event.button == 2) {
-    //     Plotly.relayout(divID, 'annotations[' + data.index + ']', 'remove');
-    //   }
-    // })
     // remove annotation on right click
     .on('plotly_clickannotation', (data) => {
       if (data.event.button == 2)
@@ -353,24 +326,6 @@ function addAnnotation(plot) {
     showarrow: false,
   });
 }
-
-// function addCohortAnnotation(plot, cohorts) {
-//   const index = plot.layout.annotations ? plot.layout.annotations.length : 0;
-//   Plotly.relayout(plot, `annotations[${index}]`, {
-//     text: cohorts,
-//     x: 1,
-//     y: 1,
-//     xref: 'paper',
-//     yref: 'paper',
-//     showarrow: false,
-//     borderwidth: 1,
-//     borderpad: 3,
-//     bordercolor: '#1f77b4',
-//     bgcolor: 'rgba(255, 255, 255, 0.9)',
-//     align: 'left',
-//     captureevents: true,
-//   });
-// }
 
 function updatePlotFontSize(divID, size) {
   // layout

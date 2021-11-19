@@ -380,26 +380,6 @@ function addEventListeners() {
     if (id.match(/death/i)) addAnnotation(document.querySelector('#deathPlot'));
     if (id.match(/time/i)) addAnnotation(document.querySelector('#timePlot'));
   });
-
-  // add annotation
-//   $('.addPlotCohorts').on('click', (e) => {
-//     const id = e.target.id;
-
-//     const cohortVars = jpsurvData.calculate.form.cohortVars;
-//     const cohortValues = jpsurvData.calculate.form.cohortValues.map((v) =>
-//       v.replace(/\"/g, '')
-//     );
-//     const cohorts = cohortValues
-//       .map((v, i) => `${cohortVars[i]}: ${v}`)
-//       .join('<br>');
-
-//     if (id.match(/year/i))
-//       addCohortAnnotation(document.querySelector('#yearPlot'), cohorts);
-//     if (id.match(/death/i))
-//       addCohortAnnotation(document.querySelector('#deathPlot'), cohorts);
-//     if (id.match(/time/i))
-//       addCohortAnnotation(document.querySelector('#timePlot'), cohorts);
-//   });
 }
 
 // reset view - uncheck "Show Trend Measures" and reset AbsChg Year Range
@@ -1090,6 +1070,10 @@ function drawPlot(plot, update = false) {
       .replace(/__/g, '_')
       .replace(/([^a-zA-Z0-9_]+)/gi, '');
 
+    const cohorts = jpsurvData.calculate.form.cohortValues
+      .map((v) => v.replace(/\"/g, ''))
+      .join(' - ');
+
     if (plot == 'year') {
       yearData = jpsurvData.results.yearData;
       trend =
@@ -1120,7 +1104,8 @@ function drawPlot(plot, update = false) {
             ),
             checkArray(yearData.survTable.Predicted_Survival_Cum),
             checkArray(yearData.survTable.Interval),
-            trend
+            trend,
+            cohorts
           );
     } else if (plot == 'death') {
       deathData = jpsurvData.results.deathData;
@@ -1150,7 +1135,8 @@ function drawPlot(plot, update = false) {
             checkArray(deathData.deathTable.Interval),
             !$('#deathAnno').is(':checked') && deathData.deathTrend
               ? deathData.deathTrend
-              : null
+              : null,
+            cohorts
           );
     } else if (plot == 'time') {
       timeData = jpsurvData.results.timeData.timeTable;
@@ -1163,7 +1149,8 @@ function drawPlot(plot, update = false) {
         ),
         checkArray(timeData.Predicted_Survival_Cum),
         checkArray(timeData[yodVarName]),
-        null
+        null,
+        cohorts
       );
     }
   }
