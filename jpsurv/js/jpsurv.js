@@ -3604,7 +3604,7 @@ function modelEstimates(results = jpsurvData.results) {
 //    [B1, B2, B3],
 //    ...
 //  ]
-function generateSheet(data) {
+function generateSheet(data, cohorts = false) {
   var yearVar = jpsurvData.results.yearVar;
   var input = [
     yearVar,
@@ -3656,6 +3656,8 @@ function generateSheet(data) {
   input = getCohorts().concat(input);
 
   var sheet = [input];
+  if (cohorts) sheet.unshift(['Cohort', cohorts]);
+
   input.forEach(function (col, index) {
     if (data[col]) {
       data[col].forEach(function (value, row) {
@@ -3812,8 +3814,15 @@ async function downloadFullData() {
       }
 
       const sheetname = `Cohort ${i + 1}`;
+      const cohorts = jpsurvData.calculate.form.cohortValues
+        .map((v) => v.replace(/\"/g, ''))
+        .join(' - ');
 
-      XLSX.utils.book_append_sheet(wb, generateSheet(results), sheetname);
+      XLSX.utils.book_append_sheet(
+        wb,
+        generateSheet(results, cohorts),
+        sheetname
+      );
     });
     allResults.forEach((data, i) =>
       XLSX.utils.book_append_sheet(
