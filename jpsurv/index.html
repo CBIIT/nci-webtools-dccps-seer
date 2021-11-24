@@ -1006,64 +1006,55 @@
 
                   <div class="row px-3 mb-1">
                     <button
-                      id="toggleYearAdv"
+                      id="addYearAnno"
                       type="button"
-                      class="btn btn-link togglePlotAdv col-sm-auto"
+                      class="btn btn-link col-sm-auto addPlotAnno"
                     >
-                      Advanced Options
+                      + Add Annotation
                     </button>
-                    <div id="yearAdv" class="d-none row col-sm-auto">
-                      <button
-                        id="addYearAnno"
-                        type="button"
-                        class="btn btn-link col-sm-auto addPlotAnno"
+                    <div
+                      class="
+                        d-flex
+                        mb-0
+                        align-self-center
+                        form-group
+                        col-sm-auto
+                      "
+                    >
+                      <label class="mb-0 align-self-center" for="yearFont"
+                        >Plot Font Size</label
                       >
-                        + Add Annotation
-                      </button>
-                      <div
-                        class="
-                          d-flex
-                          mb-0
-                          align-self-center
-                          form-group
-                          col-sm-auto
-                        "
+                      <input
+                        type="number"
+                        id="yearFont"
+                        name="yearFont"
+                        class="form-control ml-2 fontControl"
+                        min="12"
+                        max="20"
+                        value="14"
+                      />
+                    </div>
+                    <div
+                      id="yearAnnoControl"
+                      class="
+                        col-sm-auto
+                        custom-control custom-checkbox
+                        ml-4
+                        align-self-center
+                      "
+                    >
+                      <input
+                        class="custom-control-input"
+                        type="checkbox"
+                        id="yearAnno"
+                        name="yearAnno"
+                      />
+                      <label
+                        class="custom-control-label"
+                        for="yearAnno"
+                        aria-label="showTrendsOnGraph"
+                        >Hide Trend Label</label
                       >
-                        <label class="mb-0 align-self-center" for="yearFont"
-                          >Plot Font Size</label
-                        >
-                        <input
-                          type="number"
-                          id="yearFont"
-                          name="yearFont"
-                          class="form-control ml-2 fontControl"
-                          min="12"
-                          max="20"
-                          value="14"
-                        />
-                      </div>
-                      <div
-                        id="yearAnnoControl"
-                        class="
-                          col-sm-auto
-                          custom-control custom-checkbox
-                          ml-4
-                          align-self-center
-                        "
-                      >
-                        <input
-                          class="custom-control-input"
-                          type="checkbox"
-                          id="yearAnno"
-                          name="yearAnno"
-                        />
-                        <label
-                          class="custom-control-label"
-                          for="yearAnno"
-                          aria-label="showTrendsOnGraph"
-                          >Hide Trend Label</label
-                        >
-                      </div>
                     </div>
                   </div>
 
@@ -1215,64 +1206,55 @@
 
                   <div class="row px-3 mb-1">
                     <button
-                      id="toggleDeathAdv"
+                      id="addDeathAnno"
                       type="button"
-                      class="btn btn-link togglePlotAdv"
+                      class="btn btn-link col-sm-auto addPlotAnno"
                     >
-                      Advanced Options
+                      + Add Annotation
                     </button>
-                    <div id="deathAdv" class="d-none row col-sm-auto">
-                      <button
-                        id="addDeathAnno"
-                        type="button"
-                        class="btn btn-link col-sm-auto addPlotAnno"
+                    <div
+                      class="
+                        d-flex
+                        mb-0
+                        align-self-center
+                        form-group
+                        col-sm-auto
+                      "
+                    >
+                      <label class="mb-0 align-self-center" for="deathFont"
+                        >Plot Font Size
+                      </label>
+                      <input
+                        type="number"
+                        id="deathFont"
+                        name="deathFont"
+                        class="form-control ml-2 fontControl"
+                        min="12"
+                        max="20"
+                        value="14"
+                      />
+                    </div>
+                    <div
+                      id="deathAnnoControl"
+                      class="
+                        col-sm-auto
+                        custom-control custom-checkbox
+                        ml-4
+                        align-self-center
+                      "
+                    >
+                      <input
+                        class="custom-control-input"
+                        type="checkbox"
+                        id="deathAnno"
+                        name="deathAnno"
+                      />
+                      <label
+                        class="custom-control-label"
+                        for="deathAnno"
+                        aria-label="showTrendsOnGraph"
+                        >Hide Trend Label</label
                       >
-                        + Add Annotation
-                      </button>
-                      <div
-                        class="
-                          d-flex
-                          mb-0
-                          align-self-center
-                          form-group
-                          col-sm-auto
-                        "
-                      >
-                        <label class="mb-0 align-self-center" for="deathFont"
-                          >Plot Font Size
-                        </label>
-                        <input
-                          type="number"
-                          id="deathFont"
-                          name="deathFont"
-                          class="form-control ml-2 fontControl"
-                          min="12"
-                          max="20"
-                          value="14"
-                        />
-                      </div>
-                      <div
-                        id="deathAnnoControl"
-                        class="
-                          col-sm-auto
-                          custom-control custom-checkbox
-                          ml-4
-                          align-self-center
-                        "
-                      >
-                        <input
-                          class="custom-control-input"
-                          type="checkbox"
-                          id="deathAnno"
-                          name="deathAnno"
-                        />
-                        <label
-                          class="custom-control-label"
-                          for="deathAnno"
-                          aria-label="showTrendsOnGraph"
-                          >Hide Trend Label</label
-                        >
-                      </div>
                     </div>
                   </div>
 
@@ -1353,42 +1335,33 @@
 
                   <div class="row px-3 mb-1">
                     <button
-                      id="toggleTimeAdv"
+                      id="addTimeAnno"
                       type="button"
-                      class="btn btn-link togglePlotAdv"
+                      class="btn btn-link col-sm-auto addPlotAnno"
                     >
-                      Advanced Options
+                      + Add Annotation
                     </button>
-                    <div id="timeAdv" class="d-none row col-sm-auto">
-                      <button
-                        id="addTimeAnno"
-                        type="button"
-                        class="btn btn-link col-sm-auto addPlotAnno"
-                      >
-                        + Add Annotation
-                      </button>
-                      <div
-                        class="
-                          d-flex
-                          mb-0
-                          align-self-center
-                          form-group
-                          col-sm-auto
-                        "
-                      >
-                        <label class="mb-0 align-self-center" for="timeFont">
-                          Plot Font Size
-                        </label>
-                        <input
-                          type="number"
-                          id="timeFont"
-                          name="timeFont"
-                          class="form-control ml-2 fontControl"
-                          min="12"
-                          max="20"
-                          value="14"
-                        />
-                      </div>
+                    <div
+                      class="
+                        d-flex
+                        mb-0
+                        align-self-center
+                        form-group
+                        col-sm-auto
+                      "
+                    >
+                      <label class="mb-0 align-self-center" for="timeFont">
+                        Plot Font Size
+                      </label>
+                      <input
+                        type="number"
+                        id="timeFont"
+                        name="timeFont"
+                        class="form-control ml-2 fontControl"
+                        min="12"
+                        max="20"
+                        value="14"
+                      />
                     </div>
                   </div>
                   <div class="row">

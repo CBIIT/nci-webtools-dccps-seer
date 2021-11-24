@@ -361,17 +361,6 @@ function addEventListeners() {
     });
   });
 
-  // ** advanced plot control
-  // toggles
-  const $yearAdv = $('#yearAdv');
-  const $deathAdv = $('#deathAdv');
-  const $timeAdv = $('#timeAdv');
-  $('.togglePlotAdv').on('click', (e) => {
-    const id = e.target.id;
-    if (id.match(/year/i)) $yearAdv.toggleClass('d-none');
-    if (id.match(/death/i)) $deathAdv.toggleClass('d-none');
-    if (id.match(/time/i)) $timeAdv.toggleClass('d-none');
-  });
   // add annotation
   $('.addPlotAnno').on('click', (e) => {
     const id = e.target.id;
