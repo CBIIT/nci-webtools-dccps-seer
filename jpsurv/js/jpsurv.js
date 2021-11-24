@@ -1059,9 +1059,14 @@ function drawPlot(plot, update = false) {
       .replace(/__/g, '_')
       .replace(/([^a-zA-Z0-9_]+)/gi, '');
 
-    const cohorts = jpsurvData.calculate.form.cohortValues
+    let cohorts = jpsurvData.calculate.form.cohortValues
       .map((v) => v.replace(/\"/g, ''))
       .join(' - ');
+    const jp = jpsurvData.results.jpInd;
+    cohorts +=
+      (cohorts.length ? ' - ' : '') +
+      `JP ${jp}` +
+      (jp > 0 ? ` (${jpsurvData.results.jpLocation[jp]})` : '');
 
     if (plot == 'year') {
       yearData = jpsurvData.results.yearData;
@@ -3559,10 +3564,10 @@ function modelEstimates(results = jpsurvData.results) {
 
   // Estimates of the Joinpoints
   var sheet = [['Estimates of the Joinpoints']];
-  sheet.push(['Locations', jpLocations || 'None'], []);
+  sheet.push(['Locations', jpLocations || 'None']);
   Object.values(modelSelection).forEach((jp, i) => {
     if (jpInd == i) {
-      sheet.push(['Estimates', `Joinpoint ${i + 1}`]);
+      sheet.push(['Estimates', `Joinpoint ${i}`]);
       sheet.push(['Bayesian Information Criterion (BIC)', jp.aic]);
       sheet.push(['Akaike Information Criterial (AIC)', jp.bic]);
       sheet.push(['Log Likelihood', jp.ll]);
@@ -3803,9 +3808,14 @@ async function downloadFullData() {
       }
 
       const sheetname = `Cohort ${i + 1}`;
-      const cohorts = jpsurvData.calculate.form.cohortValues
+      let cohorts = jpsurvData.calculate.form.cohortValues
         .map((v) => v.replace(/\"/g, ''))
         .join(' - ');
+      const jp = data.jpInd;
+      cohorts +=
+        (cohorts.length ? ' - ' : '') +
+        `JP ${jp}` +
+        (jp > 0 ? ` (${data.jpLocation[jp]})` : '');
 
       XLSX.utils.book_append_sheet(
         wb,
