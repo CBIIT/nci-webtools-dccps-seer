@@ -93,6 +93,39 @@
         </div>
       </div>
     </header>
+    <div class="bg-dark w-100">
+      <div class="container">
+        <nav
+          class="navbar navbar-expand-lg navbar-dark bg-dark"
+          role="navigation"
+        >
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-toggle="collapse"
+            data-target="#navbarNavAltMarkup"
+            aria-controls="navbarNavAltMarkup"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav">
+              <a
+                class="nav-item nav-link active"
+                id="analysisNav"
+                href="#analysis"
+                ><b>Analysis</b></a
+              >
+              <a class="nav-item nav-link" id="helpNav" href="#help"
+                ><b>Help</b></a
+              >
+            </div>
+          </div>
+        </nav>
+      </div>
+    </div>
     <!-- CONTENTS Section -->
 
     <div id="main" class="container">
@@ -138,7 +171,7 @@
 
               <div id="slideout">
                 <div class="">
-                  <span
+                  <!-- <span
                     class="float-right col-md-5 cursor text-right"
                     onclick="openHelpWindow('./html/help.html')"
                   >
@@ -146,7 +179,7 @@
                       <i class="fas fa-question-circle" aria-label="Help"></i>
                       <span>Help</span>
                     </a>
-                  </span>
+                  </span> -->
                   <!-- Upload FORM - STAGE 1 -->
                   <div
                     class="box col-xs-12 shadow-sm"
@@ -703,10 +736,10 @@
         </div>
         <div
           class="card col-md-12 col-lg-8 shadow-sm bg-white"
-          id="helpCard"
+          id="descriptionCard"
           style="margin-top: 2rem"
         >
-          <div id="help" class="card-body h-auto overflow-auto">
+          <div id="description" class="card-body h-auto overflow-auto">
             <div class="row">
               <div
                 class="col-sm-7 col-sm-offset-2"
@@ -1458,18 +1491,13 @@
                     </table>
                   </div>
                 </div>
-                <!-- Help Tab -->
-                <div
-                  id="help-tab"
-                  class="tab-pane fade"
-                  style="font-size: 14px"
-                ></div>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+    <div id="help" class="container d-none"></div>
     <footer class="text-left text-md-center pt-4 pb-4 text-light bg-primary">
       <div class="container">
         <ul class="list-inline text-light">

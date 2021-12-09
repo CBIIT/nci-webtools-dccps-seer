@@ -48,11 +48,11 @@ $(document).ready(function () {
     $('#calculate').prop('disabled', true);
   }
   if (jpsurvData.status === 'uploaded') {
-    $('#help').html(
+    $('#description').html(
       '<div style="font-size:1.25rem;">Please select Cohort and Model specifications on the left and click on Calculate / Submit.</div>'
     );
   } else {
-    loadHelp();
+    $('#description').append($('<div>').load('./html/description.html'));
   }
 
   if (DEBUG) {
@@ -85,6 +85,24 @@ $(document).ready(function () {
     $('#csv_container').hide();
     $('#import_container').show();
   }
+
+  // Navbar control Analysis and Help page view
+  $('#help').load('./html/help.html');
+  function handleNavTab(hash) {
+    if (hash == '#analysis') {
+      $('#helpNav').removeClass('active');
+      $('#main').removeClass('d-none');
+      $('#analysisNav').addClass('active');
+      $('#help').addClass('d-none');
+    } else if (hash == '#help') {
+      $('#helpNav').addClass('active');
+      $('#main').addClass('d-none');
+      $('#analysisNav').removeClass('active');
+      $('#help').removeClass('d-none');
+    }
+  }
+  handleNavTab(window.location.hash);
+  $(window).on('hashchange', () => handleNavTab(window.location.hash));
 });
 
 function checkInput(id) {
@@ -565,7 +583,7 @@ function addInputSection() {
     id = 'jpsurv';
     showMessage(id, message, message_type);
     $('#right_panel').hide();
-    $('#helpCard').show();
+    $('#descriptionCard').show();
   } else if (status == 'failed_import') {
     handleError(
       'An unexpected error occured. Please ensure the input file(s) is in the correct format and/or correct parameters were chosen. <br>'
@@ -579,7 +597,7 @@ function addInputSection() {
     id = 'jpsurv';
     showMessage(id, message, message_type);
     $('#right_panel').hide();
-    $('#helpCard').show();
+    $('#descriptionCard').show();
     var inputData = load_ajax(
       'input_' + jpsurvData.tokenId + '.json',
       jpsurvData.tokenId
@@ -883,11 +901,6 @@ function addCohortVariables() {
     });
   }
   updateCohortDisplay();
-}
-
-function loadHelp() {
-  $('#help-tab').load('./html/help.html');
-  $('#help').append($('<div>').load('./html/description.html'));
 }
 
 $('#file_control_csv').change(function () {
@@ -1546,7 +1559,7 @@ function calculateFittedResults() {
 function calculateFittedResultsCallback() {
   $('#right_panel').show();
   $('#right_panel').css('display', 'inline-block');
-  $('#helpCard').hide();
+  $('#descriptionCard').hide();
   $('#icon').css('visibility', 'visible');
   Slide_menu_Horz('hide');
 
@@ -1787,7 +1800,7 @@ function calculate(run) {
       //  jpsurvData.additional.rates=control.rates
       var params = getParams();
       $('#right_panel').hide();
-      $('#helpCard').show();
+      $('#descriptionCard').show();
       $('#icon').css('visibility', 'hidden');
       var comm_results = jpsurvRest('stage5_queue', params);
       $('#calculating-spinner').modal('hide');
@@ -2679,7 +2692,7 @@ function jpsurvRest(action, params) {
 function showMessage(id, message, message_type) {
   //  Display either a warning an error.
   $('#right_panel').show();
-  $('#helpCard').hide();
+  $('#descriptionCard').hide();
   $('#icon').css('visibility', 'visible');
 
   var css_class = '';

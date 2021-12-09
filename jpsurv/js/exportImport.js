@@ -203,7 +203,7 @@ function updatePageAfterRefresh(e) {
 function retrieveCohortComboResults(data) {
   $('#right_panel').show();
   $('#right_panel').css('display', 'inline-block');
-  $('#helpCard').hide();
+  $('#descriptionCard').hide();
   $('#icon').css('visibility', 'visible');
   Slide_menu_Horz('hide');
 

@@ -1,6 +1,10 @@
 html {
   font-size: 14px;
 }
+video {
+  display: block;
+  max-width: 1200px;
+}
 
 /* Plotly hover text */
 .hoverlayer {
@@ -374,6 +378,11 @@ input[type='file'] {
   background-color: #1b6ec2;
   border-color: #1861ac;
 }
+
+.text-primary {
+  color: #1861ac !important;
+}
+
 .btn-primary:hover,
 .btn-primary:focus,
 .btn-primary:active,
@@ -502,14 +511,14 @@ tbody tr:last-child td:last-child {
   background-color: #2a71a5 !important;
 }
 
-.nav-link {
+/* .nav-link {
   font-size: 1rem;
   color: black;
 }
 
 .nav-link.active {
   color: #007bff !important;
-}
+} */
 
 .btn {
   font-size: 1rem;
