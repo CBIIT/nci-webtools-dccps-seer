@@ -3110,7 +3110,16 @@ function Read_csv_file() {
   }
 
   filereader.onload = function (event) {
-    create_table(event.currentTarget.result, lines, has_headers);
+    if (event.target.result) {
+      $('#jpsurv-message-container').hide();
+      create_table(event.target.result, lines, has_headers);
+    } else {
+      showMessage(
+        'jpsurv',
+        'Unable to process file. Please review your data and try again.',
+        'warning'
+      );
+    }
   };
   filereader.readAsText(file);
 }
@@ -3314,7 +3323,7 @@ function save_params() {
 }
 function create_table(content, rows, has_headers) {
   if (first_modal == true) createModal();
-  var arr = content.split('\n');
+  var arr = content.split(/\r\n|\n|\r/);
   if (content.indexOf(',') !== -1) {
     $('#comma').prop('checked', true);
     var matrix = arr.map(function (line) {
