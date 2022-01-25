@@ -245,11 +245,10 @@ def stage1_upload():
 
             return redirect(url)
 
-        except:
-            status = "failed_upload"
-            app.logger.debug("FAILED")
+        except Exception as e:
+            app.logger.error("Upload Failed")
+            app.logger.error(e)
             return_url = "?request=false&status=failed_upload"
-            app.logger.debug(return_url)
             return redirect(return_url)
 
 
