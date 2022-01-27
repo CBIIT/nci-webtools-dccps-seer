@@ -314,12 +314,16 @@ async function drawLineChart(
 }
 
 function addAnnotation(plot) {
+  const xData = plot.data[0].x;
+  const xMean = xData.reduce((a, b) => a + b) / xData.length;
+  const yData = plot.data[0].y;
+  const yMean = yData.reduce((a, b) => a + b) / yData.length;
   const index = plot.layout.annotations ? plot.layout.annotations.length : 0;
   Plotly.relayout(plot, `annotations[${index}]`, {
-    x: 0.5,
-    y: 1,
-    xref: 'paper',
-    yref: 'paper',
+    x: xMean,
+    y: yMean + 0.1,
+    xref: 'x',
+    yref: 'y',
     text: `Annotation ${index + 1}`,
     bgcolor: 'rgba(255, 255, 255, 0.9)',
     captureevents: true,
