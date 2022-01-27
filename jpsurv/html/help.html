@@ -31,7 +31,7 @@
     The goal is to estimate relative survival trends from 1975 for patients (any
     sex, any stage) diagnosed with Non-Hodgkin Lymphoma (NHL) or Chronic Myeloid
     Leukemias (CML). Note that we usually don’t select the last diagnosis year
-    (2017 in our case) because the last year may miss some of the deaths and
+    (2018 in our case) because the last year may miss some of the deaths and
     survival may be overestimated.
   </p>
   <br />
@@ -249,7 +249,7 @@
       Click the Choose Files button and select the .txt and .dic files exported
       in Step 1. Note that you need to select both at the same time.
     </li>
-    <li>Press Upload Input Files button/li></li>
+    <li>Press Upload Input Files button</li>
   </ol>
   <br />
 
@@ -291,12 +291,12 @@
       1.
     </li>
     <li>
-      Once file is selected a new window will pop up for CSV Configuration
+      Once the file is selected a new window will pop up for CSV Configuration
     </li>
     <li>Choose the appropriate delimiter</li>
     <li>
-      If file contains headers, make sure box titled &ldquo;Does the file
-      contain headers?&rdquo; is checked. Otherwise, uncheck the box.
+      If the file contains headers, make sure the box titled &ldquo;Does the
+      file contain headers?&rdquo; is checked. Otherwise, uncheck the box.
     </li>
     <li>
       Choose the appropriate data type, either Relative Survival or
@@ -354,7 +354,7 @@
   </video>
   <ol>
     <li id="isPasted">
-      Import NHL data using appropriate option (Dic/Dat, CSV, or Workspace)
+      Import NHL data using the appropriate option (Dic/Dat, CSV, or Workspace)
     </li>
     <li>
       In the Year of Diagnosis Range box, specify the number of years that will
@@ -371,7 +371,7 @@
     <li>
       For &ldquo;Maximum joinpoints,&rdquo; select 1 from the dropdown menu
     </li>
-    <li>Click CALCULATE</li>
+    <li>Click Calculate</li>
     <li>
       Examine the results. You will see that the model probably needs more
       joinpoints
@@ -415,25 +415,26 @@
     </li>
     <li>
       <b>Minimum Number of Years between Joinpoints (Excluding Joinpoints):</b>
-      If is selected, joinpoints will be years apart. The default value is 2.
+      If x is selected, joinpoints will be x years apart. The default value is
+      2.
     </li>
     <li>
       <b
         >Minimum Number of Years before First Joinpoint (Excluding
         Joinpoint):</b
       >
-      If is selected, the first joinpoint may be located at the or later
-      calendar year. The default value is 3.
+      If x is selected, the first joinpoint may be located at the (x+1)^th or
+      later calendar year. The default value is 3.
     </li>
     <li>
       <b>Minimum Number of Years after Last Joinpoint (Excluding Joinpoint):</b>
-      If is selected, the last joinpoint can be located at or more calendar
-      years prior to the last calendar year. The default value is 5.
+      If x is selected, the last joinpoint can be located at (x+1) or more
+      calendar years prior to the last calendar year. The default value is 5.
     </li>
     <li>
-      <b>Number of Calendar Years of Projected Survival:</b> This specifies the
-      calculation of projected survival up to &nbsp;years from the last calendar
-      year. The default value is 5.
+      <b>Number of Calendar Years of Projected Survival:</b>
+      This specifies the calculation of projected survival up to x years from
+      the last calendar year. The default value is 5.
     </li>
   </ul>
   <br />
@@ -448,7 +449,7 @@
   <p>
     JPSurv uses the minimum Bayesian Information Criterion (BIC) to select the
     best fitted model. The Akaike Information Criterion (AIC) is also provided.
-    AIC tends to select models with higher number of joinpoints. Graphs and
+    AIC tends to select models with a higher number of joinpoints. Graphs and
     other output features are available for other fitted models beyond the final
     selected model.
   </p>
