@@ -1,6 +1,5 @@
 import json
 import sys
-import logging
 
 from os import path, getcwd
 from zipfile import ZipFile
@@ -79,13 +78,12 @@ def calculate(WORKING_DIR, jpsurvData, timestamp, logger):
             r.source('JPSurvWrapper.R')
             logger.info("Calculating")
             r.getFittedResultWrapper(WORKING_DIR, jpsurvDataString)
-            logging.info("Calculation succeeded")
-            success = True
-        except:
-            logging.info("Calculation failed")
-            success = False
-
-    return success
+            logger.info("Calculation succeeded")
+            return True
+        except Exception as e:
+            logger.info("Calculation failed")
+            logger.error(getattr(e, 'message', repr(e)))
+            return False
 
 
 if __name__ == '__main__':
@@ -133,12 +131,8 @@ if __name__ == '__main__':
                         with ZipFile(input_archive_path) as archive:
                             archive.extractall(input_dir)
 
-                        try:
-                            job = calculate(WORKING_DIR, jpsurvData,
-                                            timestamp, logger)
-                        except Exception as e:
-                            logger.error('Calculation failed')
-                            logger.error(getattr(e, 'message', repr(e)))
+                        job = calculate(WORKING_DIR, jpsurvData,
+                                        timestamp, logger)
 
                         if job:
                             try:
