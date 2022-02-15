@@ -44,8 +44,6 @@ function importBackEnd(event) {
 // with the extension .jpsurv
 //
 function exportBackEnd(event) {
-  var form_data = new FormData();
-
   if (jpsurvData.stage2completed == false) {
     handleError(
       'No Analysis is currently running.  Pleas either import or select files to analyze'
@@ -103,6 +101,9 @@ function exportBackEnd(event) {
       data.txtFile = jpsurvData.file.data;
     }
   }
+  // show loading indicator
+  $('#export-workspace-spinner').removeClass('d-none');
+  $('#exportButton').addClass('disabled');
 
   $.ajax({
     type: 'GET',
@@ -113,6 +114,11 @@ function exportBackEnd(event) {
     })
     .fail(function (jqXHR, textStatus) {
       displayCommFail('jpsurv', jqXHR, textStatus);
+    })
+    .always(() => {
+      // hide loading indicator
+      $('#export-workspace-spinner').addClass('d-none');
+      $('#exportButton').removeClass('disabled');
     });
 }
 

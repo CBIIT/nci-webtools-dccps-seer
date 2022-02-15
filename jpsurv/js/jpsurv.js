@@ -1521,7 +1521,7 @@ function updateGraphLinks() {
     downloadData('modelEstimates');
   };
   Array.prototype.map.call(
-    document.querySelectorAll('.full-dataset-link'),
+    document.querySelectorAll('#full-dataset-link'),
     (link) => {
       link.onclick = (event) => {
         event.preventDefault();
@@ -3807,6 +3807,10 @@ async function downloadFullData() {
       Title: 'JPSurv-' + jpsurvData.file.data.replace(/\.[^/.]+$/, ''),
     };
 
+    // show loading indicator
+    $('#full-dataset-spinner').removeClass('d-none');
+    $('#full-dataset-link').addClass('disabled');
+
     const allResults = await getData();
 
     allResults.forEach((data, i) => {
@@ -3857,6 +3861,10 @@ async function downloadFullData() {
     XLSX.writeFile(wb, wb.props.Title + '.xlsx');
   } catch (error) {
     console.error(error);
+  } finally {
+    // hide loading indicator
+    $('#full-dataset-spinner').addClass('d-none');
+    $('#full-dataset-link').removeClass('disabled');
   }
 }
 
