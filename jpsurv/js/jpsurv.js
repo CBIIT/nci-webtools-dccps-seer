@@ -3812,6 +3812,7 @@ async function downloadFullData() {
     $('#full-dataset-link').addClass('disabled');
 
     const allResults = await getData();
+    if (!Object.keys(allResults).length) throw 'Failed to retrieve results';
 
     allResults.forEach((data, i) => {
       let results = data.fullDownload;
@@ -3907,6 +3908,7 @@ async function getData() {
     return await Promise.all(queries.flat());
   } catch (error) {
     console.error(error);
+    return {};
   }
 }
 
