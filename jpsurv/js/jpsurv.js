@@ -1078,7 +1078,7 @@ function drawPlot(plot, update = false) {
     const jp = jpsurvData.results.jpInd;
     cohorts +=
       (cohorts.length ? ' - ' : '') +
-      `JP ${jp}` +
+      `Joinpoint ${jp}` +
       (jp > 0 ? ` (${jpsurvData.results.jpLocation[jp]})` : '');
 
     if (plot == 'year') {
@@ -3836,7 +3836,7 @@ async function downloadFullData() {
       const jp = data.jpInd;
       cohorts +=
         (cohorts.length ? ' - ' : '') +
-        `JP ${jp}` +
+        `Joinpoint ${jp}` +
         (jp > 0 ? ` (${data.jpLocation[jp]})` : '');
 
       XLSX.utils.book_append_sheet(
