@@ -133,8 +133,12 @@ if __name__ == '__main__':
                         with ZipFile(input_archive_path) as archive:
                             archive.extractall(input_dir)
 
-                        job = calculate(WORKING_DIR, jpsurvData,
-                                        timestamp, logger)
+                        try:
+                            job = calculate(WORKING_DIR, jpsurvData,
+                                            timestamp, logger)
+                        except Exception as e:
+                            logger.error('Calculation failed')
+                            logger.error(getattr(e, 'message', repr(e)))
 
                         if job:
                             try:
@@ -156,8 +160,9 @@ if __name__ == '__main__':
                                     composeSuccess(
                                         WORKING_DIR, jpsurvData, timestamp, logger, config)
 
-                            except Exception as err:
+                            except Exception as e:
                                 logger.error(f'Failed to upload {token}.zip')
+                                logger.error(getattr(e, 'message', repr(e)))
                                 composeFail(WORKING_DIR, jpsurvData,
                                             timestamp, logger, config)
 
@@ -173,7 +178,7 @@ if __name__ == '__main__':
                         logger.error('Unknown message type!')
                         msg.delete()
                 except Exception as e:
-                    logger.exception(e)
+                    logger.error(getattr(e, 'message', repr(e)))
 
                 finally:
                     if extender:
@@ -182,5 +187,5 @@ if __name__ == '__main__':
         logger.info("\nBye!")
         sys.exit()
     except Exception as e:
-        logger.exception(e)
         logger.error('Failed to connect to SQS queue')
+        logger.error(getattr(e, 'message', repr(e)))
