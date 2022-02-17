@@ -19,21 +19,26 @@ RUN dnf -y update \
 # install python packages
 RUN pip3 install flask mod_wsgi rpy2 boto3 pytest
 
-# install R packages
-RUN R -e "install.packages(c('ggplot2', 'rjson', 'ggrepel', 'jsonlite'), repos='https://cloud.r-project.org/')" 
-
 # install JPSurv R package
-COPY ../r-packages/JPSurv_R_package.tar.gz /tmp/jpsurv.tar.gz
+COPY r-packages/JPSurv_R_package.tar.gz /tmp/jpsurv.tar.gz
+
+# install renv
+RUN Rscript -e "install.packages('renv', repos = 'https://cloud.r-project.org/')"
+
+# install R packages
+COPY renv.lock /deploy/app/
+
+WORKDIR /deploy/app
+
+RUN Rscript -e "renv::restore()"
 
 RUN R -e "install.packages('/tmp/jpsurv.tar.gz', repos = NULL)"
 
 RUN mkdir -p /deploy/app /deploy/logs /deploy/wsgi
 
-COPY ../jpsurv /deploy/app/
-COPY ../jpsurv /deploy/app/jpsurv
+COPY jpsurv /deploy/app/
+COPY jpsurv /deploy/app/jpsurv
 COPY docker/additional-configuration.conf /deploy/wsgi/additional-configuration.conf
-
-WORKDIR /deploy/app
 
 # create ncianalysis user
 RUN groupadd -g 4004 -o ncianalysis \
