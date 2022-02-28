@@ -26,7 +26,7 @@ COPY r-packages/JPSurv_R_package.tar.gz /tmp/jpsurv.tar.gz
 RUN Rscript -e "install.packages('renv', repos = 'https://cloud.r-project.org/')"
 
 # install R packages
-COPY renv.lock /deploy/app/
+COPY /jpsurv/renv.lock /deploy/app/
 
 WORKDIR /deploy/app
 
