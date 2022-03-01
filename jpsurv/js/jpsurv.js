@@ -1,3 +1,5 @@
+const { error } = require('selenium-webdriver');
+
 var control_data;
 var cohort_covariance_variables;
 var advfields = ['adv-between', 'adv-first', 'adv-last', 'adv-year'];
@@ -1957,10 +1959,16 @@ function loadResults(results) {
   showTrendTable();
   changePrecision();
 
-  if (results.errors && results.errors.invalidCohorts.length) {
-    const cohorts = Array.isArray(results.errors.invalidCohorts)
+  if (
+    results.errors &&
+    (results.errors.invalidCohorts.length || results.errors.errorCohorts.length)
+  ) {
+    const invalidCohorts = Array.isArray(results.errors.invalidCohorts)
       ? results.errors.invalidCohorts
       : [results.errors.invalidCohorts];
+    const errorCohorts = Array.isArray(results.errors.errorCohorts)
+      ? results.errors.errorCohorts
+      : [results.errors.errorCohorts];
 
     const msg = $('<div>')
       .append(
@@ -1968,7 +1976,7 @@ function loadResults(results) {
       )
       .append(
         $('<ul>').append(
-          cohorts.map(function (cohort) {
+          [...invalidCohorts, ...errorCohorts].map(function (cohort) {
             return $('<li>').text(cohort);
           })
         )
