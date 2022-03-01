@@ -1,5 +1,3 @@
-const { error } = require('selenium-webdriver');
-
 var control_data;
 var cohort_covariance_variables;
 var advfields = ['adv-between', 'adv-first', 'adv-last', 'adv-year'];
