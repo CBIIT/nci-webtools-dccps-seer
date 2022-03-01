@@ -148,24 +148,23 @@ getFittedResultWrapper <- function(filePath, jpsurvDataString) {
   com_matrix = as.matrix(expand.grid(combination_array))
   jsonl = list()
   valid_com_matrix = matrix(, nrow = 0, ncol(com_matrix))
-  errors = list()
-  errors['msg'] = c()
-  errors['invalid'] = c()
+  errors = list(invalidCohorts = c(), errorCohorts = c())
+
   if (length(com_matrix) > 0) {
     for (i in 1:nrow(com_matrix)) {
       valid = validateCohohort(jpsurvData, filePath, seerFilePrefix, allVars, yearOfDiagnosisVarName,
-      yearOfDiagnosisRange, cohortVars, com_matrix[i,], type, jpsurvData$additional$del)
+              yearOfDiagnosisRange, cohortVars, com_matrix[i,], type, jpsurvData$additional$del)
       if (valid == 1) {
         valid_com_matrix <- rbind(valid_com_matrix, c(com_matrix[i,]))
       } else {
-        errors[['msg']] = append(errors[['msg']], valid)
+        # errors[['msg']] = append(errors[['msg']], valid)
         cohorts = gsub('\"', '', paste(as.vector(com_matrix[i,]), collapse = ' + '))
-        errors[['invalid']] = append(errors[['invalid']], cohorts)
+        errors[['invalidCohorts']] = append(errors[['invalidCohorts']], cohorts)
       }
     }
     if (length(valid_com_matrix) == 0) {
-      cohorts = paste0(paste0('<li>', errors[['invalid']], '</li>'), collapse = '')
-      msg = paste0('<h6>No data available for the following cohort selections:</h6><ul>', cohorts, '</ul>')
+      allInvalidCohorts = paste0(paste0('<li>', errors[['invalidCohorts']], '</li>'), collapse = '')
+      msg = paste0('<h6>No data available for the following cohort selections:</h6><ul>', allInvalidCohorts, '</ul>')
       stop(msg)
     }
   } else {
@@ -173,19 +172,33 @@ getFittedResultWrapper <- function(filePath, jpsurvDataString) {
     valid_com_matrix = com_matrix
   }
   #loops through each combnation in the matrix and creates a R data file
-  if (nrow(valid_com_matrix) > 0) {
-    for (i in 1:nrow(valid_com_matrix)) {
+  cohortErrorsIndex = c()
+  for (i in 1:nrow(valid_com_matrix)) {
+    tryCatch({
       jsonl[[i]] = getFittedResultForVarCombo(
         i, jpsurvData, filePath, seerFilePrefix, yearOfDiagnosisVarName,
         yearOfDiagnosisRange, allVars, cohortVars, valid_com_matrix[i,], numJP, advanced_options,
-        delLastIntvl, jpsurvDataString, projyear, type, del)
-    }
-  } else {
-    jsonl[[1]] = getFittedResultForVarCombo(
-      1, jpsurvData, filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange,
-      allVars, cohortVars, valid_com_matrix, numJP, advanced_options,
-      delLastIntvl, jpsurvDataString, projyear, type, del)
+        delLastIntvl, jpsurvDataString, projyear, type, del
+      )
+    }, error = function(e) {
+      cohortErrorsIndex <<- append(cohortErrorsIndex, i)
+      cohorts = gsub('\"', '', paste(as.vector(com_matrix[i,]), collapse = ' + '))
+      errors[['errorCohorts']] <<- append(errors[['errorCohorts']], cohorts)
+    })
   }
+
+  if (length(cohortErrorsIndex)) {
+    if (length(cohortErrorsIndex) == nrow(valid_com_matrix)) {
+      allInvalidCohorts = paste0(paste0('<li>', errors[['invalidCohorts']], '</li>'), collapse = '')
+      allErrorCohorts = paste0(paste0('<li>', errors[['errorCohorts']], '</li>'), collapse = '')
+      invalidMsg = ifelse(length(errors[['invalidCohorts']]), paste0('<h6>No data available for the following cohort selections:</h6><ul>', allInvalidCohorts, '</ul>'), '')
+      errorMsg = ifelse(length(errors[['errorCohorts']]), paste0('<h6>The following cohort selections encountered an error. Please review your input data:</h6><ul>', allErrorCohorts, '</ul>'), '')
+      stop(paste0(invalidMsg, '<br>', errorMsg))
+    }
+    # remove cohorts that returned errors
+    valid_com_matrix <- valid_com_matrix[-cohortErrorsIndex,]
+  }
+
   cohortModels = rjson::toJSON(jsonl)
   cohortCombo = jsonlite::toJSON(valid_com_matrix)
   cohortModelsPath = paste(filePath, paste("cohort_models-", jpsurvData$tokenId, ".json", sep = ""), sep = "/")
@@ -196,8 +209,7 @@ getFittedResultWrapper <- function(filePath, jpsurvDataString) {
   getAllData(filePath, jpsurvDataString, TRUE, TRUE, cohortComboPath, errors)
 }
 
-validateCohohort <- function(jpsurvData, filePath, seerFilePrefix, allVars, yearOfDiagnosisVarName,
-  yearOfDiagnosisRange, cohortVars, cohortValues, type, del) {
+validateCohohort <- function(jpsurvData, filePath, seerFilePrefix, allVars, yearOfDiagnosisVarName, yearOfDiagnosisRange, cohortVars, cohortValues, type, del) {
   file_name = paste(jpsurvData$session_tokenId, seerFilePrefix, sep = "")
   file = paste(filePath, file_name, sep = "/")
   varLabels = getCorrectFormat(allVars)
@@ -740,8 +752,7 @@ getGraphWrapper <- function(filePath, jpsurvDataString, first_calc, com, runs, i
     graphData = scaleTo(graphData)
     graphData = graphData[graphData[[yearVar]] %in% years,]
     if (exists("minYear")) {
-      results = list("timeGraph" = graphFile, "timeTable" = graphData, "minYear" = minYear, "maxYear" = maxYear, 
-      "minInt" = minInterval, "maxInt" = maxInterval)
+      results = list("timeGraph" = graphFile, "timeTable" = graphData, "minYear" = minYear, "maxYear" = maxYear, "minInt" = minInterval, "maxInt" = maxInterval)
     } else {
       results = list("timeGraph" = graphFile, "timeTable" = graphData)
     }

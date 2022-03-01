@@ -1722,12 +1722,6 @@ function validateRule1() {
   }
   var minYear = jpsurvData.calculate.form.yearOfDiagnosisRange[0];
   var maxYear = jpsurvData.calculate.form.yearOfDiagnosisRange[1];
-  var rightside =
-    minYear +
-    parseInt(jpsurvData.calculate.static.advanced.advFirst) +
-    (parseInt(jpsurvData.calculate.form.maxjoinPoints) - 1) *
-      (parseInt(jpsurvData.calculate.static.advanced.advBetween) + 1) +
-    parseInt(jpsurvData.calculate.static.advanced.advLast);
 
   if (
     maxYear >=
@@ -1962,14 +1956,19 @@ function loadResults(results) {
   updateTrend();
   showTrendTable();
   changePrecision();
-  if (results.errors && Object.keys(results.errors).length) {
-    var msg = $('<div>')
+
+  if (results.errors && results.errors.invalidCohorts.length) {
+    const cohorts = Array.isArray(results.errors.invalidCohorts)
+      ? results.errors.invalidCohorts
+      : [results.errors.invalidCohorts];
+
+    const msg = $('<div>')
       .append(
         $('<h6>').text('No data available for the following cohort selections:')
       )
       .append(
         $('<ul>').append(
-          results.errors.invalid.map(function (cohort) {
+          cohorts.map(function (cohort) {
             return $('<li>').text(cohort);
           })
         )
