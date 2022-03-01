@@ -575,7 +575,6 @@ function addInputSection() {
             )
         );
     }
-
   } else if (status == 'failed_upload') {
     message =
       'An unexpected error occured. Please ensure the input file(s) is in the correct format and/or correct parameters were chosen. <br>';

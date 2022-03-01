@@ -182,7 +182,7 @@ getFittedResultWrapper <- function(filePath, jpsurvDataString) {
       )
     }, error = function(e) {
       cohortErrorsIndex <<- append(cohortErrorsIndex, i)
-      cohorts = gsub('\"', '', paste(as.vector(com_matrix[i,]), collapse = ' + '))
+      cohorts = gsub('\"', '', paste(as.vector(valid_com_matrix[i,]), collapse = ' + '))
       errors[['errorCohorts']] <<- append(errors[['errorCohorts']], cohorts)
     })
   }
