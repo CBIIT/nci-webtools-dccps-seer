@@ -358,6 +358,7 @@ function addEventListeners() {
   //
   $('#calculate').on('click', function () {
     //Reset main calculation.  This forces a rebuild R Database
+    $('#calculate').prop('disabled', true);
     jpsurvData.stage2completed = false;
     checkUnselectedCohorts();
     setCalculateData();
@@ -575,7 +576,6 @@ function addInputSection() {
         );
     }
 
-    $('#calculate').prop('disabled', false);
   } else if (status == 'failed_upload') {
     message =
       'An unexpected error occured. Please ensure the input file(s) is in the correct format and/or correct parameters were chosen. <br>';
