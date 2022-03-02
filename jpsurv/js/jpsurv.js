@@ -1958,7 +1958,7 @@ function loadResults(results) {
 
   if (
     results.errors &&
-    (results.errors.invalidCohorts.length || results.errors.errorCohorts.length)
+    (results.errors.invalidCohorts || results.errors.errorCohorts)
   ) {
     const invalidCohorts = Array.isArray(results.errors.invalidCohorts)
       ? results.errors.invalidCohorts
@@ -1973,9 +1973,9 @@ function loadResults(results) {
       )
       .append(
         $('<ul>').append(
-          [...invalidCohorts, ...errorCohorts].map(function (cohort) {
-            return $('<li>').text(cohort);
-          })
+          [...invalidCohorts, ...errorCohorts].map((cohort) =>
+            cohort ? $('<li>').text(cohort) : ''
+          )
         )
       );
 

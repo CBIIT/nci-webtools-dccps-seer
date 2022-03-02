@@ -152,7 +152,7 @@ getFittedResultWrapper <- function(filePath, jpsurvDataString) {
 
   if (length(com_matrix) > 0) {
     for (i in 1:nrow(com_matrix)) {
-      valid = validateCohohort(jpsurvData, filePath, seerFilePrefix, allVars, yearOfDiagnosisVarName,
+      valid = validateCohort(jpsurvData, filePath, seerFilePrefix, allVars, yearOfDiagnosisVarName,
               yearOfDiagnosisRange, cohortVars, com_matrix[i,], type, jpsurvData$additional$del)
       if (valid == 1) {
         valid_com_matrix <- rbind(valid_com_matrix, c(com_matrix[i,]))
@@ -196,7 +196,7 @@ getFittedResultWrapper <- function(filePath, jpsurvDataString) {
       stop(paste0(invalidMsg, '<br>', errorMsg))
     }
     # remove cohorts that returned errors
-    valid_com_matrix <- valid_com_matrix[-cohortErrorsIndex,]
+    valid_com_matrix <- valid_com_matrix[-cohortErrorsIndex,, drop = FALSE]
   }
 
   cohortModels = rjson::toJSON(jsonl)
@@ -209,7 +209,7 @@ getFittedResultWrapper <- function(filePath, jpsurvDataString) {
   getAllData(filePath, jpsurvDataString, TRUE, TRUE, cohortComboPath, errors)
 }
 
-validateCohohort <- function(jpsurvData, filePath, seerFilePrefix, allVars, yearOfDiagnosisVarName, yearOfDiagnosisRange, cohortVars, cohortValues, type, del) {
+validateCohort <- function(jpsurvData, filePath, seerFilePrefix, allVars, yearOfDiagnosisVarName, yearOfDiagnosisRange, cohortVars, cohortValues, type, del) {
   file_name = paste(jpsurvData$session_tokenId, seerFilePrefix, sep = "")
   file = paste(filePath, file_name, sep = "/")
   varLabels = getCorrectFormat(allVars)
@@ -728,6 +728,7 @@ getGraphWrapper <- function(filePath, jpsurvDataString, first_calc, com, runs, i
     if (length(params$cohortVars) > 0) {
       cohortCombo = strsplit(runs, 'jpcom')[[1]][[com]]
       cohortCombo = strsplit(cohortCombo, '+', fixed = TRUE)[[1]]
+      # fix cohort variable names
       for (i in 1:length(params$cohortVars)) {
         if (params$cohortValues[i] != "\"\"") {
           cohortVar = getCorrectFormat(params$cohortVars[i])
