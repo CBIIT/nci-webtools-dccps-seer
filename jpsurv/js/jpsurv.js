@@ -1969,7 +1969,7 @@ function loadResults(results) {
 
     const msg = $('<div>')
       .append(
-        $('<h6>').text('No data available for the following cohort selections:')
+        $('<h6>').text('No data available for the following cohort selections. Please review your input data for compatibility:')
       )
       .append(
         $('<ul>').append(

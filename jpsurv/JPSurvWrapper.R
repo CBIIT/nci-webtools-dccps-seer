@@ -164,7 +164,7 @@ getFittedResultWrapper <- function(filePath, jpsurvDataString) {
     }
     if (length(valid_com_matrix) == 0) {
       allInvalidCohorts = paste0(paste0('<li>', errors[['invalidCohorts']], '</li>'), collapse = '')
-      msg = paste0('<h6>No data available for the following cohort selections:</h6><ul>', allInvalidCohorts, '</ul>')
+      msg = paste0('<h6>No data available for the following cohort selections. Please review your input data for compatibility:</h6><ul>', allInvalidCohorts, '</ul>')
       stop(msg)
     }
   } else {
@@ -191,8 +191,8 @@ getFittedResultWrapper <- function(filePath, jpsurvDataString) {
     if (length(cohortErrorsIndex) == nrow(valid_com_matrix)) {
       allInvalidCohorts = paste0(paste0('<li>', errors[['invalidCohorts']], '</li>'), collapse = '')
       allErrorCohorts = paste0(paste0('<li>', errors[['errorCohorts']], '</li>'), collapse = '')
-      invalidMsg = ifelse(length(errors[['invalidCohorts']]), paste0('<h6>No data available for the following cohort selections:</h6><ul>', allInvalidCohorts, '</ul>'), '')
-      errorMsg = ifelse(length(errors[['errorCohorts']]), paste0('<h6>The following cohort selections encountered an error. Please review your input data:</h6><ul>', allErrorCohorts, '</ul>'), '')
+      invalidMsg = ifelse(length(errors[['invalidCohorts']]), paste0('<h6>No data available for the following cohort selections. Please review your input data for compatibility:</h6><ul>', allInvalidCohorts, '</ul>'), '')
+      errorMsg = ifelse(length(errors[['errorCohorts']]), paste0('<h6>The following cohort selections encountered an error. Please review your input data for compatibility:</h6><ul>', allErrorCohorts, '</ul>'), '')
       stop(paste0(invalidMsg, '<br>', errorMsg))
     }
     # remove cohorts that returned errors
