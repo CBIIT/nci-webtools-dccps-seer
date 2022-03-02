@@ -1078,7 +1078,9 @@ function drawPlot(plot, update = false) {
     cohorts +=
       (cohorts.length ? ' - ' : '') +
       `Joinpoint ${jp}` +
-      (jp > 0 ? ` (${jpsurvData.results.jpLocation[jp]})` : '');
+      (jp > 0
+        ? ` (${jpsurvData.results.jpLocation[jp].replace(' ', ', ')})`
+        : '');
 
     if (plot == 'year') {
       yearData = jpsurvData.results.yearData;
@@ -1969,7 +1971,9 @@ function loadResults(results) {
 
     const msg = $('<div>')
       .append(
-        $('<h6>').text('No data available for the following cohort selections. Please review your input data for compatibility:')
+        $('<h6>').text(
+          'No data available for the following cohort selections. Please review your input data for compatibility:'
+        )
       )
       .append(
         $('<ul>').append(
