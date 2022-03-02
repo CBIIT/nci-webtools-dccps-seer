@@ -47,9 +47,9 @@ RUN chown -R ncianalysis:ncianalysis /deploy
 # USER ncianalysis
 
 ## building locally - need to provide aws credentials to use queue 
-# docker build -t jpsurv -f docker/app.dockerfile <PATH_TO_REPO>
-# docker run -d -p 8110:80 -v <PATH_TO_REPO>/logs:/deploy/logs -v <PATH_TO_REPO>/tmp:/deploy/tmp -v <PATH_TO_REPO>/config:/deploy/config --name jpsurv-server jpsurv
-# docker run -d -v <PATH_TO_REPO>/logs:/deploy/logs -v <PATH_TO_REPO>/tmp:/deploy/tmp -v <PATH_TO_REPO>/config:/deploy/config --name jpsurv-processor jpsurv python3 jpsurvProcessor.py
+# docker build -t jpsurv -f docker/app.dockerfile ~/Projects/jpsurv
+# docker run -d -p 8110:80 -v ~/Projects/jpsurv/logs:/deploy/logs -v ~/Projects/jpsurv/tmp:/deploy/tmp -v ~/Projects/jpsurv/config:/deploy/config --name jpsurv-server jpsurv
+# docker run -d -v ~/Projects/jpsurv/logs:/deploy/logs -v ~/Projects/jpsurv/tmp:/deploy/tmp -v ~/Projects/jpsurv/config:/deploy/config --name jpsurv-processor jpsurv python3 jpsurvProcessor.py
 
 CMD mod_wsgi-express start-server /deploy/app/jpsurv.wsgi \
     --user ncianalysis \
