@@ -2072,6 +2072,7 @@ function load_form() {
             id: 'yodLabel',
             class: 'jpsurv-label',
             html: 'Year of Diagnosis<span class="text-danger">*</span>:',
+            title: 'Year of Diagnosis is required',
           })
         )
     );
