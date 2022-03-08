@@ -2071,8 +2071,7 @@ function load_form() {
           $('<span>', {
             id: 'yodLabel',
             class: 'jpsurv-label',
-            html: 'Year of Diagnosis<span class="text-danger">*</span>:',
-            title: 'Year of Diagnosis is required',
+            html: 'Year of Diagnosis<span class="text-danger" title="Year of Diagnosis is required">*</span>:',
           })
         )
     );
