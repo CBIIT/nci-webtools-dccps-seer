@@ -1079,7 +1079,7 @@ function drawPlot(plot, update = false) {
       (cohorts.length ? ' - ' : '') +
       `Joinpoint ${jp}` +
       (jp > 0
-        ? ` (${jpsurvData.results.jpLocation[jp].replace(' ', ', ')})`
+        ? ` (${jpsurvData.results.jpLocation[jp].replace(/\s/g, ', ')})`
         : '');
 
     if (plot == 'year') {
