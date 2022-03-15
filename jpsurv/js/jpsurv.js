@@ -3687,8 +3687,8 @@ function generateSheet(data, cohorts = false) {
       data[col].forEach(function (value, row) {
         // fix NaN values
         if (isNaN(value) && typeof value != 'string') value = 'NA';
-        if (sheet[row + 1]) {
-          sheet[row + 1].push(value);
+        if (sheet[row + 2]) {
+          sheet[row + 2].push(value);
         } else {
           sheet.push([value]);
         }
