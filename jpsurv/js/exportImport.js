@@ -1,5 +1,4 @@
 $(document).ready(function () {
-  $('#importButton').on('click', importBackEnd);
   $('#exportButton').on('click', exportBackEnd);
   setEventHandlerForImports();
 });
@@ -8,6 +7,7 @@ $(document).ready(function () {
 // Import -- Upload a previous session ( stored in a zip with the extension .jpsurv  )
 //
 function importBackEnd(event) {
+  $('#upload_session').prop('disabled', true);
   var formData = new FormData();
   formData.append('zipData', $('#fileSelect')[0].files[0]);
 
@@ -31,12 +31,10 @@ function importBackEnd(event) {
     })
     .fail(function (jqXHR, textStatus) {
       handleBackendError();
-      console.dir(jqXHR);
-      console.log('Error on load_ajax');
-      console.log(jqXHR.status);
-      console.log(jqXHR.statusText);
+      console.log(jqXHR);
       console.log(textStatus);
-    });
+    })
+    .always(() => $('#upload_session').prop('disabled', false));
 }
 
 //
