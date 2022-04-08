@@ -60,6 +60,7 @@ CMD mod_wsgi-express start-server /deploy/app/jpsurv.wsgi \
     --access-log-format "%h %{X-Forwarded-For}i %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined \
     --access-log-name access.log \
     --port 80 \
+    --http2 \
     --server-root /deploy/wsgi \
     --document-root /deploy/app \
     --working-directory /deploy/app \
@@ -79,7 +80,8 @@ CMD mod_wsgi-express start-server /deploy/app/jpsurv.wsgi \
     --graceful-timeout 900 \
     --connect-timeout 900 \
     --request-timeout 900 \
-    --keep-alive-timeout 61 \
+    --keep-alive-timeout 60 \
+    --max-clients 200 \
     --processes 3 \
     --threads 1 \
     --reload-on-changes 
