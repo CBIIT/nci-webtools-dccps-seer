@@ -17,16 +17,16 @@ RUN dnf -y update \
     && dnf clean all
 
 # install python packages
-RUN pip3 install flask mod_wsgi rpy2 boto3 pytest
+RUN pip3 install flask mod_wsgi rpy2==3.4.5 boto3 pytest
 
-# install JPSurv R package
-COPY r-packages/JPSurv_R_package.tar.gz /tmp/jpsurv.tar.gz
 
 # install renv
 RUN Rscript -e "install.packages('renv', repos = 'https://cloud.r-project.org/')"
 
 # install R packages
 COPY /jpsurv/renv.lock /deploy/app/
+# copy JPSurv R package
+COPY r-packages /deploy/r-packages
 
 WORKDIR /deploy/app
 
