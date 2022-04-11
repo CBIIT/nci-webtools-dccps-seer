@@ -81,7 +81,7 @@ CMD mod_wsgi-express start-server /deploy/app/jpsurv.wsgi \
     --connect-timeout 900 \
     --request-timeout 900 \
     --keep-alive-timeout 60 \
-    --max-clients 200 \
+    # --max-clients 200 \
     --processes 3 \
     --threads 1 \
     --reload-on-changes 
