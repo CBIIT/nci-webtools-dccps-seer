@@ -540,6 +540,7 @@ tbody tr:last-child td:last-child {
 
 span.select2 {
   font-weight: normal;
+  min-width: 4rem;
 }
 
 .table-hover tbody tr:hover td,
