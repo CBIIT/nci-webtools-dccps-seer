@@ -28,7 +28,7 @@ def composeSuccess(WORKING_DIR, jpsurvData, timestamp, logger, config):
             'templates/user_email.html', {
                 'timestamp': timestamp,
                 'url': unquote(jpsurvJSON['queue']['url']),
-                'adminSupport': config['mail']['adminSupport']
+                'admin_support': config['mail']['admin_support']
             }
         )
     )
@@ -57,7 +57,7 @@ def composeFail(WORKING_DIR, jpsurvData, timestamp, logger, config):
             'templates/user_error_email.html', {
                 'timestamp': timestamp,
                 'uploadFiles': uploadFiles,
-                'adminSupport': config['mail']['adminSupport']
+                'admin_support': config['mail']['admin_support']
             }
         )
     )

@@ -11,7 +11,7 @@ class Queue:
         self.sqs = boto3.resource(
             'sqs', region_name=self.config['region_name'])
         self.queue = self.sqs.get_queue_by_name(
-            QueueName=self.config['queue_name'])
+            QueueName=self.config['analysis_queue'])
 
     def sendMsgToQueue(self, msg, id):
         response = self.queue.send_message(MessageBody=json.dumps(msg),
