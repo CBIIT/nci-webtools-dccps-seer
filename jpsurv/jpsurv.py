@@ -707,6 +707,53 @@ def sendResultsFile():
         return ('', 404)
 
 
+@app.route('/api/queueDownload', methods=['POST'])
+def queueDownload():
+    app.logger.debug("queueing full dataset download")
+
+    id, state = request.form.values()
+
+    input_dir = getInputDir(id)
+
+
+    bucket = S3Bucket(app.config['s3']['bucket'], app.logger)
+    try:
+        # zip work directory and upload to s3
+        archivePath = createArchive(input_dir)
+
+        if archivePath:
+            zipFilename = id + '.zip'
+            with open(archivePath, 'rb') as archive:
+                object = bucket.uploadFileObj(
+                    path.join(app.config['s3']['input_dir'], zipFilename), archive)
+                if object:
+                    app.logger.info('Succesfully Uploaded ' + id + '.zip')
+                else:
+                    app.logger.error('Failed to upload ' + id + '.zip')
+
+            sqs = Queue(app.logger, app.config)
+            sqs.sendMsgToQueue({
+                'jobId': id,
+                'state': state,
+                'timestamp': datetime.datetime.now().strftime("%Y-%m-%d")
+            }, id)
+            return jsonify({
+                'enqueued': True,
+                'jobId': id,
+                'message': 'Job "{}" has been added to queue successfully!'.format(id)
+            })
+        else:
+            msg = 'failed to archive input files'
+            app.logger.error(msg)
+            return app.response_class(json.dumps(msg), 500, mimetype='application/json')
+
+    except Exception as err:
+        message = "Upload to S3 failed!\n"
+        app.logger.error(message)
+        app.logger.exception(err)
+        return app.response_class(json.dumps(err), 500, mimetype='application/json')
+
+
 def is_safe_path(tokenId, path, follow_symlinks=True):
     # resolves symbolic links
     if follow_symlinks:
