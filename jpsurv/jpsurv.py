@@ -416,12 +416,8 @@ def myImport():
         return_url = "?request=false&status=failed_import"
         return redirect(return_url)
 
-    app.logger.debug("Leaving /jspruv/import")
 
-    return response
-
-
-@ app.route('/jpsurvRest/export', methods=['GET'])
+@app.route('/jpsurvRest/export', methods=['GET'])
 # Exports the JPSurv Data from the application to a file that is download to the user's computer
 def myExport():
     type = request.args['type']
@@ -505,7 +501,7 @@ def myExport():
         return abort(404, 'Export failed')
 
 
-@ app.route('/jpsurvRest/stage2_calculate', methods=['GET'])
+@app.route('/jpsurvRest/stage2_calculate', methods=['GET'])
 def stage2_calculate():
     app.logger.debug("****** Stage 2: CALCULATE BUTTON ***** ")
 
@@ -534,7 +530,7 @@ def stage2_calculate():
         return app.response_class(out_json, status=status, mimetype='application/json')
 
 
-@ app.route('/jpsurvRest/stage3_recalculate', methods=['GET'])
+@app.route('/jpsurvRest/stage3_recalculate', methods=['GET'])
 def stage3_recalculate():
     app.logger.debug("****** Stage 3: PLOT BUTTON ***** ")
 
@@ -622,7 +618,7 @@ def stage3_recalculate():
 #     return app.response_class(out_json, mimetype=mimetype)
 
 
-@ app.route('/jpsurvRest/stage5_queue', methods=['GET'])
+@app.route('/jpsurvRest/stage5_queue', methods=['GET'])
 def queue():
     app.logger.debug("****** Stage 5: Queue ***** ")
 
@@ -676,7 +672,7 @@ def queue():
 # Download queued job result from S3
 
 
-@ app.route('/jpsurvRest/downloadS3', methods=['GET'])
+@app.route('/jpsurvRest/downloadS3', methods=['GET'])
 def downloadS3():
     file = request.args.get('file')
     key = path.join(app.config['s3']['output_dir'], file)
@@ -697,7 +693,7 @@ def downloadS3():
         return app.response_class(json.dumps(message), 500, mimetype='application/json')
 
 
-@ app.route('/jpsurvRest/results', methods=['GET'])
+@app.route('/jpsurvRest/results', methods=['GET'])
 def sendResultsFile():
     file = (request.args.get('file'))
     tokenId = request.args.get('tokenId')
