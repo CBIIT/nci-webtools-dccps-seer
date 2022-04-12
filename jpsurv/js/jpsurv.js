@@ -2990,7 +2990,7 @@ function getRestServerStatus() {
 }
 
 function renewTokenId(refresh_url) {
-  var tokenId = Math.floor(Math.random() * (999999 - 100000 + 1));
+  const tokenId = crypto.randomUUID();
   jpsurvData.plot.static.imageId = -1;
   //console.warn(tokenId);
   if (refresh_url == true) {
