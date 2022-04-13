@@ -61,16 +61,17 @@ def createArchive(targetDirectory):
 
 
 def create_rotating_log(name, config):
-    if not path.exists('../logs'):
-        makedirs('../logs')
     config = config['logs']
+    folder = config['folder']
+    if not path.exists(folder):
+        makedirs(folder)
     size = int(config['size'])
     rollover = int(config['rollover'])
 
     formatter = logging.Formatter('%(asctime)s %(levelname)-8s %(message)s',
                                   '%Y-%m-%d %H:%M:%S')
     time = datetime.datetime.now().strftime("%Y-%m-%d_%H")
-    logFile = f'../logs/{name}.log.' + time
+    logFile = f'{folder}{name}.log.' + time
 
     my_handler = RotatingFileHandler(logFile, mode='a', maxBytes=size,
                                      backupCount=rollover, encoding=None, delay=0)
