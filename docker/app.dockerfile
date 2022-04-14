@@ -16,29 +16,28 @@ RUN dnf -y update \
     python3-devel \
     && dnf clean all
 
+RUN mkdir -p /deploy/app /deploy/logs /deploy/wsgi
+
 # install python packages
 RUN pip3 install flask mod_wsgi rpy2==3.4.5 boto3 pytest
 
-
 # install renv
-RUN Rscript -e "install.packages('renv', repos = 'https://cloud.r-project.org/')"
+RUN R -e "install.packages('renv', repos = 'https://cloud.r-project.org/')"
 
 # install R packages
-COPY /app/renv.lock /deploy/app/
-# copy JPSurv R package
+COPY app/renv.lock /deploy/app/
 COPY r-packages /deploy/r-packages
 
 WORKDIR /deploy/app
 
 RUN Rscript -e "renv::restore()"
 
-RUN R -e "install.packages('/tmp/jpsurv.tar.gz', repos = NULL)"
-
-RUN mkdir -p /deploy/app /deploy/logs /deploy/wsgi
+# install JPSurv
+# COPY r-packages /deploy/r-packages
+# RUN R -e "install.packages('/tmp/jpsurv.tar.gz', repos = NULL)"
 
 # copy app
 COPY app /deploy/app/
-# copy static directory
 COPY app /deploy/app/jpsurv
 COPY docker/additional-configuration.conf /deploy/wsgi/additional-configuration.conf
 

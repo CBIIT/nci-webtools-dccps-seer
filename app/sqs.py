@@ -17,7 +17,6 @@ class Queue:
         response = self.queue.send_message(MessageBody=json.dumps(msg),
                                            MessageGroupId=id,
                                            MessageDeduplicationId=id)
-        self.log.debug(response.get('MessageId'))
 
     def receiveMsgs(self):
         return self.queue.receive_messages(VisibilityTimeout=int(self.config['visibility_timeout']),

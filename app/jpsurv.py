@@ -18,6 +18,7 @@ from argparse import ArgumentParser
 from utils import make_dirs, read_config, createArchive, create_rotating_log
 from sqs import Queue
 from s3 import S3Bucket
+from uuid import uuid4
 
 
 if __name__ == '__main__':
@@ -647,12 +648,13 @@ def queue():
                 else:
                     app.logger.error('Failed to upload ' + tokenId + '.zip')
 
+            messageId = str(uuid4())
             sqs = Queue(app.logger, app.config)
             sqs.sendMsgToQueue({
                 'jobId': tokenId,
                 'jpsurvData': paramsFile,
                 'timestamp': datetime.datetime.now().strftime("%Y-%m-%d")
-            }, tokenId)
+            }, messageId)
             return jsonify({
                 'enqueued': True,
                 'jobId': tokenId,
@@ -711,32 +713,34 @@ def sendResultsFile():
 def queueDownload():
     app.logger.debug("queueing full dataset download")
 
-    id, state = request.form.values()
+    id, state = request.json.values()
 
     input_dir = getInputDir(id)
-
 
     bucket = S3Bucket(app.config['s3']['bucket'], app.logger)
     try:
         # zip work directory and upload to s3
         archivePath = createArchive(input_dir)
+        s3InputKey = path.join(app.config['s3']['input_dir'], id + '.zip')
 
         if archivePath:
-            zipFilename = id + '.zip'
+
             with open(archivePath, 'rb') as archive:
-                object = bucket.uploadFileObj(
-                    path.join(app.config['s3']['input_dir'], zipFilename), archive)
+                object = bucket.uploadFileObj(s3InputKey, archive)
                 if object:
                     app.logger.info('Succesfully Uploaded ' + id + '.zip')
                 else:
                     app.logger.error('Failed to upload ' + id + '.zip')
 
-            sqs = Queue(app.logger, app.config)
+            messageId = str(uuid4())
+            sqs = Queue(app.logger, app.config, 'download')
             sqs.sendMsgToQueue({
-                'jobId': id,
+                'id': id,
                 'state': state,
+                'inputKey': s3InputKey,
                 'timestamp': datetime.datetime.now().strftime("%Y-%m-%d")
-            }, id)
+            }, messageId)
+            app.logger.info('Succesfully enqueued ' + id)
             return jsonify({
                 'enqueued': True,
                 'jobId': id,

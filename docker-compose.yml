@@ -12,7 +12,7 @@ services:
         ports: 
             - '9001:80'
 
-    queue_processor:
+    analysis_queue_processor:
         build:
             context: '.'
             dockerfile: './docker/app.dockerfile'
@@ -22,4 +22,15 @@ services:
             - './logs:/deploy/logs'
             - '~/.aws/credentials:/root/.aws/credentials:ro'
         command: python3 jpsurvProcessor.py
+
+    download_queue_processor:
+        build:
+            context: '.'
+            dockerfile: './docker/downloadQueue.dockerfile'
+        volumes:
+            - './config:/deploy/config:ro'
+            - './tmp:/deploy/tmp'
+            - './logs:/deploy/logs'
+            - '~/.aws/credentials:/root/.aws/credentials:ro'
+
 
