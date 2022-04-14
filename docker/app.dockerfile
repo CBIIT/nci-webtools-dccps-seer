@@ -24,7 +24,7 @@ RUN pip3 install flask mod_wsgi rpy2==3.4.5 boto3 pytest
 RUN Rscript -e "install.packages('renv', repos = 'https://cloud.r-project.org/')"
 
 # install R packages
-COPY /jpsurv/renv.lock /deploy/app/
+COPY /app/renv.lock /deploy/app/
 # copy JPSurv R package
 COPY r-packages /deploy/r-packages
 
@@ -36,8 +36,10 @@ RUN R -e "install.packages('/tmp/jpsurv.tar.gz', repos = NULL)"
 
 RUN mkdir -p /deploy/app /deploy/logs /deploy/wsgi
 
-COPY jpsurv /deploy/app/
-COPY jpsurv /deploy/app/jpsurv
+# copy app
+COPY app /deploy/app/
+# copy static directory
+COPY app /deploy/app/jpsurv
 COPY docker/additional-configuration.conf /deploy/wsgi/additional-configuration.conf
 
 # create ncianalysis user
