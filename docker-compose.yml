@@ -8,7 +8,7 @@ services:
             - './config:/deploy/config:ro'
             - './tmp:/deploy/tmp'
             - './logs:/deploy/logs'
-            - '~/.aws/credentials:/root/.aws/credentials:ro'
+            - '~/.aws:/root/.aws:ro'
         ports: 
             - '9001:80'
 
@@ -20,7 +20,7 @@ services:
             - './config:/deploy/config:ro'
             - './tmp:/deploy/tmp'
             - './logs:/deploy/logs'
-            - '~/.aws/credentials:/root/.aws/credentials:ro'
+            - '~/.aws:/root/.aws:ro'
         command: python3 jpsurvProcessor.py
 
     download_queue_processor:
@@ -31,6 +31,6 @@ services:
             - './config:/deploy/config:ro'
             - './tmp:/deploy/tmp'
             - './logs:/deploy/logs'
-            - '~/.aws/credentials:/root/.aws/credentials:ro'
+            - '~/.aws:/root/.aws:ro'
 
 
