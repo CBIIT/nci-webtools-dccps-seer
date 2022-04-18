@@ -1,117 +1,124 @@
 import XLSX from 'xlsx';
 import path from 'path';
 
-export function createXLSX(data, savePath, state) {
-  if (!Object.keys(data).length) throw 'Failed to retrieve results';
+export async function createXLSX(data, savePath, state) {
+  return new Promise((resolve, reject) => {
+    try {
+      if (!Object.keys(data).length) throw 'Failed to retrieve results';
 
-  let wb = XLSX.utils.book_new();
-  wb.props = {
-    Title: 'JPSurv-' + state.file.data.replace(/\.[^/.]+$/, ''),
-  };
+      let wb = XLSX.utils.book_new();
+      wb.props = {
+        Title: 'JPSurv-' + state.file.data.replace(/\.[^/.]+$/, ''),
+      };
 
-  data.forEach((data, i) => {
-    let results = data.fullDownload;
+      data.forEach((data, i) => {
+        let results = data.fullDownload;
 
-    // add Observed_ProbDeath columns
-    if (results['Relative_Survival_Interval']) {
-      results['Observed_ProbDeath_Int'] = results[
-        'Relative_Survival_Interval'
-      ].map((i) => 100 - i);
+        // add Observed_ProbDeath columns
+        if (results['Relative_Survival_Interval']) {
+          results['Observed_ProbDeath_Int'] = results[
+            'Relative_Survival_Interval'
+          ].map((i) => 100 - i);
 
-      results['Observed_ProbDeath_Int_SE'] = results['Relative_SE_Interval'];
-    } else {
-      results['Observed_ProbDeath_Int'] = results[
-        'CauseSpecific_Survival_Interval'
-      ].map((i) => 100 - i);
+          results['Observed_ProbDeath_Int_SE'] =
+            results['Relative_SE_Interval'];
+        } else {
+          results['Observed_ProbDeath_Int'] = results[
+            'CauseSpecific_Survival_Interval'
+          ].map((i) => 100 - i);
 
-      results['Observed_ProbDeath_Int_SE'] =
-        results['CauseSpecific_SE_Interval'];
+          results['Observed_ProbDeath_Int_SE'] =
+            results['CauseSpecific_SE_Interval'];
+        }
+
+        const yearVar = data.yearVar;
+        let columns = [
+          ...getCohorts(state),
+          yearVar,
+          'Interval',
+          'Died',
+          'Alive_at_Start',
+          'Lost_to_Followup',
+          'Expected_Survival_Interval',
+        ];
+
+        // include input data depending on type of statistic
+        if (state.additional.statistic == 'Relative Survival') {
+          columns = [
+            ...columns,
+            'Expected_Survival_Cum',
+            'Observed_Survival_Cum',
+            'Observed_Survival_Interval',
+            'Relative_Survival_Interval',
+            'Observed_ProbDeath_Int',
+            'Relative_Survival_Cum',
+            'Relative_SE_Interval',
+            'Relative_SE_Cum',
+            'Observed_ProbDeath_Int_SE',
+          ];
+        } else {
+          columns = [
+            ...columns,
+            'CauseSpecific_Survival_Interval',
+            'Observed_ProbDeath_Int',
+            'CauseSpecific_Survival_Cum',
+            'CauseSpecific_SE_Interval',
+            'CauseSpecific_SE_Cum',
+            'Observed_ProbDeath_Int_SE',
+          ];
+        }
+
+        // add predicted columns
+        columns = [
+          ...columns,
+          'Predicted_Survival_Int',
+          'Predicted_ProbDeath_Int',
+          'Predicted_Survival_Cum',
+          'Predicted_Survival_Int_SE',
+          'Predicted_ProbDeath_Int_SE',
+          'Predicted_Survival_Cum_SE',
+        ];
+
+        // filter in order of defined columns
+        const filterData = columns
+          .filter((e) => Object.keys(results).includes(e))
+          .reduce((a, col) => ((a[col] = results[col]), a), {});
+
+        const sheetname = `Cohort ${i + 1}`;
+        let cohorts = state.calculate.form.cohortValues
+          .map((v) => v.replace(/\"/g, ''))
+          .join(' - ');
+        const jp = data.jpInd;
+        cohorts +=
+          (cohorts.length ? ' - ' : '') +
+          `Joinpoint ${jp}` +
+          (jp > 0 ? ` (${data.jpLocation[jp]})` : '');
+
+        XLSX.utils.book_append_sheet(
+          wb,
+          generateSheet(filterData, cohorts),
+          sheetname
+        );
+      });
+      data.forEach((data, i) =>
+        XLSX.utils.book_append_sheet(
+          wb,
+          modelEstimates(data),
+          'Model Estimates ' + ++i
+        )
+      );
+
+      XLSX.utils.book_append_sheet(wb, settingsSheet(state), 'Settings');
+
+      const filename = wb.props.Title + '.xlsx';
+      const filepath = path.join(savePath, filename);
+      XLSX.writeFile(wb, filepath);
+
+      resolve(filename);
+    } catch (error) {
+      reject(error);
     }
-
-    const yearVar = data.yearVar;
-    let columns = [
-      ...getCohorts(state),
-      yearVar,
-      'Interval',
-      'Died',
-      'Alive_at_Start',
-      'Lost_to_Followup',
-      'Expected_Survival_Interval',
-    ];
-
-    // include input data depending on type of statistic
-    if (state.additional.statistic == 'Relative Survival') {
-      columns = [
-        ...columns,
-        'Expected_Survival_Cum',
-        'Observed_Survival_Cum',
-        'Observed_Survival_Interval',
-        'Relative_Survival_Interval',
-        'Observed_ProbDeath_Int',
-        'Relative_Survival_Cum',
-        'Relative_SE_Interval',
-        'Relative_SE_Cum',
-        'Observed_ProbDeath_Int_SE',
-      ];
-    } else {
-      columns = [
-        ...columns,
-        'CauseSpecific_Survival_Interval',
-        'Observed_ProbDeath_Int',
-        'CauseSpecific_Survival_Cum',
-        'CauseSpecific_SE_Interval',
-        'CauseSpecific_SE_Cum',
-        'Observed_ProbDeath_Int_SE',
-      ];
-    }
-
-    // add predicted columns
-    columns = [
-      ...columns,
-      'Predicted_Survival_Int',
-      'Predicted_ProbDeath_Int',
-      'Predicted_Survival_Cum',
-      'Predicted_Survival_Int_SE',
-      'Predicted_ProbDeath_Int_SE',
-      'Predicted_Survival_Cum_SE',
-    ];
-
-    // filter in order of defined columns
-    const filterData = columns
-      .filter((e) => Object.keys(results).includes(e))
-      .reduce((a, col) => ((a[col] = results[col]), a), {});
-
-    const sheetname = `Cohort ${i + 1}`;
-    let cohorts = state.calculate.form.cohortValues
-      .map((v) => v.replace(/\"/g, ''))
-      .join(' - ');
-    const jp = data.jpInd;
-    cohorts +=
-      (cohorts.length ? ' - ' : '') +
-      `Joinpoint ${jp}` +
-      (jp > 0 ? ` (${data.jpLocation[jp]})` : '');
-
-    XLSX.utils.book_append_sheet(
-      wb,
-      generateSheet(filterData, cohorts),
-      sheetname
-    );
   });
-  data.forEach((data, i) =>
-    XLSX.utils.book_append_sheet(
-      wb,
-      modelEstimates(data),
-      'Model Estimates ' + ++i
-    )
-  );
-
-  XLSX.utils.book_append_sheet(wb, settingsSheet(state), 'Settings');
-
-  const filename = wb.props.Title + '.xlsx';
-  const filepath = path.join(savePath, filename);
-  XLSX.writeFile(wb, filepath);
-
-  return filename;
 }
 
 // returns an array of cohort variables names
