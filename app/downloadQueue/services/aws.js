@@ -7,7 +7,7 @@ import fs from 'fs';
 import path from 'path';
 
 export async function getFile(key, config) {
-  const s3 = new S3Client({ region: config.s3.region });
+  const s3 = new S3Client({ region: config.sqs.region });
   const params = { Bucket: config.s3.bucket, Key: key };
   const savePath = path.join(config.folders.input_dir, path.basename(key));
   // Get the object from the Amazon S3 bucket. It is returned as a ReadableStream.
@@ -18,7 +18,7 @@ export async function getFile(key, config) {
 
 export async function putFile(file, key, config) {
   const s3 = new S3Client({
-    region: config.s3.region,
+    region: config.sqs.region,
   });
   const params = {
     Bucket: config.s3.bucket,
