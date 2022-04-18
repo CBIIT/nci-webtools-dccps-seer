@@ -37,10 +37,10 @@ export async function startQueueWorker() {
     pollInterval: config.sqs.queue_long_pull_time || 5,
     messageHandler: async (message) => {
       logger.info('Retrieved message from SQS queue');
-      try {
-        const { id, state, inputKey, timestamp } = message;
-        const email = state.queue.email;
+      const { id, state, inputKey, timestamp } = message;
+      const email = state.queue.email;
 
+      try {
         const { data, dataPath } = await getData(state, inputKey);
         const xlsxFile = await createXLSX(data, dataPath, state);
         const archiveFile = await putData(id + '.zip', dataPath);
@@ -50,7 +50,9 @@ export async function startQueueWorker() {
           timestamp: timestamp,
           resultsURL: state.queue.url,
           datasetURL: `${config.mail.baseURL}/api/queueDownloadResult?dataset=${xlsxFile}&archive=${archiveFile}`,
-          files: '',
+          files: `${state.file.dictionary}${
+            state.file.data ? `, ${state.file.data}` : ''
+          }`,
           admin_support: config.mail.admin_support,
         };
 
@@ -66,7 +68,25 @@ export async function startQueueWorker() {
         });
       } catch (exception) {
         logger.error(exception.stack);
-      } finally {
+        // specify email template variables
+        const templateData = {
+          timestamp: timestamp,
+          files: `${state.file.dictionary}${
+            state.file.data ? `, ${state.file.data}` : ''
+          }`,
+          admin_support: config.mail.admin_support,
+        };
+
+        logger.info(`Sending user error email`);
+        await mailer.sendMail({
+          from: config.mail.admin_support,
+          to: email,
+          subject: `JPSurv - An error occured while processing your job - Full Dataset - ${timestamp} EST`,
+          html: await readTemplate(
+            'templates/user-download-error-email.html',
+            templateData
+          ),
+        });
       }
     },
     errorHandler: logger.error,

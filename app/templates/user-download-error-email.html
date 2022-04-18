@@ -13,30 +13,17 @@
       padding: 20px;
     "
   >
-    Hello,<br />
+    Dear User,<br />
     <p>
-      Here are the results you requested on {timestamp} from the JPSurv Analysis
-      Tool.
+      Thanks for using the JPSurv Analysis Tool. Unfortunately the job you
+      submitted to the JPSurv processor failed to be processed.
     </p>
-    <p>Input Data File(s): {files}</p>
-    <div
-      style="
-        margin: 20px auto 40px auto;
-        width: 200px;
-        text-align: center;
-        font-size: 14px;
-        font-weight: bold;
-        padding: 10px;
-        line-height: 25px;
-      "
-    >
-      <div style="font-size: 24px">
-        <a href="{datasetURL}">View Full Dataset</a>
-      </div>
-      <br />
-      <div style="font-size: 24px"><a href="{resultsURL}">View Results</a></div>
-    </div>
-    <p>The results will be available online for the next 14 days.</p>
+    <p style="margin-left: 1rem">
+      Job Information<br />
+      Input Data File(s): {files}<br />
+      Submitted Time: {timestamp}
+    </p>
+    <p>JPSurv Web admin</p>
   </div>
 
   <div>
