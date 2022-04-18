@@ -88,7 +88,7 @@ def calculate(WORKING_DIR, jpsurvData, timestamp, logger):
 
 if __name__ == '__main__':
     config = read_config('../config/config.ini')
-    logger = create_rotating_log('jpsurvProcessor', config)
+    logger = create_rotating_log('analysisQueue', config)
     make_dirs(config['folders']['input_dir'])
 
     try:

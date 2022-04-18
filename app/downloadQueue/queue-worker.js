@@ -13,7 +13,7 @@ import { createXLSX } from './services/xlsx.js';
 
 const r = rWrapper.async;
 const config = ini.parse(fs.readFileSync('../config/config.ini', 'utf-8'));
-const logger = getLogger('JPSurv.downloadQueue.log', {
+const logger = getLogger('downloadQueue.log', {
   folder: config.logs.folder,
   level: config.logs.loglevel.toLowerCase(),
 });
