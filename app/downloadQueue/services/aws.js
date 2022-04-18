@@ -16,14 +16,14 @@ export async function getFile(key, config) {
   return writeStream(savePath, Body);
 }
 
-export async function putFile(file, key, config) {
+export async function putFile(buffer, key, config) {
   const s3 = new S3Client({
     region: config.sqs.region,
   });
   const params = {
     Bucket: config.s3.bucket,
     Key: key,
-    Body: await fs.promises.readFile(file),
+    Body: buffer,
   };
   return await s3.send(new PutObjectCommand(params));
 }

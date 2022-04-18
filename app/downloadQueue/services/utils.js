@@ -11,6 +11,6 @@ export function extractArchive(archivePath, savePath) {
 export function createArchive(archivePath, savePath) {
   const zip = new AdmZip();
   zip.addLocalFolder(archivePath);
-  zip.writeZip(savePath);
-  return archivePath + '.zip';
+
+  return zip.toBuffer();
 }

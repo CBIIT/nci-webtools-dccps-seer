@@ -140,9 +140,9 @@ async function getData(state, inputKey) {
 
 // archive results and upload to s3 bucket
 async function putData(filename, dataPath) {
-  const newArchivePath = createArchive(dataPath, config.folders.output_dir);
+  const zipBuffer = createArchive(dataPath, config.folders.output_dir);
   const uploadKey = path.join(config.s3.output_dir, filename);
-  await putFile(newArchivePath, uploadKey, config);
+  await putFile(zipBuffer, uploadKey, config);
   return filename;
 }
 
