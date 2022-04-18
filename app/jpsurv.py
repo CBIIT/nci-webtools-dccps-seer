@@ -765,16 +765,17 @@ def getQueuedDataset():
     archive = request.args.get('archive')
     id = Path(archive).stem
     key = path.join(app.config['s3']['output_dir'], archive)
-    savePath = path.join(app.config['folders']['output_dir'], archive)
+    zipSave = path.join(app.config['folders']['output_dir'], archive)
+    extractPath = path.join(app.config['folders']['output_dir'], id)
 
     try:
         bucket = S3Bucket(app.config['s3']['bucket'], app.logger)
-        bucket.downloadFile(key, savePath)
+        bucket.downloadFile(key, zipSave)
 
-        with ZipFile(savePath) as archive:
-            archive.extractall(app.config['folders']['output_dir'])
+        with ZipFile(zipSave) as archive:
+            archive.extractall(extractPath)
 
-        file = path.join(app.config['folders']['output_dir'], id, dataset)
+        file = path.join(extractPath, dataset)
         return send_file(file, as_attachment=True)
     except Exception as err:
         message = "Download from S3 failed!\n" + str(err)
