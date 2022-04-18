@@ -107,10 +107,11 @@ export function createXLSX(data, savePath, state) {
 
   XLSX.utils.book_append_sheet(wb, settingsSheet(state), 'Settings');
 
-  const file = path.join(savePath, wb.props.Title + '.xlsx');
-  XLSX.writeFile(wb, file);
+  const filename = wb.props.Title + '.xlsx';
+  const filepath = path.join(savePath, filename);
+  XLSX.writeFile(wb, filepath);
 
-  return file;
+  return filename;
 }
 
 // returns an array of cohort variables names

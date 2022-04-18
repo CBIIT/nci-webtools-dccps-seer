@@ -16,6 +16,18 @@ export async function getFile(key, config) {
   return writeStream(savePath, Body);
 }
 
+export async function putFile(file, key, config) {
+  const s3 = new S3Client({
+    region: config.s3.region,
+  });
+  const params = {
+    Bucket: config.s3.bucket,
+    Key: key,
+    Body: await fs.promises.readFile(file),
+  };
+  return await s3.send(new PutObjectCommand(params));
+}
+
 function writeStream(path, stream) {
   return new Promise((resolve, reject) => {
     const writer = fs.createWriteStream(path);

@@ -1,6 +1,5 @@
 import ini from 'ini';
 import fs from 'fs';
-
 import rWrapper from 'r-wrapper';
 import { SQSClient } from '@aws-sdk/client-sqs';
 import { getFile, putFile } from './services/aws.js';
@@ -9,25 +8,27 @@ import { getLogger } from './services/logger.js';
 import path from 'path';
 import nodemailer from 'nodemailer';
 
-import { extractArchive } from './services/utils.js';
+import { extractArchive, createArchive } from './services/utils.js';
 import { createXLSX } from './services/xlsx.js';
 
 const r = rWrapper.async;
 const config = ini.parse(fs.readFileSync('../config/config.ini', 'utf-8'));
+const logger = getLogger('JPSurv.downloadQueue.log', {
+  folder: config.logs.folder,
+  level: config.logs.loglevel.toLowerCase(),
+});
 
 (async function main() {
   startQueueWorker();
 })();
 
 export async function startQueueWorker() {
-  const sqs = new SQSClient({ region: config.sqs.region });
-
-  const logger = getLogger('JPSurv.downloadQueue.log', {
-    folder: config.logs.folder,
-    level: config.logs.loglevel.toLowerCase(),
-  });
-
   logger.info('Started JPSurv Download queue worker');
+  const sqs = new SQSClient({ region: config.sqs.region });
+  const mailer = nodemailer.createTransport({
+    host: config.mail.host,
+    port: 25,
+  });
 
   processMessages({
     sqs,
@@ -36,13 +37,33 @@ export async function startQueueWorker() {
     pollInterval: config.sqs.queue_long_pull_time || 5,
     messageHandler: async (message) => {
       logger.info('Retrieved message from SQS queue');
-      let { id, state, inputKey } = message;
-      const { data, dataPath } = await getData(state, inputKey, config);
-
-      let xlsxPath = await createXLSX(data, dataPath, state);
-      
-
       try {
+        const { id, state, inputKey, timestamp } = message;
+        const email = state.queue.email;
+
+        const { data, dataPath } = await getData(state, inputKey);
+        const xlsxFile = await createXLSX(data, dataPath, state);
+        const archiveFile = await putData(id + '.zip', dataPath);
+
+        // specify email template variables
+        const templateData = {
+          timestamp: timestamp,
+          resultsURL: state.queue.url,
+          datasetURL: `${config.mail.baseURL}/api/queueDownloadResult?dataset=${xlsxFile}&archive=${archiveFile}`,
+          files: '',
+          admin_support: config.mail.admin_support,
+        };
+
+        logger.info(`Sending user success email`);
+        await mailer.sendMail({
+          from: config.mail.admin_support,
+          to: email,
+          subject: `JPSurv Results - Full Dataset - ${timestamp} EST`,
+          html: await readTemplate(
+            'templates/user-download-success-email.html',
+            templateData
+          ),
+        });
       } catch (exception) {
         logger.error(exception.stack);
       } finally {
@@ -95,6 +116,17 @@ async function getData(state, inputKey) {
   );
 
   return { data: await Promise.all(queries.flat()), dataPath: dataPath };
+}
+
+// archive results and upload to s3 bucket
+async function putData(filename, dataPath) {
+  const newArchivePath = await createArchive(
+    dataPath,
+    config.folders.output_dir
+  );
+  const uploadKey = path.join(config.s3.output_dir, filename);
+  await putFile(newArchivePath, uploadKey, config);
+  return filename;
 }
 
 /**

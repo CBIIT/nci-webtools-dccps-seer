@@ -25,7 +25,7 @@ def composeSuccess(WORKING_DIR, jpsurvData, timestamp, logger, config):
         recipient=jpsurvJSON['queue']['email'],
         subject='JPSurv - Your job has been processed',
         contents=render_template(
-            'templates/user_email.html', {
+            'templates/user_success_email.html', {
                 'timestamp': timestamp,
                 'url': unquote(jpsurvJSON['queue']['url']),
                 'admin_support': config['mail']['admin_support']

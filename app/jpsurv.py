@@ -19,6 +19,7 @@ from utils import make_dirs, read_config, createArchive, create_rotating_log
 from sqs import Queue
 from s3 import S3Bucket
 from uuid import uuid4
+from pathlib import Path
 
 
 if __name__ == '__main__':
@@ -756,6 +757,30 @@ def queueDownload():
         app.logger.error(message)
         app.logger.exception(err)
         return app.response_class(json.dumps(err), 500, mimetype='application/json')
+
+
+@app.route('/api/queueDownloadResult', methods=['GET'])
+def getQueuedDataset():
+    dataset = request.args.get('dataset')
+    archive = request.args.get('archive')
+    id = Path(archive).stem
+    key = path.join(app.config['s3']['output_dir'], archive)
+    savePath = path.join(app.config['folders']['output_dir'], archive)
+
+    try:
+        bucket = S3Bucket(app.config['s3']['bucket'], app.logger)
+        bucket.downloadFile(key, savePath)
+
+        with ZipFile(savePath) as archive:
+            archive.extractall(app.config['folders']['output_dir'])
+
+        file = path.join(app.config['folders']['output_dir'], id, dataset)
+        return send_file(file, as_attachment=True)
+    except Exception as err:
+        message = "Download from S3 failed!\n" + str(err)
+        app.logger.error(message)
+        app.logger.exception(err)
+        return app.response_class(json.dumps(message), 500, mimetype='application/json')
 
 
 def is_safe_path(tokenId, path, follow_symlinks=True):
