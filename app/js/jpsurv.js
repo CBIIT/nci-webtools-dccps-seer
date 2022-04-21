@@ -1530,7 +1530,7 @@ function updateGraphLinks() {
     (link) => {
       link.onclick = async (event) => {
         event.preventDefault();
-        if (useQueue) {
+        if (useQueue()) {
           // show loading indicator
           $('#full-dataset-spinner').removeClass('d-none');
           $('#full-dataset-link').addClass('disabled');
