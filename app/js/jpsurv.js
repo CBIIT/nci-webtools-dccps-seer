@@ -1530,35 +1530,7 @@ function updateGraphLinks() {
     (link) => {
       link.onclick = async (event) => {
         event.preventDefault();
-        if (useQueue()) {
-          // show loading indicator
-          $('#full-dataset-spinner').removeClass('d-none');
-          $('#full-dataset-link').addClass('disabled');
-
-          await fetch('api/queueDownload', {
-            method: 'POST',
-            headers: {
-              Accept: 'application/json',
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              id: jpsurvData.tokenId,
-              state: {
-                ...jpsurvData,
-                covariates: cohort_covariance_variables,
-              },
-            }),
-          });
-
-          okAlert(
-            'Your download has been queued. You will receive an e-mail when your download is available.',
-            'Download in Queue'
-          );
-
-          // hide loading indicator
-          $('#full-dataset-spinner').addClass('d-none');
-          $('#full-dataset-link').removeClass('disabled');
-        } else downloadFullData();
+        downloadFullData();
       };
     }
   );
@@ -2033,7 +2005,10 @@ function preLoadResults(results) {
 
 function getParams() {
   const { results, ...rest } = jpsurvData;
-  const params = JSON.stringify(rest);
+  const params = JSON.stringify({
+    ...rest,
+    covariates: cohort_covariance_variables,
+  });
   return replaceAll('None', '', params);
 }
 

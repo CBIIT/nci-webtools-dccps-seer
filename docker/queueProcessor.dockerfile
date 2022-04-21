@@ -38,11 +38,11 @@ COPY app /deploy/app/
 COPY app /deploy/app/jpsurv
 COPY docker/additional-configuration.conf /deploy/wsgi/additional-configuration.conf
 
-WORKDIR /deploy/app/downloadQueue
+WORKDIR /deploy/app/queueProcessor
 
 RUN npm install
 
 WORKDIR /deploy/app
 
-CMD node downloadQueue/queue-worker.js
+CMD node queueProcessor/queue-worker.js
 

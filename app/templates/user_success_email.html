@@ -15,10 +15,10 @@
   >
     Hello,<br />
     <p>
-      Here are the results you requested on {{timestamp}} from the JPSurv
-      Analysis Tool.
+      Here are the results you requested on {timestamp} from the JPSurv Analysis
+      Tool.
     </p>
-    <p></p>
+    <p>Input Data File(s): {files}</p>
     <div
       style="
         margin: 20px auto 40px auto;
@@ -30,7 +30,11 @@
         line-height: 25px;
       "
     >
-      <div style="font-size: 24px"><a href="{{url}}">View Results</a></div>
+      <div style="font-size: 24px"><a href="{resultsURL}">View Results</a></div>
+      <br />
+      <div style="font-size: 24px">
+        <a href="{datasetURL}">Download Full Dataset</a>
+      </div>
     </div>
     <p>The results will be available online for the next 14 days.</p>
   </div>
@@ -38,7 +42,7 @@
   <div>
     <p>
       (Note: Please do not reply to this email. If you need assistance, please
-      contact {{admin_support}})
+      contact {admin_support})
     </p>
   </div>
 

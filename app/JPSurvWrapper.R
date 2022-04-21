@@ -347,6 +347,7 @@ getAllData <- function(filePath, jpsurvDataString, first_calc = FALSE, use_defau
   exportJson <- rjson::toJSON(jsonl)
   filename = paste(filePath, paste("results-", jpsurvData$tokenId, "-", com, "-", jpInd, ".json", sep = ""), sep = "/")
   write(exportJson, filename)
+  return(filename)
 }
 
 getTrendsData <- function(filePath, jpsurvDataString, com) {

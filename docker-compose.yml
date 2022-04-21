@@ -1,9 +1,9 @@
 version: '3'
 services:
-    app:
+    backend:
         build:
             context: '.'
-            dockerfile: './docker/app.dockerfile'
+            dockerfile: './docker/backend.dockerfile'
         volumes:
             - './config:/deploy/config:ro'
             - './tmp:/deploy/tmp'
@@ -12,21 +12,10 @@ services:
         ports: 
             - '9001:80'
 
-    analysis_queue_processor:
+    queue_processor:
         build:
             context: '.'
-            dockerfile: './docker/app.dockerfile'
-        volumes:
-            - './config:/deploy/config:ro'
-            - './tmp:/deploy/tmp'
-            - './logs:/deploy/logs'
-            - '~/.aws:/root/.aws:ro'
-        command: python3 jpsurvProcessor.py
-
-    download_queue_processor:
-        build:
-            context: '.'
-            dockerfile: './docker/downloadQueue.dockerfile'
+            dockerfile: './docker/queueProcessor.dockerfile'
         volumes:
             - './config:/deploy/config:ro'
             - './tmp:/deploy/tmp'

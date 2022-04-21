@@ -630,20 +630,18 @@ def queue():
     input_dir = getInputDir(tokenId)
     paramsFile = "input_%s.json" % tokenId
     fq = path.join(input_dir, paramsFile)
-    text_file = open(fq, "w")
-    text_file.write("%s" % jpsurvDataString)
-    text_file.close()
+    with open(fq, 'w') as writer:
+        writer.write(jpsurvDataString)
 
     bucket = S3Bucket(app.config['s3']['bucket'], app.logger)
     try:
         # zip work directory and upload to s3
         archivePath = createArchive(input_dir)
+        s3InputKey = path.join(app.config['s3']['input_dir'], tokenId + '.zip')
 
         if archivePath:
-            zipFilename = tokenId + '.zip'
             with open(archivePath, 'rb') as archive:
-                object = bucket.uploadFileObj(
-                    path.join(app.config['s3']['input_dir'], zipFilename), archive)
+                object = bucket.uploadFileObj(s3InputKey, archive)
                 if object:
                     app.logger.info('Succesfully Uploaded ' + tokenId + '.zip')
                 else:
@@ -652,8 +650,9 @@ def queue():
             messageId = str(uuid4())
             sqs = Queue(app.logger, app.config)
             sqs.sendMsgToQueue({
-                'jobId': tokenId,
-                'jpsurvData': paramsFile,
+                'id': tokenId,
+                'state': jpsurv_json,
+                'inputKey': s3InputKey,
                 'timestamp': datetime.datetime.now().strftime("%Y-%m-%d")
             }, messageId)
             return jsonify({
@@ -725,7 +724,6 @@ def queueDownload():
         s3InputKey = path.join(app.config['s3']['input_dir'], id + '.zip')
 
         if archivePath:
-
             with open(archivePath, 'rb') as archive:
                 object = bucket.uploadFileObj(s3InputKey, archive)
                 if object:
