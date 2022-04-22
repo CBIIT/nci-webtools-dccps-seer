@@ -677,15 +677,17 @@ def queue():
 @app.route('/jpsurvRest/downloadS3', methods=['GET'])
 def downloadS3():
     file = request.args.get('file')
+    id = Path(file).stem
     key = path.join(app.config['s3']['output_dir'], file)
-    savePath = path.join(app.config['folders']['output_dir'], file)
+    archivePath = path.join(app.config['folders']['output_dir'], file)
+    extractPath = path.join(app.config['folders']['output_dir'], id)
 
     try:
         bucket = S3Bucket(app.config['s3']['bucket'], app.logger)
-        bucket.downloadFile(key, savePath)
+        bucket.downloadFile(key, archivePath)
 
-        with ZipFile(savePath) as archive:
-            archive.extractall(app.config['folders']['output_dir'])
+        with ZipFile(archivePath) as archive:
+            archive.extractall(extractPath)
 
         return app.response_class(json.dumps({'status': 'OK'}), 200, mimetype='application/json')
     except Exception as err:
