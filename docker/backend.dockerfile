@@ -16,7 +16,7 @@ RUN dnf -y update \
     python3-devel \
     && dnf clean all
 
-RUN mkdir -p /deploy/app /deploy/logs /deploy/wsgi
+RUN mkdir -p /app/server /app/logs /app/wsgi
 
 # install python packages
 RUN pip3 install flask mod_wsgi rpy2==3.4.5 boto3 pytest
@@ -25,34 +25,36 @@ RUN pip3 install flask mod_wsgi rpy2==3.4.5 boto3 pytest
 RUN R -e "install.packages('renv', repos = 'https://cloud.r-project.org/')"
 
 # install R packages
-COPY app/renv.lock /deploy/app/
-COPY r-packages /deploy/r-packages
+COPY server/renv.lock /app/server/
+COPY r-packages /app/r-packages
 
-WORKDIR /deploy/app
+WORKDIR /app/server
 
 RUN Rscript -e "renv::restore()"
 
 # install JPSurv
-# COPY r-packages /deploy/r-packages
+# COPY r-packages /app/r-packages
 # RUN R -e "install.packages('/tmp/jpsurv.tar.gz', repos = NULL)"
 
-# copy app
-COPY app /deploy/app/
-COPY app /deploy/app/jpsurv
-COPY docker/additional-configuration.conf /deploy/wsgi/additional-configuration.conf
+# copy server
+COPY server /app/server/
+# copy client to static directory
+COPY server /app/server/jpsurv
+# copy additional wsgi config
+COPY docker/additional-configuration.conf /app/wsgi/additional-configuration.conf
 
 # create ncianalysis user
 RUN groupadd -g 4004 -o ncianalysis \
     && useradd -m -u 4004 -g 4004 -o -s /bin/bash ncianalysis
-RUN chown -R ncianalysis:ncianalysis /deploy
+RUN chown -R ncianalysis:ncianalysis /app
 # USER ncianalysis
 
 ## building locally - need to provide aws credentials to use queue 
-# docker build -t jpsurv -f docker/app.dockerfile ~/Projects/jpsurv
-# docker run -d -p 8110:80 -v ~/Projects/jpsurv/logs:/deploy/logs -v ~/Projects/jpsurv/tmp:/deploy/tmp -v ~/Projects/jpsurv/config:/deploy/config --name jpsurv-server jpsurv
-# docker run -d -v ~/Projects/jpsurv/logs:/deploy/logs -v ~/Projects/jpsurv/tmp:/deploy/tmp -v ~/Projects/jpsurv/config:/deploy/config --name jpsurv-processor jpsurv python3 jpsurvProcessor.py
+# docker build -t jpsurv -f docker/server.dockerfile ~/Projects/jpsurv
+# docker run -d -p 8110:80 -v ~/Projects/jpsurv/logs:/app/logs -v ~/Projects/jpsurv/tmp:/app/tmp -v ~/Projects/jpsurv/config:/app/config --name jpsurv-server jpsurv
+# docker run -d -v ~/Projects/jpsurv/logs:/app/logs -v ~/Projects/jpsurv/tmp:/app/tmp -v ~/Projects/jpsurv/config:/app/config --name jpsurv-processor jpsurv python3 jpsurvProcessor.py
 
-CMD mod_wsgi-express start-server /deploy/app/jpsurv.wsgi \
+CMD mod_wsgi-express start-server /app/server/jpsurv.wsgi \
     --user ncianalysis \
     --group ncianalysis \
     --compress-responses \
@@ -62,15 +64,15 @@ CMD mod_wsgi-express start-server /deploy/app/jpsurv.wsgi \
     --access-log-name access.log \
     --port 80 \
     --http2 \
-    --server-root /deploy/wsgi \
-    --document-root /deploy/app \
-    --working-directory /deploy/app \
+    --server-root /app/wsgi \
+    --document-root /app/server \
+    --working-directory /app/server \
     --directory-index index.html \
     --mount-point /jpsurv \
-    --log-directory /deploy/logs \
+    --log-directory /app/logs \
     --rotate-logs \
     --error-log-name apache.log \
-    --include-file /deploy/wsgi/additional-configuration.conf \
+    --include-file /app/wsgi/additional-configuration.conf \
     --header-buffer-size 50000000 \
     --response-buffer-size 50000000 \
     --limit-request-body 5368709120 \

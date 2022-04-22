@@ -5,10 +5,10 @@ services:
             context: '.'
             dockerfile: './docker/backend.dockerfile'
         volumes:
-            - './config:/deploy/config:ro'
-            - './tmp:/deploy/tmp'
-            - './logs:/deploy/logs'
-            - '~/.aws:/root/.aws:ro'
+            - './config:/app/config:ro'
+            - './tmp:/app/tmp'
+            - './logs:/app/logs'
+            - '~/.aws/credentials:/root/.aws/credentials:ro'
         ports: 
             - '9001:80'
 
@@ -17,9 +17,9 @@ services:
             context: '.'
             dockerfile: './docker/queueProcessor.dockerfile'
         volumes:
-            - './config:/deploy/config:ro'
-            - './tmp:/deploy/tmp'
-            - './logs:/deploy/logs'
-            - '~/.aws:/root/.aws:ro'
+            - './config:/app/config:ro'
+            - './tmp:/app/tmp'
+            - './logs:/app/logs'
+            - '~/.aws/credentials:/root/.aws/credentials:ro'
 
 

@@ -16,33 +16,33 @@ RUN dnf -y update \
     nodejs \
     && dnf clean all
 
-RUN mkdir -p /deploy/app /deploy/logs /deploy/wsgi
+RUN mkdir -p /app/server /app/logs /app/wsgi
 
 # install renv
 RUN R -e "install.packages('renv', repos = 'https://cloud.r-project.org/')"
 
 # install R packages
-COPY app/renv.lock /deploy/app/
-COPY r-packages /deploy/r-packages
+COPY server/renv.lock /app/server/
+COPY r-packages /app/r-packages
 
-WORKDIR /deploy/app
+WORKDIR /app/server
 
 RUN Rscript -e "renv::restore()"
 
 # install JPSurv
-# COPY r-packages /deploy/r-packages
+# COPY r-packages /app/r-packages
 # RUN R -e "install.packages('/tmp/jpsurv.tar.gz', repos = NULL)"
 
-# copy app
-COPY app /deploy/app/
-COPY app /deploy/app/jpsurv
-COPY docker/additional-configuration.conf /deploy/wsgi/additional-configuration.conf
+# copy server
+COPY server /app/server/
+COPY server /app/server/jpsurv
+COPY docker/additional-configuration.conf /app/wsgi/additional-configuration.conf
 
-WORKDIR /deploy/app/queueProcessor
+WORKDIR /app/server/queueProcessor
 
 RUN npm install
 
-WORKDIR /deploy/app
+WORKDIR /app/server
 
 CMD node queueProcessor/queue-worker.js
 
