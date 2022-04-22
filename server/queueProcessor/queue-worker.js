@@ -116,7 +116,7 @@ export async function startQueueWorker() {
 
 // main JPSurv calculation
 async function calculate(state, path) {
-  return await r('../app/JPSurvWrapper.R', 'getFittedResultWrapper', [
+  return await r('../server/JPSurvWrapper.R', 'getFittedResultWrapper', [
     path,
     JSON.stringify(state),
   ]);
@@ -145,7 +145,7 @@ async function calculateModels(state, dataPath) {
       } else {
         // otherwise calculate model
 
-        await r('../app/JPSurvWrapper.R', 'getAllData', [
+        await r('../server/JPSurvWrapper.R', 'getAllData', [
           dataPath,
           JSON.stringify(params),
           false,
