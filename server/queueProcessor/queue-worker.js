@@ -32,7 +32,7 @@ export async function startQueueWorker() {
 
   processMessages({
     sqs,
-    queueName: config.sqs.analysis_queue,
+    queueName: config.sqs.queue_name,
     visibilityTimeout: config.sqs.visibility_timeout || 300,
     pollInterval: config.sqs.queue_long_pull_time || 5,
     messageHandler: async (message) => {
