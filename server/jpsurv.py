@@ -425,7 +425,6 @@ def myExport():
     type = request.args['type']
     dictionary = request.args['dictionary']
     form = request.args['form']
-    tokenForInput = request.args['inputTokenId']
     tokenId = request.args['tokenId']
     txtFile = request.args['txtFile'] if type == 'dic' else ''
     input_dir = getInputDir(tokenId)
@@ -434,11 +433,11 @@ def myExport():
         # ''' Gather the files that will be zipped into a file '''
 
         fileNameSet = set()
-        fileNameSet.add(path.join(input_dir, tokenForInput + dictionary))
+        fileNameSet.add(path.join(input_dir, tokenId + dictionary))
         fileNameSet.add(path.join(input_dir, form))
 
         if txtFile:
-            fileNameSet.add(path.join(input_dir, tokenForInput + txtFile))
+            fileNameSet.add(path.join(input_dir, tokenId + txtFile))
 
         for filename in getFileBySubstringSearch(tokenId):
             if not re.match(r'^.*\.jpsurv$', filename):

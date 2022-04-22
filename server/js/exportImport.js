@@ -53,15 +53,10 @@ function exportBackEnd(event) {
     return inString.match('.dic$') ? 'dic' : 'csv';
   }
 
-  // Get the token for the input files from the form.
-  var inputTokenId = jpsurvData.file.form.split('-')[1];
-  inputTokenId = inputTokenId.split('.')[0];
-
   var data = {};
   data.type = isCSV(jpsurvData.file.dictionary);
   data.dictionary = jpsurvData.file.dictionary;
   data.form = jpsurvData.file.form;
-  data.inputTokenId = inputTokenId;
   data.tokenId = jpsurvData.tokenId;
   data.filename =
     data.tokenId + '-' + data.dictionary.split('.')[0] + '.jpsurv';
