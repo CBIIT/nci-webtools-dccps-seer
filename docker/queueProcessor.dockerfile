@@ -35,8 +35,8 @@ RUN R -e "renv::restore()"
 
 # copy server
 COPY server /app/server/
-COPY server /app/server/jpsurv
-COPY docker/additional-configuration.conf /app/wsgi/additional-configuration.conf
+# COPY server /app/server/jpsurv
+# COPY docker/additional-configuration.conf /app/wsgi/additional-configuration.conf
 
 WORKDIR /app/server/queueProcessor
 
