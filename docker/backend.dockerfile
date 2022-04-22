@@ -30,7 +30,7 @@ COPY r-packages /app/r-packages
 
 WORKDIR /app/server
 
-RUN Rscript -e "renv::restore()"
+RUN R -e "renv::restore()"
 
 # install JPSurv
 # COPY r-packages /app/r-packages
