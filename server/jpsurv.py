@@ -280,23 +280,20 @@ def myImport():
         archive = ZipFile(absoluteFilename)
         archive.extractall(path.dirname(absoluteFilename))
 
-    def getTokenFor(searchFileListRegularExpression, searchFilenameRegularExpression, archive):
+    def getTokenFor(searchFileListRegularExpression,  archive):
         ''' Will return the first token found from the zip file ( archive ) for the filename containing the serarchRegularExpression '''
+
+        valid_uuid = re.compile(
+            '[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}', re.I)
 
         newList = list(filter(
             re.compile(searchFileListRegularExpression).search,
             ZipFile(archive, 'r').namelist()))
 
         if (len(newList) != None):
-            token = re.search(searchFilenameRegularExpression,
-                              newList[0]).group(1)
+            return valid_uuid.search(newList[0]).group()
         else:
-            token = None
-
-        # app.logger.debug("\tUsing the regular expression \"%s\" for archive \"%s\" found the following filename match with token \"%s\" " % (
-        #     searchFileListRegularExpression, archive, token))
-
-        return token
+            return None
 
     def getFilenames(fileNameRegularExpression, archive):
         ''' Return the first file mathcing the regular expression '''
@@ -381,9 +378,9 @@ def myImport():
         # the filename starting with "form-" has one id and the rest had the other id.
         returnParameters = {}
         returnParameters['tokenIdForForm'] = getTokenFor(
-            r"form\-", r"(\d+)", zipFilename)
+            r"form\-",  zipFilename)
         returnParameters['tokenIdForRest'] = getTokenFor(
-            r"output\-", r"(\d+)", zipFilename)
+            r"output\-",  zipFilename)
         returnParameters['imageIdStartCount'] = len(
             getFilenames("plot_Year", zipFilename))
 
