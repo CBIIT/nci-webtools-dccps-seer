@@ -1070,21 +1070,23 @@ function checkArray(arr) {
 
 function drawPlot(plot, update = false) {
   if (jpsurvData.results) {
-    yodVarName = jpsurvData.calculate.static.yearOfDiagnosisVarName
+    const yodVarName = jpsurvData.calculate.static.yearOfDiagnosisVarName
       .replace(/\(|\)|-/g, '')
       .replace(/__/g, '_')
       .replace(/([^a-zA-Z0-9_]+)/gi, '');
+    const cohort = $('#cohort-display option:selected')
+      .text()
+      .replace(/\s\+\s/g, ' - ');
+    const jpInd = jpsurvData.results.jpInd;
+    const jp = jpInd
+      ? ` (${jpsurvData.results.jpLocation[jpInd].replace(/\s/g, ', ')})`
+      : '';
 
-    let cohorts = jpsurvData.calculate.form.cohortValues
-      .map((v) => v.replace(/\"/g, ''))
-      .join(' - ');
-    const jp = jpsurvData.results.jpInd;
-    cohorts +=
-      (cohorts.length ? ' - ' : '') +
-      `Joinpoint ${jp}` +
-      (jp > 0
-        ? ` (${jpsurvData.results.jpLocation[jp].replace(/\s/g, ', ')})`
-        : '');
+    const modelInfo = [
+      cohort ? cohort + ' - ' : '',
+      `Joinpoint ${jpInd}`,
+      jp,
+    ].join('');
 
     if (plot == 'year') {
       yearData = jpsurvData.results.yearData;
@@ -1117,7 +1119,7 @@ function drawPlot(plot, update = false) {
             checkArray(yearData.survTable.Predicted_Survival_Cum),
             checkArray(yearData.survTable.Interval),
             trend,
-            cohorts
+            modelInfo
           );
     } else if (plot == 'death') {
       deathData = jpsurvData.results.deathData;
@@ -1148,7 +1150,7 @@ function drawPlot(plot, update = false) {
             !$('#deathAnno').is(':checked') && deathData.deathTrend
               ? deathData.deathTrend
               : null,
-            cohorts
+            modelInfo
           );
     } else if (plot == 'time') {
       timeData = jpsurvData.results.timeData.timeTable;
@@ -1162,7 +1164,7 @@ function drawPlot(plot, update = false) {
         checkArray(timeData.Predicted_Survival_Cum),
         checkArray(timeData[yodVarName]),
         null,
-        cohorts
+        modelInfo
       );
     }
   }

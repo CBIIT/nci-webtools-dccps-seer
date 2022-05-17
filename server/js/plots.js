@@ -228,24 +228,24 @@ function processPlotData(divID, x, yMark, yLine, dimension, trends) {
   return data;
 }
 
-const titles = (statistic, cohorts) => ({
+const titles = (statistic, modelInfo) => ({
   yearPlot: {
     plotTitle: `<b>${statistic} by Diagnosis Year</b>${
-      cohorts ? '<br>' + cohorts : ''
+      modelInfo ? '<br>' + modelInfo : ''
     }`,
     xTitle: 'Year at Diagnosis',
     yTitle: statistic + ' (%)',
   },
   deathPlot: {
     plotTitle: `<b>Annual Probability of Dying of Cancer by Diagnosis Year</b>${
-      cohorts ? '<br>' + cohorts : ''
+      modelInfo ? '<br>' + modelInfo : ''
     }`,
     xTitle: 'Year at Diagnosis',
     yTitle: 'Anual Probability of Cancer Death (%)',
   },
   timePlot: {
     plotTitle: `<b>${statistic} by Year Since Diagnosis for Selected Diagnosis Year</b>${
-      cohorts ? '<br>' + cohorts : ''
+      modelInfo ? '<br>' + modelInfo : ''
     }`,
     xTitle: 'Interval',
     yTitle: statistic + ' (%)',
@@ -259,12 +259,12 @@ async function drawLineChart(
   yLine,
   dimension,
   trends,
-  cohorts
+  modelInfo
 ) {
   // fontSize defined in jpsurv.js
   const statistic = jpsurvData.additional.statistic;
   const layout = {
-    title: titles(statistic, cohorts)[divID].plotTitle,
+    title: titles(statistic, modelInfo)[divID].plotTitle,
     hovermode: 'closest',
     font: {
       size: fontSize,
