@@ -3829,18 +3829,17 @@ async function downloadFullData() {
         .reduce((a, col) => ((a[col] = results[col]), a), {});
 
       const sheetname = `Cohort ${i + 1}`;
-      let cohorts = jpsurvData.calculate.form.cohortValues
-        .map((v) => v.replace(/\"/g, ''))
-        .join(' - ');
-      const jp = data.jpInd;
-      cohorts +=
-        (cohorts.length ? ' - ' : '') +
-        `Joinpoint ${jp}` +
-        (jp > 0 ? ` (${data.jpLocation[jp]})` : '');
+
+      const cohorts =
+        data.Runs.trim()
+          .split(' jpcom ')
+          [data.com - 1].replace(/\s\+\s/g, ' - ') + ' - ';
+
+      const jp = `Joinpoint ${data.jpInd}`;
 
       XLSX.utils.book_append_sheet(
         wb,
-        generateSheet(filterData, cohorts),
+        generateSheet(filterData, cohorts + jp),
         sheetname
       );
     });
