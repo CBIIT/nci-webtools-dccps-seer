@@ -1,17 +1,124 @@
-import XLSX from 'xlsx';
-import path from 'path';
+// use dynamic module imports while sharing script between browser and nodejs
+// use module imports after conveting backend entirely to node
+// rename excel calls to XLSX
+var excel = typeof XLSX === 'undefined' ? await import('xlsx') : XLSX;
+if (typeof process === 'object') {
+  var path = await import('path');
+}
 
-export async function createXLSX(data, savePath, state) {
+// export single tab results into xlsx
+export async function singleExport(type, state = {}) {
+  const cohort = state.results.Runs.trim()
+    .split(' jpcom ')
+    [state.results.com - 1].replace(/\s\+\s/g, ' - ');
+  const jp = state.results.jpInd;
+  let wb = excel.utils.book_new();
+
+  wb.props = {
+    Title: type + ' - Model ' + (jp + 1) + ' (JP ' + jp + ') - ' + cohort,
+  };
+
+  let columns = [...getCohorts(state), state.results.yearVar];
+  // columns specific to each graph
+  if (type == 'survByYear') {
+    const survTable = state.results.yearData.survTable;
+    columns.push(
+      'Interval',
+      'Relative_Survival_Cum',
+      'Relative_SE_Cum',
+      'CauseSpecific_Survival_Cum',
+      'CauseSpecific_SE_Cum',
+      'Predicted_Survival_Cum',
+      'Predicted_Survival_Cum_SE'
+    );
+
+    // filter in order of defined columns
+    const data = columns
+      .filter((e) => Object.keys(survTable).includes(e))
+      .reduce((a, col) => ((a[col] = survTable[col]), a), {});
+
+    excel.utils.book_append_sheet(wb, generateSheet(data), 'Survival vs. Year');
+  } else if (type == 'deathByYear') {
+    const deathTable = state.results.deathData.deathTable;
+
+    // change column names
+    if (deathTable['Relative_Survival_Interval']) {
+      deathTable['Observed_ProbDeath_Int'] = deathTable[
+        'Relative_Survival_Interval'
+      ].map(function (i) {
+        return 100 - i;
+      });
+
+      deathTable['Observed_ProbDeath_Int_SE'] =
+        deathTable['Relative_SE_Interval'];
+    } else {
+      deathTable['Observed_ProbDeath_Int'] = deathTable[
+        'CauseSpecific_Survival_Interval'
+      ].map(function (i) {
+        return 100 - i;
+      });
+
+      deathTable['Observed_ProbDeath_Int_SE'] =
+        deathTable['CauseSpecific_SE_Interval'];
+    }
+    columns.push(
+      'Interval',
+      'Observed_ProbDeath_Int',
+      'Observed_ProbDeath_Int_SE',
+      'Predicted_ProbDeath_Int',
+      'Predicted_ProbDeath_Int_SE'
+    );
+
+    // filter in order of defined columns
+    const data = columns
+      .filter((e) => Object.keys(deathTable).includes(e))
+      .reduce((a, col) => ((a[col] = deathTable[col]), a), {});
+
+    excel.utils.book_append_sheet(wb, generateSheet(data), 'Death vs. Year');
+  } else if (type == 'survByTime') {
+    const timeTable = state.results.timeData.timeTable;
+
+    columns.push(
+      'Interval',
+      'Relative_Survival_Cum',
+      'CauseSpecific_Survival_Cum',
+      'Predicted_Survival_Cum'
+    );
+
+    // filter in order of defined columns
+    const data = columns
+      .filter((e) => Object.keys(timeTable).includes(e))
+      .reduce((a, col) => ((a[col] = timeTable[col]), a), {});
+
+    excel.utils.book_append_sheet(wb, generateSheet(data), 'Survival vs. Time');
+  }
+
+  excel.utils.book_append_sheet(
+    wb,
+    modelEstimates(state.results),
+    'Model Estimates'
+  );
+  excel.utils.book_append_sheet(wb, settingsSheet(state), 'Settings');
+
+  excel.writeFile(wb, wb.props.Title + '.xlsx');
+}
+
+// export multiple cohort combinations into xlsx
+export async function multiExport(
+  resultsArray = [],
+  savePath = '',
+  state = {}
+) {
   return new Promise((resolve, reject) => {
     try {
-      if (!Object.keys(data).length) throw 'Failed to retrieve results';
+      if (!Object.keys(resultsArray).length) throw 'Failed to retrieve results';
 
-      let wb = XLSX.utils.book_new();
+      let wb = excel.utils.book_new();
       wb.props = {
         Title: 'JPSurv-' + state.file.data.replace(/\.[^/.]+$/, ''),
       };
 
-      data.forEach((data, i) => {
+      resultsArray.forEach((data, i) => {
         let results = data.fullDownload;
 
         // add Observed_ProbDeath columns
@@ -85,36 +192,46 @@ export async function createXLSX(data, savePath, state) {
           .reduce((a, col) => ((a[col] = results[col]), a), {});
 
         const sheetname = `Cohort ${i + 1}`;
-        let cohorts = state.calculate.form.cohortValues
-          .map((v) => v.replace(/\"/g, ''))
-          .join(' - ');
-        const jp = data.jpInd;
-        cohorts +=
-          (cohorts.length ? ' - ' : '') +
-          `Joinpoint ${jp}` +
-          (jp > 0 ? ` (${data.jpLocation[jp]})` : '');
+        const modelIndex = data.com - 1;
+        const cohort = data.Runs.trim()
+          .split(' jpcom ')
+          [modelIndex].replace(/\s\+\s/g, ' - ');
 
-        XLSX.utils.book_append_sheet(
+        const jpInd = data.jpInd;
+        const jp = jpInd
+          ? ` (${data.jpLocation[jpInd].replace(/\s/g, ', ')})`
+          : '';
+
+        const modelInfo = [
+          cohort ? cohort + ' - ' : '',
+          `Joinpoint ${jpInd}`,
+          jp,
+        ].join('');
+
+        excel.utils.book_append_sheet(
           wb,
-          generateSheet(filterData, cohorts),
+          generateSheet(filterData, modelInfo),
           sheetname
         );
       });
-      data.forEach((data, i) =>
-        XLSX.utils.book_append_sheet(
+      resultsArray.forEach((data, i) =>
+        excel.utils.book_append_sheet(
           wb,
           modelEstimates(data),
           'Model Estimates ' + ++i
         )
       );
 
-      XLSX.utils.book_append_sheet(wb, settingsSheet(state), 'Settings');
+      excel.utils.book_append_sheet(wb, settingsSheet(state), 'Settings');
 
-      const filename = wb.props.Title + '.xlsx';
-      const filepath = path.join(savePath, filename);
-      XLSX.writeFile(wb, filepath);
+      //   write workbook to file if given a path
+      if (savePath) {
+        const filename = wb.props.Title + '.xlsx';
+        const filepath = path.join(savePath, filename);
+        excel.writeFile(wb, filepath);
 
-      resolve(filename);
+        resolve(filename);
+      } else resolve(wb);
     } catch (error) {
       reject(error);
     }
@@ -145,7 +262,7 @@ function generateSheet(data, cohorts = false) {
   let sheet = [Object.keys(data), ...dataMatrix];
   if (cohorts) sheet.unshift(['Cohort', cohorts]);
 
-  return XLSX.utils.aoa_to_sheet(sheet);
+  return excel.utils.aoa_to_sheet(sheet);
 }
 
 // Creates a sheet containing data from the Model Estimates tab
@@ -179,7 +296,7 @@ function modelEstimates(results) {
   });
 
   // set column width
-  var ws = XLSX.utils.aoa_to_sheet(sheet);
+  var ws = excel.utils.aoa_to_sheet(sheet);
   var colWidth = [{ wch: 30 }, { wch: 25 }, { wch: 25 }];
   ws['!cols'] = colWidth;
 
@@ -249,7 +366,7 @@ function settingsSheet(state) {
   }
 
   // set column width
-  var ws = XLSX.utils.aoa_to_sheet(sheet);
+  var ws = excel.utils.aoa_to_sheet(sheet);
   var colWidth = [{ wch: 60 }, { wch: 10 }];
   ws['!cols'] = colWidth;
 

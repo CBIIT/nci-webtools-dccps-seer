@@ -1,9 +1,14 @@
-var control_data;
-var cohort_covariance_variables;
-var advfields = ['adv-between', 'adv-first', 'adv-last', 'adv-year'];
-let fontSize = getCookie('fontSize') || 14;
+import {
+  singleExport,
+  multiExport,
+} from '../queueProcessor/services/xlsxExport.js';
 
-var jpsurvData = {
+window.control_data = {};
+window.cohort_covariance_variables = {};
+window.advfields = ['adv-between', 'adv-first', 'adv-last', 'adv-year'];
+window.fontSize = getCookie('fontSize') || 14;
+
+window.jpsurvData = {
   file: {
     dictionary: 'Breast.dic',
     data: 'something.txt',
@@ -21,11 +26,10 @@ var jpsurvData = {
   tokenId: 'unknown',
   status: 'unknown',
   stage2completed: 0,
+  mapping: {},
 };
-jpsurvData.mapping = {};
-var DEBUG = false;
-var maxJP = DEBUG ? 0 : 2;
-var first_modal = true;
+window.maxJP = 2;
+window.first_modal = true;
 if (getUrlParameter('tokenId')) {
   jpsurvData.tokenId = getUrlParameter('tokenId');
 }
@@ -53,12 +57,6 @@ $(document).ready(function () {
     );
   } else {
     $('#description').append($('<div>').load('./html/description.html'));
-  }
-
-  if (DEBUG) {
-    //console.warn("%cDEBUG is on", "color:white; background-color:red");
-    $('#year_of_diagnosis_start').val('1975');
-    $('#year_of_diagnosis_end').val('1985');
   }
 
   advfields.forEach(function (id) {
@@ -592,7 +590,7 @@ function addInputSection() {
       'An unexpected error occured. Please ensure the input file(s) is in the correct format and/or correct parameters were chosen. <br>'
     );
   }
-  calc_status = getUrlParameter('calculation');
+  const calc_status = getUrlParameter('calculation');
   if (calc_status == 'failed') {
     message =
       'An unexpected error occured. Please ensure the input file(s) is in the correct format and/or correct parameters were chosen. <br>';
@@ -734,7 +732,7 @@ function updateCohortDisplay() {
   var cohort_message = '';
   $('#cohort-variables fieldset').each(function (index, element) {
     jpsurvData.calculate.form.AllcohortValues[index] = [];
-    count = 0;
+    let count = 0;
     var inputs = $(element).find('.' + element.id);
     //Adds all cohorts selected
     $.each(inputs, function (index2, element2) {
@@ -760,10 +758,10 @@ function updateCohortDisplay() {
     cohort_message += ' and ';
   });
   //inserts the first cohort combination based on all the cohorts slected (1st value of each cohort)
-  keys = Object.keys(jpsurvData.calculate.form.AllcohortValues);
+  const keys = Object.keys(jpsurvData.calculate.form.AllcohortValues);
   for (var i = 0; i < keys.length; i++) {
-    key = i.toString();
-    element = jpsurvData.calculate.form.AllcohortValues[key[0]][0];
+    const key = i.toString();
+    const element = jpsurvData.calculate.form.AllcohortValues[key[0]][0];
     jpsurvData.calculate.form.cohortValues.push(element);
   }
 
@@ -1001,7 +999,7 @@ function setUploadData() {
   jpsurvData.file.data = getUrlParameter('file_data_filename');
   jpsurvData.file.form = getUrlParameter('output_filename');
 
-  session = getUrlParameter('output_filename');
+  let session = getUrlParameter('output_filename');
   session = session.split('.json').shift();
   session = session.split('form-').pop();
   jpsurvData.session_tokenId = session;
@@ -1089,8 +1087,8 @@ function drawPlot(plot, update = false) {
     ].join('');
 
     if (plot == 'year') {
-      yearData = jpsurvData.results.yearData;
-      trend =
+      const yearData = jpsurvData.results.yearData;
+      const trend =
         !$('#yearAnno').is(':checked') &&
         yearData.survTrend &&
         yearData.survTrend['ACS.jp']
@@ -1122,8 +1120,8 @@ function drawPlot(plot, update = false) {
             modelInfo
           );
     } else if (plot == 'death') {
-      deathData = jpsurvData.results.deathData;
-      yMark = (
+      const deathData = jpsurvData.results.deathData;
+      const yMark = (
         deathData.deathTable.Relative_Survival_Interval ||
         deathData.deathTable.CauseSpecific_Survival_Interval
       ).map(function (x) {
@@ -1153,7 +1151,7 @@ function drawPlot(plot, update = false) {
             modelInfo
           );
     } else if (plot == 'time') {
-      timeData = jpsurvData.results.timeData.timeTable;
+      const timeData = jpsurvData.results.timeData.timeTable;
 
       drawLineChart(
         'timePlot',
@@ -1381,12 +1379,11 @@ function addTable(yodCol, headers, table, data, data_se, graph) {
 
 function updateEstimates() {
   var row;
-  jointpoints = jpsurvData.results.ModelSelection;
-  if (jpsurvData.additional.headerJoinPoints != undefined) {
-    Model = jpsurvData.additional.headerJoinPoints + 1;
-  } else {
-    Model = jpsurvData.results.SelectedModel;
-  }
+  const jointpoints = jpsurvData.results.ModelSelection;
+  const Model =
+    jpsurvData.additional.headerJoinPoints != undefined
+      ? jpsurvData.additional.headerJoinPoints + 1
+      : jpsurvData.results.SelectedModel;
 
   $('#estimates-jp > tbody').empty();
   row =
@@ -1428,7 +1425,7 @@ function updateTrendGraph(trends, table_id) {
   function createRow(trend) {
     if (Array.isArray(trend['start.year'])) {
       var rows = [];
-      for (i in trend['start.year']) {
+      for (let i in trend['start.year']) {
         var tempTrend = {};
         Object.keys(trend).forEach(function (key) {
           tempTrend[key] = trend[key][i];
@@ -1461,12 +1458,12 @@ function updateTrendGraph(trends, table_id) {
   }
 
   function setTrendTitle(type) {
-    // between joinpoints
-    title = 'Average Absolute Change in Survival';
-    if (type == 'calendar') {
-      // between calendar years
-      title = 'Trend Measures for User Selected Years';
-    }
+    // between calendar years or joinpoints
+    const title =
+      type == 'calendar'
+        ? 'Trend Measures for User Selected Years'
+        : 'Average Absolute Change in Survival';
+
     $('#yearTrendHeader').text(title);
   }
   if (table_id == 'trend-aac') {
@@ -1532,7 +1529,7 @@ function updateGraphLinks() {
     (link) => {
       link.onclick = async (event) => {
         event.preventDefault();
-        downloadFullData();
+        await downloadFullData();
       };
     }
   );
@@ -1548,7 +1545,7 @@ function updateTabs(tokenId) {
 }
 
 function calculateAllData() {
-  jpsurvRest2('stage3_recalculate', 'calculateAllDataCallback');
+  jpsurvRest2('stage3_recalculate', calculateAllDataCallback);
 }
 
 function calculateAllDataCallback() {
@@ -1560,7 +1557,7 @@ function calculateAllDataCallback() {
 }
 
 function calculateFittedResults() {
-  jpsurvRest2('stage2_calculate', 'calculateFittedResultsCallback');
+  jpsurvRest2('stage2_calculate', calculateFittedResultsCallback);
 }
 
 function calculateFittedResultsCallback() {
@@ -1911,7 +1908,6 @@ function generateResultsFilename(cohort_com, jpInd, switch_cohort) {
     dataType: 'json',
   })
     .done(function (results) {
-      cohort_models = results;
       if (!switch_cohort) cohort_com = 1;
       file_name =
         'jpsurvRest/results?file=results-' +
@@ -2380,7 +2376,7 @@ function find_year_of_diagnosis_row() {
 }
 
 function toggleAbsSelect() {
-  toggled = $('#toggleAbsSelect').prop('checked');
+  const toggled = $('#toggleAbsSelect').prop('checked');
   if (!toggled) {
     $('#absChgFrom').prop('disabled', !toggled).val('').trigger('change');
     $('#absChgTo').prop('disabled', !toggled).val('').trigger('change');
@@ -2421,7 +2417,7 @@ function absChgDynamic() {
       var tmpRange = jpsurvData.additional.absChgRange;
       var checked = $('#toggleAbsSelect').is(':checked');
       // clearAbsChg();
-      range = [
+      let range = [
         jpsurvData.results.timeData.minYear,
         jpsurvData.results.timeData.maxYear,
       ];
@@ -2483,7 +2479,7 @@ function set_intervals_from_diagnosis() {
 
 function generateIntervalSelect(source) {
   $('#intervals_from_diagnosis').empty();
-  for (i = 0; i < source.length; i++) {
+  for (let i = 0; i < source.length; i++) {
     $('#intervals_from_diagnosis').append(
       '<OPTION value=' + source[i] + '> <= ' + source[i] + '</OPTION>'
     );
@@ -2526,7 +2522,7 @@ function change_cohort_first_index_select() {
 function remove_items_from_set(big_set, removed_set) {
   var new_set = [];
 
-  for (i = 0; i < big_set.length; i++) {
+  for (let i = 0; i < big_set.length; i++) {
     if ($.inArray(big_set[i], removed_set) == -1) new_set.push(big_set[i]);
   }
 
@@ -2574,7 +2570,7 @@ function add_cohort_covariance_variable_select(
       variable_name +
       "_select' >"
   );
-  for (i = 0; i < values.length; i++) {
+  for (let i = 0; i < values.length; i++) {
     variable_select.append('<OPTION>' + values[i] + '</OPTION>');
   }
   var sub_form_div = $('<div>').addClass('col-md-6');
@@ -2617,7 +2613,7 @@ function jpsurvRest2(action, callback) {
     contentType: 'application/json',
   })
     .done(function (msg) {
-      window[callback]();
+      callback();
       $('#calculating-spinner').modal('hide');
     })
     .fail(function (jqXHR, textStatus) {
@@ -2771,10 +2767,9 @@ function getUrlParameter(sParam, abbr) {
     var sParameterName = sURLVariables[i].split('=');
     if (sParameterName[0] == sParam) {
       if (abbr == true && sParameterName[1].length > 30) {
-        start = sParameterName[1].substring(0, 14);
-        end = sParameterName[1].substring(sParameterName[1].length - 15);
-        name = start + '...' + end;
-        return name;
+        const start = sParameterName[1].substring(0, 14);
+        const end = sParameterName[1].substring(sParameterName[1].length - 15);
+        return start + '...' + end;
       } else {
         return sParameterName[1];
       }
@@ -2843,7 +2838,7 @@ function openHelpWindow(pageURL) {
   helpWin.focus();
 }
 
-function Slide_menu_Horz(action) {
+window.Slide_menu_Horz = function Slide_menu_Horz(action) {
   if ($('#icon').hasClass('fa fa-caret-left fa-2x') || action == 'hide') {
     $('#icon').removeClass('fa fa-caret-left fa-2x');
     $('#icon').addClass('fa fa-caret-right fa-2x');
@@ -2884,8 +2879,6 @@ function Slide_menu_Horz(action) {
     // $("#right_panel").addClass("col-md-7");
     $('#right_panel').css('margin-top', '2%');
 
-    left_panel_width = $('#slideoutTab').width();
-
     $('#icon').animate(
       {
         marginLeft: '100%',
@@ -2893,7 +2886,7 @@ function Slide_menu_Horz(action) {
       20
     );
   }
-}
+};
 
 function Slide_menu_Vert(Id, action) {
   if (
@@ -3523,14 +3516,14 @@ function getCohorts() {
 
 // Creates a sheet containing selections for cohorts, model, and advanced options
 function settingsSheet() {
-  cohortVars = jpsurvData.calculate.form.cohortVars;
-  cohortValues = jpsurvData.calculate.form.cohortValues;
-  advOptions = jpsurvData.calculate.static.advanced;
-  title = jpsurvData.calculate.static.yearOfDiagnosisTitle;
-  range = jpsurvData.calculate.form.yearOfDiagnosisRange;
-  interval = jpsurvData.calculate.form.interval;
-  jp = jpsurvData.calculate.form.maxjoinPoints;
-  options = [
+  const cohortVars = jpsurvData.calculate.form.cohortVars;
+  const cohortValues = jpsurvData.calculate.form.cohortValues;
+  const advOptions = jpsurvData.calculate.static.advanced;
+  const title = jpsurvData.calculate.static.yearOfDiagnosisTitle;
+  const range = jpsurvData.calculate.form.yearOfDiagnosisRange;
+  const interval = jpsurvData.calculate.form.interval;
+  const jp = jpsurvData.calculate.form.maxjoinPoints;
+  const options = [
     'Delete Last Interval',
     'Minimum Number of years between Joinpoints (Excluding Joinpoints)',
     'Minimum Number of Years before First Joinpoint (Excluding Joinpoint)',
@@ -3544,7 +3537,7 @@ function settingsSheet() {
   sheet.push(['Year of Diagnosis', title]);
   sheet.push(['Year of Diagnosis Range', range[0] + ' - ' + range[1]]);
   sheet.push(['Max Intervals from Diagnosis to Include', interval]);
-  for (i in cohortVars) {
+  for (let i in cohortVars) {
     sheet.push([cohortVars[i], cohortValues[i].replace(/\"/g, '')]);
   }
   sheet.push(['Maximum Joinpoints', jp], [], [], ['Advanced Options']);
@@ -3655,203 +3648,22 @@ function generateSheet(data, cohorts = false) {
 }
 
 function downloadData(type) {
-  var cohort = document.querySelector('#cohort-display').value;
-  var jp = jpsurvData.results.jpInd;
-  var wb = XLSX.utils.book_new();
-  wb.props = {
-    Title: type + ' - Model ' + (jp + 1) + ' (JP ' + jp + ') - ' + cohort,
-  };
-
-  let columns = [...getCohorts(), jpsurvData.results.yearVar];
-  // columns specific to each graph
-  if (type == 'survByYear') {
-    const survTable = jpsurvData.results.yearData.survTable;
-    columns.push(
-      'Interval',
-      'Relative_Survival_Cum',
-      'Relative_SE_Cum',
-      'CauseSpecific_Survival_Cum',
-      'CauseSpecific_SE_Cum',
-      'Predicted_Survival_Cum',
-      'Predicted_Survival_Cum_SE'
-    );
-
-    // filter in order of defined columns
-    const data = columns
-      .filter((e) => Object.keys(survTable).includes(e))
-      .reduce((a, col) => ((a[col] = survTable[col]), a), {});
-
-    XLSX.utils.book_append_sheet(wb, generateSheet(data), 'Survival vs. Year');
-  } else if (type == 'deathByYear') {
-    const deathTable = jpsurvData.results.deathData.deathTable;
-
-    // change column names
-    if (deathTable['Relative_Survival_Interval']) {
-      deathTable['Observed_ProbDeath_Int'] = deathTable[
-        'Relative_Survival_Interval'
-      ].map(function (i) {
-        return 100 - i;
-      });
-
-      deathTable['Observed_ProbDeath_Int_SE'] =
-        deathTable['Relative_SE_Interval'];
-    } else {
-      deathTable['Observed_ProbDeath_Int'] = deathTable[
-        'CauseSpecific_Survival_Interval'
-      ].map(function (i) {
-        return 100 - i;
-      });
-
-      deathTable['Observed_ProbDeath_Int_SE'] =
-        deathTable['CauseSpecific_SE_Interval'];
-    }
-    columns.push(
-      'Interval',
-      'Observed_ProbDeath_Int',
-      'Observed_ProbDeath_Int_SE',
-      'Predicted_ProbDeath_Int',
-      'Predicted_ProbDeath_Int_SE'
-    );
-
-    // filter in order of defined columns
-    const data = columns
-      .filter((e) => Object.keys(deathTable).includes(e))
-      .reduce((a, col) => ((a[col] = deathTable[col]), a), {});
-
-    XLSX.utils.book_append_sheet(wb, generateSheet(data), 'Death vs. Year');
-  } else if (type == 'survByTime') {
-    const timeTable = jpsurvData.results.timeData.timeTable;
-
-    columns.push(
-      'Interval',
-      'Relative_Survival_Cum',
-      'CauseSpecific_Survival_Cum',
-      'Predicted_Survival_Cum'
-    );
-
-    // filter in order of defined columns
-    const data = columns
-      .filter((e) => Object.keys(timeTable).includes(e))
-      .reduce((a, col) => ((a[col] = timeTable[col]), a), {});
-
-    XLSX.utils.book_append_sheet(wb, generateSheet(data), 'Survival vs. Time');
-  }
-
-  XLSX.utils.book_append_sheet(wb, modelEstimates(), 'Model Estimates');
-  XLSX.utils.book_append_sheet(wb, settingsSheet(), 'Settings');
-  XLSX.writeFile(wb, wb.props.Title + '.xlsx');
+  singleExport(type, {
+    ...jpsurvData,
+    covariates: cohort_covariance_variables,
+  });
 }
 
 async function downloadFullData() {
   try {
-    let wb = XLSX.utils.book_new();
-    wb.props = {
-      Title: 'JPSurv-' + jpsurvData.file.data.replace(/\.[^/.]+$/, ''),
-    };
-
-    // show loading indicator
-    $('#full-dataset-spinner').removeClass('d-none');
-    $('#full-dataset-link').addClass('disabled');
-
     const allResults = await getData();
     if (!Object.keys(allResults).length) throw 'Failed to retrieve results';
 
-    allResults.forEach((data, i) => {
-      let results = data.fullDownload;
-
-      // add Observed_ProbDeath columns
-      if (results['Relative_Survival_Interval']) {
-        results['Observed_ProbDeath_Int'] = results[
-          'Relative_Survival_Interval'
-        ].map((i) => 100 - i);
-
-        results['Observed_ProbDeath_Int_SE'] = results['Relative_SE_Interval'];
-      } else {
-        results['Observed_ProbDeath_Int'] = results[
-          'CauseSpecific_Survival_Interval'
-        ].map((i) => 100 - i);
-
-        results['Observed_ProbDeath_Int_SE'] =
-          results['CauseSpecific_SE_Interval'];
-      }
-
-      const yearVar = data.yearVar;
-      let columns = [
-        ...getCohorts(),
-        yearVar,
-        'Interval',
-        'Died',
-        'Alive_at_Start',
-        'Lost_to_Followup',
-        'Expected_Survival_Interval',
-      ];
-
-      // include input data depending on type of statistic
-      if (jpsurvData.additional.statistic == 'Relative Survival') {
-        columns = [
-          ...columns,
-          'Expected_Survival_Cum',
-          'Observed_Survival_Cum',
-          'Observed_Survival_Interval',
-          'Relative_Survival_Interval',
-          'Observed_ProbDeath_Int',
-          'Relative_Survival_Cum',
-          'Relative_SE_Interval',
-          'Relative_SE_Cum',
-          'Observed_ProbDeath_Int_SE',
-        ];
-      } else {
-        columns = [
-          ...columns,
-          'CauseSpecific_Survival_Interval',
-          'Observed_ProbDeath_Int',
-          'CauseSpecific_Survival_Cum',
-          'CauseSpecific_SE_Interval',
-          'CauseSpecific_SE_Cum',
-          'Observed_ProbDeath_Int_SE',
-        ];
-      }
-
-      // add predicted columns
-      columns = [
-        ...columns,
-        'Predicted_Survival_Int',
-        'Predicted_ProbDeath_Int',
-        'Predicted_Survival_Cum',
-        'Predicted_Survival_Int_SE',
-        'Predicted_ProbDeath_Int_SE',
-        'Predicted_Survival_Cum_SE',
-      ];
-
-      // filter in order of defined columns
-      const filterData = columns
-        .filter((e) => Object.keys(results).includes(e))
-        .reduce((a, col) => ((a[col] = results[col]), a), {});
-
-      const sheetname = `Cohort ${i + 1}`;
-
-      const cohorts =
-        data.Runs.trim()
-          .split(' jpcom ')
-          [data.com - 1].replace(/\s\+\s/g, ' - ') + ' - ';
-
-      const jp = `Joinpoint ${data.jpInd}`;
-
-      XLSX.utils.book_append_sheet(
-        wb,
-        generateSheet(filterData, cohorts + jp),
-        sheetname
-      );
+    const wb = await multiExport(allResults, '', {
+      ...jpsurvData,
+      covariates: cohort_covariance_variables,
     });
-    allResults.forEach((data, i) =>
-      XLSX.utils.book_append_sheet(
-        wb,
-        modelEstimates(data),
-        'Model Estimates ' + ++i
-      )
-    );
 
-    XLSX.utils.book_append_sheet(wb, settingsSheet(), 'Settings');
     XLSX.writeFile(wb, wb.props.Title + '.xlsx');
   } catch (error) {
     console.error(error);

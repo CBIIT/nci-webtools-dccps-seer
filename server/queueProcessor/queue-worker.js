@@ -9,7 +9,7 @@ import path from 'path';
 import nodemailer from 'nodemailer';
 
 import { extractArchive, createArchive } from './services/utils.js';
-import { createXLSX } from './services/xlsx.js';
+import { multiExport } from './services/xlsxExport.js';
 
 const r = rWrapper.async;
 const config = ini.parse(fs.readFileSync('../config/config.ini', 'utf-8'));
@@ -60,7 +60,7 @@ export async function startQueueWorker() {
         const modelData = await calculateModels(results, dataPath);
 
         // generate full dataset xlsx
-        const xlsxFile = await createXLSX(modelData, dataPath, results);
+        const xlsxFile = await multiExport(modelData, dataPath, results);
 
         // archive results
         const archiveFile = await putData(id + '.zip', dataPath);
