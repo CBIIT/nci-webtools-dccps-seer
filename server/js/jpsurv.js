@@ -1834,8 +1834,8 @@ function setRun() {
 function file_submit(event) {
   jpsurvData.tokenId = renewTokenId(false);
   if ($('#csv').is(':checked')) {
-    headers = '';
-    del = $('input[name=del]:checked').val();
+    let headers = '';
+    const del = $('input[name=del]:checked').val();
 
     for (var i = 0; i < $('#header_row th').length / 2; i++) {
       header = $('#header_' + i).val();
@@ -2241,7 +2241,7 @@ function parse_cohort_covariance_variables() {
     var cohortVarNames = control_data.cohort_names;
 
     for (var i = 0; i < control_data.cohort_names.length; i++) {
-      cohort_col = control_data.cohort_keys[i];
+      const cohort_col = control_data.cohort_keys[i];
       cohort_covariance_variables[control_data.cohort_names[i]] =
         control_data.data[cohort_col];
     }
@@ -2354,7 +2354,6 @@ function get_cohort_covariance_variable_names() {
     }
   } else if (control_data.input_type == 'csv') {
     for (var i = 0; i < control_data.cohort_names.length; i++) {
-      cohort_col = control_data.cohort_keys[i];
       cohort_covariance_variable_names.push(control_data.cohort_names[i]);
     }
   }
@@ -3111,9 +3110,8 @@ function Read_csv_file() {
   fileInput = fileInput[0];
   var file = fileInput.files[0];
   var filereader = new FileReader();
-  var content = '';
   var has_headers = $('#has_headers').is(':checked');
-  lines = parseInt($('#lines_displayed').val());
+  let lines = parseInt($('#lines_displayed').val());
   if (first_modal == true) {
     lines = 19;
     has_headers = true;
@@ -3255,7 +3253,7 @@ function createModal() {
 
   $('#modal').modal('show');
 }
-function save_params() {
+window.save_params = function save_params() {
   //Mapping selected drop down values to json
   var params = [
     'year',
@@ -3273,7 +3271,7 @@ function save_params() {
   length = $('#data_table th').length;
   var type = $('#data_type').val();
   for (var i = 0; i < length; i++) {
-    value = $('#type_' + i + ' select').val();
+    const value = $('#type_' + i + ' select').val();
     if (value == 'Cohort') {
       jpsurvData.mapping.cohorts.push(i + 1);
     } else if (value == 'Year') {
@@ -3330,7 +3328,7 @@ function save_params() {
     checkInputFiles();
     $('#modal').modal('hide');
   }
-}
+};
 function create_table(content, rows, has_headers) {
   if (first_modal == true) createModal();
   var arr = content.split(/\r\n|\n|\r/);

@@ -115,7 +115,7 @@ export async function multiExport(
 
       let wb = excel.utils.book_new();
       wb.props = {
-        Title: 'JPSurv-' + state.file.data.replace(/\.[^/.]+$/, ''),
+        Title: 'JPSurv-' + state.file.dictionary.replace(/\.[^/.]+$/, ''),
       };
 
       resultsArray.forEach((data, i) => {
