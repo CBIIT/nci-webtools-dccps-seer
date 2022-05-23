@@ -7,6 +7,7 @@ import datetime
 from os import path, getcwd, rename, chdir, listdir
 from traceback import format_exc
 from flask import Flask, request, redirect, Response, send_from_directory, jsonify, send_file, abort
+from flask_cors import CORS
 from rpy2.robjects import r
 from werkzeug.utils import secure_filename
 from zipfile import ZipFile, ZIP_DEFLATED
@@ -34,6 +35,9 @@ if __name__ == '__main__':
 else:
     # Otherwise, assume mod_wsgi/apache will serve static files
     app = Flask(__name__, static_folder=None)
+
+# enable CORS
+CORS(app)
 
 # Load configuration from file
 app.config.update(read_config('../config/config.ini'))
