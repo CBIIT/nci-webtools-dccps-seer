@@ -1529,7 +1529,32 @@ function updateGraphLinks() {
     (link) => {
       link.onclick = async (event) => {
         event.preventDefault();
-        await downloadFullData();
+        if (useQueue()) {
+          try {
+            const filename =
+              'JPSurv-' +
+              jpsurvData.file.dictionary.replace(/\.[^/.]+$/, '') +
+              '.xlsx';
+            const id = jpsurvData.tokenId + '.zip';
+            const blob = await (
+              await fetch(
+                'api/queueDownloadResult?' +
+                  new URLSearchParams({ dataset: filename, archive: id })
+              )
+            ).blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+          } catch (error) {
+            showMessage('jpsurv', error.message, 'error');
+          }
+        } else {
+          await downloadFullData();
+        }
       };
     }
   );
@@ -3654,6 +3679,7 @@ function downloadData(type) {
 
 async function downloadFullData() {
   try {
+    // https://analysistools.cancer.gov/jpsurv/api/queueDownloadResult?dataset=JPSurv-Tutorial_JPSURV.xlsx&archive=ec014326-d296-4c57-831b-9a9c4c6b708a.zip
     const allResults = await getData();
     if (!Object.keys(allResults).length) throw 'Failed to retrieve results';
 
