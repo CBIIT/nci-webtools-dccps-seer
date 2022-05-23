@@ -1,3 +1,17 @@
+import {
+  setIntervalsDefault,
+  getIntervals,
+  parse_diagnosis_years,
+  setData,
+  generateResultsFilename,
+  loadResults,
+  getCookie,
+  updateCohortDropdown,
+  setRun,
+  setAbsChangeDefault,
+  buildTimeYod,
+} from './jpsurv.js';
+
 $(document).ready(function () {
   $('#exportButton').on('click', exportBackEnd);
   setEventHandlerForImports();
@@ -6,7 +20,7 @@ $(document).ready(function () {
 //
 // Import -- Upload a previous session ( stored in a zip with the extension .jpsurv  )
 //
-function importBackEnd(event) {
+export function importBackEnd(event) {
   $('#upload_session').prop('disabled', true);
   var formData = new FormData();
   formData.append('zipData', $('#fileSelect')[0].files[0]);
@@ -41,7 +55,7 @@ function importBackEnd(event) {
 // Export the data to a file by sending a request to the backend to zip the files for the current session into a file
 // with the extension .jpsurv
 //
-function exportBackEnd(event) {
+export function exportBackEnd(event) {
   if (jpsurvData.stage2completed == false) {
     handleError(
       'No Analysis is currently running.  Pleas either import or select files to analyze'
@@ -206,7 +220,7 @@ function retrieveCohortComboResults(data) {
   $('#icon').css('visibility', 'visible');
   Slide_menu_Horz('hide');
 
-  filename =
+  const filename =
     'results-' +
     data.tokenId +
     '-' +

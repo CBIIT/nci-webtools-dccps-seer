@@ -2,6 +2,7 @@ import {
   singleExport,
   multiExport,
 } from '../queueProcessor/services/xlsxExport.js';
+import { importBackEnd } from './exportImport.js';
 
 window.control_data = {};
 window.cohort_covariance_variables = {};
@@ -695,7 +696,7 @@ function load_input_form(inputData) {
   $('#adv-year').val(inputData.calculate.static.advanced.advYear);
 }
 //populates the chort dropdown window based on the form selection
-function updateCohortDropdown() {
+export function updateCohortDropdown() {
   $('#cohort-display').empty();
   var cohort_array = jpsurvData.results.Runs.trim().split(' jpcom ');
   for (var i = 0; i < cohort_array.length; i++) {
@@ -1605,7 +1606,7 @@ function calculateFittedResultsCallback() {
   }
 }
 
-function buildTimeYod() {
+export function buildTimeYod() {
   var minYear = jpsurvData.calculate.form.yearOfDiagnosisRange[0];
   var maxYear = jpsurvData.calculate.form.yearOfDiagnosisRange[1];
   $('#year-of-diagnosis').empty();
@@ -1663,7 +1664,7 @@ function setCalculateData() {
   }
 }
 
-function setData() {
+export function setData() {
   updateCohortDisplay();
 
   jpsurvData.queue = {};
@@ -1852,7 +1853,7 @@ function calculate(run) {
   }
 }
 
-function setRun() {
+export function setRun() {
   jpsurvData.run = $('#cohort-display').val();
 }
 
@@ -1919,7 +1920,7 @@ function retrieveResults(cohort_com, jpInd, switch_cohort) {
   jpsurvData.additional.use_default = 'true';
 }
 
-function generateResultsFilename(cohort_com, jpInd, switch_cohort) {
+export function generateResultsFilename(cohort_com, jpInd, switch_cohort) {
   var file_name = '';
 
   $.ajax({
@@ -1951,7 +1952,7 @@ function generateResultsFilename(cohort_com, jpInd, switch_cohort) {
   return file_name;
 }
 
-function loadResults(results) {
+export function loadResults(results) {
   jpsurvData.results = results;
   if (!jpsurvData.stage2completed) {
     updateCohortDropdown();
@@ -2070,7 +2071,7 @@ function stage3() {
   calculateAllData();
 }
 
-function getIntervals() {
+export function getIntervals() {
   var intervals = $('#interval-years').val();
   jpsurvData.additional.intervals = [];
   $.each(intervals, function (index, value) {
@@ -2232,7 +2233,7 @@ function addSessionVariables() {
 // }
 
 // returns true if YoD is found and set, otherwise return false
-function parse_diagnosis_years() {
+export function parse_diagnosis_years() {
   // First we need to find the element that says "Year of Diagnosis"
   // Then we need to read the label for the previous row, this will be the name used for the title,
   // it will ALSO be the value in the array needed to find the years
@@ -2272,7 +2273,7 @@ function parse_cohort_covariance_variables() {
     }
   }
 }
-function setIntervalsDefault() {
+export function setIntervalsDefault() {
   jpsurvData.additional.intervals_default = [];
 
   var maxInt = jpsurvData.calculate.form.interval;
@@ -2429,7 +2430,7 @@ function setAbsRange(range) {
   }
 }
 
-function setAbsChangeDefault() {
+export function setAbsChangeDefault() {
   clearAbsChg();
   setAbsRange(jpsurvData.calculate.form.yearOfDiagnosisRange);
 }
@@ -3076,7 +3077,7 @@ function setCookie(cname, cvalue, exdays) {
   document.cookie = cname + '=' + cvalue + '; ' + expires;
 }
 
-function getCookie(cname) {
+export function getCookie(cname) {
   var name = cname + '=';
   var ca = document.cookie.split(';');
   for (var i = 0; i < ca.length; i++) {
