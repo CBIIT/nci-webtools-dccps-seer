@@ -761,27 +761,30 @@ def queueDownload():
 
 @app.route('/api/queueDownloadResult', methods=['GET'])
 def getQueuedDataset():
-    dataset = request.args.get('dataset')
+    filename = request.args.get('dataset')
     archive = request.args.get('archive')
     id = Path(archive).stem
     key = path.join(app.config['s3']['output_dir'], archive)
     zipSave = path.join(app.config['folders']['output_dir'], archive)
     extractPath = path.join(app.config['folders']['output_dir'], id)
+    file = path.join(extractPath, filename)
 
-    try:
-        bucket = S3Bucket(app.config['s3']['bucket'], app.logger)
-        bucket.downloadFile(key, zipSave)
-
-        with ZipFile(zipSave) as archive:
-            archive.extractall(extractPath)
-
-        file = path.join(extractPath, dataset)
+    if path.isfile(file):
         return send_file(file, as_attachment=True)
-    except Exception as err:
-        message = "Download from S3 failed!\n" + str(err)
-        app.logger.error(message)
-        app.logger.exception(err)
-        return app.response_class(json.dumps(message), 500, mimetype='application/json')
+    else:
+        try:
+            bucket = S3Bucket(app.config['s3']['bucket'], app.logger)
+            bucket.downloadFile(key, zipSave)
+
+            with ZipFile(zipSave) as archive:
+                archive.extractall(extractPath)
+
+            return send_file(file, as_attachment=True)
+        except Exception as err:
+            message = "Download from S3 failed!\n" + str(err)
+            app.logger.error(message)
+            app.logger.exception(err)
+            return app.response_class(json.dumps(message), 500, mimetype='application/json')
 
 
 def is_safe_path(tokenId, path, follow_symlinks=True):
