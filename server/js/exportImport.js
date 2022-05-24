@@ -100,8 +100,8 @@ export function exportBackEnd(event) {
   data.selectedCohort = $('#cohort-display').val();
 
   if (data.type == 'dic') {
-    dataFile = jpsurvData.file.data.split('.')[0];
-    dicFile = jpsurvData.file.dictionary.split('.')[0];
+    const dataFile = jpsurvData.file.data.split('.')[0];
+    const dicFile = jpsurvData.file.dictionary.split('.')[0];
     if (dataFile != dicFile) {
       data.txtFile = dicFile + '.txt';
     } else {
