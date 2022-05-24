@@ -1530,32 +1530,32 @@ function updateGraphLinks() {
     (link) => {
       link.onclick = async (event) => {
         event.preventDefault();
-        if (useQueue()) {
-          try {
-            const filename =
-              'JPSurv-' +
-              jpsurvData.file.dictionary.replace(/\.[^/.]+$/, '') +
-              '.xlsx';
-            const id = jpsurvData.tokenId + '.zip';
-            const blob = await (
-              await fetch(
-                'api/queueDownloadResult?' +
-                  new URLSearchParams({ dataset: filename, archive: id })
-              )
-            ).blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-          } catch (error) {
-            showMessage('jpsurv', error.message, 'error');
-          }
-        } else {
-          await downloadFullData();
-        }
+        // if (useQueue()) {
+        //   try {
+        //     const filename =
+        //       'JPSurv-' +
+        //       jpsurvData.file.dictionary.replace(/\.[^/.]+$/, '') +
+        //       '.xlsx';
+        //     const id = jpsurvData.tokenId + '.zip';
+        //     const blob = await (
+        //       await fetch(
+        //         'api/queueDownloadResult?' +
+        //           new URLSearchParams({ dataset: filename, archive: id })
+        //       )
+        //     ).blob();
+        //     const url = window.URL.createObjectURL(blob);
+        //     const a = document.createElement('a');
+        //     a.href = url;
+        //     a.download = filename;
+        //     document.body.appendChild(a);
+        //     a.click();
+        //     a.remove();
+        //   } catch (error) {
+        //     showMessage('jpsurv', error.message, 'error');
+        //   }
+        // } else {
+        await downloadFullData();
+        // }
       };
     }
   );
@@ -3680,7 +3680,10 @@ function downloadData(type) {
 
 async function downloadFullData() {
   try {
-    // https://analysistools.cancer.gov/jpsurv/api/queueDownloadResult?dataset=JPSurv-Tutorial_JPSURV.xlsx&archive=ec014326-d296-4c57-831b-9a9c4c6b708a.zip
+    // show loading indicator
+    $('#full-dataset-spinner').removeClass('d-none');
+    $('#full-dataset-link').addClass('disabled');
+    
     const allResults = await getData();
     if (!Object.keys(allResults).length) throw 'Failed to retrieve results';
 
@@ -3703,39 +3706,40 @@ async function downloadFullData() {
 async function getData() {
   const cohorts = jpsurvData.results.Runs.trim().split(' jpcom ');
   const models = Object.keys(jpsurvData.results.ModelSelection);
-  const queries = cohorts.map((cohort, cohortIndex) =>
-    models.map(async (_, jp) => {
-      let { results, ...params } = jpsurvData;
-      params.run = cohortIndex + 1;
-      params.additional.headerJoinPoints = jp;
-      params.calculate.form.cohortValues = cohort.split(' + ');
+  const paramsBatch = cohorts
+    .map((cohort, cohortIndex) =>
+      models.map((_, jp) => {
+        let { results, ...params } = jpsurvData;
+        // params.run = cohortIndex + 1;
+        // params.additional.headerJoinPoints = jp;
+        // params.calculate.form.cohortValues = cohort.split(' + ');
 
-      try {
-        const query = await fetch(
-          'jpsurvRest/stage3_recalculate?jpsurvData=' +
-            encodeURIComponent(JSON.stringify(params))
-        );
-        if (query.ok) {
-          const file =
-            'jpsurvRest/results?file=results-' +
-            jpsurvData.tokenId +
-            '-' +
-            (cohortIndex + 1) +
-            '-' +
-            jp +
-            '.json&tokenId=' +
-            jpsurvData.tokenId;
-
-          return await (await fetch(file)).json();
-        }
-      } catch (error) {
-        return null;
-      }
-    })
-  );
+        return {
+          ...params,
+          run: cohortIndex + 1,
+          additional: { ...params.additional, headerJoinPoints: jp },
+          calculate: {
+            ...params.calculate,
+            form: {
+              ...params.calculate.form,
+              cochortValues: cohort.split(' + '),
+            },
+          },
+        };
+      })
+    )
+    .flat();
 
   try {
-    return await Promise.all(queries.flat());
+    return await (
+      await fetch('api/recalculateBatch', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(paramsBatch),
+      })
+    ).json();
   } catch (error) {
     console.error(error);
     return {};

@@ -787,6 +787,72 @@ def getQueuedDataset():
             return app.response_class(json.dumps(message), 500, mimetype='application/json')
 
 
+@app.route('/api/recalculateBatch', methods=['POST'])
+def recalculateBatch():
+    paramsArray = request.json
+
+    def recalculate(jpsurvData):
+        jpsurvDataString = json.dumps(jpsurvData)
+        cohort_com = str(jpsurvData["run"])
+        app.logger.debug(cohort_com)
+
+        token = jpsurvData['tokenId']
+        input_dir = getInputDir(token)
+
+        jpInd = str(jpsurvData["additional"]["headerJoinPoints"])
+        app.logger.debug("JPIND")
+        app.logger.debug(jpInd)
+
+        recalc = str(jpsurvData["additional"]["recalculate"])
+        app.logger.debug("RECALC?")
+        app.logger.debug(recalc)
+
+        switch = jpsurvData["switch"]
+        app.logger.debug("SWITCH?")
+        app.logger.debug(switch)
+
+        use_default = False
+        if(str(jpsurvData["additional"]["use_default"]) == "true"):
+            use_default = True
+
+        app.logger.debug("USE_DEFAULT")
+        app.logger.debug(use_default)
+
+        if (switch == True):
+            with open(input_dir + '/cohort_models-'+jpsurvData["tokenId"]+'.json') as data_file:
+                data = json.load(data_file)
+                # app.logger.debug(data)
+                # app.logger.debug("NEW JPIND")
+                # app.logger.debug(data[int(cohort_com)-1])
+                jpInd = str(data[int(cohort_com)-1])
+
+        fname = input_dir + '/results-' + \
+            jpsurvData["tokenId"]+"-"+cohort_com+"-"+jpInd+'.json'
+        # app.logger.debug(fname)
+        # Init the R Source
+        # app.logger.debug(path.isfile(fname))
+
+        if(path.isfile(fname) == False or recalc == "true"):
+            r.source('./JPSurvWrapper.R')
+            app.logger.debug("**** Calling getAllData ****")
+            # Next line execute the R Program
+            try:
+                file = r.getAllData(input_dir, jpsurvDataString, switch, use_default,
+                                    input_dir + '/cohortCombo-'+jpsurvData["tokenId"]+'.json')
+                with open(fname, 'r') as jsonFile:
+                    return json.load(jsonFile)
+            except Exception as e:
+                app.logger.debug(e)
+                return json.loads(r'{}')
+        else:
+            with open(fname, 'r') as jsonFile:
+                return json.load(jsonFile)
+
+    resultFiles = list(map(recalculate, paramsArray))
+
+    return jsonify(resultFiles)
+
+
 def is_safe_path(tokenId, path, follow_symlinks=True):
     # resolves symbolic links
     if follow_symlinks:
