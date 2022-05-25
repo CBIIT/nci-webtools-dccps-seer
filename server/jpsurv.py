@@ -769,22 +769,19 @@ def getQueuedDataset():
     extractPath = path.join(app.config['folders']['output_dir'], id)
     file = path.join(extractPath, filename)
 
-    if path.isfile(file):
+    try:
+        bucket = S3Bucket(app.config['s3']['bucket'], app.logger)
+        bucket.downloadFile(key, zipSave)
+
+        with ZipFile(zipSave) as archive:
+            archive.extractall(extractPath)
+
         return send_file(file, as_attachment=True)
-    else:
-        try:
-            bucket = S3Bucket(app.config['s3']['bucket'], app.logger)
-            bucket.downloadFile(key, zipSave)
-
-            with ZipFile(zipSave) as archive:
-                archive.extractall(extractPath)
-
-            return send_file(file, as_attachment=True)
-        except Exception as err:
-            message = "Download from S3 failed!\n" + str(err)
-            app.logger.error(message)
-            app.logger.exception(err)
-            return app.response_class(json.dumps(message), 500, mimetype='application/json')
+    except Exception as err:
+        message = "Download from S3 failed!\n" + str(err)
+        app.logger.error(message)
+        app.logger.exception(err)
+        return app.response_class(json.dumps(message), 500, mimetype='application/json')
 
 
 @app.route('/api/recalculateBatch', methods=['POST'])
