@@ -2913,7 +2913,7 @@ window.Slide_menu_Horz = function Slide_menu_Horz(action) {
   }
 };
 
-function Slide_menu_Vert(Id, action) {
+window.Slide_menu_Vert = function Slide_menu_Vert(Id, action) {
   if (
     ($('#' + Id).css('display') != 'none' && action == 'both') ||
     action == 'hide'
@@ -2935,7 +2935,7 @@ function Slide_menu_Vert(Id, action) {
       300
     );
   }
-}
+};
 
 function decimalPlaces(num) {
   var match = ('' + num).match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
@@ -3683,7 +3683,7 @@ async function downloadFullData() {
     // show loading indicator
     $('#full-dataset-spinner').removeClass('d-none');
     $('#full-dataset-link').addClass('disabled');
-    
+
     const allResults = await getData();
     if (!Object.keys(allResults).length) throw 'Failed to retrieve results';
 
@@ -3747,10 +3747,10 @@ async function getData() {
 }
 
 // reset Advanced Options to their default settings
-function resetAdvancedOptions() {
+window.resetAdvancedOptions = function resetAdvancedOptions() {
   $('#del-int-no').click();
   $('#adv-between').val('2');
   $('#adv-first').val('3');
   $('#adv-last').val('5');
   $('#adv-year').val('5');
-}
+};
