@@ -7,13 +7,15 @@ RUN echo fastestmirror=1 >> /etc/dnf/dnf.conf \
     epel-release \
     glibc-langpack-en \
     && dnf config-manager --enable powertools \
-    && dnf -y module install python38 \
+    && dnf -y module enable python38 \
     && dnf -y install \
     gcc-c++ \
     make \
     httpd-devel \
     openssl-devel \
     python38 \
+    python38-devel \
+    redhat-rpm-config \
     R \
     && dnf clean all
 
