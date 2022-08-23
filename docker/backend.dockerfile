@@ -20,6 +20,8 @@ RUN echo fastestmirror=1 >> /etc/dnf/dnf.conf \
     R \
     && dnf clean all
 
+RUN R CMD javareconf
+
 RUN mkdir -p /app/server /app/logs /app/wsgi
 
 # install python packages
