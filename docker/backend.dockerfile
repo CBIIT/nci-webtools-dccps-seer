@@ -1,19 +1,20 @@
 FROM quay.io/centos/centos:stream8
 
-RUN dnf -y update \
+RUN echo fastestmirror=1 >> /etc/dnf/dnf.conf \
+    && dnf -y update \
     && dnf -y install \
     dnf-plugins-core \
     epel-release \
     glibc-langpack-en \
     && dnf config-manager --enable powertools \
+    && dnf -y module install python38 \
     && dnf -y install \
     gcc-c++ \
     make \
     httpd-devel \
     openssl-devel \
+    python38 \
     R \
-    python3-pip \
-    python3-devel \
     && dnf clean all
 
 RUN mkdir -p /app/server /app/logs /app/wsgi
