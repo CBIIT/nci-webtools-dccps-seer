@@ -12,6 +12,7 @@ RUN echo fastestmirror=1 >> /etc/dnf/dnf.conf \
     gcc-c++ \
     make \
     httpd-devel \
+    libffi-devel \
     openssl-devel \
     python38 \
     python38-devel \
