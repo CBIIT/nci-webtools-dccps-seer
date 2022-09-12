@@ -9,11 +9,10 @@ from traceback import format_exc
 from flask import Flask, request, redirect, Response, send_from_directory, jsonify, send_file, abort
 from flask_cors import CORS
 from rpy2.robjects import r
-from werkzeug.utils import secure_filename
+from werkzeug.utils import secure_filename, url_encode
 from zipfile import ZipFile, ZIP_DEFLATED
 from glob import glob
 from werkzeug.security import safe_join
-from werkzeug.urls import Href
 from urllib.parse import unquote
 from argparse import ArgumentParser
 from utils import make_dirs, read_config, createArchive, create_rotating_log
@@ -165,14 +164,14 @@ def stage1_upload():
             base_href = '/' if __name__ == '__main__' else '/jpsurv'
 
             # app.logger.debug(request.url_root + base_href)
-            url = Href(base_href)(
-                request='false',
-                file_control_filename=file_control_filename_clean,
-                file_data_filename=file_data_filename_clean,
-                output_filename=output_filename,
-                status='uploaded',
-                tokenId=tokenId
-            )
+            url = base_href + '?' + url_encode({
+                'request': 'false',
+                'file_control_filename': file_control_filename_clean,
+                'file_data_filename': file_data_filename_clean,
+                'output_filename': output_filename,
+                'status': 'uploaded',
+                'tokenId': tokenId
+            })
 
             app.logger.debug('url' + url)
 
@@ -239,13 +238,13 @@ def stage1_upload():
             base_href = '/' if __name__ == '__main__' else '/jpsurv'
 
             # app.logger.debug(request.url_root + base_href)
-            url = Href(base_href)(
-                request='false',
-                file_control_filename=file_control_filename_clean,
-                output_filename=output_filename,
-                status='uploaded',
-                tokenId=tokenId
-            )
+            url = base_href + '?' + url_encode({
+                'request': 'false',
+                'file_control_filename': file_control_filename_clean,
+                'output_filename': output_filename,
+                'status': 'uploaded',
+                'tokenId': tokenId
+            })
 
             app.logger.debug("url" + url)
 
