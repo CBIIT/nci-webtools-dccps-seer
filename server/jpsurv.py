@@ -9,7 +9,8 @@ from traceback import format_exc
 from flask import Flask, request, redirect, Response, send_from_directory, jsonify, send_file, abort
 from flask_cors import CORS
 from rpy2.robjects import r
-from werkzeug.utils import secure_filename, url_encode
+from werkzeug.utils import secure_filename
+from werkzeug.urls import url_encode
 from zipfile import ZipFile, ZIP_DEFLATED
 from glob import glob
 from werkzeug.security import safe_join
