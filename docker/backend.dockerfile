@@ -1,31 +1,24 @@
-FROM quay.io/centos/centos:stream8
+FROM public.ecr.aws/amazonlinux/amazonlinux:2022
 
-RUN echo fastestmirror=1 >> /etc/dnf/dnf.conf \
-    && dnf -y update \
-    && dnf -y install \
-    dnf-plugins-core \
-    epel-release \
-    glibc-langpack-en \
-    && dnf config-manager --enable powertools \
-    && dnf -y module enable python38 \
-    && dnf -y install \
+RUN dnf -y update \
+ && dnf -y install \
     gcc-c++ \
-    make \
     httpd-devel \
     libffi-devel \
+    make \
     openssl-devel \
-    python38 \
-    python38-devel \
-    redhat-rpm-config \
+    python3 \
+    python3-devel \    
+    python3-pip \
+    python3-setuptools \
+    python3-wheel \
     R \
-    && dnf clean all
-
-RUN R CMD javareconf
+ && dnf clean all
 
 RUN mkdir -p /app/server /app/logs /app/wsgi
 
 # install python packages
-RUN pip3 install flask flask-cors mod_wsgi rpy2==3.4.5 boto3 pytest
+RUN pip3 install flask flask-cors mod_wsgi rpy2 boto3 pytest
 
 # install renv
 RUN R -e "install.packages('renv', repos = 'https://cloud.r-project.org/')"

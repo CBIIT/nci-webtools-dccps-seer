@@ -1,20 +1,13 @@
-FROM quay.io/centos/centos:stream8
+FROM public.ecr.aws/amazonlinux/amazonlinux:2022
 
 RUN dnf -y update \
-    && dnf -y install \
-    dnf-plugins-core \
-    epel-release \
-    glibc-langpack-en \
-    && dnf config-manager --enable powertools \
-    && dnf -y module enable nodejs:14 \
-    && dnf -y install \
+ && dnf -y install \
     gcc-c++ \
     make \
-    httpd-devel \
-    openssl-devel \
-    R \
     nodejs \
-    && dnf clean all
+    npm \
+    R \
+ && dnf clean all
 
 RUN mkdir -p /app/server /app/logs /app/wsgi
 
