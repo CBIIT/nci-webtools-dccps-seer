@@ -6,7 +6,7 @@ import datetime
 
 from os import path, getcwd, rename, chdir, listdir
 from traceback import format_exc
-from flask import Flask, request, redirect, Response, send_from_directory, jsonify, send_file, abort
+from flask import Flask, request, redirect, Response, send_from_directory, jsonify, send_file, abort, url_for
 from flask_cors import CORS
 from rpy2.robjects import r
 from werkzeug.utils import secure_filename
@@ -88,17 +88,6 @@ def ping():
         return str(e), 400
 
 
-@app.route('/jpsurvRest/status', methods=['GET'])
-def status():
-    app.logger.debug("Calling status::::::")
-
-    mimetype = 'application/json'
-    status = [{"status": "OK"}]
-    out_json = json.dumps(status)
-
-    return app.response_class(out_json, mimetype=mimetype)
-
-
 @app.route('/jpsurvRest/stage1_upload', methods=['POST'])
 def stage1_upload():
     app.logger.debug("****** Stage 1: UPLOAD BUTTON ***** ")
@@ -176,7 +165,9 @@ def stage1_upload():
 
             app.logger.debug('url' + url)
 
-            return redirect(url)
+            return jsonify({'redirect': url})
+            # return redirect(url)
+
     except Exception as e:
         app.logger.debug(e)
 
@@ -249,13 +240,13 @@ def stage1_upload():
 
             app.logger.debug("url" + url)
 
-            return redirect(url)
+            return jsonify({'redirect': url})
+            # return redirect(url)
 
         except Exception as e:
             app.logger.error("Upload Failed")
             app.logger.error(e)
-            return_url = "?request=false&status=failed_upload"
-            return redirect(return_url)
+            return jsonify(str(e)), 500
 
 
 @app.route('/jpsurvRest/import', methods=['POST'])
@@ -294,8 +285,12 @@ def myImport():
             re.compile(searchFileListRegularExpression).search,
             ZipFile(archive, 'r').namelist()))
 
-        if (len(newList) != None):
-            return valid_uuid.search(newList[0]).group()
+        if (len(newList) > 0):
+            found_uuid = valid_uuid.search(newList[0])
+            if found_uuid is None:
+                return None
+            else:
+                return found_uuid.group()
         else:
             return None
 
@@ -416,8 +411,7 @@ def myImport():
 
     except Exception as e:
         app.logger.debug(str(e))
-        return_url = "?request=false&status=failed_import"
-        return redirect(return_url)
+        return jsonify(e), 500
 
 
 @app.route('/jpsurvRest/export', methods=['GET'])
