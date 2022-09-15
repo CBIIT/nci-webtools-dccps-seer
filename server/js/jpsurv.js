@@ -8,7 +8,7 @@ window.control_data = {};
 window.cohort_covariance_variables = {};
 window.advfields = ['adv-between', 'adv-first', 'adv-last', 'adv-year'];
 window.fontSize = getCookie('fontSize') || 14;
-
+window.showMessage = showMessage;
 window.jpsurvData = {
   file: {
     dictionary: 'Breast.dic',
@@ -398,12 +398,6 @@ function resetShowTrend() {
   $('#showYearTrend').prop('checked', false).trigger('change');
   $('#showDeathTrend').prop('checked', false).trigger('change');
   $('#toggleAbsSelect').prop('checked', false).trigger('change');
-}
-
-/* The Original Code for submitting the a (Dictionary/Data Files) and CSV */
-function submitDicOrCsv(event) {
-  // setEventHandlerForImports()
-  file_submit(event);
 }
 
 function userChangePrecision() {
@@ -957,7 +951,7 @@ function checkInputFiles() {
     var numberOfFiles = $('#file_control').prop('files').length;
     if (numberOfFiles == 2 && has_dic == true && has_txt == true) {
       $('#upload_dictxt').removeAttr('disabled');
-      $('#upload_dictxt').on('click', submitDicOrCsv);
+      $('#upload_dictxt').on('click', handleSubmit);
     } else if (numberOfFiles == 1) {
       $('#file_display').html(
         '<span style="color:red">' + error_msg + '</span></br>'
@@ -968,7 +962,7 @@ function checkInputFiles() {
     $('#upload_csv').attr('title', 'Upload Data from CSV File');
     if (file_control_csv.length > 0 && jpsurvData.passed == true) {
       $('#upload_csv').removeAttr('disabled');
-      $('#upload_csv').on('click', submitDicOrCsv);
+      $('#upload_csv').on('click', handleSubmit);
       $('#file_display_csv').append(
         "<span'><b>CSV file: </b>" +
           $('#file_control_csv').prop('files')[0].name +
@@ -1857,7 +1851,8 @@ export function setRun() {
   jpsurvData.run = $('#cohort-display').val();
 }
 
-function file_submit(event) {
+function handleSubmit(e) {
+  e.preventDefault();
   jpsurvData.tokenId = renewTokenId(false);
   if ($('#csv').is(':checked')) {
     let headers = '';
@@ -1894,7 +1889,35 @@ function file_submit(event) {
     );
   }
 
-  getRestServerStatus();
+  const form = $('#upload-form');
+
+  $.ajax({
+    url: form.attr('action'),
+    type: 'POST',
+    data: new FormData(form[0]),
+    processData: false,
+    contentType: false,
+    dataType: 'json',
+    success: (data) => {
+      if (data.redirect) window.location.href = data.redirect;
+      else {
+        console.log(data);
+        showMessage('jpsurv', 'Server failed to redirect', 'warning');
+      }
+    },
+    error: (err) => {
+      showMessage(
+        'jpsurv',
+        [
+          $('<p>').html(
+            'An error occured while processing your files. Please reivew your data.'
+          ),
+          $('<p>').html(err.responseJSON),
+        ],
+        'error'
+      );
+    },
+  });
 }
 
 function retrieveResults(cohort_com, jpInd, switch_cohort) {
@@ -2744,7 +2767,7 @@ function showMessage(id, message, message_type) {
     css_class = 'bg-warning';
     header = 'Warning';
   }
-  console.warn(message);
+  // console.warn(message);
   $('#' + container_id)
     .empty()
     .show()
@@ -2990,30 +3013,6 @@ function displayError(id, data) {
     error = true;
   }
   return error;
-}
-
-function getRestServerStatus() {
-  var id = 'jpsurv-help';
-  var url = 'jpsurvRest/status';
-
-  return $.ajax({
-    url: url,
-    async: false,
-    contentType: 'application/json',
-  })
-    .done(function (data) {
-      $('#' + id + '-message-container').hide();
-      if (displayError(id, data) == false) {
-        $('#upload-form').submit();
-      }
-    })
-    .fail(function (jqXHR, textStatus) {
-      //console.log("ajaxRequetst.fail");
-      //console.dir(jqXHR);
-      //console.log(textStatus);
-      $('#calculating-spinner').modal('hide');
-      displayCommFail(id || 'jquery', jqXHR, textStatus);
-    });
 }
 
 function renewTokenId(refresh_url) {

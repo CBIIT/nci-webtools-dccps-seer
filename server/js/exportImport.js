@@ -44,9 +44,12 @@ export function importBackEnd(event) {
       );
     })
     .fail(function (jqXHR, textStatus) {
-      handleBackendError();
       console.log(jqXHR);
-      console.log(textStatus);
+      showMessage(
+        'jpsurv',
+        'An error occured during workspace import. Your workspace file may be corrupted or no longer compatible.',
+        'error'
+      );
     })
     .always(() => $('#upload_session').prop('disabled', false));
 }
@@ -57,8 +60,10 @@ export function importBackEnd(event) {
 //
 export function exportBackEnd(event) {
   if (jpsurvData.stage2completed == false) {
-    handleError(
-      'No Analysis is currently running.  Pleas either import or select files to analyze'
+    showMessage(
+      'jpsurv',
+      'No Analysis is currently running.  Pleas either import or select files to analyze',
+      'warning'
     );
     return;
   }
@@ -400,22 +405,6 @@ function setEventHandlerForImports() {
       updatePageAfterRefresh(e);
     });
   }
-}
-
-function handleError(error) {
-  message_type = 'error';
-  id = 'jpsurv';
-  showMessage(id, error, message_type);
-  $('#right_panel').hide();
-  Slide_menu_Horz();
-  $('#help').show();
-  preLoadValues();
-}
-
-function handleBackendError() {
-  handleError(
-    'A problem happen on the back end.  Please have the administrator review the log files'
-  );
 }
 
 /* Copied from https://stackoverflow.com/questions/8532406/create-a-random-token-in-javascript-based-on-user-details */
