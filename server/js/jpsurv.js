@@ -8,7 +8,7 @@ window.control_data = {};
 window.cohort_covariance_variables = {};
 window.advfields = ['adv-between', 'adv-first', 'adv-last', 'adv-year'];
 window.fontSize = getCookie('fontSize') || 14;
-
+window.showMessage = showMessage;
 window.jpsurvData = {
   file: {
     dictionary: 'Breast.dic',
