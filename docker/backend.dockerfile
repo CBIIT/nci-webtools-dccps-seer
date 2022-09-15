@@ -18,7 +18,7 @@ RUN dnf -y update \
 RUN mkdir -p /app/server /app/logs /app/wsgi
 
 # install python packages
-RUN pip3 install flask flask-cors mod_wsgi rpy2 boto3 pytest
+RUN pip3 install flask==2.0.3 Werkzeug==2.0.3 flask-cors mod_wsgi rpy2==3.4.5 boto3 pytest
 
 # install renv
 RUN R -e "install.packages('renv', repos = 'https://cloud.r-project.org/')"
