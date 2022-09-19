@@ -281,8 +281,8 @@ function modelEstimates(results) {
   Object.values(modelSelection).forEach((jp, i) => {
     if (jpInd == i) {
       sheet.push(['Estimates', `Joinpoint ${i}`]);
-      sheet.push(['Bayesian Information Criterion (BIC)', jp.aic]);
-      sheet.push(['Akaike Information Criterial (AIC)', jp.bic]);
+      sheet.push(['Bayesian Information Criterion (BIC)', jp.bic]);
+      sheet.push(['Akaike Information Criterial (AIC)', jp.aic]);
       sheet.push(['Log Likelihood', jp.ll]);
       sheet.push(['Converged', jp.converged ? 'Yes' : 'No'], []);
     }
