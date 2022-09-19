@@ -39,6 +39,9 @@ else:
 # enable CORS
 CORS(app)
 
+# disable caching of static files
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+
 # Load configuration from file
 app.config.update(read_config('../config/config.ini'))
 
