@@ -3493,14 +3493,6 @@ $(document).click(function (e) {
   if ($(e.target).is('.close')) $('#max_help').popover('hide');
 });
 
-// A routine to determine if there is a calcuation in the system.  This is done by verifying that stage2 is complete
-// meaning the calculations are done and the panel that contains the calculations is visible.
-function analysisDisplayed() {
-  return jpsurvData.stage2completed && $('#right_panel:visible').length == 1
-    ? true
-    : false;
-}
-
 function getTrendTables() {
   jpsurvData.additional.yearTrend = 0;
   jpsurvData.additional.deathTrend = 0;
@@ -3525,124 +3517,6 @@ function showTrendTable() {
       ? $('#deathTrendTable').removeClass('d-none')
       : $('#deathTrendTable').addClass('d-none');
   }
-}
-
-// returns an array of cohort variables names
-function getCohorts() {
-  return jpsurvData.calculate.form.cohortVars.map(function (cohort) {
-    return cohort
-      .replace(/[^a-z\d/]/gi, '_')
-      .replace(/_{2,}/g, '_')
-      .replace(/^[^a-z\d/]*|[^a-z\d/]*$/gi, '');
-  });
-}
-
-// Creates a sheet containing selections for cohorts, model, and advanced options
-function settingsSheet() {
-  const cohortVars = jpsurvData.calculate.form.cohortVars;
-  const cohortValues = jpsurvData.calculate.form.cohortValues;
-  const advOptions = jpsurvData.calculate.static.advanced;
-  const title = jpsurvData.calculate.static.yearOfDiagnosisTitle;
-  const range = jpsurvData.calculate.form.yearOfDiagnosisRange;
-  const interval = jpsurvData.calculate.form.interval;
-  const jp = jpsurvData.calculate.form.maxjoinPoints;
-  const options = [
-    'Delete Last Interval',
-    'Minimum Number of years between Joinpoints (Excluding Joinpoints)',
-    'Minimum Number of Years before First Joinpoint (Excluding Joinpoint)',
-    'Minimum Number of Years after Last Joinpoint (Excluding Joinpoint)',
-    'Number of Calendar Years of Projected Survival',
-  ];
-  // table header
-  var sheet = [['Cohort and Model Specifications']];
-
-  // add settings and values
-  sheet.push(['Year of Diagnosis', title]);
-  sheet.push(['Year of Diagnosis Range', range[0] + ' - ' + range[1]]);
-  sheet.push(['Max Intervals from Diagnosis to Include', interval]);
-  for (let i in cohortVars) {
-    sheet.push([cohortVars[i], cohortValues[i].replace(/\"/g, '')]);
-  }
-  sheet.push(['Maximum Joinpoints', jp], [], [], ['Advanced Options']);
-  Object.keys(advOptions).forEach(function (key, i) {
-    if (i == 0) {
-      advOptions[key] == 'F'
-        ? sheet.push([options[i], 'No'])
-        : sheet.push([options[i], 'Yes']);
-    } else {
-      sheet.push([options[i], advOptions[key]]);
-    }
-  });
-
-  // add selected model joinpoint information
-  var currentJP = jpsurvData.results.jpInd;
-  var locations = jpsurvData.results.jpLocation;
-  if (!Array.isArray(locations)) locations = [locations];
-  sheet.push(
-    [],
-    [],
-    ['Model'],
-    ['Number of joinpoints', currentJP.toString()],
-    ['Joinpoint locations', locations[currentJP]],
-    [],
-    []
-  );
-
-  // covarariate input data
-  const cohorts = Object.keys(cohort_covariance_variables);
-  sheet.push(['Covariates']);
-  if (cohorts.length) {
-    cohorts.forEach((cohort) =>
-      sheet.push([cohort, cohort_covariance_variables[cohort].join(', ')])
-    );
-  } else {
-    sheet.push(['No cohorts available']);
-  }
-
-  // set column width
-  var ws = XLSX.utils.aoa_to_sheet(sheet);
-  var colWidth = [{ wch: 60 }, { wch: 10 }];
-  ws['!cols'] = colWidth;
-
-  return ws;
-}
-
-// Creates a sheet containing data from the Model Estimates tab
-function modelEstimates(results = jpsurvData.results) {
-  const modelSelection = results.ModelSelection;
-  const jpLocations = results.JP;
-  const jpInd = results.jpInd;
-  const coefficients = results.Coefficients;
-  const xvectors = coefficients.Xvectors.split(', ');
-  const estimates = coefficients.Estimates.split(', ');
-  const stdError = coefficients.Std_Error.split(', ');
-
-  // Estimates of the Joinpoints
-  var sheet = [['Estimates of the Joinpoints']];
-  sheet.push(['Locations', jpLocations || 'None']);
-  Object.values(modelSelection).forEach((jp, i) => {
-    if (jpInd == i) {
-      sheet.push(['Estimates', `Joinpoint ${i}`]);
-      sheet.push(['Bayesian Information Criterion (BIC)', jp.bic]);
-      sheet.push(['Akaike Information Criterial (AIC)', jp.aic]);
-      sheet.push(['Log Likelihood', jp.ll]);
-      sheet.push(['Converged', jp.converged ? 'Yes' : 'No'], []);
-    }
-  });
-
-  // Coefficients
-  sheet.push(['Coefficients']);
-  sheet.push(['Parameter', 'Estimate (%)', 'Standard Error (%)']);
-  xvectors.forEach((xvector, i) => {
-    sheet.push([xvector, estimates[i], stdError[i]]);
-  });
-
-  // set column width
-  var ws = XLSX.utils.aoa_to_sheet(sheet);
-  var colWidth = [{ wch: 30 }, { wch: 25 }, { wch: 25 }];
-  ws['!cols'] = colWidth;
-
-  return ws;
 }
 
 // Creates an excel worksheet from JSON parameter.
