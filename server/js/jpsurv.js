@@ -1859,7 +1859,7 @@ function handleSubmit(e) {
     const del = $('input[name=del]:checked').val();
 
     for (var i = 0; i < $('#header_row th').length / 2; i++) {
-      header = $('#header_' + i).val();
+      const header = $('#header_' + i).val();
       headers += header + del;
     }
     headers = headers.substring(0, headers.length - 1);
