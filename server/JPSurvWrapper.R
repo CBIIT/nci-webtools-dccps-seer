@@ -194,6 +194,7 @@ getFittedResultWrapper <- function(filePath, jpsurvDataString) {
         )
       },
       error = function(e) {
+        print(e)
         cohortErrorsIndex <<- append(cohortErrorsIndex, i)
         cohorts <- gsub('\"', "", paste(as.vector(valid_com_matrix[i, ]), collapse = " + "))
         errors[["errorCohorts"]] <<- append(errors[["errorCohorts"]], cohorts)
@@ -424,7 +425,6 @@ getFittedResult <- function(tokenId, filePath, seerFilePrefix, yearOfDiagnosisVa
     alive_at_start <- names(seerdata)[jpsurvData$additional$alive_at_start]
     lost_to_followup <- names(seerdata)[jpsurvData$additional$lost_to_followup]
     exp_int <- names(seerdata)[jpsurvData$additional$exp_int]
-    stop(exp_int)
     observed <- names(seerdata)[jpsurvData$additional$observed]
     interval <- names(seerdata)[as.integer(jpsurvData$additional$interval)]
     died <- names(seerdata)[jpsurvData$additional$died]
