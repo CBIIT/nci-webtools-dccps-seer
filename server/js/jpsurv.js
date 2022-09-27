@@ -2694,9 +2694,8 @@ function displayCommFail(id, jqXHR, textStatus) {
     message +=
       'The server is temporarily unable to service your request due to maintenance downtime or capacity problems. Please try again later.';
   }
-  message_type = 'error';
 
-  showMessage(id, message, message_type);
+  showMessage(id, message, 'error');
 }
 function jpsurvRest(action, params) {
   var json = (function () {
