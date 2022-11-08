@@ -41,7 +41,7 @@ ReadCSVFile <- function(inputFile, path, tokenId, jpsurvDataString, input_type) 
 
   tryCatch(
     {
-      csvdata <- read.table(file.path(path, inputFile), header = TRUE, dec = ".", sep = del, na.strings = "NA", check.names = FALSE)
+      csvdata <- read.table(file.path(path, inputFile), header = has_headers, sep = del, check.names = FALSE)
     },
     error = function(e) {
       stop(paste0("CSV error: ", e))
@@ -237,7 +237,8 @@ validateCohort <- function(jpsurvData, filePath, seerFilePrefix, allVars, yearOf
       UseVarLabelsInData = varLabels
     )
   } else {
-    file <- paste(file, ".csv", sep = "")
+    file_name <- paste0(jpsurvData$session_tokenId, jpsurvData$file$dictionary)
+    file <- paste(filePath, file_name, sep = "/")
     seerdata <- read.table(file, header = TRUE, dec = ".", sep = del, na.strings = "NA", check.names = FALSE)
   }
 
@@ -402,7 +403,8 @@ getFittedResult <- function(tokenId, filePath, seerFilePrefix, yearOfDiagnosisVa
     )
     # get subset of seerdata containing rows within user defined interval range (Intervals from Diagnosis Range)
     seerdataSub <- subset(seerdata, Interval <= intervalRange)
-    fittedResult <- joinpoint(seerdataSub,
+    fittedResult <- joinpoint(
+      seerdataSub,
       subset = subsetStr,
       year = getCorrectFormat(yearOfDiagnosisVarName),
       observedrelsurv = statistic,

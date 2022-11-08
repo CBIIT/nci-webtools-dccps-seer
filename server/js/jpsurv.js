@@ -2517,7 +2517,9 @@ function set_year_of_diagnosis_select() {
 
 function set_intervals_from_diagnosis() {
   if (control_data.input_type == 'csv') {
-    generateIntervalSelect(control_data.data[4]);
+    generateIntervalSelect(
+      control_data.data[Object.keys(control_data.data).slice(-1)]
+    );
   } else {
     generateIntervalSelect(
       control_data.VarFormatSecList.Interval.ItemNameInDic
@@ -3395,7 +3397,7 @@ function create_table(content, rows, has_headers) {
   }
   //reads csv file if no headers are present and places a generic V1, V2 etc as the editable header row.
   else {
-    counter = 0;
+    let counter = 0;
     var headers = matrix[0].map(function (column) {
       counter++;
       return {
