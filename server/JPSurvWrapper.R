@@ -41,7 +41,7 @@ ReadCSVFile <- function(inputFile, path, tokenId, jpsurvDataString, input_type) 
 
   tryCatch(
     {
-      csvdata <- read.table(file.path(path, inputFile), header = has_headers, sep = del, check.names = FALSE)
+      csvdata <- read.table(file.path(path, inputFile), header = TRUE, sep = del, check.names = FALSE)
     },
     error = function(e) {
       stop(paste0("CSV error: ", e))
