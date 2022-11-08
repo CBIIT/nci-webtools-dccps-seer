@@ -12,7 +12,7 @@ RUN dnf -y update \
     python3-pip \
     python3-setuptools \
     python3-wheel \
-    R \
+    R-4.1.3 \
  && dnf clean all
 
 RUN mkdir -p /app/server /app/logs /app/wsgi
