@@ -358,9 +358,12 @@ function settingsSheet(state) {
   const cohorts = Object.keys(state.covariates);
   sheet.push(['Covariates']);
   if (cohorts.length) {
-    cohorts.forEach((cohort) =>
-      sheet.push([cohort, state.covariates[cohort].join(', ')])
-    );
+    cohorts.forEach((cohort) => {
+      const covariates = state.covariates[cohort];
+      Array.isArray(covariates)
+        ? sheet.push([cohort, state.covariates[cohort].join(', ')])
+        : sheet.push([cohort, state.covariates[cohort]]);
+    });
   } else {
     sheet.push(['No cohorts available']);
   }
