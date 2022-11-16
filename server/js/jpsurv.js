@@ -2517,9 +2517,7 @@ function set_year_of_diagnosis_select() {
 
 function set_intervals_from_diagnosis() {
   if (control_data.input_type == 'csv') {
-    generateIntervalSelect(
-      control_data.data[Object.keys(control_data.data).slice(-1)]
-    );
+    generateIntervalSelect(control_data.data[control_data.interval[1]]);
   } else {
     generateIntervalSelect(
       control_data.VarFormatSecList.Interval.ItemNameInDic
