@@ -417,6 +417,7 @@ def myImport():
             getFilenames("plot_Year", zipFilename)
         )
 
+        # find dic input file
         if getFilename(r"\.dic", zipFilename) != None:
             returnParameters["controlFile"] = fixFilename(
                 getFilename(r"\.dic", zipFilename), returnParameters["tokenIdForForm"]
@@ -426,8 +427,19 @@ def myImport():
             )
             returnParameters["type"] = "DIC"
             returnParameters["delimiter"] = "NA"
-        else:
+        # find csv input file
+        elif getFilename(r"\.csv", zipFilename) != None:
             fileNameInZipFile = getFilename(r"\.csv", zipFilename)
+            returnParameters["controlFile"] = getControlFilename(
+                returnParameters["tokenIdForRest"]
+            )
+            returnParameters["type"] = "CSV"
+            returnParameters["delimiter"] = getDelimiter(
+                path.join(input_dir, fileNameInZipFile)
+            )
+        # find input file with .txt extension
+        elif getFilename(r"\.txt", zipFilename) != None:
+            fileNameInZipFile = getFilename(r"\.txt", zipFilename)
             returnParameters["controlFile"] = getControlFilename(
                 returnParameters["tokenIdForRest"]
             )
