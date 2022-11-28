@@ -80,7 +80,9 @@ export async function startQueueWorker() {
         await mailer.sendMail({
           from: config.mail.admin_support,
           to: email,
-          subject: `JPSurv Calculation Results - ${state.file.data}`,
+          subject: `JPSurv Calculation Results - ${
+            state.file.data || state.file.form
+          }`,
           html: await readTemplate(
             'templates/user_success_email.html',
             templateData
@@ -102,7 +104,9 @@ export async function startQueueWorker() {
         await mailer.sendMail({
           from: config.mail.admin_support,
           to: email,
-          subject: `JPSurv Calculation Error - ${state.file.data}`,
+          subject: `JPSurv Calculation Error - ${
+            state.file.data || state.file.form
+          }`,
           html: await readTemplate(
             'templates/user_error_email.html',
             templateData
