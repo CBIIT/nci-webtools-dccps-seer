@@ -663,12 +663,12 @@ getGraphWrapper <- function(filePath, jpsurvDataString, first_calc, com, runs, i
     # check if annotation is possible
     if (!is.null(trend) && trend == 1) {
       # if (nJP <= 3 && length(jpsurvData$additional$intervalsDeath) <= 3) {
-      # data = plot.dying.year.annotate(graphData, fit, nJP, yearVar, obsintvar, predintvar, interval, annotation = 1, trend = 1)
+      # data = Plot.dying.year.annotate(graphData, fit, nJP, yearVar, obsintvar, predintvar, interval, annotation = 1, trend = 1)
       # } else {
-      data <- plot.dying.year.annotate(graphData, fit, nJP, yearVar, obsintvar, predintvar, interval, annotation = 0, trend = 1)
+      data <- Plot.dying.year.annotate(graphData, fit, nJP, yearVar, obsintvar, predintvar, interval, annotation = 0, trend = 1)
       # }
     } else {
-      plot <- plot.dying.year.annotate(graphData, fit, nJP, yearVar, obsintvar, predintvar, interval, annotation = 0, trend = 0)
+      plot <- Plot.dying.year.annotate(graphData, fit, nJP, yearVar, obsintvar, predintvar, interval, annotation = 0, trend = 0)
       ggsave(file = paste(filePath, paste("plot_Death-", jpsurvData$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/"))
       graphFile <- paste(filePath, paste("plot_Death-", jpsurvData$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/")
       graphData <- (scaleTo(graphData))
@@ -704,12 +704,12 @@ getGraphWrapper <- function(filePath, jpsurvDataString, first_calc, com, runs, i
     # check if annotation is possible
     if ((!is.null(trend) && trend == 1) || !is.null(absRange)) {
       # if (nJP <= 3 && length(intervals) <= 3) {
-      # data = plot.surv.year.annotate(graphData, fit, nJP, yearVar, obscumvar, predcumvar, interval, annotation = 1, trend = 1)
+      # data = Plot.surv.year.annotate(graphData, fit, nJP, yearVar, obscumvar, predcumvar, interval, annotation = 1, trend = 1)
       # } else {
-      data <- plot.surv.year.annotate(graphData, fit, nJP, yearVar, obscumvar, predcumvar, interval, annotation = 0, trend = 1)
+      data <- Plot.surv.year.annotate(graphData, fit, nJP, yearVar, obscumvar, predcumvar, interval, annotation = 0, trend = 1)
       # }
     } else {
-      plot <- plot.surv.year.annotate(graphData, fit, nJP, yearVar, obscumvar, predcumvar, interval, annotation = 0, trend = 0)
+      plot <- Plot.surv.year.annotate(graphData, fit, nJP, yearVar, obscumvar, predcumvar, interval, annotation = 0, trend = 0)
       ggsave(file = paste(filePath, paste("plot_Year-", jpsurvData$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/"))
       graphFile <- paste(filePath, paste("plot_Year-", jpsurvData$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/")
       graphData <- (scaleTo(graphData))
@@ -776,7 +776,7 @@ getGraphWrapper <- function(filePath, jpsurvDataString, first_calc, com, runs, i
         years <- minYear
       }
     }
-    graph <- plot.surv.int.multiyears(graphData, fit, nJP, yearVar, obscumvar, predcumvar, interval, year.select = years)
+    graph <- Plot.surv.int.multiyears(graphData, fit, nJP, yearVar, obscumvar, predcumvar, interval, year.select = years)
     graphFile <- paste(filePath, paste("plot_Int-", jpsurvData$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/")
     ggsave(file = paste(filePath, paste("plot_Int-", jpsurvData$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/"))
     graphData <- scaleTo(graphData)
