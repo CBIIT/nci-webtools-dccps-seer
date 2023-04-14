@@ -2354,16 +2354,6 @@ function setIntervalYears(range) {
   }
 }
 
-function getNumberOfIntervals() {
-  if (control_data.input_type == undefined)
-    return parseInt(getSessionOptionInfo('NumberOfIntervals'));
-  else if (control_data.input_type == 'csv') {
-    interval_col = control_data.interval[1];
-    intervals = control_data.data[interval_col];
-    return intervals;
-  }
-}
-
 function getSessionOptionInfo(var_name) {
   if (control_data.input_type == undefined) {
     var session_value = '-1';
@@ -3486,6 +3476,9 @@ $(document).ready(function () {
   $('.select2-search__field').attr('aria-label', function () {
     return $(this).closest('.form-group').children('label').text();
   });
+
+  // populate conditional joinpoint controls
+  populateCondIntOptions();
 });
 
 $(document).click(function (e) {
