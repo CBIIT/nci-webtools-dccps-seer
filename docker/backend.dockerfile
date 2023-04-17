@@ -1,4 +1,4 @@
-FROM public.ecr.aws/amazonlinux/amazonlinux:2022
+FROM public.ecr.aws/amazonlinux/amazonlinux:2023
 
 RUN dnf -y update \
  && dnf -y install \
@@ -25,9 +25,6 @@ RUN R -e "install.packages('renv', repos = 'https://cloud.r-project.org/')"
 
 # install R packages
 COPY server/renv.lock /app/server/
-COPY server/.Rprofile /app/server/
-COPY server/renv/activate.R /app/server/renv/
-COPY server/renv/settings.dcf /app/server/renv/
 COPY r-packages /app/r-packages
 
 WORKDIR /app/server
