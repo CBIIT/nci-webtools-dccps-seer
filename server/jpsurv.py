@@ -663,6 +663,25 @@ def stage3_recalculate():
         )
 
 
+@app.route("/jpsurvRest/recalculateConditionalJp", methods=["POST"])
+def recalculateConditionalJp():
+    params = request.json
+    id = params["state"]["tokenId"]
+    app.logger.info(f"[{id}] Recalculate conditional joinpoint")
+    app.logger.debug(getInputDir(id))
+    try:
+        r.source("./JPSurvWrapper.R")
+        data = r.conditionalJoinpoint(json.dumps(params), getInputDir(id))
+        app.logger.debug(data)
+        return app.response_class(data, 200, mimetype="application/json")
+    except Exception as e:
+        app.logger.error(e)
+        print(e)
+        return app.response_class(
+            json.dumps(str(e)), status=500, mimetype="application/json"
+        )
+
+
 # @app.route('/jpsurvRest/stage4_trends_calculate', methods=['GET'])
 # def stage4_trends_calculate():
 

@@ -793,3 +793,18 @@ getGraphWrapper <- function(filePath, jpsurvDataString, first_calc, com, runs, i
 removeEscape <- function(str) {
   gsub("\"+", "", str)
 }
+
+
+conditionalJoinpoint <- function(jsonParams, folder) {
+  params <- jsonlite::fromJSON(jsonParams)
+  state <- params$state
+  startIntervals <- params$startIntervals
+  endIntervals <- params$endIntervals
+  filepath <- file.path(folder, paste0("output-", state$tokenId, "-", state$run, ".rds"))
+  data <- readRDS(filepath)
+  fit <- data$fittedResult
+  conditionalSurvival <- joinpoint.conditional(fit, startIntervals, endIntervals)
+  savePath <- file.path(folder, "conditionalSurvivalPrediction.rds")
+  saveRDS(conditionalSurvival, savePath)
+  return(jsonlite::toJSON(list(params = params)))
+}

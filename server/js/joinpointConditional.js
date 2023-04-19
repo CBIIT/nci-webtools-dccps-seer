@@ -11,7 +11,7 @@ $('#useConditionalJp').change((e) => {
   const allFormSelects = $(
     '.conditionalIntervalStart, .conditionalIntervalEnd'
   );
-  const recalculate = $('#recalculateConditional').prop('disabled', !checked);
+  $('#recalculateConditional').prop('disabled', !checked);
   allFormSelects.each((i, e) => $(e).prop('disabled', !checked));
 
   if (checked) populateCondIntOptions();
@@ -138,7 +138,45 @@ function recalculateConditional() {
       rules,
       messages,
       submitHandler: async (form) => {
-        console.log('success');
+        const formData = [...new FormData(form).entries()].reduce(
+          (obj, [name, value]) => {
+            if (name.includes('Start')) {
+              obj.startIntervals.push(+value);
+              return obj;
+            } else {
+              obj.endIntervals.push(+value);
+              return obj;
+            }
+          },
+          {
+            startIntervals: [],
+            endIntervals: [],
+          }
+        );
+
+        try {
+          $('#calculating-spinner').modal({ backdrop: 'static' });
+          $('#calculating-spinner').modal('show');
+          const res = await fetch('jpsurvRest/recalculateConditionalJp', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ ...formData, state: JSON.parse(getParams()) }),
+          });
+
+          if (res?.ok) {
+            const data = await res.json();
+            console.log(data);
+          } else {
+            throw await res.json();
+          }
+        } catch (error) {
+          console.error(error);
+          showMessage('jpsurv', error, 'error');
+        } finally {
+          $('#calculating-spinner').modal('hide');
+        }
       },
     });
 }

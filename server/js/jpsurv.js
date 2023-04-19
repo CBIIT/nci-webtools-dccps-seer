@@ -2050,7 +2050,7 @@ function preLoadResults(results) {
   updateCohortDropdown();
 }
 
-function getParams() {
+window.getParams = function getParams() {
   const { results, ...rest } = jpsurvData;
   const params = JSON.stringify({
     ...rest,
@@ -2864,15 +2864,6 @@ $.fn.serializeObject = function () {
 
 function replaceAll(find, replace, str) {
   return str.replace(new RegExp(find, 'g'), replace);
-}
-
-function openHelpWindow(pageURL) {
-  var helpWin = window.open(
-    pageURL,
-    'Help',
-    'alwaysRaised,dependent,status,scrollbars,resizable,width=1000,height=800'
-  );
-  helpWin.focus();
 }
 
 window.Slide_menu_Horz = function Slide_menu_Horz(action) {
