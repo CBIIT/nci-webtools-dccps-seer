@@ -22,6 +22,23 @@ $('#useConditionalJp').change((e) => {
   $('#recalculateConditional').prop('disabled', !checked);
   allFormSelects.each((i, e) => $(e).prop('disabled', !checked));
 
+  // toggle state and visibility of form controls
+  // year tab controls
+  $('#showYearTrend').prop('checked', false).trigger('change');
+  $('#showYearTrend').prop('disabled', checked);
+  $('#interval-years').prop('disabled', checked);
+  $('#toggleAbsSelect').prop('checked', false).trigger('change');
+  $('#toggleAbsSelect').prop('disabled', checked);
+  // death tab controls
+  $('#showDeathTrend').prop('checked', false).trigger('change');
+  $('#showDeathTrend').prop('disabled', checked);
+  $('#interval-years-death').prop('disabled', checked);
+  // time tab controls
+  $('#year-of-diagnosis').prop('disabled', checked);
+  // recalculate buttons
+  $('.recalculate').prop('disabled', checked);
+
+  // replace plots and tables with conditional or unconditional data
   if (checked) {
     populateCondIntOptions();
     if (jpsurvData?.recalculateConditional) {
@@ -186,7 +203,6 @@ function recalculateConditional() {
           if (res?.ok) {
             // parse and save results
             const data = await res.json();
-            console.log(data);
             jpsurvData.recalculateConditional = data;
             loadConditionalResults();
           } else {
@@ -206,20 +222,12 @@ function recalculateConditional() {
 function loadConditionalResults() {
   const data = jpsurvData.recalculateConditional;
 
-  // disable controls
-  $('#yearAnnoControl').css('display', 'none');
-  $('#showYearTrend').prop('checked', false);
-  $('#showYearTrend').prop('disabled', true);
-  $('#yearAnno').prop('checked', false);
-  $('#yearAnno').prop('disabled', true);
-  $('#deathAnnoControl').css('display', 'none');
-  $('#deathAnno').prop('checked', false);
-  $('#deathAnno').prop('disabled', true);
+  // add plots
+  drawPlot('year');
+  drawPlot('death');
+  drawPlot('time');
 
-  // drawPlot('year');
-  // drawPlot('death');
-  // drawPlot('time');
-
+  // build tables
   const yodColName = jpsurvData.calculate.static.yearOfDiagnosisVarName
     .replace(/\(|\)|-/g, '')
     .replace(/__/g, '_')
@@ -243,13 +251,8 @@ function loadConditionalResults() {
   addTable(yodCol, yearHeaders, $('#graph-year-table'), data, 'survival');
 
   $('#year-tab-rows').html('Total Row Count: ' + (yodCol.length || 1));
-  // } else {
-  //   $('#graph-year-table > tbody').empty();
-  // }
 
   //Add the Death Table
-  // if (jpsurvData.results.deathData.deathTable != undefined) {
-
   data_type = jpsurvData.results.statistic.replace('Cum', 'Interval');
   const deathHeader = [
     'Year of Diagnosis',
@@ -261,12 +264,8 @@ function loadConditionalResults() {
   addTable(yodCol, deathHeader, $('#graph-death-table'), data, 'death');
 
   $('#death-tab-rows').html('Total Row Count: ' + (yodCol.length || 1));
-  // } else {
-  //   $('#graph-death-table > tbody').empty();
-  // }
 
   //Add the Time Table
-  // if (jpsurvData.results.timeData.timeTable != undefined) {
 
   data_type = jpsurvData.results.statistic;
   let Cumulative_header = '';
@@ -283,19 +282,8 @@ function loadConditionalResults() {
 
   addTable(yodCol, timeHeader, $('#graph-time-table'), data, 'time');
 
-  if (!$('#year-of-diagnosis').data('changed')) {
-    $('#year-of-diagnosis').val(jpsurvData.results.yod);
-  }
-  $('#year-of-diagnosis').data('changed', false);
-
   $('#time-tab-rows').html('Total Row Count: ' + (yodCol.length || 1));
-  // } else {
-  //   $('#graph-time-table > tbody').empty();
-  // }
   changePrecision();
-  drawPlot('year');
-  drawPlot('death');
-  drawPlot('time');
 }
 
 function addTable(yodCol, headers, table, data, graph) {
@@ -360,7 +348,7 @@ function addTable(yodCol, headers, table, data, graph) {
 }
 
 function drawPlot(plot) {
-  const update = true;
+  const update = false;
   if (jpsurvData.recalculateConditional) {
     const data = jpsurvData.recalculateConditional;
     const yodVarName = jpsurvData.calculate.static.yearOfDiagnosisVarName
@@ -381,11 +369,12 @@ function drawPlot(plot) {
       jp,
     ].join('');
 
+    const yodCol = data[yodVarName];
     if (plot == 'year') {
       update
         ? updatePlotData(
             'yearPlot',
-            checkArray(data[yodVarName]),
+            checkArray(yodCol),
             [],
             checkArray(data.pred_cum),
             checkArray(data.Interval),
@@ -393,21 +382,18 @@ function drawPlot(plot) {
           )
         : drawLineChart(
             'yearPlot',
-            checkArray(yearData.survTable[yodVarName]),
-            checkArray(
-              yearData.survTable.Relative_Survival_Cum ||
-                yearData.survTable.CauseSpecific_Survival_Cum
-            ),
-            checkArray(yearData.survTable.Predicted_Survival_Cum),
-            checkArray(yearData.survTable.Interval),
-            trend,
+            checkArray(yodCol),
+            [],
+            checkArray(data.pred_cum),
+            checkArray(data.Interval),
+            false,
             modelInfo
           );
     } else if (plot == 'death') {
       update
         ? updatePlotData(
             'deathPlot',
-            checkArray(data[yodVarName]),
+            checkArray(yodCol),
             [],
             checkArray(data.pred_int),
             checkArray(data.Interval),
@@ -415,13 +401,11 @@ function drawPlot(plot) {
           )
         : drawLineChart(
             'deathPlot',
-            checkArray(deathData.deathTable[yodVarName]),
-            checkArray(yMark),
-            checkArray(deathData.deathTable.Predicted_ProbDeath_Int),
-            checkArray(deathData.deathTable.Interval),
-            !$('#deathAnno').is(':checked') && deathData.deathTrend
-              ? deathData.deathTrend
-              : null,
+            checkArray(yodCol),
+            [],
+            checkArray(data.pred_int),
+            checkArray(data.Interval),
+            false,
             modelInfo
           );
     } else if (plot == 'time') {
@@ -430,7 +414,7 @@ function drawPlot(plot) {
         checkArray(data.Interval),
         [],
         checkArray(data.pred_cum),
-        checkArray(data[yodVarName]),
+        checkArray(yodCol),
         false,
         modelInfo
       );
