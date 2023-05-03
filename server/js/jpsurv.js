@@ -2047,7 +2047,7 @@ function defaultTrends() {
 }
 
 window.getParams = function getParams() {
-  const { results, ...rest } = jpsurvData;
+  const { results, recalculateConditional, ...rest } = jpsurvData;
   const params = JSON.stringify({
     ...rest,
     covariates: cohort_covariance_variables,
