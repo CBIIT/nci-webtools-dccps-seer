@@ -806,5 +806,5 @@ conditionalJoinpoint <- function(jsonParams, folder) {
   conditionalSurvival <- joinpoint.conditional(fit, startIntervals, endIntervals)
   savePath <- file.path(folder, "conditionalSurvivalPrediction.rds")
   saveRDS(conditionalSurvival, savePath)
-  return(jsonlite::toJSON(list(params = params)))
+  return(rjson::toJSON(conditionalSurvival))
 }
