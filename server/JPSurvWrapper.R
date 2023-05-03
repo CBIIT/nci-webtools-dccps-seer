@@ -804,6 +804,19 @@ conditionalJoinpoint <- function(jsonParams, folder) {
   data <- readRDS(filepath)
   fit <- data$fittedResult
   conditionalSurvival <- joinpoint.conditional(fit, startIntervals, endIntervals)
+
+  # scale to percentage
+  columns <- c(
+    "pred_cum",
+    "pred_cum_se",
+    "pred_int",
+    "pred_int_se"
+  )
+  for (col in columns) {
+    if (!is.null(conditionalSurvival[[col]])) {
+      conditionalSurvival[[col]] <- conditionalSurvival[[col]] * 100
+    }
+  }
   savePath <- file.path(folder, "conditionalSurvivalPrediction.rds")
   saveRDS(conditionalSurvival, savePath)
   return(rjson::toJSON(conditionalSurvival))
