@@ -3,6 +3,7 @@ import {
   multiExport,
 } from '../queueProcessor/services/xlsxExport.js';
 import { importBackEnd } from './exportImport.js';
+import { populateCondIntOptions } from './joinpointConditional.js';
 
 window.control_data = {};
 window.cohort_covariance_variables = {};
@@ -1054,7 +1055,7 @@ function createModelSelection() {
 }
 
 // make sure inputs are arrays
-function checkArray(arr) {
+export function checkArray(arr) {
   if (!Array.isArray(arr)) {
     return [arr];
   }
@@ -1163,7 +1164,7 @@ function drawPlot(plot, update = false) {
   }
 }
 
-function updateGraphs(token_id) {
+function updateGraphs() {
   // Display annotation on graph if trend exists
   jpsurvData.results.yearData.survTrend &&
   jpsurvData.results.yearData.survTrend['ACS.jp'] &&
@@ -1287,7 +1288,7 @@ function updateGraphs(token_id) {
   changePrecision();
 }
 
-function addTable(yodCol, headers, table, data, data_se, graph) {
+export function addTable(yodCol, headers, table, data, data_se, graph) {
   table.empty();
   var tableHeader = $('<tr>').append();
   headers.forEach(function (header) {
@@ -1555,8 +1556,8 @@ function updateGraphLinks() {
   );
 }
 
-function updateTabs(tokenId) {
-  updateGraphs(tokenId);
+export function updateTabs() {
+  updateGraphs();
   updateEstimates();
   updateGraphLinks();
   updateTrend();
@@ -1624,7 +1625,7 @@ export function buildTimeYod() {
   }
 }
 
-function changePrecision() {
+export function changePrecision() {
   var precision = $('#precision').val();
   $('td[data-float]').each(function (index, element) {
     var number = $(element).attr('data-float');
@@ -1640,7 +1641,7 @@ function changePrecision() {
   });
 }
 
-function formatCell(x) {
+export function formatCell(x) {
   //If the content is a float return a cell with the attribute of data-float
   // else return data in a table cell
   if (isNaN(parseFloat(x))) {
@@ -1991,7 +1992,7 @@ export function loadResults(results) {
       $('#showDeathTrend').prop('checked', true).trigger('change');
   }
   createModelSelection();
-  updateTabs(jpsurvData.tokenId);
+  updateTabs();
   absChgDynamic();
 
   // restore user trend if available
@@ -2045,11 +2046,6 @@ function defaultTrends() {
   $('#absChgTo').val('').trigger('change');
 }
 
-function preLoadResults(results) {
-  jpsurvData.results = results;
-  updateCohortDropdown();
-}
-
 window.getParams = function getParams() {
   const { results, ...rest } = jpsurvData;
   const params = JSON.stringify({
@@ -2057,7 +2053,7 @@ window.getParams = function getParams() {
     covariates: cohort_covariance_variables,
   });
   return replaceAll('None', '', params);
-}
+};
 
 function incrementImageId() {
   jpsurvData.plot.static.imageId++;
@@ -2739,7 +2735,7 @@ function jpsurvRest(action, params) {
   return json;
 }
 
-function showMessage(id, message, message_type) {
+export function showMessage(id, message, message_type) {
   //  Display either a warning an error.
   $('#right_panel').show();
   $('#descriptionCard').hide();
