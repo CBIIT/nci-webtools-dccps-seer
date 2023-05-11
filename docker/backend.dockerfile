@@ -1,7 +1,7 @@
 FROM public.ecr.aws/amazonlinux/amazonlinux:2023
 
 RUN dnf -y update \
- && dnf -y install \
+    && dnf -y install \
     gcc-c++ \
     httpd-devel \
     libffi-devel \
@@ -13,7 +13,7 @@ RUN dnf -y update \
     python3-setuptools \
     python3-wheel \
     R-4.1.3 \
- && dnf clean all
+    && dnf clean all
 
 RUN mkdir -p /app/server /app/logs /app/wsgi
 
@@ -29,7 +29,10 @@ COPY r-packages /app/r-packages
 
 WORKDIR /app/server
 
-RUN R -e "renv::restore()"
+RUN R -e "\
+    options(Ncpus=parallel::detectCores()); \
+    install.packages('renv', repos = 'https://cloud.r-project.org/'); \
+    renv::restore();"
 
 # install JPSurv
 # COPY r-packages /app/r-packages
@@ -37,6 +40,9 @@ RUN R -e "renv::restore()"
 
 # copy server
 COPY server /app/server/
+# renv::restore() is used a second time to relink dependencies from cache
+# since they are overwritten by the previous copy command
+RUN R -e "renv::restore()"
 # copy client to static directory
 COPY server /app/server/jpsurv
 # copy additional wsgi config
