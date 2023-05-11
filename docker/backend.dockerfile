@@ -41,10 +41,10 @@ RUN R -e "\
 COPY server /app/server/
 # renv::restore() is used a second time to relink dependencies from cache
 # since they are overwritten by the previous copy command
-RUN R -e "\
-    renv::restore(); \
-    renv::install('/app/r-packages/JPSurv_R_package.tar.gz'); \
-    renv::snapshot();"
+# RUN R -e "\
+#     renv::restore(); \
+#     renv::install('/app/r-packages/JPSurv_R_package.tar.gz'); \
+#     renv::snapshot();"
 # copy client to static directory
 COPY server /app/server/jpsurv
 # copy additional wsgi config
@@ -61,7 +61,8 @@ RUN chown -R ncianalysis:ncianalysis /app
 # docker run -d -p 8110:80 -v ~/Projects/jpsurv/logs:/app/logs -v ~/Projects/jpsurv/tmp:/app/tmp -v ~/Projects/jpsurv/config:/app/config --name jpsurv-server jpsurv
 # docker run -d -v ~/Projects/jpsurv/logs:/app/logs -v ~/Projects/jpsurv/tmp:/app/tmp -v ~/Projects/jpsurv/config:/app/config --name jpsurv-processor jpsurv python3 jpsurvProcessor.py
 
-CMD R -e "renv::repair()" && mod_wsgi-express start-server /app/server/jpsurv.wsgi \
+# CMD R -e "renv::repair()" && mod_wsgi-express start-server /app/server/jpsurv.wsgi \
+CMD mod_wsgi-express start-server /app/server/jpsurv.wsgi \
     --user ncianalysis \
     --group ncianalysis \
     --compress-responses \
