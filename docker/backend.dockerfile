@@ -35,14 +35,16 @@ RUN R -e "\
     renv::restore();"
 
 # install JPSurv
-# COPY r-packages /app/r-packages
-# RUN R -e "install.packages('/tmp/jpsurv.tar.gz', repos = NULL)"
+# RUN R -e "renv::install('/app/r-packages/JPSurv_R_package.tar.gz')"
 
 # copy server
 COPY server /app/server/
 # renv::restore() is used a second time to relink dependencies from cache
 # since they are overwritten by the previous copy command
-RUN R -e "renv::restore()"
+RUN R -e "\
+    renv::restore(); \
+    renv::install('/app/r-packages/JPSurv_R_package.tar.gz'); \
+    renv::snapshot();"
 # copy client to static directory
 COPY server /app/server/jpsurv
 # copy additional wsgi config
