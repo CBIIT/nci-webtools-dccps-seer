@@ -339,7 +339,7 @@ function addTable(yodCol, headers, table, data, graph) {
       row.append(formatCell(data.pred_cum[index]));
       row.append(formatCell(data.pred_cum_se[index]));
     } else if (graph == 'death') {
-      row.append(formatCell(data.pred_int[index]));
+      row.append(formatCell(100 - data.pred_int[index]));
       row.append(formatCell(data.pred_int_se[index]));
     } else if (graph == 'time') {
       row.append(formatCell(data.pred_cum[index]));
@@ -351,7 +351,6 @@ function addTable(yodCol, headers, table, data, graph) {
 }
 
 function drawPlot(plot) {
-  const update = false;
   if (jpsurvData.recalculateConditional) {
     const data = jpsurvData.recalculateConditional;
     const yodVarName = jpsurvData.calculate.static.yearOfDiagnosisVarName
@@ -374,53 +373,35 @@ function drawPlot(plot) {
 
     const yodCol = data[yodVarName];
     if (plot == 'year') {
-      update
-        ? updatePlotData(
-            'yearPlot',
-            checkArray(yodCol),
-            [],
-            checkArray(data.pred_cum),
-            checkArray(data.Interval),
-            false
-          )
-        : drawLineChart(
-            'yearPlot',
-            checkArray(yodCol),
-            [],
-            checkArray(data.pred_cum),
-            checkArray(data.Interval),
-            false,
-            modelInfo
-          );
-    } else if (plot == 'death') {
-      update
-        ? updatePlotData(
-            'deathPlot',
-            checkArray(yodCol),
-            [],
-            checkArray(data.pred_int),
-            checkArray(data.Interval),
-            false
-          )
-        : drawLineChart(
-            'deathPlot',
-            checkArray(yodCol),
-            [],
-            checkArray(data.pred_int),
-            checkArray(data.Interval),
-            false,
-            modelInfo
-          );
-    } else if (plot == 'time') {
       drawLineChart(
-        'timePlot',
-        checkArray(data.Interval),
+        'yearPlot',
+        checkArray(yodCol),
         [],
         checkArray(data.pred_cum),
-        checkArray(yodCol),
+        checkArray(data.Interval),
         false,
         modelInfo
       );
+    } else if (plot == 'death') {
+      drawLineChart(
+        'deathPlot',
+        checkArray(yodCol),
+        [],
+        checkArray(data.pred_int.map((e) => 100 - e)),
+        checkArray(data.Interval),
+        false,
+        modelInfo
+      );
+    } else if (plot == 'time') {
+      // drawLineChart(
+      //   'timePlot',
+      //   checkArray(data.Interval),
+      //   [],
+      //   checkArray(data.pred_cum),
+      //   checkArray(yodCol),
+      //   false,
+      //   modelInfo
+      // );
     }
   }
 }
