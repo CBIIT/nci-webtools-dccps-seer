@@ -88,7 +88,7 @@ def create_rotating_log(name, config):
     logger = logging.getLogger("root")
     logger.setLevel(config["loglevel"])
 
-    # logger.addHandler(file_handler)
+    logger.addHandler(file_handler)
     logger.addHandler(stdout_handler)
 
     return logger
