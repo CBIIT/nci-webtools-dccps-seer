@@ -69,16 +69,16 @@ CMD mod_wsgi-express start-server /app/server/jpsurv.wsgi \
     --log-to-terminal \
     --access-log \
     --access-log-format "%h %{X-Forwarded-For}i %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined \
-    --access-log-name access.log \
+    # --access-log-name access.log \
     --port 80 \
     --server-root /app/wsgi \
     --document-root /app/server \
     --working-directory /app/server \
     --directory-index index.html \
     --mount-point /jpsurv \
-    --log-directory /app/logs \
-    --rotate-logs \
-    --error-log-name apache.log \
+    # --log-directory /app/logs \
+    # --rotate-logs \
+    # --error-log-name apache.log \
     --include-file /app/wsgi/additional-configuration.conf \
     --header-buffer-size 50000000 \
     --response-buffer-size 50000000 \
