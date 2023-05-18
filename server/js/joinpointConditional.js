@@ -243,6 +243,7 @@ function loadConditionalResults() {
   );
 
   const yearHeaders = [
+    ...jpsurvData.calculate.form.cohortVars,
     'Year of Diagnosis',
     'Interval',
     'Predicted Cumulative Survival (%)',
@@ -255,6 +256,7 @@ function loadConditionalResults() {
   //Add the Death Table
   data_type = jpsurvData.results.statistic.replace('Cum', 'Interval');
   const deathHeader = [
+    ...jpsurvData.calculate.form.cohortVars,
     'Year of Diagnosis',
     'Interval',
     'Predictive Prob. of Death Interval (%)',
@@ -275,6 +277,7 @@ function loadConditionalResults() {
     Cumulative_header = 'Cumulative Relative Survival';
 
   const timeHeader = [
+    ...jpsurvData.calculate.form.cohortVars,
     'Year of Diagnosis',
     'Interval',
     'Predicted Cumulative Relative Survival (%)',
