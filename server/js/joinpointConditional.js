@@ -49,7 +49,7 @@ $('#useConditionalJp').change((e) => {
   }
 });
 
-function getIntervalOptions() {
+export function getIntervalOptions() {
   if (control_data.input_type == 'csv') {
     return control_data?.data[control_data.interval[1]];
   } else {
@@ -109,7 +109,7 @@ function addCondIntForm() {
           <div class="form-group mb-0">
             <label
               class="font-weight-bold"
-              for="endStart${index}"
+              for="intervalEnd${index}"
               >End Interval:</label
             >
             <select
@@ -393,15 +393,15 @@ function drawPlot(plot) {
         modelInfo
       );
     } else if (plot == 'time') {
-      // drawLineChart(
-      //   'timePlot',
-      //   checkArray(data.Interval),
-      //   [],
-      //   checkArray(data.pred_cum),
-      //   checkArray(yodCol),
-      //   false,
-      //   modelInfo
-      // );
+      drawLineChart(
+        'timePlot',
+        checkArray(data.Interval),
+        [],
+        checkArray(data.pred_cum),
+        checkArray(yodCol),
+        false,
+        modelInfo
+      );
     }
   }
 }
