@@ -4,8 +4,11 @@ import {
   exportTableWithSettings,
 } from '../queueProcessor/services/xlsxExport.js';
 import { importBackEnd } from './exportImport.js';
-import { populateCondIntOptions } from './joinpointConditional.js';
 import { updatePlotData, drawLineChart } from './plots.js';
+import {
+  populateCondIntOptions,
+  getIntervalOptions,
+} from './joinpointConditional.js';
 
 window.control_data = {};
 window.cohort_covariance_variables = {};
@@ -2162,11 +2165,61 @@ function loadCohorts() {
     addSessionVariables();
     parse_cohort_covariance_variables();
     addCohortVariables();
-    // build_parameter_column();
+    setupConditionalJoinpointForm();
   }
   if (control_data.input_type == 'csv') {
     get_column_values();
   }
+}
+
+function setupConditionalJoinpointForm() {
+  // populate select dropdowns
+  const intervals = getIntervalOptions();
+  $('#inputIntervalStart').each((_, e) => {
+    if ($(e).find('option').length == 0) {
+      intervals.forEach((v, i) =>
+        $(e).append(
+          `<option ${i == 0 ? 'selected' : ''} value="${v}">${v}</option>`
+        )
+      );
+    }
+  });
+  $('#inputIntervalEnd').each((_, e) => {
+    if ($(e).find('option').length == 0) {
+      intervals.forEach((v, i) =>
+        $(e).append(
+          `<option ${
+            i == intervals.length - 1 ? 'selected' : ''
+          } value="${v}">${v}</option>`
+        )
+      );
+    }
+  });
+
+  // checkbox visibility toggle
+  $('#toggleConditionalJp').on('change', (e) => {
+    e.target.checked
+      ? $('#conditionalForm').attr('class', 'form d-flex')
+      : $('#conditionalForm').attr('class', 'form d-none');
+  });
+
+  // add form rules and validation event
+  const rules = {
+    inputIntervalStart: { lessThan: `#inputIntervalEnd` },
+  };
+  const messages = {
+    inputIntervalStart: { lessThan: 'Start must be less than End' },
+  };
+  $('#conditionalForm').validate({ rules, messages });
+  $('#inputIntervalStart, #inputIntervalEnd').change((e, a, b) => {
+    console.log(e, a, b);
+  });
+
+  // custom validation rules
+  $.validator.addMethod('lessThan', (value, element, param) => {
+    const $otherElement = $(param);
+    return parseInt(value) < parseInt($otherElement.val());
+  });
 }
 
 // construct year of diagnosis option elements
@@ -2238,12 +2291,6 @@ function addSessionVariables() {
   else if (control_data.input_type == 'csv')
     jpsurvData.additional.statistic = control_data.statistic;
 }
-
-// function build_parameter_column() {
-//   var covariate_options = Object.keys(cohort_covariance_variables);
-//   covariate_options.unshift("None");
-//   set_covariate_select(covariate_options);
-// }
 
 // returns true if YoD is found and set, otherwise return false
 export function parse_diagnosis_years() {
@@ -2347,7 +2394,6 @@ function setIntervalYears(range) {
 function getSessionOptionInfo(var_name) {
   if (control_data.input_type == undefined) {
     var session_value = '-1';
-    var options = control_data.SessionOptionInfo.ItemNameInDic;
     $.each(control_data.SessionOptionInfo.ItemNameInDic, function (key, value) {
       if (value == var_name) {
         session_value = control_data.SessionOptionInfo.ItemValueInDic[key];

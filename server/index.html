@@ -476,6 +476,54 @@
                           </span>
                         </span>
                       </div>
+                      <div class="jpsurv-label-container">
+                        <div class="form-group form-check">
+                          <input
+                            type="checkbox"
+                            class="form-check-input"
+                            id="toggleConditionalJp"
+                          />
+                          <label
+                            class="form-check-label jpsurv-label"
+                            for="toggleConditionalJp"
+                            >Conditional Survival Calculation</label
+                          >
+                        </div>
+                        <div id="conditionalForm" class="form d-none">
+                          <div class="form-group mb-0 mr-3">
+                            <label
+                              class="font-weight-bold"
+                              for="inputIntervalStart"
+                              >Start Interval:</label
+                            >
+                            <select
+                              id="inputIntervalStart"
+                              name="inputIntervalStart"
+                              class="mx-3"
+                              aria-label="interval start"
+                            ></select>
+                            <label
+                              id="inputIntervalStart-error"
+                              for="inputIntervalStart"
+                              class="text-danger error"
+                            >
+                            </label>
+                          </div>
+                          <div class="form-group mb-0">
+                            <label
+                              class="font-weight-bold"
+                              for="inputIntervalEnd"
+                              >End Interval:</label
+                            >
+                            <select
+                              id="inputIntervalEnd"
+                              name="inputIntervalEnd"
+                              class="mx-3"
+                              aria-label="end"
+                            ></select>
+                          </div>
+                        </div>
+                      </div>
                       <div class="jpsurv-label-container d-flex">
                         <div class="jpsurv-label" style="width: 250px">
                           Max No. of Years from Diagnosis (follow-up) to
