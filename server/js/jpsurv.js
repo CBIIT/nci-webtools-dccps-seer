@@ -4,6 +4,7 @@ import {
 } from '../queueProcessor/services/xlsxExport.js';
 import { importBackEnd } from './exportImport.js';
 import { populateCondIntOptions } from './joinpointConditional.js';
+import { updatePlotData, drawLineChart } from './plots.js';
 
 window.control_data = {};
 window.cohort_covariance_variables = {};

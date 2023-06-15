@@ -1,6 +1,150 @@
 // draw a line chart plot
 
-function processPlotData(divID, x, yMark, yLine, dimension, trends) {
+const colors = [
+  '#1f77b4', // muted blue
+  '#ff7f0e', // safety orange
+  '#2ca02c', // cooked asparagus green
+  '#d62728', // brick red
+  '#9467bd', // muted purple
+  '#8c564b', // chestnut brown
+  '#e377c2', // raspberry yogurt pink
+  '#7f7f7f', // middle gray
+  '#bcbd22', // curry yellow-green
+  '#17becf', // blue-teal
+];
+
+export function makeLineTrace(divId, name = '', index, xArray, yArray) {
+  return {
+    name,
+    x: xArray,
+    y: yArray,
+    showlegend: false,
+    hovertemplate: makeLineHoverTemplate(divId, name),
+    hoverlabel: {
+      align: 'left',
+      bgcolor: '#FFF',
+      bordercolor: colors[index % 10],
+      font: { size: fontSize, color: 'black' },
+    },
+    mode: 'lines',
+    line: { shape: 'spline', color: colors[index % 10] },
+    type: 'scatter',
+    legendgroup: name,
+  };
+}
+
+export function makeMarkerTrace(divId, name = '', index, xArray, yArray) {
+  return {
+    name,
+    x: xArray,
+    y: yArray,
+    showlegend: false,
+    hovertemplate: makeMarkerHoverTemplate(divId, name),
+    hoverlabel: {
+      align: 'left',
+      bgcolor: '#FFF',
+      bordercolor: colors[index % 10],
+      font: { size: fontSize, color: 'black' },
+    },
+    mode: 'markers',
+    type: 'scatter',
+    marker: { color: colors[index % 10] },
+    legendgroup: name,
+  };
+}
+
+export function makeLegendTrace(name, index) {
+  return {
+    name,
+    x: [null],
+    y: [null],
+    showlegend: true,
+    mode: 'lines+markers',
+    type: 'scatter',
+    line: { color: colors[index % 10] },
+    legendgroup: name,
+  };
+}
+
+export function makeLayout(divId, xArray, statistic, modelInfo) {
+  return {
+    title: titles(statistic, modelInfo)[divId].plotTitle,
+    hovermode: 'closest',
+    font: {
+      size: fontSize,
+      family: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+    },
+    legend: {
+      orientation: 'h',
+      x: 0.5,
+      y: -0.15,
+      yanchor: 'top',
+      xanchor: 'center',
+    },
+    xaxis: {
+      title: '<b>' + titles(statistic)[divId].xTitle + '</b>',
+      range: [
+        divId == 'timePlot' ? 0 : Math.min(...xArray),
+        Math.max(...xArray),
+      ],
+      autorange: false,
+    },
+    yaxis: {
+      title: '<b>' + titles(statistic)[divId].yTitle + '</b>',
+      showline: true,
+      tickformat: '%',
+      tickmode: 'auto',
+      nticks: 11,
+      range: [0, 1.05],
+      autorange: false,
+    },
+    height: 700,
+    width: 900,
+  };
+}
+
+function makeLineHoverTemplate(
+  divId,
+  name,
+  statistic = jpsurvData.additional.statistic,
+  precision = $('#precision').val()
+) {
+  return divId != 'timePlot'
+    ? `<b>${name} ${statistic}</b>` +
+        `<br>•    Year at Diagnosis: %{x}` +
+        (divId == 'yearPlot'
+          ? `<br>•    Predicted Survival: %{y:.${precision}%}<extra></extra>`
+          : `<br>•    Predicted Death: %{y:.${precision}%}<extra></extra>`)
+    : `<b>${name}</b>` +
+        `<br>•    Interval: %{x}` +
+        `<br>•    Predicted Survival: %{y:.${precision}%}<extra></extra>`;
+}
+
+function makeMarkerHoverTemplate(
+  divId,
+  name,
+  statistic = jpsurvData.additional.statistic,
+  precision = $('#precision').val()
+) {
+  return divId != 'timePlot'
+    ? `<b>${name} ${statistic}</b>` +
+        `<br>•    Year at Diagnosis: %{x}` +
+        (divId == 'yearPlot'
+          ? `<br>•    Observed Survival: %{y:.${precision}%}<extra></extra>`
+          : `<br>•    Observed Death: %{y:.${precision}%}<extra></extra>`)
+    : `<b>${name}</b>` +
+        `<br>•    Interval: %{x}` +
+        `<br>•    Observed Survival: %{y:.${precision}%}<extra></extra>`;
+}
+
+export async function drawPlot(divId, data = [], layout = {}, config = {}) {
+  return await Plotly.newPlot(divId, data, layout, {
+    editable: true,
+    ...config,
+  });
+}
+
+export function processPlotData(divID, x, yMark, yLine, dimension, trends) {
   let markerTrace = {};
   let lineTrace = {};
   let lineTrendLabel = {}; // place trend labels on an invisible trace 2% higher than the line trace to avoid overlap
@@ -9,18 +153,6 @@ function processPlotData(divID, x, yMark, yLine, dimension, trends) {
   const uniqueDimensions = Array.from(new Set(dimension));
 
   const statistic = jpsurvData.additional.statistic;
-  const colors = [
-    '#1f77b4', // muted blue
-    '#ff7f0e', // safety orange
-    '#2ca02c', // cooked asparagus green
-    '#d62728', // brick red
-    '#9467bd', // muted purple
-    '#8c564b', // chestnut brown
-    '#e377c2', // raspberry yogurt pink
-    '#7f7f7f', // middle gray
-    '#bcbd22', // curry yellow-green
-    '#17becf', // blue-teal
-  ];
 
   uniqueDimensions.forEach(function (interval, i) {
     if (!legend[interval]) {
@@ -252,7 +384,7 @@ const titles = (statistic, modelInfo) => ({
   },
 });
 
-async function drawLineChart(
+export async function drawLineChart(
   divID,
   x,
   yMark,
@@ -313,7 +445,7 @@ async function drawLineChart(
     });
 }
 
-function addAnnotation(plot) {
+export function addAnnotation(plot) {
   const xData = plot.data[0].x;
   const xMean = xData.reduce((a, b) => a + b) / xData.length;
   const yData = plot.data[0].y;
@@ -331,7 +463,7 @@ function addAnnotation(plot) {
   });
 }
 
-function updatePlotFontSize(divID, size) {
+export function updatePlotFontSize(divID, size) {
   // layout
   Plotly.relayout(divID, { font: { size: size } });
   // data (traces)
@@ -341,7 +473,7 @@ function updatePlotFontSize(divID, size) {
   });
 }
 
-function updatePlotData(divID, x, yMark, yLine, dimension, trends) {
+export function updatePlotData(divID, x, yMark, yLine, dimension, trends) {
   const data = processPlotData(divID, x, yMark, yLine, dimension, trends);
 
   data.forEach((trace, i) => {
