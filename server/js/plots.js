@@ -66,7 +66,14 @@ export function makeLegendTrace(name, index) {
   };
 }
 
-export function makeLayout(divId, xArray, statistic, modelInfo) {
+export function makeLayout(
+  divId,
+  xArray,
+  xTitle,
+  yTitle,
+  statistic,
+  modelInfo
+) {
   return {
     title: titles(statistic, modelInfo)[divId].plotTitle,
     hovermode: 'closest',
@@ -82,7 +89,7 @@ export function makeLayout(divId, xArray, statistic, modelInfo) {
       xanchor: 'center',
     },
     xaxis: {
-      title: '<b>' + titles(statistic)[divId].xTitle + '</b>',
+      title: '<b>' + xTitle + '</b>',
       range: [
         divId == 'timePlot' ? 0 : Math.min(...xArray),
         Math.max(...xArray),
@@ -90,7 +97,7 @@ export function makeLayout(divId, xArray, statistic, modelInfo) {
       autorange: false,
     },
     yaxis: {
-      title: '<b>' + titles(statistic)[divId].yTitle + '</b>',
+      title: '<b>' + yTitle + '</b>',
       showline: true,
       tickformat: '%',
       tickmode: 'auto',
