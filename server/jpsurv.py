@@ -672,7 +672,7 @@ def recalculateConditionalJp():
     try:
         r.source("./JPSurvWrapper.R")
         data = r.conditionalJoinpoint(json.dumps(params), getInputDir(id))
-        app.logger.debug(data)
+
         return app.response_class(data, 200, mimetype="application/json")
     except Exception as e:
         app.logger.error(e)
