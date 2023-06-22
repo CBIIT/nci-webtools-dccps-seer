@@ -587,7 +587,11 @@ scaleTo <- function(data) {
     "Predicted_Survival_Cum",
     "Predicted_Survival_Int_SE",
     "Predicted_ProbDeath_Int_SE",
-    "Predicted_Survival_Cum_SE"
+    "Predicted_Survival_Cum_SE",
+    "pred_cum",
+    "pred_cum_se",
+    "pred_int",
+    "pred_int_se"
   )
   for (col in columns) {
     if (!is.null(data[[col]])) {
@@ -806,18 +810,11 @@ conditionalJoinpoint <- function(jsonParams, folder) {
   conditionalSurvival <- joinpoint.conditional(fit, startIntervals, endIntervals)
 
   # scale to percentage
-  columns <- c(
-    "pred_cum",
-    "pred_cum_se",
-    "pred_int",
-    "pred_int_se"
-  )
-  for (col in columns) {
-    if (!is.null(conditionalSurvival[[col]])) {
-      conditionalSurvival[[col]] <- conditionalSurvival[[col]] * 100
-    }
-  }
+  scaleData <- scaleTo(conditionalSurvival)
   savePath <- file.path(folder, "conditionalSurvivalPrediction.rds")
-  saveRDS(conditionalSurvival, savePath)
-  return(rjson::toJSON(conditionalSurvival))
+  savePath2 <- file.path(folder, "conditionalSurvivalPrediction-original.rds")
+  saveRDS(scaleData, savePath)
+  saveRDS(conditionalSurvival, savePath2)
+
+  return(jsonlite::toJSON(list(data = scaleData, unconditional = fit$fullpredicted, params = params)))
 }
