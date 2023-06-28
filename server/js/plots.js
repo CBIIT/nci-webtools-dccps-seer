@@ -90,11 +90,9 @@ export function makeLayout(
     },
     xaxis: {
       title: '<b>' + xTitle + '</b>',
-      range: [
-        divId == 'timePlot' ? 0 : Math.min(...xArray),
-        Math.max(...xArray),
-      ],
+      range: [Math.min(...xArray), Math.max(...xArray)],
       autorange: false,
+      dtick: divId == 'timePlot' ? 1 : null,
     },
     yaxis: {
       title: '<b>' + yTitle + '</b>',

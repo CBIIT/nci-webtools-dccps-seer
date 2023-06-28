@@ -227,20 +227,19 @@ function recalculateConditional() {
 
 // update plots and graphs with conditional data
 function loadConditionalResults() {
-  const data = jpsurvData.recalculateConditional.data;
+  const conditional = jpsurvData.recalculateConditional.data;
   const unconditional = jpsurvData.recalculateConditional.unconditional;
   const { startIntervals, endIntervals } =
     jpsurvData.recalculateConditional.params;
-  const survivalInterval = startIntervals.map((e, i) => [e, endIntervals[i]]);
   const yodColName = jpsurvData.calculate.static.yearOfDiagnosisVarName
     .replace(/\(|\)|-/g, '')
     .replace(/__/g, '_')
     .replace(/([^a-zA-Z0-9_]+)/gi, '');
-  // const timeInterval = startIntervals.map((e, i) => [e, endIntervals[i]]);
+  const intervalRanges = startIntervals.map((e, i) => [e, endIntervals[i]]);
 
   function loadSurvivalData() {
-    const dataPerInterval = survivalInterval.map(([start, end], index) => {
-      const yearData = data.filter(
+    const dataPerInterval = intervalRanges.map(([start, end], index) => {
+      const yearData = conditional.filter(
         (e) => e['Start.interval'] == start && e.Interval <= end
       );
       const yearDataEnd = yearData.filter((e) => e.Interval == end);
@@ -264,15 +263,22 @@ function loadConditionalResults() {
       ).map((e) => e * 100);
 
       const observed_se = Object.values(
-        yearData.reduce((obj, e, i) => {
-          const year = e[yodColName];
-          const se =
-            (e?.Relative_SE_Interval || e?.CauseSpecific_SE_Interval) / 100;
-          const prev = obj[year] || 1;
-
-          return { ...obj, [year]: prev * se };
-        }, {})
-      ).map((e) => e * 100);
+        yearData
+          .map((e) => {
+            const alive = e.Alive_at_Start;
+            const lost = e.Lost_to_Followup;
+            const risk = alive - 0.5 * lost;
+            return { ...e, risk };
+          })
+          .reduce((obj, e, i) => {
+            const year = e[yodColName];
+            const risk = e.risk;
+            const died = e.Died;
+            const error = died / (risk * (risk - died));
+            const prev = obj[year] || 0;
+            return { ...obj, [year]: prev + error };
+          }, {})
+      ).map((e, i) => Math.sqrt(e) * observed[i]);
 
       const traceGroup = `Interval ${start} - ${end}`;
       const predictedTraces = makeLineTrace(
@@ -348,7 +354,7 @@ function loadConditionalResults() {
       'Conditional Predicted Cumulative Survival (%)',
       'Conditional Predicted Cumulative Survival Std. Err. (%)',
     ];
-    addTable2($('#graph-year-table'), 'survival', dataPerInterval, yearHeaders);
+    addTable($('#graph-year-table'), 'survival', dataPerInterval, yearHeaders);
     const yearTableRows = dataPerInterval.reduce(
       (total, e) => total + e.years.length,
       0
@@ -358,57 +364,76 @@ function loadConditionalResults() {
 
   function loadTimeData() {
     const divId = 'timePlot';
-    const dataPerInterval = timeInterval.map(([start, end], index) => {
-      const timeData = data.filter(
-        (e) => e['Start.interval'] == start && e.Interval <= end
-      );
-      const timeDataEnd = timeData.filter((e) => e.Interval == end);
-      const years = timeDataEnd.map((e) => e[yodColName]);
-      const predicted = timeDataEnd.map((e) => e.pred_cum);
-      const intervals = timeDataEnd.map(
-        (e) => `${e['Start.interval']} - ${e.Interval}`
-      );
+    const dataPerInterval = intervalRanges
+      .map(([start, end]) => {
+        const timeData = conditional.filter(
+          (e) => e['Start.interval'] == start && e.Interval <= end
+        );
+        const allYears = timeData.map((e) => e[yodColName]);
+        const uniqueYears = [...new Set(allYears)];
+        const timeInterval =
+          uniqueYears.length < 5
+            ? uniqueYears
+            : jStat
+                .quantiles(uniqueYears, [0, 0.25, 0.5, 0.75, 1])
+                .map(Math.round);
 
-      const observed = Object.values(
-        timeData.reduce((obj, e, i) => {
-          const year = e[yodColName];
-          const obs =
-            (e?.Relative_Survival_Interval ||
-              e?.CauseSpecific_Survival_Interval) / 100;
-          const prev = obj[year] || 1;
+        const condTimeData = timeData.filter((e) =>
+          timeInterval.includes(e[yodColName])
+        );
+        const uncondTimeData = unconditional.filter(
+          (e) =>
+            e.Interval >= start &&
+            e.Interval <= end &&
+            timeInterval.includes(e[yodColName])
+        );
 
-          return { ...obj, [year]: prev * obs };
-        }, {})
-      ).map((e) => e * 100);
+        return timeInterval.map((year, index) => {
+          const timeDataEnd = condTimeData.filter((e) => e[yodColName] == year);
+          const uncondTimeEnd = uncondTimeData.filter(
+            (e) => e[yodColName] == year
+          );
+          console.log(timeDataEnd);
+          console.log(uncondTimeEnd);
+          const years = timeDataEnd.map((e) => e[yodColName]);
+          const predicted = timeDataEnd.map((e) => e.pred_cum);
+          const intervals = timeDataEnd.map((e) => e.Interval);
+          const observed = uncondTimeEnd.map(
+            (e) =>
+              e?.Relative_Survival_Interval ||
+              e?.CauseSpecific_Survival_Interval
+          );
 
-      const traceGroup = `Interval ${start} - ${end}`;
-      const predictedTraces = makeLineTrace(
-        divId,
-        traceGroup,
-        index,
-        years,
-        predicted.map((e) => e / 100)
-      );
-      const observedTraces = makeMarkerTrace(
-        divId,
-        traceGroup,
-        index,
-        years,
-        observed.map((e) => e / 100)
-      );
-      const legendTrace = makeLegendTrace(traceGroup, index);
+          const traceGroup = `${year} (Int. ${start} - ${end})`;
+          const predictedTraces = makeLineTrace(
+            divId,
+            traceGroup,
+            index,
+            intervals,
+            predicted.map((e) => e / 100)
+          );
+          const observedTraces = makeMarkerTrace(
+            divId,
+            traceGroup,
+            index,
+            intervals,
+            observed.map((e) => e)
+          );
+          const legendTrace = makeLegendTrace(traceGroup, index);
 
-      return {
-        years,
-        intervals,
-        predicted,
-        observed,
-        predictedTraces,
-        observedTraces,
-        legendTrace,
-      };
-    });
-
+          return {
+            years,
+            intervals,
+            predicted,
+            observed,
+            predictedTraces,
+            observedTraces,
+            legendTrace,
+          };
+        });
+      })
+      .flat();
+    console.log(dataPerInterval);
     const statistic = jpsurvData.additional.statistic;
     const cohort = $('#cohort-display option:selected')
       .text()
@@ -427,7 +452,7 @@ function loadConditionalResults() {
     const yTitle = 'Conditional Relative Survival';
     const layout = makeLayout(
       divId,
-      years,
+      dataPerInterval[0].intervals,
       xTitle,
       yTitle,
       statistic,
@@ -439,33 +464,12 @@ function loadConditionalResults() {
 
     drawPlot(divId, traces, layout);
 
-    //Add the Year Table
-    const obsIntSur = statistic.replace('Cum', 'Interval') + ' (%)';
-    const obsIntSurSe =
-      statistic.replace('Cum', 'Interval Std. Err.') + 'Std. Err. (%)';
-    const yearHeaders = [
-      ...jpsurvData.calculate.form.cohortVars,
-      'Year of Diagnosis',
-      'Interval',
-      `Conditional ${obsIntSur}`,
-      `Conditional ${obsIntSurSe}`,
-      'Conditional Predicted Cumulative Survival (%)',
-      'Conditional Predicted Cumulative Survival Std. Err. (%)',
-    ];
-    addTable2($('#graph-year-table'), 'survival', dataPerInterval, yearHeaders);
-    const yearTableRows = dataPerInterval.reduce(
-      (total, e) => total + e.years.length,
-      0
-    );
-    $('#year-tab-rows').html('Total Row Count: ' + yearTableRows);
-
     //Add the Time Table
     let obsHeader = '';
-    if (statistic == 'CauseSpecific_Survival_Cum')
+    if (statistic == 'Cause-Specific Survival')
       obsHeader = 'Cumulative CauseSpecific Survival (%)';
-    if (statistic == 'Relative_Survival_Cum')
+    if (statistic == 'Relative Survival')
       obsHeader = 'Cumulative Relative Survival (%)';
-
     const timeHeader = [
       ...jpsurvData.calculate.form.cohortVars,
       'Year of Diagnosis',
@@ -473,14 +477,16 @@ function loadConditionalResults() {
       obsHeader,
       'Predicted Cumulative Relative Survival (%)',
     ];
-
-    // addTable(yodCol, timeHeader, $('#graph-time-table'), data, 'time');
-
-    // $('#time-tab-rows').html('Total Row Count: ' + (yodCol.length || 1));
+    addTable($('#graph-time-table'), 'time', dataPerInterval, timeHeader);
+    const timeTableRows = dataPerInterval.reduce(
+      (total, e) => total + e.years.length,
+      0
+    );
+    $('#year-tab-rows').html('Total Row Count: ' + timeTableRows);
   }
 
   loadSurvivalData();
-  // loadTimeData();
+  loadTimeData();
 
   changePrecision();
 }
@@ -492,7 +498,7 @@ function loadConditionalResults() {
  * @param {object[]} data processed data
  * @param {string[]} headers table headers
  */
-function addTable2(table, type, data = [], headers = []) {
+function addTable(table, type, data = [], headers = []) {
   table.empty();
   const tableHeader = $('<tr>').append();
   headers.forEach(function (header) {
