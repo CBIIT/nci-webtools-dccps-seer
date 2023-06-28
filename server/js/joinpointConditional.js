@@ -325,7 +325,7 @@ function loadConditionalResults() {
     ].join('');
 
     const years = [...new Set(dataPerInterval.map((e) => e.years).flat())];
-    const xTitle = 'Conditional Relative Survival by Diagnosis Year';
+    const xTitle = 'Year at Diagnosis';
     const yTitle = 'Conditional Relative Survival';
     const layout = makeLayout(
       divId,
@@ -351,8 +351,8 @@ function loadConditionalResults() {
       'Interval',
       `Conditional ${obsIntSur}`,
       `Conditional ${obsIntSurSe}`,
-      'Conditional Predicted Cumulative Survival (%)',
-      'Conditional Predicted Cumulative Survival Std. Err. (%)',
+      'Predicted Conditional Cumulative Survival (%)',
+      'Predicted Conditional Cumulative Survival Std. Err. (%)',
     ];
     addTable($('#graph-year-table'), 'survival', dataPerInterval, yearHeaders);
     const yearTableRows = dataPerInterval.reduce(
@@ -448,7 +448,7 @@ function loadConditionalResults() {
     ].join('');
 
     const years = [...new Set(dataPerInterval.map((e) => e.years).flat())];
-    const xTitle = 'Conditional Relative Survival by Diagnosis Year';
+    const xTitle = 'Conditional Interval';
     const yTitle = 'Conditional Relative Survival';
     const layout = makeLayout(
       divId,
@@ -467,15 +467,15 @@ function loadConditionalResults() {
     //Add the Time Table
     let obsHeader = '';
     if (statistic == 'Cause-Specific Survival')
-      obsHeader = 'Cumulative CauseSpecific Survival (%)';
+      obsHeader = 'Conditional Cumulative CauseSpecific Survival (%)';
     if (statistic == 'Relative Survival')
-      obsHeader = 'Cumulative Relative Survival (%)';
+      obsHeader = 'Conditional Cumulative Relative Survival (%)';
     const timeHeader = [
       ...jpsurvData.calculate.form.cohortVars,
       'Year of Diagnosis',
       'Interval',
       obsHeader,
-      'Predicted Cumulative Relative Survival (%)',
+      'Predicted Conditional Cumulative Relative Survival (%)',
     ];
     addTable($('#graph-time-table'), 'time', dataPerInterval, timeHeader);
     const timeTableRows = dataPerInterval.reduce(
