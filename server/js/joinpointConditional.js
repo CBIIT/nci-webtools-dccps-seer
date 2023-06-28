@@ -228,7 +228,6 @@ function recalculateConditional() {
 // update plots and graphs with conditional data
 function loadConditionalResults() {
   const conditional = jpsurvData.recalculateConditional.data;
-  const unconditional = jpsurvData.recalculateConditional.unconditional;
   const { startIntervals, endIntervals } =
     jpsurvData.recalculateConditional.params;
   const yodColName = jpsurvData.calculate.static.yearOfDiagnosisVarName
@@ -381,29 +380,18 @@ function loadConditionalResults() {
         const condTimeData = timeData.filter((e) =>
           timeInterval.includes(e[yodColName])
         );
-        const uncondTimeData = unconditional.filter(
-          (e) =>
-            e.Interval >= start &&
-            e.Interval <= end &&
-            timeInterval.includes(e[yodColName])
-        );
-
         return timeInterval.map((year, index) => {
           const timeDataEnd = condTimeData.filter((e) => e[yodColName] == year);
-          const uncondTimeEnd = uncondTimeData.filter(
-            (e) => e[yodColName] == year
-          );
-          console.log(timeDataEnd);
-          console.log(uncondTimeEnd);
           const years = timeDataEnd.map((e) => e[yodColName]);
           const predicted = timeDataEnd.map((e) => e.pred_cum);
           const intervals = timeDataEnd.map((e) => e.Interval);
-          const observed = uncondTimeEnd.map(
-            (e) =>
-              e?.Relative_Survival_Interval ||
-              e?.CauseSpecific_Survival_Interval
-          );
-
+          const observed = timeDataEnd.reduce((arr, e, i) => {
+            const obs =
+              (e?.Relative_Survival_Interval ||
+                e?.CauseSpecific_Survival_Interval) / 100;
+            const prev = i > 0 ? arr[i - 1] : 1;
+            return [...arr, obs * prev];
+          }, []);
           const traceGroup = `${year} (Int. ${start} - ${end})`;
           const predictedTraces = makeLineTrace(
             divId,
@@ -433,7 +421,6 @@ function loadConditionalResults() {
         });
       })
       .flat();
-    console.log(dataPerInterval);
     const statistic = jpsurvData.additional.statistic;
     const cohort = $('#cohort-display option:selected')
       .text()
@@ -447,7 +434,6 @@ function loadConditionalResults() {
       jp,
     ].join('');
 
-    const years = [...new Set(dataPerInterval.map((e) => e.years).flat())];
     const xTitle = 'Conditional Interval';
     const yTitle = 'Conditional Relative Survival';
     const layout = makeLayout(
@@ -482,7 +468,7 @@ function loadConditionalResults() {
       (total, e) => total + e.years.length,
       0
     );
-    $('#year-tab-rows').html('Total Row Count: ' + timeTableRows);
+    $('#time-tab-rows').html('Total Row Count: ' + timeTableRows);
   }
 
   loadSurvivalData();
