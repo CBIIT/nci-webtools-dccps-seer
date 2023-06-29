@@ -816,5 +816,5 @@ conditionalJoinpoint <- function(jsonParams, folder) {
   saveRDS(scaleData, savePath)
   saveRDS(conditionalSurvival, savePath2)
 
-  return(jsonlite::toJSON(list(data = scaleData, unconditional = fit$fullpredicted, params = params)))
+  return(jsonlite::toJSON(list(data = scaleData, params = params)))
 }
