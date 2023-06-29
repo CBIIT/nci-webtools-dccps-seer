@@ -328,7 +328,7 @@ function loadConditionalResults() {
     const yTitle = 'Conditional Relative Survival';
     const layout = makeLayout(
       divId,
-      years,
+      [Math.min(...years), Math.max(...years)],
       xTitle,
       yTitle,
       statistic,
@@ -383,15 +383,21 @@ function loadConditionalResults() {
         return timeInterval.map((year, index) => {
           const timeDataEnd = condTimeData.filter((e) => e[yodColName] == year);
           const years = timeDataEnd.map((e) => e[yodColName]);
-          const predicted = timeDataEnd.map((e) => e.pred_cum);
-          const intervals = timeDataEnd.map((e) => e.Interval);
-          const observed = timeDataEnd.reduce((arr, e, i) => {
-            const obs =
-              (e?.Relative_Survival_Interval ||
-                e?.CauseSpecific_Survival_Interval) / 100;
-            const prev = i > 0 ? arr[i - 1] : 1;
-            return [...arr, obs * prev];
-          }, []);
+          const predicted = [100, ...timeDataEnd.map((e) => e.pred_cum)];
+          const allIntervals = timeDataEnd.map((e) => e.Interval);
+          const intervals = [Math.min(...allIntervals) - 1, ...allIntervals];
+          const observed = timeDataEnd
+            .reduce(
+              (arr, e, i) => {
+                const obs =
+                  (e?.Relative_Survival_Interval ||
+                    e?.CauseSpecific_Survival_Interval) / 100;
+                const prev = i > 0 ? arr[i] : 1;
+                return [...arr, obs * prev];
+              },
+              [1]
+            )
+            .map((e) => e * 100);
           const traceGroup = `${year} (Int. ${start} - ${end})`;
           const predictedTraces = makeLineTrace(
             divId,
@@ -405,7 +411,7 @@ function loadConditionalResults() {
             traceGroup,
             index,
             intervals,
-            observed.map((e) => e)
+            observed.map((e) => e / 100)
           );
           const legendTrace = makeLegendTrace(traceGroup, index);
 
@@ -436,9 +442,16 @@ function loadConditionalResults() {
 
     const xTitle = 'Conditional Interval';
     const yTitle = 'Conditional Relative Survival';
+    const [minInterval, maxInterval] = intervalRanges.reduce(
+      (arr, [start, end]) => {
+        const [min, max] = arr;
+        return [Math.min(start, min), Math.max(end, max)];
+      },
+      [+Infinity, -Infinity]
+    );
     const layout = makeLayout(
       divId,
-      dataPerInterval[0].intervals,
+      [minInterval, maxInterval],
       xTitle,
       yTitle,
       statistic,
@@ -528,8 +541,8 @@ function addTable(table, type, data = [], headers = []) {
         row.append(formatCell(predicted[index]));
         row.append(formatCell(predicted_se[index]));
       } else if (type == 'time') {
-        row.append(formatCell(observed[index]));
-        row.append(formatCell(predicted[index]));
+        row.append(formatCell(observed[index] || 'NA'));
+        row.append(formatCell(predicted[index] || 'NA'));
       }
       tableBody.append(row);
     });

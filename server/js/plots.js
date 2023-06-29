@@ -66,14 +66,7 @@ export function makeLegendTrace(name, index) {
   };
 }
 
-export function makeLayout(
-  divId,
-  xArray,
-  xTitle,
-  yTitle,
-  statistic,
-  modelInfo
-) {
+export function makeLayout(divId, range, xTitle, yTitle, statistic, modelInfo) {
   return {
     title: titles(statistic, modelInfo)[divId].plotTitle,
     hovermode: 'closest',
@@ -90,7 +83,7 @@ export function makeLayout(
     },
     xaxis: {
       title: '<b>' + xTitle + '</b>',
-      range: [Math.min(...xArray), Math.max(...xArray)],
+      range: range,
       autorange: false,
       dtick: divId == 'timePlot' ? 1 : null,
     },
