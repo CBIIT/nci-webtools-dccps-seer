@@ -29,6 +29,14 @@ $('#useConditionalJp').change((e) => {
   allFormSelects.each((i, e) => $(e).prop('disabled', !checked));
 
   // toggle state and visibility of form controls
+  // tab links
+  if (checked) {
+    $('#graph-death-link').addClass('disabled');
+    $('#estimates-link').addClass('disabled');
+  } else {
+    $('#graph-death-link').removeClass('disabled');
+    $('#estimates-link').removeClass('disabled');
+  }
   // year tab controls
   $('#showYearTrend').prop('checked', false).trigger('change');
   $('#showYearTrend').prop('disabled', checked);

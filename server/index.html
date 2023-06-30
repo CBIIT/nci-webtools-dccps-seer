@@ -858,6 +858,10 @@
           >
             <div class="row">
               <div class="col-sm-10 border-right p-4">
+                <b class="ml-4 mb-3">
+                  Support for <i>Survival vs. Year at Diagnosis</i> and
+                  <i>Survival vs. Time since Diagnosis</i> only
+                </b>
                 <div class="custom-control custom-checkbox form-group ml-4">
                   <input
                     class="custom-control-input"
@@ -947,6 +951,7 @@
                   <li class="nav-item">
                     <a
                       class="nav-link active"
+                      id="graph-year-link"
                       href="#graph-year-tab"
                       data-toggle="tab"
                       >Survival vs. Year at Diagnosis</a
@@ -955,7 +960,8 @@
                   <li class="nav-item">
                     <a
                       class="nav-link"
-                      href=" #graph-death-tab"
+                      id="graph-death-link"
+                      href="#graph-death-tab"
                       data-toggle="tab"
                       >Death vs. Year at Diagnosis</a
                     >
@@ -963,13 +969,18 @@
                   <li class="nav-item">
                     <a
                       class="nav-link"
-                      href=" #graph-time-tab"
+                      id="graph-time-link"
+                      href="#graph-time-tab"
                       data-toggle="tab"
                       >Survival vs. Time Since Diagnosis</a
                     >
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="#estimates-tab" data-toggle="tab"
+                    <a
+                      class="nav-link"
+                      id="estimates-link"
+                      href="#estimates-tab"
+                      data-toggle="tab"
                       >Model Estimates</a
                     >
                   </li>
