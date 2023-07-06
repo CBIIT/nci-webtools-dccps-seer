@@ -1,6 +1,7 @@
 import {
   singleExport,
   multiExport,
+  exportTableWithSettings,
 } from '../queueProcessor/services/xlsxExport.js';
 import { importBackEnd } from './exportImport.js';
 import { populateCondIntOptions } from './joinpointConditional.js';
@@ -3525,10 +3526,15 @@ function generateSheet(data, cohorts = false) {
 }
 
 function downloadData(type) {
-  singleExport(type, {
+  const state = {
     ...jpsurvData,
     covariates: cohort_covariance_variables,
-  });
+  };
+  if ($('#useConditionalJp').is(':checked')) {
+    exportTableWithSettings(type, state);
+  } else {
+    singleExport(type, state);
+  }
 }
 
 async function downloadFullData() {

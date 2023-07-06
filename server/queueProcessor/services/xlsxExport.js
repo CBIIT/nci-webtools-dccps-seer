@@ -1,9 +1,24 @@
 // use dynamic module imports while sharing script between browser and nodejs
-// use module imports after conveting backend entirely to node
+// use module imports after converting backend entirely to node
 // rename excel calls to XLSX
 var excel = typeof XLSX === 'undefined' ? await import('xlsx') : XLSX;
 if (typeof process === 'object') {
   var path = await import('path');
+}
+
+// download html table and includes settings sheet
+export function exportTableWithSettings(type, state) {
+  const tableId =
+    type == 'survByYear' ? 'graph-year-table' : 'graph-time-table';
+  const wb = excel.utils.table_to_book(document.getElementById(tableId));
+  const cohort = state.results.Runs.trim()
+    .split(' jpcom ')
+    [state.results.com - 1].replace(/\s\+\s/g, ' - ');
+  const jp = state.results.jpInd;
+  const title = `${type} - Conditional Model ${jp + 1} (JP ${jp}) - ${cohort}`;
+
+  excel.utils.book_append_sheet(wb, settingsSheet(state), 'Settings');
+  excel.writeFile(wb, title + '.xlsx');
 }
 
 // export single tab results into xlsx
