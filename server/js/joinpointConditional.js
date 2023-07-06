@@ -31,13 +31,13 @@ $('#useConditionalJp').change((e) => {
   // toggle state and visibility of form controls
   // tab links
   if (checked) {
-    $('#graph-year-link').html('Conditional Survival vs. Year at Diagnosis')
-    $('#graph-time-link').html('Conditional Survival vs. Time Since Diagnosis')
+    $('#graph-year-link').html('Conditional Survival vs. Year at Diagnosis');
+    $('#graph-time-link').html('Conditional Survival vs. Time Since Diagnosis');
     $('#graph-death-link').addClass('disabled');
     $('#estimates-link').addClass('disabled');
   } else {
-    $('#graph-year-link').html('Survival vs. Year at Diagnosis')
-    $('#graph-time-link').html('Survival vs. Time Since Diagnosis')
+    $('#graph-year-link').html('Survival vs. Year at Diagnosis');
+    $('#graph-time-link').html('Survival vs. Time Since Diagnosis');
     $('#graph-death-link').removeClass('disabled');
     $('#estimates-link').removeClass('disabled');
   }
@@ -321,7 +321,6 @@ function loadConditionalResults() {
       };
     });
     const divId = 'yearPlot';
-
     const statistic = jpsurvData.additional.statistic;
     const cohort = $('#cohort-display option:selected')
       .text()
