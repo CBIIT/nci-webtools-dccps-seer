@@ -63,7 +63,7 @@ $('#useConditionalJp').change((e) => {
       loadConditionalResults();
     }
   } else {
-    updateTabs();
+    if (jpsurvData.results) updateTabs();
   }
 });
 
@@ -354,7 +354,7 @@ function loadConditionalResults() {
     //Add the Year Table
     const obsIntSur = statistic.replace('Cum', 'Interval') + ' (%)';
     const obsIntSurSe =
-      statistic.replace('Cum', 'Interval Std. Err.') + 'Std. Err. (%)';
+      statistic.replace('Cum', 'Interval Std. Err.') + ' Std. Err. (%)';
     const yearHeaders = [
       ...jpsurvData.calculate.form.cohortVars,
       'Year of Diagnosis',
