@@ -364,7 +364,7 @@ function addEventListeners() {
   //
   $('#calculate').on('click', function () {
     //Reset main calculation.  This forces a rebuild R Database
-    $('#calculate').prop('disabled', true);
+    // $('#calculate').prop('disabled', true);
     jpsurvData.stage2completed = false;
     checkUnselectedCohorts();
     setCalculateData();
