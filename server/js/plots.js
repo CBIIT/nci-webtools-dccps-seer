@@ -208,7 +208,10 @@ export function processPlotData(divID, x, yMark, yLine, dimension, trends) {
         mode: 'lines+markers',
         type: 'scatter',
         line: { color: colors[i % 10] },
-        name: divID != 'timePlot' ? interval + '-year ' + statistic : interval,
+        name:
+          divID != 'timePlot'
+            ? `Interval ${interval - 1}-${interval}`
+            : interval,
         legendgroup: interval,
       };
     }
