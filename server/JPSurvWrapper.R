@@ -95,7 +95,8 @@ getSubsetStr <- function(yearOfDiagnosisVarName, yearOfDiagnosisRange, cohortVar
   if (length(cohortVars) > 0) {
     for (i in 1:length(cohortValues)) {
       if (cohortValues[i] != "\"\"") {
-        cohortVars <- paste0("`", getCorrectFormat(cohortVars), "`")
+        cohortVars <- getCorrectFormat(cohortVars)
+        # cohortVars <- paste0("`", getCorrectFormat(cohortVars), "`")
         params <- c(params, paste(cohortVars[i], cohortValues[i], sep = "=="))
       }
     }
@@ -109,14 +110,14 @@ getSubsetStr <- function(yearOfDiagnosisVarName, yearOfDiagnosisRange, cohortVar
 }
 
 # Creates the model.form expression for fitted result
-getFactorStr <- function(covariateVars) {
-  factorStr <- ""
-  if (nchar(covariateVars) != 0) {
-    covariateVars <- paste0("`", getCorrectFormat(covariateVars), "`")
-    factorStr <- paste("~-1+", paste(gsub("$", ")", gsub("^", "factor(", covariateVars)), collapse = "+"), sep = "")
-  }
-  return(factorStr)
-}
+# getFactorStr <- function(covariateVars) {
+#   factorStr <- ""
+#   if (nchar(covariateVars) != 0) {
+#     covariateVars <- paste0("`", getCorrectFormat(covariateVars), "`")
+#     factorStr <- paste("~-1+", paste(gsub("$", ")", gsub("^", "factor(", covariateVars)), collapse = "+"), sep = "")
+#   }
+#   return(factorStr)
+# }
 
 # replace empty space with _, strip anything other than alphanumeric _ /
 getCorrectFormat <- function(variable) {
@@ -614,11 +615,12 @@ downloadDataWrapper <- function(jpsurvDataString, filePath, com, runs, yearVar, 
     cohortCombo <- strsplit(runs, "jpcom")[[1]][[com]]
     cohortCombo <- strsplit(cohortCombo, "+", fixed = TRUE)[[1]]
     for (cohort in cohortCombo) {
-      value <- paste(paste('\"', trimws(cohort), sep = ""), '\"', sep = "")
+      value <- paste0('\"', trimws(cohort), '\"')
       cohortValues <- append(cohortValues, value)
     }
   }
   subsetStr <- getSubsetStr(yearVar, yearOfDiagnosisRange, cohortVars, cohortValues)
+  save(subsetStr, file = paste0(filePath, "/test.RData"))
   intervals <- c()
   if (downloadtype == "year") {
     for (i in 1:length(jpsurvData$additional$intervals)) {

@@ -202,8 +202,9 @@ export async function multiExport(
         ];
 
         // filter in order of defined columns
+        const dataColumns = Object.keys(results);
         const filterData = columns
-          .filter((e) => Object.keys(results).includes(e))
+          .filter((e) => dataColumns.includes(e))
           .reduce((a, col) => ((a[col] = results[col]), a), {});
 
         const sheetname = `Cohort ${i + 1}`;
@@ -255,12 +256,13 @@ export async function multiExport(
 
 // returns an array of cohort variables names
 function getCohorts(state) {
-  return state.calculate.form.cohortVars.map(function (cohort) {
-    return cohort
-      .replace(/[^a-z\d/]/gi, '_')
+  return state.calculate.form.cohortVars.map((cohort) =>
+    cohort
+      .replace(/[^a-z\d-]/gi, '_')
       .replace(/_{2,}/g, '_')
-      .replace(/^[^a-z\d/]*|[^a-z\d/]*$/gi, '');
-  });
+      .replace(/^[^a-z\d]*|[^a-z\d]*$/gi, '')
+      .replaceAll('-', '')
+  );
 }
 
 function generateSheet(data, cohorts = false) {
