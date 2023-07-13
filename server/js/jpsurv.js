@@ -1019,13 +1019,16 @@ function setupModel() {
 
 function createModelSelection() {
   setupModel();
-  var ModelSelection = jpsurvData.results.ModelSelection;
+  var ModelSelection =
+    jpsurvData.modelSelection || jpsurvData.results.ModelSelection;
   var jp = 0;
   var title = 'Click row to change Number of Joinpoints to ';
   var locations = jpsurvData.locations || jpsurvData.results.jpLocation;
-  if (!jpsurvData?.locations) jpsurvData.locations = locations;
-
   if (!Array.isArray(locations)) locations = [locations];
+
+  if (!jpsurvData?.locations) jpsurvData.locations = locations;
+  if (!jpsurvData?.modelSelection) jpsurvData.modelSelection = ModelSelection;
+
   $('#model-selection-table > tbody').empty();
   Object.values(ModelSelection).forEach(function (value, index) {
     row = '<tr  id="jp_' + jp + '" title="' + title + jp.toString() + '">';
