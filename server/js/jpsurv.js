@@ -340,6 +340,10 @@ function addEventListeners() {
 
     resetShowTrend();
     setCalculateData();
+    // uncheck recalculation conditional when changing models
+    if ($('#useConditionalJp').is(':checked')) {
+      $('#useConditionalJp').prop('checked', false).change();
+    }
   });
 
   // $("#covariate_select").on("change", change_covariate_select);
@@ -1018,7 +1022,8 @@ function createModelSelection() {
   var ModelSelection = jpsurvData.results.ModelSelection;
   var jp = 0;
   var title = 'Click row to change Number of Joinpoints to ';
-  var locations = jpsurvData.results.jpLocation;
+  var locations = jpsurvData.locations || jpsurvData.results.jpLocation;
+  if (!jpsurvData?.locations) jpsurvData.locations = locations;
 
   if (!Array.isArray(locations)) locations = [locations];
   $('#model-selection-table > tbody').empty();
@@ -1527,32 +1532,7 @@ function updateGraphLinks() {
     (link) => {
       link.onclick = async (event) => {
         event.preventDefault();
-        // if (useQueue()) {
-        //   try {
-        //     const filename =
-        //       'JPSurv-' +
-        //       jpsurvData.file.dictionary.replace(/\.[^/.]+$/, '') +
-        //       '.xlsx';
-        //     const id = jpsurvData.tokenId + '.zip';
-        //     const blob = await (
-        //       await fetch(
-        //         'api/queueDownloadResult?' +
-        //           new URLSearchParams({ dataset: filename, archive: id })
-        //       )
-        //     ).blob();
-        //     const url = window.URL.createObjectURL(blob);
-        //     const a = document.createElement('a');
-        //     a.href = url;
-        //     a.download = filename;
-        //     document.body.appendChild(a);
-        //     a.click();
-        //     a.remove();
-        //   } catch (error) {
-        //     showMessage('jpsurv', error.message, 'error');
-        //   }
-        // } else {
         await downloadFullData();
-        // }
       };
     }
   );
