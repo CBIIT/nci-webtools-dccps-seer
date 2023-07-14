@@ -133,8 +133,20 @@ export async function multiExport(
         Title: 'JPSurv-' + state.file.dictionary.replace(/\.[^/.]+$/, ''),
       };
 
-      resultsArray.forEach((data, i) => {
+      const sheetData = resultsArray.reduce((accumulator, data, i) => {
         let results = data.fullDownload;
+
+        // include model info
+        const model = Object.values(state.modelSelection)[i];
+        const dataLength = Object.values(results)[0].length;
+        results = {
+          ...results,
+          'No. Jp': new Array(dataLength).fill(i),
+          BIC: new Array(dataLength).fill(model.bic),
+          'Final Model': new Array(dataLength).fill(
+            (i == state.results.SelectedModel - 1) + ''
+          ),
+        };
 
         // add Observed_ProbDeath columns
         if (results['Relative_Survival_Interval']) {
@@ -157,6 +169,9 @@ export async function multiExport(
         let columns = [
           ...getCohorts(state),
           yearVar,
+          'No. Jp',
+          'BIC',
+          'Final Model',
           'Interval',
           'Died',
           'Alive_at_Start',
@@ -202,34 +217,46 @@ export async function multiExport(
         ];
 
         // filter in order of defined columns
-        const dataColumns = Object.keys(results);
-        const filterData = columns
-          .filter((e) => dataColumns.includes(e))
-          .reduce((a, col) => ((a[col] = results[col]), a), {});
-
-        const sheetname = `Cohort ${i + 1}`;
-        const modelIndex = data.com - 1;
-        const cohort = data.Runs.trim()
-          .split(' jpcom ')
-          [modelIndex].replace(/\s\+\s/g, ' - ');
-
-        const jpInd = data.jpInd;
-        const jp = jpInd
-          ? ` (${data.jpLocation[jpInd].replace(/\s/g, ', ')})`
-          : '';
-
-        const modelInfo = [
-          cohort ? cohort + ' - ' : '',
-          `Joinpoint ${jpInd}`,
-          jp,
-        ].join('');
-
-        excel.utils.book_append_sheet(
-          wb,
-          generateSheet(filterData, modelInfo),
-          sheetname
+        const dataColumns = columns.filter((e) =>
+          Object.keys(results).includes(e)
         );
-      });
+        const filterData = dataColumns.reduce(
+          (a, col) => (
+            (a[col] = a[col] ? [...a[col], ...results[col]] : results[col]), a
+          ),
+          // (a, col) => ((a[col] = results[col]), a),
+          accumulator
+        );
+
+        return filterData;
+        // const sheetname = `Cohort ${i + 1}`;
+        // const modelIndex = data.com - 1;
+        // const cohort = data.Runs.trim()
+        //   .split(' jpcom ')
+        //   [modelIndex].replace(/\s\+\s/g, ' - ');
+
+        // const jpInd = data.jpInd;
+        // const jp = jpInd
+        //   ? ` (${data.jpLocation[jpInd].replace(/\s/g, ', ')})`
+        //   : '';
+
+        // const modelInfo = [
+        //   cohort ? cohort + ' - ' : '',
+        //   `Joinpoint ${jpInd}`,
+        //   jp,
+        // ].join('');
+
+        // excel.utils.book_append_sheet(
+        //   wb,
+        //   generateSheet(filterData, modelInfo),
+        //   sheetname
+        // );
+      }, {});
+      excel.utils.book_append_sheet(
+        wb,
+        generateSheet(sheetData, false),
+        'data'
+      );
       resultsArray.forEach((data, i) =>
         excel.utils.book_append_sheet(
           wb,
