@@ -1783,11 +1783,7 @@ function calculate(run) {
     // jpsurvData.tokenId = renewTokenId(true);
     incrementImageId();
     jpsurvData.run = 1;
-    if (
-      (jpsurvData.calculate.form.maxjoinPoints > (maxJP || 2) &&
-        validateVariables()) ||
-      check_multiple() == true
-    ) {
+    if (useQueue() && validateVariables()) {
       setIntervalsDefault();
       getIntervals();
       setUrlParameter('request', 'true');
@@ -3528,7 +3524,7 @@ async function downloadFullData() {
 
     const allResults = await getData();
     if (!Object.keys(allResults).length) throw 'Failed to retrieve results';
-
+    console.log(allResults);
     const wb = await multiExport(allResults, '', {
       ...jpsurvData,
       covariates: cohort_covariance_variables,
