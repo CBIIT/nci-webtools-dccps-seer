@@ -133,7 +133,7 @@ export async function multiExport(
         Title: 'JPSurv-' + state.file.dictionary.replace(/\.[^/.]+$/, ''),
       };
 
-      const sheetData = resultsArray.reduce((accumulator, data, i) => {
+      const sheetData = resultsArray.reduce((accumulator, data) => {
         let results = data.fullDownload;
 
         // include model info
@@ -141,10 +141,10 @@ export async function multiExport(
         const dataLength = Object.values(results)[0].length;
         results = {
           ...results,
-          'No. Jp': new Array(dataLength).fill(i),
+          'No. Jp': new Array(dataLength).fill(data.jpInd),
           BIC: new Array(dataLength).fill(model.bic),
           'Final Model': new Array(dataLength).fill(
-            (i == state.results.SelectedModel - 1) + ''
+            (data.jpInd == data.SelectedModel - 1) + ''
           ),
         };
 
