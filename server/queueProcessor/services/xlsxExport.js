@@ -137,7 +137,7 @@ export async function multiExport(
         let results = data.fullDownload;
 
         // include model info
-        const model = Object.values(state.modelSelection)[i];
+        const model = Object.values(data.ModelSelection)[data.jpInd];
         const dataLength = Object.values(results)[0].length;
         results = {
           ...results,
