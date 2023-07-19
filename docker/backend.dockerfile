@@ -25,7 +25,7 @@ RUN R -e "install.packages('renv', repos = 'https://cloud.r-project.org/')"
 
 # install R packages with renv
 COPY server/renv.lock /app/server/
-COPY server/.Rprofile /app/server/
+# COPY server/.Rprofile /app/server/
 COPY server/renv/activate.R /app/server/renv/
 COPY server/renv/settings.dcf /app/server/renv/
 COPY r-packages /app/r-packages
