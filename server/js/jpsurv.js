@@ -31,6 +31,7 @@ window.jpsurvData = {
   status: 'unknown',
   stage2completed: 0,
   mapping: {},
+  recalculateConditional: {},
 };
 window.maxJP = 2;
 window.first_modal = true;

@@ -620,7 +620,6 @@ downloadDataWrapper <- function(jpsurvDataString, filePath, com, runs, yearVar, 
     }
   }
   subsetStr <- getSubsetStr(yearVar, yearOfDiagnosisRange, cohortVars, cohortValues)
-  save(subsetStr, file = paste0(filePath, "/test.RData"))
   intervals <- c()
   if (downloadtype == "year") {
     for (i in 1:length(jpsurvData$additional$intervals)) {
@@ -809,6 +808,10 @@ conditionalJoinpoint <- function(jsonParams, folder) {
   filepath <- file.path(folder, paste0("output-", state$tokenId, "-", state$run, ".rds"))
   data <- readRDS(filepath)
   fit <- data$fittedResult
+  fitJp <- fit$FitList[[params$jpIndex]]$fullpredicted
+  fitJp$index <- 1:nrow(fitJp)
+  fit$fullpredicted$index <- 1:nrow(fit$fullpredicted)
+  fit$fullpredicted <- dplyr::rows_update(fit$fullpredicted, fitJp, by = "index")
   conditionalSurvival <- joinpoint.conditional(fit, startIntervals, endIntervals)
 
   # scale to percentage

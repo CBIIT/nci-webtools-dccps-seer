@@ -59,8 +59,9 @@ $('#useConditionalJp').change((e) => {
   // replace plots and tables with conditional or unconditional data
   if (checked) {
     populateCondIntOptions();
-    if (jpsurvData?.recalculateConditional) {
-      loadConditionalResults();
+    const [model] = getCurrentModel();
+    if (jpsurvData?.recalculateConditional && jpsurvData.recalculateConditional[model]) {
+      loadConditionalResults(model);
     }
   } else {
     if (jpsurvData.results) updateTabs();
@@ -201,6 +202,7 @@ function recalculateConditional() {
           {
             startIntervals: [],
             endIntervals: [],
+            jpIndex: jpsurvData.results.jpInd + 1,
           }
         );
 
@@ -221,9 +223,10 @@ function recalculateConditional() {
           if (res?.ok) {
             // parse and save results
             const data = await res.json();
-            jpsurvData.recalculateConditional = data;
+            const [model] = getCurrentModel();
+            jpsurvData.recalculateConditional[model] = data;
 
-            loadConditionalResults();
+            loadConditionalResults(model);
           } else {
             throw await res.json();
           }
@@ -237,11 +240,26 @@ function recalculateConditional() {
     });
 }
 
-// update plots and graphs with conditional data
-function loadConditionalResults() {
-  const conditional = jpsurvData.recalculateConditional.data;
+/**
+ * return an array containing the [cohort]-[joinpoint] index string, cohort index, and joinpoint index
+ * @param {object} results jpsurv calculation results
+ * @returns array[]
+ */
+function getCurrentModel(results = jpsurvData.results) {
+  const com = results.com;
+  const jpInd = results.jpInd;
+  const model = com + '-' + jpInd;
+  return [model, com, jpInd];
+}
+
+/**
+ * update plots and graphs with conditional data
+ * @param {string} model cohort index and joinpoint index string e.g. 1-0 (cohort combination 1, joinpoint 0)
+ */
+function loadConditionalResults(model) {
+  const conditional = jpsurvData.recalculateConditional[model].data;
   const { startIntervals, endIntervals } =
-    jpsurvData.recalculateConditional.params;
+    jpsurvData.recalculateConditional[model].params;
   const yodColName = jpsurvData.calculate.static.yearOfDiagnosisVarName
     .replace(/\(|\)|-/g, '')
     .replace(/__/g, '_')
