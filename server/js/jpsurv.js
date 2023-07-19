@@ -374,6 +374,18 @@ function addEventListeners() {
     checkUnselectedCohorts();
     setCalculateData();
   });
+  $('#conditionalRecalcVis').on('click', ({ target }) => {
+    const form = $('#conditionalJoinpointForm');
+    form.hasClass('d-none')
+      ? (form.removeClass('d-none'),
+        $(target).html(
+          '<i class="fa-solid fa-chevron-up"></i> Conditional Recalculation'
+        ))
+      : (form.addClass('d-none'),
+        $(target).html(
+          '<i class="fa-solid fa-chevron-down"></i> Conditional Recalculation'
+        ));
+  });
 
   $('#file_data').on('change', checkInputFiles);
   $('#file_control').on('change', checkInputFiles);
