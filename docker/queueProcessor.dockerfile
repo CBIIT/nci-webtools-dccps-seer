@@ -14,16 +14,16 @@ RUN mkdir -p /app/server /app/logs /app/wsgi
 # install renv
 RUN R -e "install.packages('renv', repos = 'https://cloud.r-project.org/')"
 
-# install R packages with renv
+# install R packages
 COPY server/renv.lock /app/server/
-COPY server/.Rprofile /app/server/
-COPY server/renv/activate.R /app/server/renv/
-COPY server/renv/settings.dcf /app/server/renv/
 COPY r-packages /app/r-packages
 
 WORKDIR /app/server
-RUN R -e "options(Ncpus=parallel::detectCores()); renv::restore()"
 
+RUN R -e "\
+    options(Ncpus=parallel::detectCores()); \
+    install.packages('renv', repos = 'https://cloud.r-project.org/'); \
+    renv::restore();"
 WORKDIR /app/server
 
 # install JPSurv
