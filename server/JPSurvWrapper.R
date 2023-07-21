@@ -808,11 +808,7 @@ conditionalJoinpoint <- function(jsonParams, folder) {
   filepath <- file.path(folder, paste0("output-", state$tokenId, "-", state$run, ".rds"))
   data <- readRDS(filepath)
   fit <- data$fittedResult
-  fitJp <- fit$FitList[[params$jpIndex]]$fullpredicted
-  fitJp$index <- 1:nrow(fitJp)
-  fit$fullpredicted$index <- 1:nrow(fit$fullpredicted)
-  fit$fullpredicted <- dplyr::rows_update(fit$fullpredicted, fitJp, by = "index")
-  conditionalSurvival <- joinpoint.conditional(fit, startIntervals, endIntervals)
+  conditionalSurvival <- joinpoint.conditional(fit, startIntervals, endIntervals, params$njp)
 
   # scale to percentage
   scaleData <- scaleTo(conditionalSurvival)

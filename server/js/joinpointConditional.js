@@ -202,7 +202,7 @@ function recalculateConditional() {
           {
             startIntervals: [],
             endIntervals: [],
-            jpIndex: jpsurvData.results.jpInd + 1,
+            njp: jpsurvData.results.jpInd,
           }
         );
 
