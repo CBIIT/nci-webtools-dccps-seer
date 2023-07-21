@@ -60,7 +60,10 @@ $('#useConditionalJp').change((e) => {
   if (checked) {
     populateCondIntOptions();
     const [model] = getCurrentModel();
-    if (jpsurvData?.recalculateConditional && jpsurvData.recalculateConditional[model]) {
+    if (
+      jpsurvData?.recalculateConditional &&
+      jpsurvData.recalculateConditional[model]
+    ) {
       loadConditionalResults(model);
     }
   } else {
@@ -224,6 +227,8 @@ function recalculateConditional() {
             // parse and save results
             const data = await res.json();
             const [model] = getCurrentModel();
+            if (!jpsurvData.recalculateConditional)
+              jpsurvData.recalculateConditional = {};
             jpsurvData.recalculateConditional[model] = data;
 
             loadConditionalResults(model);
