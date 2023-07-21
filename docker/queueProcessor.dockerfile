@@ -1,13 +1,13 @@
 FROM public.ecr.aws/amazonlinux/amazonlinux:2023
 
 RUN dnf -y update \
- && dnf -y install \
-    gcc-c++ \
-    make \
-    nodejs \
-    npm \
-    R \
- && dnf clean all
+   && dnf -y install \
+   gcc-c++ \
+   make \
+   nodejs \
+   npm \
+   R \
+   && dnf clean all
 
 RUN mkdir -p /app/server /app/logs /app/wsgi
 
@@ -20,10 +20,7 @@ COPY r-packages /app/r-packages
 
 WORKDIR /app/server
 
-RUN R -e "\
-    options(Ncpus=parallel::detectCores()); \
-    install.packages('renv', repos = 'https://cloud.r-project.org/'); \
-    renv::restore();"
+RUN R -e "renv::restore();"
 WORKDIR /app/server
 
 # install JPSurv
@@ -32,6 +29,7 @@ WORKDIR /app/server
 
 # copy server
 COPY server /app/server/
+RUN rm /app/server/.Rprofile
 # COPY server /app/server/jpsurv
 # COPY docker/additional-configuration.conf /app/wsgi/additional-configuration.conf
 
