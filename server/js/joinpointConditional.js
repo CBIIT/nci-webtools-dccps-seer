@@ -416,7 +416,7 @@ function loadConditionalResults(model) {
         );
         return timeInterval.map((year, index) => {
           const timeDataEnd = condTimeData.filter((e) => e[yodColName] == year);
-          const years = timeDataEnd.map((e) => e[yodColName]);
+          const years = [year, ...timeDataEnd.map((e) => e[yodColName])];
           const predicted = [100, ...timeDataEnd.map((e) => e.pred_cum)];
           const allIntervals = timeDataEnd.map((e) => e.Interval);
           const intervals = [Math.min(...allIntervals) - 1, ...allIntervals];
