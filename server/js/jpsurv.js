@@ -656,7 +656,7 @@ function preLoadValues() {
   );
   if (inputData) {
     //Set jpsurvData and update everything....
-    jpsurvData = inputData;
+    jpsurvData = { ...jpsurvData, ...inputData };
     setIntervalsDefault();
     getIntervals();
     load_input_form(inputData);
