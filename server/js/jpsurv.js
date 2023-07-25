@@ -21,7 +21,10 @@ window.jpsurvData = {
     data: 'something.txt',
     form: 'form-983832.json',
   },
-  calculate: { form: { yearOfDiagnosisRange: [] }, static: {} },
+  calculate: {
+    form: { yearOfDiagnosisRange: [], conditional: false },
+    static: {},
+  },
   plot: { form: {}, static: { imageId: -1 } },
   additional: {
     headerJoinPoints: 0,
@@ -193,11 +196,10 @@ function useQueue() {
 function hide_display_email() {
   if (useQueue()) {
     $('.e-mail-grp').fadeIn();
-    $('#calculate').val('Submit').prop('disabled', true);
+    $('#calculate').prop('disabled', true);
     validateEmail();
   } else {
     $('.e-mail-grp').fadeOut();
-    $('#calculate').val('Calculate');
     $('#calculate').prop('disabled', false);
   }
 }
@@ -367,15 +369,40 @@ function addEventListeners() {
     }
   );
 
-  //
   // Set click listeners
-  //
   $('#calculate').on('click', function () {
-    //Reset main calculation.  This forces a rebuild R Database
     // $('#calculate').prop('disabled', true);
-    jpsurvData.stage2completed = false;
-    checkUnselectedCohorts();
-    setCalculateData();
+    // jpsurvData.stage2completed = false;
+    // checkUnselectedCohorts();
+    // setCalculateData();
+
+    // custom validation rules
+    $.validator.addMethod('lessThan', (value, element, param) => {
+      const $otherElement = $(param);
+      return parseInt(value) < parseInt($otherElement.val());
+    });
+
+    // add form rules and validation event
+    const rules = {
+      condIntStart: { lessThan: `#condIntEnd` },
+    };
+    const messages = {
+      condIntStart: { lessThan: 'Start must be less than End' },
+    };
+
+    // form validation and submit
+    $('#parameters')
+      .submit((e) => e.preventDefault())
+      .validate({
+        rules,
+        messages,
+        submitHandler: async (form) => {
+          jpsurvData.stage2completed = false;
+          checkUnselectedCohorts();
+          setCalculateData();
+        },
+      });
+    $('#parameters').submit();
   });
   $('#conditionalRecalcVis').on('click', ({ target }) => {
     const form = $('#conditionalJoinpointForm');
@@ -2165,17 +2192,17 @@ function loadCohorts() {
     addSessionVariables();
     parse_cohort_covariance_variables();
     addCohortVariables();
-    setupConditionalJoinpointForm();
+    setupConditionalParameters();
   }
   if (control_data.input_type == 'csv') {
     get_column_values();
   }
 }
 
-function setupConditionalJoinpointForm() {
+function setupConditionalParameters() {
   // populate select dropdowns
   const intervals = getIntervalOptions();
-  $('#inputIntervalStart').each((_, e) => {
+  $('#condIntStart').each((_, e) => {
     if ($(e).find('option').length == 0) {
       intervals.forEach((v, i) =>
         $(e).append(
@@ -2184,7 +2211,7 @@ function setupConditionalJoinpointForm() {
       );
     }
   });
-  $('#inputIntervalEnd').each((_, e) => {
+  $('#condIntEnd').each((_, e) => {
     if ($(e).find('option').length == 0) {
       intervals.forEach((v, i) =>
         $(e).append(
@@ -2198,27 +2225,21 @@ function setupConditionalJoinpointForm() {
 
   // checkbox visibility toggle
   $('#toggleConditionalJp').on('change', (e) => {
-    e.target.checked
-      ? $('#conditionalForm').attr('class', 'form d-flex')
-      : $('#conditionalForm').attr('class', 'form d-none');
+    if (e.target.checked) {
+      $('#conditionalForm').attr('class', 'form');
+      jpsurvData.calculate.form.conditional = true;
+    } else {
+      $('#conditionalForm').attr('class', 'form d-none');
+      jpsurvData.calculate.form.conditional = false;
+    }
   });
 
-  // add form rules and validation event
-  const rules = {
-    inputIntervalStart: { lessThan: `#inputIntervalEnd` },
-  };
-  const messages = {
-    inputIntervalStart: { lessThan: 'Start must be less than End' },
-  };
-  $('#conditionalForm').validate({ rules, messages });
-  $('#inputIntervalStart, #inputIntervalEnd').change((e, a, b) => {
-    console.log(e, a, b);
+  // save selected values
+  $('#condIntStart').change((e) => {
+    jpsurvData.calculate.form.condIntStart = e.target.value;
   });
-
-  // custom validation rules
-  $.validator.addMethod('lessThan', (value, element, param) => {
-    const $otherElement = $(param);
-    return parseInt(value) < parseInt($otherElement.val());
+  $('#condIntEnd').change((e) => {
+    jpsurvData.calculate.form.condIntEnd = e.target.value;
   });
 }
 

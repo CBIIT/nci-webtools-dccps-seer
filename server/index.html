@@ -442,7 +442,7 @@
                     class="box col-xs-12 shadow-sm"
                     style="display: none"
                   >
-                    <form id="parameters" class="form-horizontal" role="form">
+                    <form id="parameters" class="form-horizontal" novalidate>
                       <h5 class="card-title">
                         Cohort and Model Specifications
                       </h5>
@@ -490,37 +490,37 @@
                           >
                         </div>
                         <div id="conditionalForm" class="form d-none">
-                          <div class="form-group mb-0 mr-3">
+                          <div class="row">
+                            <div class="form-group mb-0 col-sm-auto">
+                              <label class="font-weight-bold" for="condIntStart"
+                                >Start Interval:</label
+                              >
+                              <select
+                                id="condIntStart"
+                                name="condIntStart"
+                                class="mx-3"
+                                aria-label="interval start"
+                              ></select>
+                            </div>
+                            <div class="form-group mb-0 col-sm-auto">
+                              <label class="font-weight-bold" for="condIntEnd"
+                                >End Interval:</label
+                              >
+                              <select
+                                id="condIntEnd"
+                                name="condIntEnd"
+                                class="mx-3"
+                                aria-label="end"
+                              ></select>
+                            </div>
+                          </div>
+                          <div class="row">
                             <label
-                              class="font-weight-bold"
-                              for="inputIntervalStart"
-                              >Start Interval:</label
-                            >
-                            <select
-                              id="inputIntervalStart"
-                              name="inputIntervalStart"
-                              class="mx-3"
-                              aria-label="interval start"
-                            ></select>
-                            <label
-                              id="inputIntervalStart-error"
-                              for="inputIntervalStart"
-                              class="text-danger error"
+                              id="condIntStart-error"
+                              for="condIntStart"
+                              class="text-danger error col-sm-auto"
                             >
                             </label>
-                          </div>
-                          <div class="form-group mb-0">
-                            <label
-                              class="font-weight-bold"
-                              for="inputIntervalEnd"
-                              >End Interval:</label
-                            >
-                            <select
-                              id="inputIntervalEnd"
-                              name="inputIntervalEnd"
-                              class="mx-3"
-                              aria-label="end"
-                            ></select>
                           </div>
                         </div>
                       </div>
@@ -617,163 +617,166 @@
                           </div>
                         </div>
                       </div>
+
+                      <!-- Advanced Options - STAGE 2b -->
+                      <div
+                        class="box col-md-12 shadow-sm"
+                        div
+                        id="stage2b-advanced"
+                        style="display: none"
+                      >
+                        <h2 class="h4">Advanced Options</h2>
+                        <hr class="stage-separator" />
+                        <div id="adv-options">
+                          <!-- Delete Last Interval -->
+                          <div class="row" style="margin-bottom: 10px">
+                            <label for="adv-delete-interval" class="mr-auto"
+                              >Delete Last Interval:</label
+                            >
+                            <div class="ml-auto">
+                              <form id="adv-delete-interval">
+                                <div
+                                  class="custom-control custom-radio custom-control-inline"
+                                >
+                                  <input
+                                    class="custom-control-input"
+                                    type="radio"
+                                    id="del-int-yes"
+                                    value="Yes"
+                                    name="adv-delete-interval"
+                                    aria-label="Yes"
+                                  />
+                                  <label
+                                    class="custom-control-label"
+                                    for="del-int-yes"
+                                    >Yes</label
+                                  >
+                                </div>
+                                <div
+                                  class="custom-control custom-radio custom-control-inline"
+                                >
+                                  <input
+                                    class="custom-control-input"
+                                    type="radio"
+                                    id="del-int-no"
+                                    value="No"
+                                    name="adv-delete-interval"
+                                    aria-label="No"
+                                    checked
+                                  />
+                                  <label
+                                    class="custom-control-label"
+                                    for="del-int-no"
+                                    >No</label
+                                  >
+                                </div>
+                              </form>
+                            </div>
+                          </div>
+                          <!-- Skipped Observations between (adv-between)-->
+                          <div class="row form-inline pb-3">
+                            <label for="adv-between" class="mr-auto"
+                              >Minimum Number of Years between Joinpoints
+                              (Excluding Joinpoints):
+                            </label>
+                            <input
+                              id="adv-between"
+                              type="number"
+                              class="form-control ml-auto sm-input"
+                              value="2"
+                              min="2"
+                              required
+                              aria-label="adv-between"
+                            />
+                          </div>
+
+                          <!-- Skipped Obervations from First (adv-first) -->
+                          <div class="row form-inline pb-3">
+                            <label for="adv-first" class="mr-auto"
+                              >Minimum Number of Years before First Joinpoint
+                              (Excluding Joinpoint):
+                            </label>
+                            <input
+                              id="adv-first"
+                              type="number"
+                              class="form-control ml-auto sm-input"
+                              value="3"
+                              min="2"
+                              required
+                              aria-label="adv-first"
+                            />
+                          </div>
+
+                          <!-- Skipped Obervations to Last (adv-last) -->
+                          <div class="row form-inline pb-3">
+                            <label for="adv-last" class="mr-auto"
+                              >Minimum Number of Years after Last Joinpoint
+                              (Excluding Joinpoint):
+                            </label>
+                            <input
+                              id="adv-last"
+                              type="number"
+                              class="form-control ml-auto sm-input"
+                              value="5"
+                              min="2"
+                              aria-label="adv-last"
+                            />
+                          </div>
+                          <!-- Number of Calendar Year of Project (adv-year) -->
+                          <div class="row form-inline pb-3">
+                            <label for="adv-year" class="mr-auto"
+                              >Number of Calendar Years of Projected
+                              Survival:</label
+                            >
+                            <input
+                              id="adv-year"
+                              type="number"
+                              class="form-control ml-auto sm-input"
+                              value="5"
+                              min="0"
+                              required
+                              aria-label="adv-year"
+                            />
+                          </div>
+
+                          <div class="row justify-content-between">
+                            <div
+                              class="col-sm-auto advanced"
+                              onclick="resetAdvancedOptions()"
+                            >
+                              Reset Advanced Options
+                            </div>
+                            <div
+                              class="col-sm-auto advanced"
+                              onclick="Slide_menu_Vert('stage2b-advanced','both')"
+                            >
+                              Hide
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="d-flex justify-content-end">
+                        <button
+                          type="button"
+                          onclick="window.location.href='.'"
+                          class="btn btn-primary btn-sm"
+                          title="Reset all values"
+                          aria-label="Reset"
+                        >
+                          Reset
+                        </button>
+                        <button
+                          type="submit"
+                          id="calculate"
+                          class="btn btn-primary btn-sm mx-3"
+                          aria-label="calculate"
+                          disabled
+                        >
+                          Calculate
+                        </button>
+                      </div>
                     </form>
                   </div>
-                  <!-- Advanced Options - STAGE 2b -->
-                  <div
-                    class="box col-md-12 shadow-sm"
-                    div
-                    id="stage2b-advanced"
-                    style="display: none"
-                  >
-                    <h2 class="h4">Advanced Options</h2>
-                    <hr class="stage-separator" />
-                    <div id="adv-options">
-                      <!-- Delete Last Interval -->
-                      <div class="row" style="margin-bottom: 10px">
-                        <label for="adv-delete-interval" class="mr-auto"
-                          >Delete Last Interval:</label
-                        >
-                        <div class="ml-auto">
-                          <form id="adv-delete-interval">
-                            <div
-                              class="custom-control custom-radio custom-control-inline"
-                            >
-                              <input
-                                class="custom-control-input"
-                                type="radio"
-                                id="del-int-yes"
-                                value="Yes"
-                                name="adv-delete-interval"
-                                aria-label="Yes"
-                              />
-                              <label
-                                class="custom-control-label"
-                                for="del-int-yes"
-                                >Yes</label
-                              >
-                            </div>
-                            <div
-                              class="custom-control custom-radio custom-control-inline"
-                            >
-                              <input
-                                class="custom-control-input"
-                                type="radio"
-                                id="del-int-no"
-                                value="No"
-                                name="adv-delete-interval"
-                                aria-label="No"
-                                checked
-                              />
-                              <label
-                                class="custom-control-label"
-                                for="del-int-no"
-                                >No</label
-                              >
-                            </div>
-                          </form>
-                        </div>
-                      </div>
-                      <!-- Skipped Observations between (adv-between)-->
-                      <div class="row form-inline pb-3">
-                        <label for="adv-between" class="mr-auto"
-                          >Minimum Number of Years between Joinpoints (Excluding
-                          Joinpoints):
-                        </label>
-                        <input
-                          id="adv-between"
-                          type="number"
-                          class="form-control ml-auto sm-input"
-                          value="2"
-                          min="2"
-                          required
-                          aria-label="adv-between"
-                        />
-                      </div>
-
-                      <!-- Skipped Obervations from First (adv-first) -->
-                      <div class="row form-inline pb-3">
-                        <label for="adv-first" class="mr-auto"
-                          >Minimum Number of Years before First Joinpoint
-                          (Excluding Joinpoint):
-                        </label>
-                        <input
-                          id="adv-first"
-                          type="number"
-                          class="form-control ml-auto sm-input"
-                          value="3"
-                          min="2"
-                          required
-                          aria-label="adv-first"
-                        />
-                      </div>
-
-                      <!-- Skipped Obervations to Last (adv-last) -->
-                      <div class="row form-inline pb-3">
-                        <label for="adv-last" class="mr-auto"
-                          >Minimum Number of Years after Last Joinpoint
-                          (Excluding Joinpoint):
-                        </label>
-                        <input
-                          id="adv-last"
-                          type="number"
-                          class="form-control ml-auto sm-input"
-                          value="5"
-                          min="2"
-                          aria-label="adv-last"
-                        />
-                      </div>
-                      <!-- Number of Calendar Year of Project (adv-year) -->
-                      <div class="row form-inline pb-3">
-                        <label for="adv-year" class="mr-auto"
-                          >Number of Calendar Years of Projected
-                          Survival:</label
-                        >
-                        <input
-                          id="adv-year"
-                          type="number"
-                          class="form-control ml-auto sm-input"
-                          value="5"
-                          min="0"
-                          required
-                          aria-label="adv-year"
-                        />
-                      </div>
-
-                      <div class="row justify-content-between">
-                        <div
-                          class="col-sm-auto advanced"
-                          onclick="resetAdvancedOptions()"
-                        >
-                          Reset Advanced Options
-                        </div>
-                        <div
-                          class="col-sm-auto advanced"
-                          onclick="Slide_menu_Vert('stage2b-advanced','both')"
-                        >
-                          Hide
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <input
-                    type="button"
-                    id="calculate"
-                    value="Calculate"
-                    class="btn btn-primary btn-sm float-right mr-3"
-                    aria-label="calculate"
-                    disabled
-                  />
-                  <input
-                    type="button"
-                    onclick="window.location.href='.'"
-                    value="Reset"
-                    class="btn btn-primary btn-sm float-right mr-3"
-                    title="Reset all values"
-                    aria-label="Reset"
-                  />
-
-                  <div style="clear: both"></div>
                 </div>
               </div>
             </div>
