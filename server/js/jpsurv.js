@@ -1068,7 +1068,6 @@ function createModelSelection() {
   var locations = jpsurvData.results.jpLocation;
   if (!Array.isArray(locations)) locations = [locations];
 
-
   $('#model-selection-table > tbody').empty();
   Object.values(ModelSelection).forEach(function (value, index) {
     row = '<tr  id="jp_' + jp + '" title="' + title + jp.toString() + '">';
@@ -2199,6 +2198,8 @@ function loadCohorts() {
 function setupConditionalParameters() {
   // populate select dropdowns
   const intervals = getIntervalOptions();
+  jpsurvData.calculate.form.condIntStart = +intervals[0];
+  jpsurvData.calculate.form.condIntEnd = +intervals.unshift();
   $('#condIntStart').each((_, e) => {
     if ($(e).find('option').length == 0) {
       intervals.forEach((v, i) =>
@@ -2233,10 +2234,10 @@ function setupConditionalParameters() {
 
   // save selected values
   $('#condIntStart').change((e) => {
-    jpsurvData.calculate.form.condIntStart = e.target.value;
+    jpsurvData.calculate.form.condIntStart = +e.target.value;
   });
   $('#condIntEnd').change((e) => {
-    jpsurvData.calculate.form.condIntEnd = e.target.value;
+    jpsurvData.calculate.form.condIntEnd = +e.target.value;
   });
 }
 

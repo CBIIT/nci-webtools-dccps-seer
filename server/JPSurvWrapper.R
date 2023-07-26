@@ -139,6 +139,9 @@ getFittedResultWrapper <- function(filePath, jpsurvDataString) {
   cohortValues <- jpsurvData$calculate$form$AllcohortValues
   numJP <- jpsurvData$calculate$form$maxjoinPoints
   covariateVars <- jpsurvData$calculate$form$covariateVars
+  conditional <- jpsurvData$calculate$form$conditional
+  condIntStart <- jpsurvData$calculate$form$condIntStart
+  condIntEnd <- jpsurvData$calculate$form$condIntEnd
   numbetwn <- as.integer(jpsurvData$calculate$static$advanced$advBetween)
   numfromstart <- as.integer(jpsurvData$calculate$static$advanced$advFirst)
   numtoend <- as.integer(jpsurvData$calculate$static$advanced$advLast)
@@ -183,24 +186,27 @@ getFittedResultWrapper <- function(filePath, jpsurvDataString) {
     # use original cohort matrix for csv data
     valid_com_matrix <- com_matrix
   }
-  # loops through each combnation in the matrix and creates a R data file
+  # loops through each combination in the matrix and creates a R data file
   cohortErrorsIndex <- c()
   for (i in 1:nrow(valid_com_matrix)) {
-    tryCatch(
-      {
-        jsonl[[i]] <- getFittedResultForVarCombo(
-          i, jpsurvData, filePath, seerFilePrefix, yearOfDiagnosisVarName,
-          yearOfDiagnosisRange, allVars, cohortVars, valid_com_matrix[i, ], numJP, advanced_options,
-          delLastIntvl, jpsurvDataString, projyear, type, del
-        )
-      },
-      error = function(e) {
-        print(e)
-        cohortErrorsIndex <<- append(cohortErrorsIndex, i)
-        cohorts <- gsub('\"', "", paste(as.vector(valid_com_matrix[i, ]), collapse = " + "))
-        errors[["errorCohorts"]] <<- append(errors[["errorCohorts"]], cohorts)
-      }
-    )
+    if (i > 0) {
+      tryCatch(
+        {
+          jsonl[[i]] <- getFittedResultForVarCombo(
+            i, jpsurvData, filePath, seerFilePrefix, yearOfDiagnosisVarName,
+            yearOfDiagnosisRange, allVars, cohortVars, valid_com_matrix[i, ], numJP, advanced_options,
+            delLastIntvl, jpsurvDataString, projyear, type, conditional, condIntStart, condIntEnd
+          )
+        },
+        error = function(e) {
+          save(e, file = paste0(filePath, "/error_", i, ".RData"))
+          print(e)
+          cohortErrorsIndex <<- append(cohortErrorsIndex, i)
+          cohorts <- gsub('\"', "", paste(as.vector(valid_com_matrix[i, ]), collapse = " + "))
+          errors[["errorCohorts"]] <<- append(errors[["errorCohorts"]], cohorts)
+        }
+      )
+    }
   }
 
   if (length(cohortErrorsIndex)) {
@@ -258,14 +264,14 @@ validateCohort <- function(jpsurvData, filePath, seerFilePrefix, allVars, yearOf
 
 getFittedResultForVarCombo <- function(modelIndex, jpsurvData, filePath, seerFilePrefix, yearOfDiagnosisVarName,
                                        yearOfDiagnosisRange, allVars, cohortVars, cohortValues, numJP, advanced_options, delLastIntvl,
-                                       jpsurvDataString, projyear, type, del) {
+                                       jpsurvDataString, projyear, type, conditional = FALSE, condIntStart = NULL, condIntEnd = NULL) {
   fileName <- paste("output", jpsurvData$tokenId, modelIndex, sep = "-")
   fileName <- paste(fileName, "rds", sep = ".")
   outputFileName <- paste(filePath, fileName, sep = "/")
   # cat ('combination',modelIndex,cohortValues,"\n")
   getFittedResult(
     jpsurvData$session_tokenId, filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange,
-    allVars, cohortVars, cohortValues, numJP, advanced_options, delLastIntvl, outputFileName, jpsurvDataString, projyear, type, del
+    allVars, cohortVars, cohortValues, numJP, advanced_options, delLastIntvl, outputFileName, jpsurvDataString, projyear, type, conditional, condIntStart, condIntEnd
   )
   jpInd <- getSelectedModel(filePath, jpsurvDataString, modelIndex) - 1
   return(jpInd)
@@ -386,6 +392,7 @@ getTrendsData <- function(filePath, jpsurvDataString, com) {
 # Creates the SEER Data and Fitted Result
 getFittedResult <- function(tokenId, filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange,
                             allVars, cohortVars, cohortValues, numJP, advanced_options, delLastIntvlAdv, outputFileName, jpsurvDataString, projyear, type,
+                            conditional = FALSE, condIntStart = NULL, condIntEnd = NULL,
                             alive_at_start = NULL, interval = NULL, died = NULL, lost_to_followup = NULL, rel_cum = NULL) {
   jpsurvData <- rjson::fromJSON(jpsurvDataString)
   type <- jpsurvData$additional$input_type
@@ -404,17 +411,34 @@ getFittedResult <- function(tokenId, filePath, seerFilePrefix, yearOfDiagnosisVa
     )
     # get subset of seerdata containing rows within user defined interval range (Intervals from Diagnosis Range)
     seerdataSub <- subset(seerdata, Interval <= intervalRange)
-    fittedResult <- joinpoint(
-      seerdataSub,
-      subset = subsetStr,
-      year = getCorrectFormat(yearOfDiagnosisVarName),
-      observedrelsurv = statistic,
-      model.form = ~NULL,
-      op = advanced_options,
-      delLastIntvl = delLastIntvlAdv,
-      maxnum.jp = numJP,
-      proj.year.num = projyear
-    )
+    year <- getCorrectFormat(yearOfDiagnosisVarName)
+    if (conditional == TRUE) {
+      seerdataSub[[year]] <- as.numeric(seerdata[[year]])
+      fittedResult <- joinpoint.cond(
+        seerdataSub,
+        subset = subsetStr,
+        start.interval = condIntStart,
+        end.interval = condIntEnd,
+        year = year,
+        model.form = ~NULL,
+        op = advanced_options,
+        delLastIntvl = delLastIntvlAdv,
+        maxnum.jp = numJP,
+        proj.year.num = projyear
+      )
+    } else {
+      fittedResult <- joinpoint(
+        seerdataSub,
+        subset = subsetStr,
+        year = year,
+        observedrelsurv = statistic,
+        model.form = ~NULL,
+        op = advanced_options,
+        delLastIntvl = delLastIntvlAdv,
+        maxnum.jp = numJP,
+        proj.year.num = projyear
+      )
+    }
   }
   if (type == "csv") {
     del <- jpsurvData$additional$del
@@ -673,21 +697,23 @@ getGraphWrapper <- function(filePath, jpsurvDataString, first_calc, com, runs, i
       data <- Plot.dying.year.annotate(graphData, fit, nJP, yearVar, obsintvar, predintvar, interval, annotation = 0, trend = 1)
       # }
     } else {
-      plot <- Plot.dying.year.annotate(graphData, fit, nJP, yearVar, obsintvar, predintvar, interval, annotation = 0, trend = 0)
-      ggsave(file = paste(filePath, paste("plot_Death-", jpsurvData$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/"))
-      graphFile <- paste(filePath, paste("plot_Death-", jpsurvData$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/")
+      # plot <- Plot.dying.year.annotate(graphData, fit, nJP, yearVar, obsintvar, predintvar, interval, annotation = 0, trend = 0)
+      # ggsave(file = paste(filePath, paste("plot_Death-", jpsurvData$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/"))
+      # graphFile <- paste(filePath, paste("plot_Death-", jpsurvData$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/")
       graphData <- (scaleTo(graphData))
-      results <- list("deathGraph" = graphFile, "deathTable" = graphData)
+      results <- list( "deathTable" = graphData)
+      # results <- list("deathGraph" = graphFile, "deathTable" = graphData)
       return(results)
     }
     if (length(data) == 2) {
       # Trend + plot
       trendTable <- data[[1]]
-      plot <- data[[2]]
-      ggsave(file = paste(filePath, paste("plot_Death-", jpsurvData$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/"), plot = plot)
-      graphFile <- paste(filePath, paste("plot_Death-", jpsurvData$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/")
+      # plot <- data[[2]]
+      # ggsave(file = paste(filePath, paste("plot_Death-", jpsurvData$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/"), plot = plot)
+      # graphFile <- paste(filePath, paste("plot_Death-", jpsurvData$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/")
       graphData <- (scaleTo(graphData))
-      results <- list("deathGraph" = graphFile, "deathTable" = graphData, "deathTrend" = trendTable)
+      results <- list( "deathTable" = graphData, "deathTrend" = trendTable)
+      # results <- list("deathGraph" = graphFile, "deathTable" = graphData, "deathTrend" = trendTable)
       return(results)
       # } else if (length(data) == 3) {   # Trend + plot + anno
       #   trendTable = data[[1]]
@@ -714,11 +740,12 @@ getGraphWrapper <- function(filePath, jpsurvDataString, first_calc, com, runs, i
       data <- Plot.surv.year.annotate(graphData, fit, nJP, yearVar, obscumvar, predcumvar, interval, annotation = 0, trend = 1)
       # }
     } else {
-      plot <- Plot.surv.year.annotate(graphData, fit, nJP, yearVar, obscumvar, predcumvar, interval, annotation = 0, trend = 0)
-      ggsave(file = paste(filePath, paste("plot_Year-", jpsurvData$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/"))
-      graphFile <- paste(filePath, paste("plot_Year-", jpsurvData$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/")
+      # plot <- Plot.surv.year.annotate(graphData, fit, nJP, yearVar, obscumvar, predcumvar, interval, annotation = 0, trend = 0)
+      # ggsave(file = paste(filePath, paste("plot_Year-", jpsurvData$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/"))
+      # graphFile <- paste(filePath, paste("plot_Year-", jpsurvData$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/")
       graphData <- (scaleTo(graphData))
-      results <- list("survGraph" = graphFile, "survTable" = graphData)
+      results <- list("survTable" = graphData)
+      # results <- list("survGraph" = graphFile, "survTable" = graphData)
       return(results)
     }
 
@@ -737,11 +764,12 @@ getGraphWrapper <- function(filePath, jpsurvDataString, first_calc, com, runs, i
 
     if (length(data) == 2) {
       # Trend + plot
-      plot <- data[[2]]
-      ggsave(file = paste(filePath, paste("plot_Year-", jpsurvData$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/"), plot = plot)
-      graphFile <- paste(filePath, paste("plot_Year-", jpsurvData$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/")
+      # plot <- data[[2]]
+      # ggsave(file = paste(filePath, paste("plot_Year-", jpsurvData$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/"), plot = plot)
+      # graphFile <- paste(filePath, paste("plot_Year-", jpsurvData$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/")
       graphData <- (scaleTo(graphData))
-      results <- list("survGraph" = graphFile, "survTable" = graphData, "survTrend" = trends)
+      results <- list( "survTable" = graphData, "survTrend" = trends)
+      # results <- list("survGraph" = graphFile, "survTable" = graphData, "survTrend" = trends)
       return(results)
       # } else if (length(data) == 3) {   # Trend + plot + anno
       #   plot.anno = data[[2]]
@@ -781,15 +809,17 @@ getGraphWrapper <- function(filePath, jpsurvDataString, first_calc, com, runs, i
         years <- minYear
       }
     }
-    graph <- Plot.surv.int.multiyears(graphData, fit, nJP, yearVar, obscumvar, predcumvar, interval, year.select = years)
-    graphFile <- paste(filePath, paste("plot_Int-", jpsurvData$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/")
-    ggsave(file = paste(filePath, paste("plot_Int-", jpsurvData$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/"))
+    # graph <- Plot.surv.int.multiyears(graphData, fit, nJP, yearVar, obscumvar, predcumvar, interval, year.select = years)
+    # graphFile <- paste(filePath, paste("plot_Int-", jpsurvData$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/")
+    # ggsave(file = paste(filePath, paste("plot_Int-", jpsurvData$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/"))
     graphData <- scaleTo(graphData)
     graphData <- graphData[graphData[[yearVar]] %in% years, ]
     if (exists("minYear")) {
-      results <- list("timeGraph" = graphFile, "timeTable" = graphData, "minYear" = minYear, "maxYear" = maxYear, "minInt" = minInterval, "maxInt" = maxInterval)
+      results <- list("timeTable" = graphData, "minYear" = minYear, "maxYear" = maxYear, "minInt" = minInterval, "maxInt" = maxInterval)
+      # results <- list("timeGraph" = graphFile, "timeTable" = graphData, "minYear" = minYear, "maxYear" = maxYear, "minInt" = minInterval, "maxInt" = maxInterval)
     } else {
-      results <- list("timeGraph" = graphFile, "timeTable" = graphData)
+      results <- list("timeTable" = graphData)
+      # results <- list("timeGraph" = graphFile, "timeTable" = graphData)
     }
     return(results)
   }
