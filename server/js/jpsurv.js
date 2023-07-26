@@ -2225,9 +2225,11 @@ function setupConditionalParameters() {
   $('#toggleConditionalJp').on('change', (e) => {
     if (e.target.checked) {
       $('#conditionalForm').attr('class', 'form');
+      $('#conditionalRecalcVis').addClass('d-none');
       jpsurvData.calculate.form.conditional = true;
     } else {
       $('#conditionalForm').attr('class', 'form d-none');
+      $('#conditionalRecalcVis').removeClass('d-none');
       jpsurvData.calculate.form.conditional = false;
     }
   });
