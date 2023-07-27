@@ -397,6 +397,15 @@ function addEventListeners() {
         rules,
         messages,
         submitHandler: async (form) => {
+          const formData = new FormData(form);
+          const params = Object.fromEntries(formData);
+          // hide conditional recalculation if conditional calculation was used
+          if (params?.toggleConditionalJp == 'on') {
+            $('#conditionalRecalcVis').addClass('d-none');
+          } else {
+            $('#conditionalRecalcVis').removeClass('d-none');
+          }
+
           jpsurvData.stage2completed = false;
           checkUnselectedCohorts();
           setCalculateData();
