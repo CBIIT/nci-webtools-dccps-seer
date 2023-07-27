@@ -701,7 +701,7 @@ getGraphWrapper <- function(filePath, jpsurvDataString, first_calc, com, runs, i
       # ggsave(file = paste(filePath, paste("plot_Death-", jpsurvData$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/"))
       # graphFile <- paste(filePath, paste("plot_Death-", jpsurvData$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/")
       graphData <- (scaleTo(graphData))
-      results <- list( "deathTable" = graphData)
+      results <- list("deathTable" = graphData)
       # results <- list("deathGraph" = graphFile, "deathTable" = graphData)
       return(results)
     }
@@ -712,7 +712,7 @@ getGraphWrapper <- function(filePath, jpsurvDataString, first_calc, com, runs, i
       # ggsave(file = paste(filePath, paste("plot_Death-", jpsurvData$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/"), plot = plot)
       # graphFile <- paste(filePath, paste("plot_Death-", jpsurvData$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/")
       graphData <- (scaleTo(graphData))
-      results <- list( "deathTable" = graphData, "deathTrend" = trendTable)
+      results <- list("deathTable" = graphData, "deathTrend" = trendTable)
       # results <- list("deathGraph" = graphFile, "deathTable" = graphData, "deathTrend" = trendTable)
       return(results)
       # } else if (length(data) == 3) {   # Trend + plot + anno
@@ -768,7 +768,7 @@ getGraphWrapper <- function(filePath, jpsurvDataString, first_calc, com, runs, i
       # ggsave(file = paste(filePath, paste("plot_Year-", jpsurvData$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/"), plot = plot)
       # graphFile <- paste(filePath, paste("plot_Year-", jpsurvData$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/")
       graphData <- (scaleTo(graphData))
-      results <- list( "survTable" = graphData, "survTrend" = trends)
+      results <- list("survTable" = graphData, "survTrend" = trends)
       # results <- list("survGraph" = graphFile, "survTable" = graphData, "survTrend" = trends)
       return(results)
       # } else if (length(data) == 3) {   # Trend + plot + anno
