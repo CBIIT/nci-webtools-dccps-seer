@@ -768,7 +768,7 @@
                         <button
                           type="submit"
                           id="calculate"
-                          class="btn btn-primary btn-sm mx-3"
+                          class="btn btn-primary btn-sm ml-3"
                           aria-label="calculate"
                           disabled
                         >
@@ -895,97 +895,121 @@
           </div>
 
           <!-- Conditional Joinpoint Form -->
-          <button id="conditionalRecalcVis" class="btn btn-link">
-            <i class="fa-solid fa-chevron-down"></i> Conditional Recalculation
-          </button>
-          <form
-            id="conditionalJoinpointForm"
-            class="bg-white shadow-sm mb-4 border rounded d-none"
-            novalidate
-          >
-            <div class="row">
-              <div class="col-sm-10 border-right p-4">
-                <b class="ml-4 mb-3">
-                  Support for <i>Survival vs. Year at Diagnosis</i> and
-                  <i>Survival vs. Time since Diagnosis</i> only
-                </b>
-                <div class="custom-control custom-checkbox form-group ml-4">
-                  <input
-                    class="custom-control-input"
-                    type="checkbox"
-                    id="useConditionalJp"
-                  />
-                  <label
-                    class="custom-control-label font-weight-bold"
-                    for="useConditionalJp"
-                    aria-label="Conditional survival recalculation based on model previously fit to all intervals"
-                    >Conditional survival recalculation based on model
-                    previously fit to all intervals:</label
+          <div class="accordion mb-3" id="conditionalRecalcVis">
+            <div class="card">
+              <div class="card-header" id="headingOne">
+                <h2 class="mb-0">
+                  <button
+                    class="btn btn-link btn-block text-left"
+                    type="button"
+                    data-toggle="collapse"
+                    data-target="#collapseOne"
+                    aria-expanded="true"
+                    aria-controls="collapseOne"
                   >
-                </div>
-                <div id="conditionalIntervalContainer" class="ml-4">
-                  <div
-                    id="conditionalIntervalForm-0"
-                    class="conditionalIntervalForm d-flex"
-                  >
-                    <div class="d-block">
-                      <div class="form-group mb-0 mr-3">
-                        <label class="font-weight-bold" for="intervalStart0"
-                          >Start Interval:</label
-                        >
-                        <select
-                          id="intervalStart0"
-                          name="intervalStart0"
-                          class="conditionalIntervalStart mx-3"
-                          aria-label="start"
-                          disabled
-                          required
-                        ></select>
-                      </div>
-                      <label
-                        id="intervalStart0-error"
-                        for="intervalStart0"
-                        class="text-danger error"
-                      >
-                      </label>
-                    </div>
-                    <div class="form-group mb-0">
-                      <label class="font-weight-bold" for="intervalEnd0"
-                        >End Interval:</label
-                      >
-                      <select
-                        id="intervalEnd0"
-                        name="intervalEnd0"
-                        class="conditionalIntervalEnd mx-3"
-                        aria-label="end"
-                        disabled
-                        required
-                      ></select>
-                    </div>
-                    <button
-                      id="addConditionalInterval"
-                      type="button"
-                      class="btn btn-link mb-4"
-                    >
-                      + Add Interval
-                    </button>
-                  </div>
-                </div>
+                    Conditional Recalculation
+                  </button>
+                </h2>
               </div>
               <div
-                class="col-sm-2 d-flex p-4 justify-content-center align-items-center"
+                id="collapseOne"
+                class="collapse"
+                aria-labelledby="headingOne"
+                data-parent="#conditionalRecalcVis"
               >
-                <button
-                  id="recalculateConditional"
-                  class="btn btn-primary btn-sm"
-                  type="submit"
-                  disabled
-                >
-                  Recalculate
-                </button>
+                <div class="card-body p-0">
+                  <form id="conditionalJoinpointForm" novalidate>
+                    <div class="row">
+                      <div class="col-sm-10 border-right p-4">
+                        <b class="ml-4 mb-3">
+                          Support for <i>Survival vs. Year at Diagnosis</i> and
+                          <i>Survival vs. Time since Diagnosis</i> only
+                        </b>
+                        <div
+                          class="custom-control custom-checkbox form-group ml-4"
+                        >
+                          <input
+                            class="custom-control-input"
+                            type="checkbox"
+                            id="useConditionalJp"
+                          />
+                          <label
+                            class="custom-control-label font-weight-bold"
+                            for="useConditionalJp"
+                            aria-label="Conditional survival recalculation based on model previously fit to all intervals"
+                            >Conditional survival recalculation based on model
+                            previously fit to all intervals:</label
+                          >
+                        </div>
+                        <div id="conditionalIntervalContainer" class="ml-4">
+                          <div
+                            id="conditionalIntervalForm-0"
+                            class="conditionalIntervalForm d-flex"
+                          >
+                            <div class="d-block">
+                              <div class="form-group mb-0 mr-3">
+                                <label
+                                  class="font-weight-bold"
+                                  for="intervalStart0"
+                                  >Start Interval:</label
+                                >
+                                <select
+                                  id="intervalStart0"
+                                  name="intervalStart0"
+                                  class="conditionalIntervalStart mx-3"
+                                  aria-label="start"
+                                  disabled
+                                  required
+                                ></select>
+                              </div>
+                              <label
+                                id="intervalStart0-error"
+                                for="intervalStart0"
+                                class="text-danger error"
+                              >
+                              </label>
+                            </div>
+                            <div class="form-group mb-0">
+                              <label class="font-weight-bold" for="intervalEnd0"
+                                >End Interval:</label
+                              >
+                              <select
+                                id="intervalEnd0"
+                                name="intervalEnd0"
+                                class="conditionalIntervalEnd mx-3"
+                                aria-label="end"
+                                disabled
+                                required
+                              ></select>
+                            </div>
+                            <button
+                              id="addConditionalInterval"
+                              type="button"
+                              class="btn btn-link mb-4"
+                            >
+                              + Add Interval
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                      <div
+                        class="col-sm-2 d-flex p-4 justify-content-center align-items-center"
+                      >
+                        <button
+                          id="recalculateConditional"
+                          class="btn btn-primary btn-sm"
+                          type="submit"
+                          disabled
+                        >
+                          Recalculate
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
               </div>
             </div>
-          </form>
+          </div>
 
           <!-- Message Panel for Error or Warning-->
           <div class="card shadow-sm">

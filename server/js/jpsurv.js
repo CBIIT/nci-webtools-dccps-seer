@@ -404,18 +404,6 @@ function addEventListeners() {
       });
     $('#parameters').submit();
   });
-  $('#conditionalRecalcVis').on('click', ({ target }) => {
-    const form = $('#conditionalJoinpointForm');
-    form.hasClass('d-none')
-      ? (form.removeClass('d-none'),
-        $(target).html(
-          '<i class="fa-solid fa-chevron-up"></i> Conditional Recalculation'
-        ))
-      : (form.addClass('d-none'),
-        $(target).html(
-          '<i class="fa-solid fa-chevron-down"></i> Conditional Recalculation'
-        ));
-  });
 
   $('#file_data').on('change', checkInputFiles);
   $('#file_control').on('change', checkInputFiles);
@@ -2225,11 +2213,9 @@ function setupConditionalParameters() {
   $('#toggleConditionalJp').on('change', (e) => {
     if (e.target.checked) {
       $('#conditionalForm').attr('class', 'form');
-      $('#conditionalRecalcVis').addClass('d-none');
       jpsurvData.calculate.form.conditional = true;
     } else {
       $('#conditionalForm').attr('class', 'form d-none');
-      $('#conditionalRecalcVis').removeClass('d-none');
       jpsurvData.calculate.form.conditional = false;
     }
   });
