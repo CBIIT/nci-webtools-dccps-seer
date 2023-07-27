@@ -569,6 +569,10 @@ def stage2_calculate():
 
     app.logger.debug("**** Calling getFittedResultsWrapper ****")
     try:
+        # remove previous results
+        for p in Path(input_dir).glob("results-*.json"):
+            p.unlink()
+
         r.getFittedResultWrapper(input_dir, jpsurvDataString)
         status = 200
         out_json = json.dumps({"status": "OK"})
