@@ -559,7 +559,7 @@
                           name="selectList"
                         ></select>
                       </div>
-                      <div class="mx-0 mb-0 jpsurv-label-container">
+                      <div class="form-group">
                         <label for="max_join_point_select" class="jpsurv-label"
                           >Maximum Joinpoints:</label
                         >
@@ -586,38 +586,68 @@
                           data-content="Most common situation is to have 0 or 1 joinpoint since survival trends change gradually. Begin with small number of joinpoints. Increase the number if there is not a good fit or to be sure you capture all joinpoints. Computation time increases exponentially with number of joinpoints tested."
                           title="Maxiumum Joinpoints"
                         ></i>
-                        <div class="row">
-                          <div
-                            id="e-mail-msg"
-                            class="e-mail-grp"
-                            style="padding: 5px 15px; display: none"
-                          ></div>
+                      </div>
+                      <div>
+                        <div class="form-group form-check">
+                          <input
+                            type="checkbox"
+                            class="form-check-input"
+                            name="toggleRelaxProp"
+                            id="toggleRelaxProp"
+                          />
+                          <label class="jpsurv-label" for="toggleRelaxProp"
+                            >Relax Proportionality</label
+                          >
                         </div>
-                        <div class="mx-0 mb-0 e-mail-grp" style="display: none">
+                        <div id="relaxPropForm" class="form-group d-none">
                           <label
-                            for="e-mail"
+                            for="relaxPropInt"
                             class="jpsurv-label"
-                            title="Enter a valid e-mail"
-                            >E-mail:</label
+                            title="End Interval"
+                            >End Interval</label
                           >
                           <input
-                            class="arrow"
-                            tabindex="0"
-                            required
-                            id="e-mail"
-                            type="email"
-                            placeholder="Enter e-mail address"
-                            title="Enter a valid e-mail address."
-                            aria-label="Email Address"
+                            id="relaxPropInt"
+                            type="text"
+                            placeholder="1-5"
                           />
+                          <p class="text-muted">
+                            Relaxing the proportionality assumption will require
+                            additional compute time
+                          </p>
                         </div>
-                        <div class="row">
-                          <div
-                            class="advanced ml-auto mr-3"
-                            onclick="Slide_menu_Vert('stage2b-advanced','both')"
-                          >
-                            Advanced Options
-                          </div>
+                      </div>
+                      <div class="row">
+                        <div
+                          id="e-mail-msg"
+                          class="e-mail-grp"
+                          style="padding: 5px 15px; display: none"
+                        ></div>
+                      </div>
+                      <div class="mx-0 mb-0 e-mail-grp" style="display: none">
+                        <label
+                          for="e-mail"
+                          class="jpsurv-label"
+                          title="Enter a valid e-mail"
+                          >E-mail:</label
+                        >
+                        <input
+                          class="arrow"
+                          tabindex="0"
+                          required
+                          id="e-mail"
+                          type="email"
+                          placeholder="Enter e-mail address"
+                          title="Enter a valid e-mail address."
+                          aria-label="Email Address"
+                        />
+                      </div>
+                      <div class="row">
+                        <div
+                          class="advanced ml-auto mr-3"
+                          onclick="Slide_menu_Vert('stage2b-advanced','both')"
+                        >
+                          Advanced Options
                         </div>
                       </div>
 
@@ -814,7 +844,10 @@
           class="col-md-12 col-lg-8"
           style="display: none; margin-top: 2%"
         >
-          <div id="cohort-join-points" class="card bg-white border rounded mb-4">
+          <div
+            id="cohort-join-points"
+            class="card bg-white border rounded mb-4"
+          >
             <div class="card-body">
               <div class="d-flex pb-3">
                 <div class="d-inline">

@@ -413,6 +413,11 @@ function addEventListeners() {
       });
     $('#parameters').submit();
   });
+  $('#toggleRelaxProp').on('change', (e) => {
+    e.target.checked
+      ? $('#relaxPropForm').removeClass('d-none')
+      : $('#relaxPropForm').addClass('d-none');
+  });
 
   $('#file_data').on('change', checkInputFiles);
   $('#file_control').on('change', checkInputFiles);
