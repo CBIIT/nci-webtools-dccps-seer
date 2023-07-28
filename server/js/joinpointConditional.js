@@ -31,11 +31,15 @@ $('#useConditionalJp').change((e) => {
   // toggle state and visibility of form controls
   // tab links
   if (checked) {
+    $('#addConditionalInterval').prop('disabled', false);
+    $('.removeCondInterval').prop('disabled', false);
     $('#graph-year-link').html('Conditional Survival vs. Year at Diagnosis');
     $('#graph-time-link').html('Conditional Survival vs. Time Since Diagnosis');
     $('#graph-death-link').addClass('disabled');
     $('#estimates-link').addClass('disabled');
   } else {
+    $('#addConditionalInterval').prop('disabled', true);
+    $('.removeCondInterval').prop('disabled', true);
     $('#graph-year-link').html('Survival vs. Year at Diagnosis');
     $('#graph-time-link').html('Survival vs. Time Since Diagnosis');
     $('#graph-death-link').removeClass('disabled');
@@ -145,7 +149,7 @@ function addCondIntForm() {
           </div>
           <button 
             type="button" 
-            class="btn btn-link mb-4" 
+            class="btn btn-link mb-4 removeCondInterval" 
             onClick="removeCondIntForm(${index})">
             - Remove Interval
           </button>
