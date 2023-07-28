@@ -144,7 +144,7 @@ export async function multiExport(
           'No. Jp': new Array(dataLength).fill(data.jpInd),
           BIC: new Array(dataLength).fill(model.bic),
           'Final Model': new Array(dataLength).fill(
-            (data.jpInd == data.SelectedModel - 1) + ''
+            data.jpInd == data.SelectedModel - 1 ? 'Yes' : 'No'
           ),
         };
 
