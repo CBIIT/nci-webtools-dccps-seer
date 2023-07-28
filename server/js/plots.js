@@ -210,7 +210,9 @@ export function processPlotData(divID, x, yMark, yLine, dimension, trends) {
         line: { color: colors[i % 10] },
         name:
           divID != 'timePlot'
-            ? `Interval ${interval - 1}-${interval}`
+            ? divID == 'yearPlot'
+              ? `${interval}-year`
+              : `Interval ${interval - 1}-${interval}`
             : interval,
         legendgroup: interval,
       };
