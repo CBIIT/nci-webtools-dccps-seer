@@ -142,6 +142,8 @@ getFittedResultWrapper <- function(filePath, jpsurvDataString) {
   conditional <- jpsurvData$calculate$form$conditional
   condIntStart <- jpsurvData$calculate$form$condIntStart
   condIntEnd <- jpsurvData$calculate$form$condIntEnd
+  relaxProp <- jpsurvData$calculate$form$relaxProp
+  relaxPropInt <- jpsurvData$calculate$form$relaxPropInt
   numbetwn <- as.integer(jpsurvData$calculate$static$advanced$advBetween)
   numfromstart <- as.integer(jpsurvData$calculate$static$advanced$advFirst)
   numtoend <- as.integer(jpsurvData$calculate$static$advanced$advLast)
@@ -195,7 +197,7 @@ getFittedResultWrapper <- function(filePath, jpsurvDataString) {
           jsonl[[i]] <- getFittedResultForVarCombo(
             i, jpsurvData, filePath, seerFilePrefix, yearOfDiagnosisVarName,
             yearOfDiagnosisRange, allVars, cohortVars, valid_com_matrix[i, ], numJP, advanced_options,
-            delLastIntvl, jpsurvDataString, projyear, type, conditional, condIntStart, condIntEnd
+            delLastIntvl, jpsurvDataString, projyear, type, conditional, condIntStart, condIntEnd, relaxProp, relaxPropInt
           )
         },
         error = function(e) {
@@ -264,14 +266,16 @@ validateCohort <- function(jpsurvData, filePath, seerFilePrefix, allVars, yearOf
 
 getFittedResultForVarCombo <- function(modelIndex, jpsurvData, filePath, seerFilePrefix, yearOfDiagnosisVarName,
                                        yearOfDiagnosisRange, allVars, cohortVars, cohortValues, numJP, advanced_options, delLastIntvl,
-                                       jpsurvDataString, projyear, type, conditional = FALSE, condIntStart = NULL, condIntEnd = NULL) {
+                                       jpsurvDataString, projyear, type,
+                                       conditional = FALSE, condIntStart = NULL, condIntEnd = NULL, relaxProp = FALSE, relaxPropInt = NULL) {
   fileName <- paste("output", jpsurvData$tokenId, modelIndex, sep = "-")
   fileName <- paste(fileName, "rds", sep = ".")
   outputFileName <- paste(filePath, fileName, sep = "/")
   # cat ('combination',modelIndex,cohortValues,"\n")
   getFittedResult(
     jpsurvData$session_tokenId, filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange,
-    allVars, cohortVars, cohortValues, numJP, advanced_options, delLastIntvl, outputFileName, jpsurvDataString, projyear, type, conditional, condIntStart, condIntEnd
+    allVars, cohortVars, cohortValues, numJP, advanced_options, delLastIntvl, outputFileName, jpsurvDataString, projyear, type,
+    conditional, condIntStart, condIntEnd, relaxProp, relaxPropInt
   )
   jpInd <- getSelectedModel(filePath, jpsurvDataString, modelIndex) - 1
   return(jpInd)
@@ -392,7 +396,7 @@ getTrendsData <- function(filePath, jpsurvDataString, com) {
 # Creates the SEER Data and Fitted Result
 getFittedResult <- function(tokenId, filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange,
                             allVars, cohortVars, cohortValues, numJP, advanced_options, delLastIntvlAdv, outputFileName, jpsurvDataString, projyear, type,
-                            conditional = FALSE, condIntStart = NULL, condIntEnd = NULL,
+                            conditional = FALSE, condIntStart = NULL, condIntEnd = NULL, relaxProp = FALSE, relaxPropInt = NULL,
                             alive_at_start = NULL, interval = NULL, died = NULL, lost_to_followup = NULL, rel_cum = NULL) {
   jpsurvData <- rjson::fromJSON(jpsurvDataString)
   type <- jpsurvData$additional$input_type
@@ -419,6 +423,19 @@ getFittedResult <- function(tokenId, filePath, seerFilePrefix, yearOfDiagnosisVa
         subset = subsetStr,
         start.interval = condIntStart,
         end.interval = condIntEnd,
+        year = year,
+        model.form = ~NULL,
+        op = advanced_options,
+        delLastIntvl = delLastIntvlAdv,
+        maxnum.jp = numJP,
+        proj.year.num = projyear
+      )
+    } else if (relaxProp == TRUE) {
+      seerdataSub[[year]] <- as.numeric(seerdata[[year]])
+      fittedResult <- joinpoint.relaxProp(
+        seerdataSub,
+        subset = subsetStr,
+        max.cutpoint = relaxPropInt,
         year = year,
         model.form = ~NULL,
         op = advanced_options,
@@ -456,20 +473,59 @@ getFittedResult <- function(tokenId, filePath, seerFilePrefix, yearOfDiagnosisVa
     interval <- names(seerdata)[as.integer(jpsurvData$additional$interval)]
     died <- names(seerdata)[jpsurvData$additional$died]
     seerdataSub <- subset(seerdata, Interval <= intervalRange)
-    fittedResult <- joinpoint(seerdataSub,
-      subset = subsetStr,
-      year = getCorrectFormat(yearOfDiagnosisVarName),
-      interval = interval,
-      number.event = died,
-      number.alive = alive_at_start,
-      number.loss = lost_to_followup,
-      expected.rate = exp_int,
-      observedrelsurv = observed,
-      model.form = NULL,
-      delLastIntvl = delLastIntvlAdv,
-      op = advanced_options,
-      maxnum.jp = numJP
-    )
+    year <- getCorrectFormat(yearOfDiagnosisVarName)
+    if (conditional == TRUE) {
+      seerdataSub[[year]] <- as.numeric(seerdata[[year]])
+      fittedResult <- joinpoint.cond(
+        seerdataSub,
+        subset = subsetStr,
+        start.interval = condIntStart,
+        end.interval = condIntEnd,
+        year = year,
+        interval = interval,
+        number.event = died,
+        number.alive = alive_at_start,
+        number.loss = lost_to_followup,
+        expected.rate = exp_int,
+        model.form = NULL,
+        delLastIntvl = delLastIntvlAdv,
+        op = advanced_options,
+        maxnum.jp = numJP
+      )
+    } else if (relaxProp == TRUE) {
+      seerdataSub[[year]] <- as.numeric(seerdata[[year]])
+      fittedResult <- joinpoint.relaxProp(
+        seerdataSub,
+        subset = subsetStr,
+        max.cutpoint = relaxPropInt,
+        year = year,
+        interval = interval,
+        number.event = died,
+        number.alive = alive_at_start,
+        number.loss = lost_to_followup,
+        expected.rate = exp_int,
+        model.form = NULL,
+        delLastIntvl = delLastIntvlAdv,
+        op = advanced_options,
+        maxnum.jp = numJP
+      )
+    } else {
+      fittedResult <- joinpoint(
+        seerdataSub,
+        subset = subsetStr,
+        year = year,
+        interval = interval,
+        number.event = died,
+        number.alive = alive_at_start,
+        number.loss = lost_to_followup,
+        expected.rate = exp_int,
+        observedrelsurv = observed,
+        model.form = NULL,
+        delLastIntvl = delLastIntvlAdv,
+        op = advanced_options,
+        maxnum.jp = numJP
+      )
+    }
   }
   # save seerdata and fit.result as RData
   cat("***outputFileName")
