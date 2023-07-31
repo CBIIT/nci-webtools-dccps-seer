@@ -413,11 +413,6 @@ function addEventListeners() {
       });
     $('#parameters').submit();
   });
-  $('#toggleRelaxProp').on('change', (e) => {
-    e.target.checked
-      ? $('#relaxPropForm').removeClass('d-none')
-      : $('#relaxPropForm').addClass('d-none');
-  });
 
   $('#file_data').on('change', checkInputFiles);
   $('#file_control').on('change', checkInputFiles);
@@ -2190,18 +2185,20 @@ function loadCohorts() {
     addSessionVariables();
     parse_cohort_covariance_variables();
     addCohortVariables();
-    setupConditionalParameters();
+    setupParameters();
   }
   if (control_data.input_type == 'csv') {
     get_column_values();
   }
 }
 
-function setupConditionalParameters() {
+// setup conditional and relax proportionality parameters
+function setupParameters() {
   // populate select dropdowns
   const intervals = getIntervalOptions();
   jpsurvData.calculate.form.condIntStart = +intervals[0];
   jpsurvData.calculate.form.condIntEnd = +intervals.unshift();
+  jpsurvData.calculate.form.relaxPropInt = +intervals.unshift() - 1;
   $('#condIntStart').each((_, e) => {
     if ($(e).find('option').length == 0) {
       intervals.forEach((v, i) =>
@@ -2222,6 +2219,19 @@ function setupConditionalParameters() {
       );
     }
   });
+  $('#relaxPropInt').each((_, e) => {
+    if ($(e).find('option').length == 0) {
+      intervals
+        .slice(0, -1)
+        .forEach((v, i) =>
+          $(e).append(
+            `<option ${
+              i == intervals.length - 2 ? 'selected' : ''
+            } value="${v}">${v}</option>`
+          )
+        );
+    }
+  });
 
   // checkbox visibility toggle
   $('#toggleConditionalJp').on('change', (e) => {
@@ -2233,6 +2243,17 @@ function setupConditionalParameters() {
       jpsurvData.calculate.form.conditional = false;
     }
   });
+  $('#toggleRelaxProp').on('change', (e) => {
+    if (e.target.checked) {
+      $('#relaxPropForm').removeClass('d-none');
+      $('#relaxPropInt').prop('disabled', false);
+      jpsurvData.calculate.form.relaxProp = true;
+    } else {
+      $('#relaxPropForm').addClass('d-none');
+      $('#relaxPropInt').prop('disabled', true);
+      jpsurvData.calculate.form.relaxProp = false;
+    }
+  });
 
   // save selected values
   $('#condIntStart').change((e) => {
@@ -2240,6 +2261,9 @@ function setupConditionalParameters() {
   });
   $('#condIntEnd').change((e) => {
     jpsurvData.calculate.form.condIntEnd = +e.target.value;
+  });
+  $('#relaxPropInt').change((e) => {
+    jpsurvData.calculate.form.relaxPropInt = +e.target.value;
   });
 }
 

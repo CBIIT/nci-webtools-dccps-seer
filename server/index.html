@@ -600,17 +600,17 @@
                           >
                         </div>
                         <div id="relaxPropForm" class="form-group d-none">
-                          <label
-                            for="relaxPropInt"
-                            class="jpsurv-label"
-                            title="End Interval"
-                            >End Interval</label
+                          <label class="font-weight-bold" for="relaxPropInt"
+                            >End Interval:</label
                           >
-                          <input
+                          <select
                             id="relaxPropInt"
-                            type="text"
-                            placeholder="1-5"
-                          />
+                            name="relaxPropInt"
+                            class="mx-3"
+                            aria-label="end"
+                            disabled
+                            required
+                          ></select>
                           <p class="text-muted">
                             Relaxing the proportionality assumption will require
                             additional compute time
