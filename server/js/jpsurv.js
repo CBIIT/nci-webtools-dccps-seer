@@ -2253,6 +2253,12 @@ function setupParameters() {
       $('#relaxPropInt').prop('disabled', true);
       jpsurvData.calculate.form.relaxProp = false;
     }
+    // disable relax proportionality for less than 2 intervals
+    if (intervals.length == 1) {
+      $('#toggleRelaxProp').prop('disabled', true);
+    } else {
+      $('#toggleRelaxProp').prop('disabled', false);
+    }
   });
 
   // save selected values
