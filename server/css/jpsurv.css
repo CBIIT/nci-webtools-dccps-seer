@@ -552,3 +552,13 @@ span.select2 {
   max-width: 4em;
   height: 2em;
 }
+
+.accordion .card-header .btn:after {
+  font-family: 'FontAwesome';  
+  content: "\f068";
+  float: right; 
+}
+.accordion .card-header .btn.collapsed:after {
+  /* symbol for "collapsed" panels */
+  content: "\f067"; 
+}
