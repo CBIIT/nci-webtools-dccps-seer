@@ -139,6 +139,7 @@ export async function multiExport(
         // include model info
         const model = Object.values(data.ModelSelection)[data.jpInd];
         const dataLength = Object.values(results)[0].length;
+        const cohorts = getCohorts(state);
         results = {
           ...results,
           'No. Jp': new Array(dataLength).fill(data.jpInd),
@@ -147,6 +148,12 @@ export async function multiExport(
             data.jpInd == data.SelectedModel - 1 ? 'Yes' : 'No'
           ),
         };
+        cohorts.forEach(
+          (cohort) =>
+            (results[cohort] = results[cohort].map((e) =>
+              e.replaceAll(/"/g, '')
+            ))
+        );
 
         // add Observed_ProbDeath columns
         if (results['Relative_Survival_Interval']) {
@@ -167,7 +174,7 @@ export async function multiExport(
 
         const yearVar = data.yearVar;
         let columns = [
-          ...getCohorts(state),
+          ...cohorts,
           yearVar,
           'No. Jp',
           'BIC',
