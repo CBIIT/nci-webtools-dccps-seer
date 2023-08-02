@@ -1909,6 +1909,11 @@ function handleSubmit(e) {
 
   const form = $('#upload-form');
 
+  // disable upload buttons
+  $('#upload_dictxt').prop('disabled', true);
+  $('#upload_csv').prop('disabled', true);
+  $('#upload_session').prop('disabled', true);
+
   $.ajax({
     url: form.attr('action'),
     type: 'POST',
@@ -1934,6 +1939,12 @@ function handleSubmit(e) {
         ],
         'error'
       );
+    },
+    complete: () => {
+      // re-enable upload buttons
+      $('#upload_dictxt').prop('disabled', false);
+      $('#upload_csv').prop('disabled', false);
+      $('#upload_session').prop('disabled', false);
     },
   });
 }
