@@ -33,6 +33,26 @@ export function makeLineTrace(divId, name = '', index, xArray, yArray) {
   };
 }
 
+export function makeDashTrace(divId, name = '', index, xArray, yArray) {
+  return {
+    name,
+    x: xArray,
+    y: yArray,
+    showlegend: false,
+    hovertemplate: makeLineHoverTemplate(divId, name),
+    hoverlabel: {
+      align: 'left',
+      bgcolor: '#FFF',
+      bordercolor: colors[index % 10],
+      font: { size: fontSize, color: 'black' },
+    },
+    mode: 'lines',
+    line: { dash: 'dash', color: colors[index % 10] },
+    type: 'scatter',
+    legendgroup: name,
+  };
+}
+
 export function makeMarkerTrace(divId, name = '', index, xArray, yArray) {
   return {
     name,
@@ -145,8 +165,10 @@ export async function drawPlot(divId, data = [], layout = {}, config = {}) {
 export function processPlotData(divID, x, yMark, yLine, dimension, trends) {
   let markerTrace = {};
   let lineTrace = {};
+  let projectedTrace = {};
   let lineTrendLabel = {}; // place trend labels on an invisible trace 2% higher than the line trace to avoid overlap
   let legend = {}; // group intervals in the legend with a custom title
+  let projectedLegend = {};
   let data = [];
   const uniqueDimensions = Array.from(new Set(dimension));
 
@@ -188,6 +210,23 @@ export function processPlotData(divID, x, yMark, yLine, dimension, trends) {
         legendgroup: interval,
       };
 
+      projectedTrace[interval] = {
+        x: divID == 'timePlot' ? [0] : [],
+        y: divID == 'timePlot' ? [1] : [],
+        showlegend: false,
+        hovertemplate: [],
+        hoverlabel: {
+          align: 'left',
+          bgcolor: '#FFF',
+          bordercolor: colors[i % 10],
+          font: { size: fontSize, color: 'black' },
+        },
+        mode: 'lines',
+        line: { dash: 'dash', color: colors[i % 10] },
+        type: 'scatter',
+        legendgroup: interval + 'projected',
+      };
+
       lineTrendLabel[interval] = {
         x: [],
         y: [],
@@ -215,6 +254,22 @@ export function processPlotData(divID, x, yMark, yLine, dimension, trends) {
               : `Interval ${interval - 1}-${interval}`
             : interval,
         legendgroup: interval,
+      };
+
+      projectedLegend[interval] = {
+        x: [null],
+        y: [null],
+        showlegend: true,
+        mode: 'lines',
+        type: 'scatter',
+        line: { dash: 'dash', color: colors[i % 10] },
+        name:
+          divID != 'timePlot'
+            ? divID == 'yearPlot'
+              ? `${interval}-year Projected`
+              : `Interval ${interval - 1}-${interval} Projected`
+            : interval,
+        legendgroup: interval + 'projected',
       };
     }
   });
@@ -247,9 +302,19 @@ export function processPlotData(divID, x, yMark, yLine, dimension, trends) {
     markerTrace[dimension[i]].y.push(yMark[i] / 100);
     markerTrace[dimension[i]].hovertemplate.push(markerTemplate);
 
-    lineTrace[dimension[i]].x.push(x);
-    lineTrace[dimension[i]].y.push(yLine[i] / 100);
-    lineTrace[dimension[i]].hovertemplate.push(lineTemplate);
+    const dim = dimension[i];
+    if (
+      divID == 'timePlot' ||
+      i < yMark.findIndex((e, i) => dim == dimension[i] && e == 'NA')
+    ) {
+      lineTrace[dimension[i]].x.push(x);
+      lineTrace[dimension[i]].y.push(yLine[i] / 100);
+      lineTrace[dimension[i]].hovertemplate.push(lineTemplate);
+    } else {
+      projectedTrace[dimension[i]].x.push(x);
+      projectedTrace[dimension[i]].y.push(yLine[i] / 100);
+      projectedTrace[dimension[i]].hovertemplate.push(lineTemplate);
+    }
 
     lineTrendLabel[dimension[i]].x.push(x + 0.5);
     lineTrendLabel[dimension[i]].y.push(yLine[i] / 98);
@@ -355,7 +420,14 @@ export function processPlotData(divID, x, yMark, yLine, dimension, trends) {
     }
   }
 
-  [markerTrace, lineTrace, lineTrendLabel, legend].forEach((traceGroup) => {
+  [
+    markerTrace,
+    lineTrace,
+    projectedTrace,
+    lineTrendLabel,
+    legend,
+    projectedLegend,
+  ].forEach((traceGroup) => {
     Object.keys(traceGroup).forEach((trace) => {
       data.push(traceGroup[trace]);
     });

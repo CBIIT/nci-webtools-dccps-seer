@@ -1167,7 +1167,7 @@ function drawPlot(plot, update = false) {
         deathData.deathTable.Relative_Survival_Interval ||
         deathData.deathTable.CauseSpecific_Survival_Interval
       ).map(function (x) {
-        return 100 - x;
+        return isNaN(x) ? x : 100 - x;
       });
 
       update

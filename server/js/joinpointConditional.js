@@ -6,6 +6,7 @@ import {
 } from './jpsurv.js';
 import {
   makeLineTrace,
+  makeDashTrace,
   makeMarkerTrace,
   drawPlot,
   makeLayout,
@@ -319,12 +320,20 @@ function loadConditionalResults(model) {
       ).map((e, i) => Math.sqrt(e) * observed[i]);
 
       const traceGroup = `Interval ${start} - ${end}`;
+      const projectedIndex = observed.findIndex(Number.isNaN);
+      const projectedTraces = makeDashTrace(
+        'yearPlot',
+        traceGroup + ' Projected',
+        index,
+        years.slice(projectedIndex),
+        predicted.slice(projectedIndex).map((e) => e / 100)
+      );
       const predictedTraces = makeLineTrace(
         'yearPlot',
         traceGroup,
         index,
-        years,
-        predicted.map((e) => e / 100)
+        years.slice(0, projectedIndex),
+        predicted.slice(0, projectedIndex).map((e) => e / 100)
       );
       const observedTraces = makeMarkerTrace(
         'yearPlot',
@@ -334,6 +343,12 @@ function loadConditionalResults(model) {
         observed.map((e) => e / 100)
       );
       const legendTrace = makeLegendTrace(traceGroup, index);
+      const projectedLegendTrace = {
+        ...legendTrace,
+        name: traceGroup + ' Projected',
+        mode: 'lines',
+        line: { ...legendTrace.line, dash: 'dash' },
+      };
 
       return {
         years,
@@ -344,7 +359,9 @@ function loadConditionalResults(model) {
         observed_se,
         predictedTraces,
         observedTraces,
+        projectedTraces,
         legendTrace,
+        projectedLegendTrace,
       };
     });
     const divId = 'yearPlot';
@@ -373,7 +390,13 @@ function loadConditionalResults(model) {
       modelInfo
     );
     const traces = dataPerInterval
-      .map((e) => [e.predictedTraces, e.observedTraces, e.legendTrace])
+      .map((e) => [
+        e.predictedTraces,
+        e.observedTraces,
+        e.projectedTraces,
+        e.legendTrace,
+        e.projectedLegendTrace,
+      ])
       .flat();
 
     drawPlot(divId, traces, layout);

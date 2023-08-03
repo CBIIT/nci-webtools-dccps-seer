@@ -705,12 +705,16 @@ downloadDataWrapper <- function(jpsurvDataString, filePath, com, runs, yearVar, 
     for (i in 1:length(jpsurvData$additional$intervals)) {
       intervals <- c(intervals, jpsurvData$additional$intervals[[i]])
     }
-    return(download.data(input, fit, jpInd, yearVar, downloadtype = "graph", int.select = intervals, subset = subsetStr))
+    data <- download.data(input, fit, jpInd, yearVar, downloadtype = "full", int.select = intervals, subset = subsetStr)
+    data <- subset(data, Interval %in% intervals)
+    return(data)
   } else if (downloadtype == "death") {
     for (i in 1:length(jpsurvData$additional$intervalsDeath)) {
       intervals <- c(intervals, jpsurvData$additional$intervalsDeath[[i]])
     }
-    return(download.data(input, fit, jpInd, yearVar, downloadtype = "graph", int.select = intervals, subset = subsetStr))
+    data <- download.data(input, fit, jpInd, yearVar, downloadtype = "full", int.select = intervals, subset = subsetStr)
+    data <- subset(data, Interval %in% intervals)
+    return(data)
   } else if (downloadtype == "time") {
     intervalRange <- as.integer(jpsurvData$calculate$form$interval)
     range <- (c(1:intervalRange))
