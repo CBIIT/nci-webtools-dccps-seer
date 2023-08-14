@@ -73,13 +73,13 @@ export function makeMarkerTrace(divId, name = '', index, xArray, yArray) {
   };
 }
 
-export function makeLegendTrace(name, index) {
+export function makeLegendTrace(name, index, mode = 'lines+markers') {
   return {
     name,
     x: [null],
     y: [null],
     showlegend: true,
-    mode: 'lines+markers',
+    mode: mode,
     type: 'scatter',
     line: { color: colors[index % 10] },
     legendgroup: name,

@@ -342,13 +342,25 @@ function loadConditionalResults(model) {
         years,
         observed.map((e) => e / 100)
       );
-      const legendTrace = makeLegendTrace(traceGroup, index);
+      const legendTrace = makeLegendTrace(traceGroup, index, 'lines');
       const projectedLegendTrace = {
-        ...legendTrace,
+        ...makeLegendTrace(traceGroup, index, 'lines'),
         name: traceGroup + ' Projected',
-        mode: 'lines',
         line: { ...legendTrace.line, dash: 'dash' },
       };
+      const observedLegendTrace = {
+        ...makeLegendTrace(traceGroup, index, 'markers'),
+        name: traceGroup + ' Observed',
+      };
+
+      const traces = [
+        predictedTraces,
+        observedTraces,
+        projectedTraces,
+        legendTrace,
+        projectedLegendTrace,
+        observedLegendTrace,
+      ];
 
       return {
         years,
@@ -357,11 +369,7 @@ function loadConditionalResults(model) {
         predicted_se,
         observed,
         observed_se,
-        predictedTraces,
-        observedTraces,
-        projectedTraces,
-        legendTrace,
-        projectedLegendTrace,
+        traces,
       };
     });
     const divId = 'yearPlot';
@@ -389,15 +397,7 @@ function loadConditionalResults(model) {
       statistic,
       modelInfo
     );
-    const traces = dataPerInterval
-      .map((e) => [
-        e.predictedTraces,
-        e.observedTraces,
-        e.projectedTraces,
-        e.legendTrace,
-        e.projectedLegendTrace,
-      ])
-      .flat();
+    const traces = dataPerInterval.map((e) => e.traces).flat();
 
     drawPlot(divId, traces, layout);
 
