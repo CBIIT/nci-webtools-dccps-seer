@@ -77,11 +77,12 @@ $('#useConditionalJp').change((e) => {
 });
 
 export function getIntervalOptions() {
-  if (control_data.input_type == 'csv') {
-    return control_data?.data[control_data.interval[1]];
-  } else {
-    return control_data?.VarFormatSecList.Interval.ItemNameInDic;
-  }
+  const intervals =
+    control_data.input_type == 'csv'
+      ? control_data?.data[control_data.interval[1]]
+      : control_data?.VarFormatSecList.Interval.ItemNameInDic;
+  if (Array.isArray(intervals)) return intervals;
+  else return [intervals];
 }
 
 export function populateCondIntOptions() {
