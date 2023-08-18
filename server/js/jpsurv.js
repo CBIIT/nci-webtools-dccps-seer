@@ -2234,10 +2234,16 @@ function setupParameters() {
     if ($(e).find('option').length == 0) {
       intervals
         .slice(0, -1)
-        .forEach((v, i) =>
+        .forEach((v, i, arr) =>
           $(e).append(
             `<option ${
-              i == intervals.length - 2 ? 'selected' : ''
+              arr.length < 5
+                ? i == arr.length - 1
+                  ? 'selected'
+                  : ''
+                : i == 4
+                ? 'selected'
+                : ''
             } value="${v}">${v}</option>`
           )
         );
