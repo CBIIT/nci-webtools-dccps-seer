@@ -20,31 +20,27 @@ RUN mkdir -p /app/server /app/logs /app/wsgi
 # install python packages
 RUN pip3 install flask==2.0.3 Werkzeug==2.0.3 flask-cors mod_wsgi rpy2==3.4.5 boto3 pytest
 
-# install renv
-RUN R -e "install.packages('renv', repos = 'https://cloud.r-project.org/')"
-
-# install R packages
+# install R packages with renv
 COPY server/renv.lock /app/server/
+COPY server/.Rprofile /app/server/
+COPY server/renv/activate.R /app/server/renv/
+COPY server/renv/settings.dcf /app/server/renv/
 COPY r-packages /app/r-packages
 
+# copy renv cache if available
+ENV RENV_PATHS_CACHE=/app/server/renv/cache
+RUN mkdir ${RENV_PATHS_CACHE}
+ARG RENV_CACHE_HOST=/renvCach[e]
+COPY ${RENV_CACHE_HOST} ${RENV_PATHS_CACHE}
 WORKDIR /app/server
-
-RUN R -e "\
-    options(Ncpus=parallel::detectCores()); \
-    install.packages('renv', repos = 'https://cloud.r-project.org/'); \
-    renv::restore();"
+RUN R -e "options(Ncpus=parallel::detectCores()); renv::restore()"
 
 # install JPSurv
 # RUN R -e "renv::install('/app/r-packages/JPSurv_R_package.tar.gz')"
 
-# copy server
-COPY server /app/server/
-# renv::restore() is used a second time to relink dependencies from cache
-# since they are overwritten by the previous copy command
-# RUN R -e "\
-#     renv::restore(); \
-#     renv::install('/app/r-packages/JPSurv_R_package.tar.gz'); \
-#     renv::snapshot();"
+# copy server folder, ignore renv folder
+COPY server/[^renv]* /app/server/
+
 # copy client to static directory
 COPY server /app/server/jpsurv
 # copy additional wsgi config
