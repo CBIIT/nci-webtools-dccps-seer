@@ -489,7 +489,8 @@
                           <label
                             class="form-check-label jpsurv-label"
                             for="toggleConditionalJp"
-                            >Conditional Survival Model Using Truncated Data</label
+                            >Conditional Survival Model Using Truncated
+                            Data</label
                           >
                         </div>
                         <div id="conditionalForm" class="form d-none">
@@ -814,9 +815,9 @@
               </div>
             </div>
           </div>
-          <!-- </form> -->
-          <!-- Main Menu Tabs -->
         </div>
+        <!-- </form> -->
+        <!-- Main Menu Tabs -->
         <div
           class="card col-md-12 col-lg-8 border rounded bg-white"
           id="descriptionCard"
@@ -846,7 +847,7 @@
         >
           <div
             id="cohort-join-points"
-            class="card bg-white border rounded mb-4"
+            class="card bg-white border rounded mb-4 shadow-sm"
           >
             <div class="card-body">
               <div class="d-flex pb-3">
@@ -931,7 +932,7 @@
           </div>
 
           <!-- Conditional Joinpoint Form -->
-          <div class="accordion mb-3" id="conditionalRecalcVis">
+          <div class="accordion mb-3 shadow-sm" id="conditionalRecalcVis">
             <div class="card">
               <div class="card-header" id="headingOne">
                 <button
@@ -942,7 +943,7 @@
                   aria-expanded="true"
                   aria-controls="collapseOne"
                 >
-                  Conditional Survival Calculation
+                  <b>Conditional Survival Calculation</b>
                 </button>
               </div>
               <div
@@ -1047,7 +1048,7 @@
           </div>
 
           <!-- Message Panel for Error or Warning-->
-          <div class="card border rounded">
+          <div class="card border rounded shadow-sm">
             <div class="card-header">
               <div class="d-flex">
                 <ul
@@ -1566,7 +1567,9 @@
                   </div>
                   <div class="row">
                     <img class="mx-auto mt-1 d-none" src="" alt="graph-time" />
-                    <div id="timePlot" class="mx-auto mt-1 d-block"></div>
+                    <div id="timePlots" class="mx-auto mt-1 d-block">
+                      <div id="timePlot"></div>
+                    </div>
                   </div>
                   <div class="d-flex">
                     <span

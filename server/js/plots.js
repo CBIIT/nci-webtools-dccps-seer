@@ -33,7 +33,7 @@ export function makeLineTrace(divId, name = '', index, xArray, yArray) {
   };
 }
 
-export function makeDashTrace(divId, name = '', index, xArray, yArray) {
+export function makeDashTrace(divId, name = '', index = '', xArray, yArray) {
   return {
     name,
     x: xArray,
@@ -43,11 +43,11 @@ export function makeDashTrace(divId, name = '', index, xArray, yArray) {
     hoverlabel: {
       align: 'left',
       bgcolor: '#FFF',
-      bordercolor: colors[index % 10],
+      bordercolor: index ? colors[index % 10] : 'black',
       font: { size: fontSize, color: 'black' },
     },
     mode: 'lines',
-    line: { dash: 'dash', color: colors[index % 10] },
+    line: { dash: 'dash', color: index ? colors[index % 10] : 'black' },
     type: 'scatter',
     legendgroup: name,
   };

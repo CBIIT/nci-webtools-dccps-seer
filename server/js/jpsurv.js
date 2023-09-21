@@ -1194,6 +1194,9 @@ function drawPlot(plot, update = false) {
           );
     } else if (plot == 'time') {
       const timeData = jpsurvData.results.timeData.timeTable;
+      $('#timePlots')
+        .empty()
+        .append(`<div id="timePlot" class="mx-auto mt-1 d-block"></div>`);
 
       drawLineChart(
         'timePlot',
