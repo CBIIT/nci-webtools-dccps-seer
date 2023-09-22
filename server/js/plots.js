@@ -169,6 +169,7 @@ export function processPlotData(divID, x, yMark, yLine, dimension, trends) {
   let lineTrendLabel = {}; // place trend labels on an invisible trace 2% higher than the line trace to avoid overlap
   let legend = {}; // group intervals in the legend with a custom title
   let projectedLegend = {};
+  let observedLegend = {};
   let data = [];
   const uniqueDimensions = Array.from(new Set(dimension));
 
@@ -211,8 +212,8 @@ export function processPlotData(divID, x, yMark, yLine, dimension, trends) {
       };
 
       projectedTrace[interval] = {
-        x: divID == 'timePlot' ? [0] : [],
-        y: divID == 'timePlot' ? [1] : [],
+        x: [],
+        y: [],
         showlegend: false,
         hovertemplate: [],
         hoverlabel: {
@@ -244,7 +245,7 @@ export function processPlotData(divID, x, yMark, yLine, dimension, trends) {
         x: [null],
         y: [null],
         showlegend: true,
-        mode: 'lines+markers',
+        mode: 'lines',
         type: 'scatter',
         line: { color: colors[i % 10] },
         name:
@@ -253,6 +254,22 @@ export function processPlotData(divID, x, yMark, yLine, dimension, trends) {
               ? `${interval}-year`
               : `Interval ${interval - 1}-${interval}`
             : interval,
+        legendgroup: interval,
+      };
+
+      observedLegend[interval] = {
+        x: [null],
+        y: [null],
+        showlegend: true,
+        mode: 'markers',
+        type: 'scatter',
+        line: { color: colors[i % 10] },
+        name:
+          divID != 'timePlot'
+            ? divID == 'yearPlot'
+              ? `${interval}-year Observed`
+              : `Interval ${interval - 1}-${interval} Observed`
+            : interval + ' Observed',
         legendgroup: interval,
       };
 
@@ -311,9 +328,10 @@ export function processPlotData(divID, x, yMark, yLine, dimension, trends) {
       lineTrace[dimension[i]].y.push(yLine[i] / 100);
       lineTrace[dimension[i]].hovertemplate.push(lineTemplate);
     } else {
-      projectedTrace[dimension[i]].x.push(x);
-      projectedTrace[dimension[i]].y.push(yLine[i] / 100);
-      projectedTrace[dimension[i]].hovertemplate.push(lineTemplate);
+      const dim = projectedTrace[dimension[i]];
+      dim.x.push(x);
+      dim.y.push(yLine[i] / 100);
+      dim.hovertemplate.push(lineTemplate);
     }
 
     lineTrendLabel[dimension[i]].x.push(x + 0.5);
@@ -426,12 +444,15 @@ export function processPlotData(divID, x, yMark, yLine, dimension, trends) {
     projectedTrace,
     lineTrendLabel,
     legend,
-    projectedLegend,
-  ].forEach((traceGroup) => {
-    Object.keys(traceGroup).forEach((trace) => {
-      data.push(traceGroup[trace]);
+    observedLegend,
+    divID == 'deathPlot' ? projectedLegend : false,
+  ]
+    .filter(Boolean)
+    .forEach((traceGroup) => {
+      Object.keys(traceGroup).forEach((trace) => {
+        data.push(traceGroup[trace]);
+      });
     });
-  });
   return data;
 }
 
