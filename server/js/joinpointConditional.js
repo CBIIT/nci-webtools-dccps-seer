@@ -556,7 +556,7 @@ function loadConditionalResults(model) {
     const timeHeader = [
       ...jpsurvData.calculate.form.cohortVars,
       'Year of Diagnosis',
-      'Interval',
+      'Conditional Interval',
       obsHeader,
       'Predicted Conditional Cumulative Relative Survival (%)',
     ];
