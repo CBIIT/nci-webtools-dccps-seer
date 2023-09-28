@@ -705,7 +705,7 @@ downloadDataWrapper <- function(jpsurvDataString, filePath, com, runs, yearVar, 
     for (i in 1:length(jpsurvData$additional$intervals)) {
       intervals <- c(intervals, jpsurvData$additional$intervals[[i]])
     }
-    data <- download.data(input, fit, jpInd, yearVar, downloadtype = "graph", int.select = intervals, subset = subsetStr)
+    data <- download.data(input, fit, jpInd, yearVar, downloadtype = "full", int.select = intervals, subset = subsetStr)
     data <- subset(data, Interval %in% intervals)
     return(data)
   } else if (downloadtype == "death") {

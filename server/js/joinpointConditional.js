@@ -357,9 +357,9 @@ function loadConditionalResults(model) {
       const traces = [
         predictedTraces,
         observedTraces,
-        // projectedTraces,
+        projectedTraces,
         legendTrace,
-        // projectedLegendTrace,
+        projectedLegendTrace,
         observedLegendTrace,
       ];
 

@@ -445,7 +445,7 @@ export function processPlotData(divID, x, yMark, yLine, dimension, trends) {
     lineTrendLabel,
     legend,
     observedLegend,
-    divID == 'deathPlot' ? projectedLegend : false,
+    divID !== 'timePlot' ? projectedLegend : false,
   ]
     .filter(Boolean)
     .forEach((traceGroup) => {
