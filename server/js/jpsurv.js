@@ -22,7 +22,7 @@ window.jpsurvData = {
     form: 'form-983832.json',
   },
   calculate: {
-    form: { yearOfDiagnosisRange: [], conditional: false },
+    form: { yearOfDiagnosisRange: [], conditional: false, relaxProp: false },
     static: {},
   },
   plot: { form: {}, static: { imageId: -1 } },
@@ -2212,7 +2212,7 @@ function setupParameters() {
   const intervals = getIntervalOptions();
   jpsurvData.calculate.form.condIntStart = +intervals[0];
   jpsurvData.calculate.form.condIntEnd = +intervals.unshift();
-  jpsurvData.calculate.form.relaxPropInt = +intervals.unshift() - 1;
+  jpsurvData.calculate.form.cutPoint = +intervals.unshift() - 1;
   $('#condIntStart').each((_, e) => {
     if ($(e).find('option').length == 0) {
       intervals.forEach((v, i) =>
@@ -2233,7 +2233,7 @@ function setupParameters() {
       );
     }
   });
-  $('#relaxPropInt').each((_, e) => {
+  $('#cutPoint').each((_, e) => {
     if ($(e).find('option').length == 0) {
       intervals
         .slice(0, -1)
@@ -2266,11 +2266,11 @@ function setupParameters() {
   $('#toggleRelaxProp').on('change', (e) => {
     if (e.target.checked) {
       $('#relaxPropForm').removeClass('d-none');
-      $('#relaxPropInt').prop('disabled', false);
+      $('#cutPoint').prop('disabled', false);
       jpsurvData.calculate.form.relaxProp = true;
     } else {
       $('#relaxPropForm').addClass('d-none');
-      $('#relaxPropInt').prop('disabled', true);
+      $('#cutPoint').prop('disabled', true);
       jpsurvData.calculate.form.relaxProp = false;
     }
   });
@@ -2289,8 +2289,8 @@ function setupParameters() {
   $('#condIntEnd').change((e) => {
     jpsurvData.calculate.form.condIntEnd = +e.target.value;
   });
-  $('#relaxPropInt').change((e) => {
-    jpsurvData.calculate.form.relaxPropInt = +e.target.value;
+  $('#cutPoint').change((e) => {
+    jpsurvData.calculate.form.cutPoint = +e.target.value;
   });
 }
 

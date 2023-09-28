@@ -143,7 +143,7 @@ getFittedResultWrapper <- function(filePath, jpsurvDataString) {
   condIntStart <- jpsurvData$calculate$form$condIntStart
   condIntEnd <- jpsurvData$calculate$form$condIntEnd
   relaxProp <- jpsurvData$calculate$form$relaxProp
-  relaxPropInt <- jpsurvData$calculate$form$relaxPropInt
+  cutPoint <- jpsurvData$calculate$form$cutPoint
   numbetwn <- as.integer(jpsurvData$calculate$static$advanced$advBetween)
   numfromstart <- as.integer(jpsurvData$calculate$static$advanced$advFirst)
   numtoend <- as.integer(jpsurvData$calculate$static$advanced$advLast)
@@ -197,7 +197,7 @@ getFittedResultWrapper <- function(filePath, jpsurvDataString) {
           jsonl[[i]] <- getFittedResultForVarCombo(
             i, jpsurvData, filePath, seerFilePrefix, yearOfDiagnosisVarName,
             yearOfDiagnosisRange, allVars, cohortVars, valid_com_matrix[i, ], numJP, advanced_options,
-            delLastIntvl, jpsurvDataString, projyear, type, conditional, condIntStart, condIntEnd, relaxProp, relaxPropInt
+            delLastIntvl, jpsurvDataString, projyear, type, conditional, condIntStart, condIntEnd, relaxProp, cutPoint
           )
         },
         error = function(e) {
@@ -267,7 +267,7 @@ validateCohort <- function(jpsurvData, filePath, seerFilePrefix, allVars, yearOf
 getFittedResultForVarCombo <- function(modelIndex, jpsurvData, filePath, seerFilePrefix, yearOfDiagnosisVarName,
                                        yearOfDiagnosisRange, allVars, cohortVars, cohortValues, numJP, advanced_options, delLastIntvl,
                                        jpsurvDataString, projyear, type,
-                                       conditional = FALSE, condIntStart = NULL, condIntEnd = NULL, relaxProp = FALSE, relaxPropInt = NULL) {
+                                       conditional = FALSE, condIntStart = NULL, condIntEnd = NULL, relaxProp = FALSE, cutPoint = NULL) {
   fileName <- paste("output", jpsurvData$tokenId, modelIndex, sep = "-")
   fileName <- paste(fileName, "rds", sep = ".")
   outputFileName <- paste(filePath, fileName, sep = "/")
@@ -275,7 +275,7 @@ getFittedResultForVarCombo <- function(modelIndex, jpsurvData, filePath, seerFil
   getFittedResult(
     jpsurvData$session_tokenId, filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange,
     allVars, cohortVars, cohortValues, numJP, advanced_options, delLastIntvl, outputFileName, jpsurvDataString, projyear, type,
-    conditional, condIntStart, condIntEnd, relaxProp, relaxPropInt
+    conditional, condIntStart, condIntEnd, relaxProp, cutPoint
   )
   jpInd <- getSelectedModel(filePath, jpsurvDataString, modelIndex) - 1
   return(jpInd)
@@ -396,7 +396,7 @@ getTrendsData <- function(filePath, jpsurvDataString, com) {
 # Creates the SEER Data and Fitted Result
 getFittedResult <- function(tokenId, filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange,
                             allVars, cohortVars, cohortValues, numJP, advanced_options, delLastIntvlAdv, outputFileName, jpsurvDataString, projyear, type,
-                            conditional = FALSE, condIntStart = NULL, condIntEnd = NULL, relaxProp = FALSE, relaxPropInt = NULL,
+                            conditional = FALSE, condIntStart = NULL, condIntEnd = NULL, relaxProp = FALSE, cutPoint = NULL,
                             alive_at_start = NULL, interval = NULL, died = NULL, lost_to_followup = NULL, rel_cum = NULL) {
   jpsurvData <- rjson::fromJSON(jpsurvDataString)
   type <- jpsurvData$additional$input_type
@@ -435,7 +435,7 @@ getFittedResult <- function(tokenId, filePath, seerFilePrefix, yearOfDiagnosisVa
       fittedResult <- joinpoint.relaxProp(
         seerdataSub,
         subset = subsetStr,
-        max.cutpoint = relaxPropInt,
+        max.cutpoint = cutPoint,
         year = year,
         model.form = ~NULL,
         op = advanced_options,
@@ -497,7 +497,7 @@ getFittedResult <- function(tokenId, filePath, seerFilePrefix, yearOfDiagnosisVa
       fittedResult <- joinpoint.relaxProp(
         seerdataSub,
         subset = subsetStr,
-        max.cutpoint = relaxPropInt,
+        max.cutpoint = cutPoint,
         year = year,
         interval = interval,
         number.event = died,

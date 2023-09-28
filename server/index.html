@@ -600,21 +600,27 @@
                             >Relax Proportionality</label
                           >
                         </div>
+                        <p class="text-muted">
+                          Relaxing the proportionality assumption will require
+                          additional compute time
+                        </p>
                         <div id="relaxPropForm" class="form-group d-none">
-                          <label class="font-weight-bold" for="relaxPropInt"
-                            >End Interval:</label
+                          <label class="font-weight-bold" for="cutPoint"
+                            >Cut Point:</label
                           >
                           <select
-                            id="relaxPropInt"
-                            name="relaxPropInt"
+                            id="cutPoint"
+                            name="cutPoint"
                             class="mx-3"
                             aria-label="end"
                             disabled
                             required
                           ></select>
                           <p class="text-muted">
-                            Relaxing the proportionality assumption will require
-                            additional compute time
+                            The cut-point is the time after diagnosis that
+                            splits data into two groups. Cluster 1 includes
+                            years 1 to the cut-point. Separate JPSurv models are
+                            applied to each cluster.
                           </p>
                         </div>
                       </div>
