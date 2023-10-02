@@ -572,6 +572,10 @@ def stage2_calculate():
         # remove previous results
         for p in Path(input_dir).glob("results-*.json"):
             p.unlink()
+        for p in Path(input_dir).glob("cohort*.json"):
+            p.unlink()
+        for p in Path(input_dir).glob("*.rds"):
+            p.unlink()
 
         r.getFittedResultWrapper(input_dir, jpsurvDataString)
         status = 200
