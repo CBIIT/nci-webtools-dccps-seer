@@ -150,7 +150,7 @@ getFittedResultWrapper <- function(filePath, jpsurvDataString) {
   projyear <- as.integer(jpsurvData$calculate$static$advanced$advYear)
   advanced_options <- list("numbetwn" = numbetwn, "numfromstart" = numfromstart, "numtoend" = numtoend)
   delLastIntvl <- as.logical(jpsurvData$calculate$static$advanced$advDeleteInterval)
-  # Non-changing token id to indicate session, tokent id changes upon each calc, bu this only changes when page is refreshed.
+  # Non-changing token id to indicate session, token id changes upon each calc, bu this only changes when page is refreshed.
   type <- jpsurvData$additional$input_type
   length <- length(jpsurvData$calculate$form$cohortVars)
   # Creating each possible cohort combination
@@ -320,6 +320,7 @@ getAllData <- function(filePath, jpsurvDataString, first_calc = FALSE, use_defau
     interval <- "Interval"
     input_type <- "dic"
   }
+  viewConditional <- jpsurvData$additional$viewConditional
   ModelSelection <- geALLtModelWrapper(filePath, jpsurvDataString, com)
   Coefficients <- getcoefficientsWrapper(filePath, jpsurvDataString, first_calc, com)
   JP <- getJPWrapper(filePath, jpsurvDataString, first_calc, com)
@@ -378,7 +379,8 @@ getAllData <- function(filePath, jpsurvDataString, first_calc = FALSE, use_defau
     "errors" = errors
   )
   exportJson <- rjson::toJSON(jsonl)
-  filename <- paste(filePath, paste("results-", jpsurvData$tokenId, "-", com, "-", jpInd, ".json", sep = ""), sep = "/")
+  filePrefix <- if (viewConditional) "results-conditional-" else "results-"
+  filename <- file.path(filePath, paste0(filePrefix, jpsurvData$tokenId, "-", com, "-", jpInd, ".json"))
   write(exportJson, filename)
   return(filename)
 }
@@ -544,7 +546,15 @@ getcoefficientsWrapper <- function(filePath, jpsurvDataString, first_calc, com) 
   }
   file <- paste(filePath, fileName, sep = "/")
   outputData <- readRDS(file)
-  coefficients <- outputData$fittedResult$FitList[[jpInd + 1]]$coefficients
+  relaxProp <- jpsurvData$calculate$form$relaxProp
+  viewConditional <- jpsurvData$additional$viewConditional
+  data <- outputData$fittedResult
+  if (relaxProp && viewConditional) {
+    data <- data$fit.cond
+  } else if (relaxProp && !viewConditional) {
+    data <- data$fit.uncond
+  }
+  coefficients <- data$FitList[[jpInd + 1]]$coefficients
   Xvector <- paste(rownames(coefficients), collapse = ", ")
   length <- length(coefficients) / 2
   Estimates <- paste(coefficients[1:length, 1], collapse = ", ")
@@ -561,7 +571,15 @@ geALLtModelWrapper <- function(filePath, jpsurvDataString, com) {
   file <- paste(filePath, fileName, sep = "/")
   outputData <- readRDS(file)
   jsonl <- list()
-  saved <- outputData$fittedResult$FitList
+  relaxProp <- jpsurvData$calculate$form$relaxProp
+  viewConditional <- jpsurvData$additional$viewConditional
+  data <- outputData$fittedResult
+  if (relaxProp && viewConditional) {
+    data <- data$fit.cond
+  } else if (relaxProp && !viewConditional) {
+    data <- data$fit.uncond
+  }
+  saved <- data$FitList
   joints <- list()
   ModelSelection <- list()
   for (i in 1:length(saved)) {
@@ -582,15 +600,22 @@ getTrendWrapper <- function(filePath, jpsurvDataString, com) {
   fileName <- paste("output-", jpsurvData$tokenId, "-", com, ".rds", sep = "")
   jpInd <- jpsurvData$additional$headerJoinPoints
   file <- paste(filePath, fileName, sep = "/")
-  outputData <- readRDS(file)
   jpInd <- as.integer(jpsurvData$additional$headerJoinPoints)
   trend_types <- c("RelChgHaz", "AbsChgSur", "RelChgSur")
   outputData <- readRDS(file)
   interval <- strtoi(jpsurvData$trendsInterval)
   file <- paste(filePath, fileName, sep = "/")
-  trend1 <- rjson::toJSON(aapc(outputData$fittedResult$FitList[[jpInd + 1]], type = "RelChgSur", interval = interval))
-  trend2 <- rjson::toJSON(aapc(outputData$fittedResult$FitList[[jpInd + 1]], type = "AbsChgSur", interval = interval))
-  trend3 <- rjson::toJSON(aapc(outputData$fittedResult$FitList[[jpInd + 1]], type = "RelChgHaz", interval = interval))
+  relaxProp <- jpsurvData$calculate$form$relaxProp
+  viewConditional <- jpsurvData$additional$viewConditional
+  data <- outputData$fittedResult
+  if (relaxProp && viewConditional) {
+    data <- data$fit.cond
+  } else if (relaxProp && !viewConditional) {
+    data <- data$fit.uncond
+  }
+  trend1 <- rjson::toJSON(aapc(data[[jpInd + 1]], type = "RelChgSur", interval = interval))
+  trend2 <- rjson::toJSON(aapc(data[[jpInd + 1]], type = "AbsChgSur", interval = interval))
+  trend3 <- rjson::toJSON(aapc(data[[jpInd + 1]], type = "RelChgHaz", interval = interval))
   jsonl <- c("CS_AAPC" = trend1, "CS_AAAC" = trend2, "HAZ_APC" = trend3)
   return(jsonl)
 }
@@ -603,7 +628,15 @@ getJPWrapper <- function(filePath, jpsurvDataString, first_calc, com) {
   if (first_calc == TRUE || is.null(jpInd)) {
     jpInd <- getSelectedModel(filePath, jpsurvDataString, com) - 1
   }
-  JP_List <- outputData$fittedResult$FitList[[jpInd + 1]]$jp
+  relaxProp <- jpsurvData$calculate$form$relaxProp
+  viewConditional <- jpsurvData$additional$viewConditional
+  data <- outputData$fittedResult
+  if (relaxProp && viewConditional) {
+    data <- data$fit.cond
+  } else if (relaxProp && !viewConditional) {
+    data <- data$fit.uncond
+  }
+  JP_List <- data$FitList[[jpInd + 1]]$jp
   JP <- paste(JP_List, collapse = " ")
   return(JP)
 }
@@ -614,9 +647,17 @@ getAllJP <- function(filePath, jpsurvDataString, com) {
   outputData <- readRDS(file)
   maxJP <- jpsurvData$calculate$form$maxjoinPoints
   allJP <- c("None")
+  relaxProp <- jpsurvData$calculate$form$relaxProp
+  viewConditional <- jpsurvData$additional$viewConditional
+  data <- outputData$fittedResult
+  if (relaxProp && viewConditional) {
+    data <- data$fit.cond
+  } else if (relaxProp && !viewConditional) {
+    data <- data$fit.uncond
+  }
   if (maxJP > 0) {
     for (i in 1:maxJP) {
-      JP_List <- outputData$fittedResult$FitList[[i + 1]]$jp
+      JP_List <- data$FitList[[i + 1]]$jp
       allJP <- append(allJP, paste(JP_List, collapse = " "))
     }
   }
@@ -627,7 +668,16 @@ getSelectedModel <- function(filePath, jpsurvDataString, com) {
   jpsurvData <- rjson::fromJSON(jpsurvDataString)
   file <- paste(filePath, paste("output-", jpsurvData$tokenId, "-", com, ".rds", sep = ""), sep = "/")
   outputData <- readRDS(file)
-  model <- length(outputData$fittedResult$jp) + 1
+  relaxProp <- jpsurvData$calculate$form$relaxProp
+  viewConditional <- jpsurvData$additional$viewConditional
+  data <- outputData$fittedResult
+  if (relaxProp && viewConditional) {
+    data <- data$fit.cond
+  } else if (relaxProp && !viewConditional) {
+    data <- data$fit.uncond
+  }
+  model <- length(data$jp) + 1
+
   return(model)
 }
 
@@ -687,7 +737,15 @@ downloadDataWrapper <- function(jpsurvDataString, filePath, com, runs, yearVar, 
   file <- paste(filePath, paste("output-", jpsurvData$tokenId, "-", com, ".rds", sep = ""), sep = "/")
   outputData <- readRDS(file)
   input <- outputData[["seerdata"]]
-  fit <- outputData[["fittedResult"]]
+  relaxProp <- jpsurvData$calculate$form$relaxProp
+  viewConditional <- jpsurvData$additional$viewConditional
+  fit <- outputData$fittedResult
+  if (relaxProp && viewConditional) {
+    fit <- fit$fit.cond
+  } else if (relaxProp && !viewConditional) {
+    fit <- fit$fit.uncond
+  }
+
   yearOfDiagnosisRange <- jpsurvData$calculate$form$yearOfDiagnosisRange
   cohortVars <- jpsurvData$calculate$form$cohortVars
   cohortValues <- c()
@@ -736,7 +794,15 @@ getGraphWrapper <- function(filePath, jpsurvDataString, first_calc, com, runs, i
   }
   data <- paste(filePath, paste("output-", jpsurvData$tokenId, "-", com, ".rds", sep = ""), sep = "/")
   outputData <- readRDS(data)
-  fit <- outputData[["fittedResult"]]
+  relaxProp <- jpsurvData$calculate$form$relaxProp
+  viewConditional <- jpsurvData$additional$viewConditional
+  fit <- outputData$fittedResult
+  if (relaxProp && viewConditional) {
+    fit <- fit$fit.cond
+  } else if (relaxProp && !viewConditional) {
+    fit <- fit$fit.uncond
+  }
+
   obsintvar <- "Relative_Survival_Interval"
   predintvar <- "Predicted_ProbDeath_Int"
   obscumvar <- "Relative_Survival_Cum"
@@ -846,7 +912,13 @@ getGraphWrapper <- function(filePath, jpsurvDataString, first_calc, com, runs, i
     years <- jpsurvData$additional$yearOfDiagnosis
     params <- jpsurvData$calculate$form
     seerdata <- outputData[["seerdata"]]
-    fit <- outputData[["fittedResult"]]$FitList[[nJP + 1]]$predicted
+    data <- outputData$fittedResult
+    if (relaxProp && viewConditional) {
+      data <- data$fit.cond
+    } else if (relaxProp && !viewConditional) {
+      data <- data$fit.uncond
+    }
+    fit <- data$FitList[[nJP + 1]]$predicted
     if (length(params$cohortVars) > 0) {
       cohortCombo <- strsplit(runs, "jpcom")[[1]][[com]]
       cohortCombo <- strsplit(cohortCombo, "+", fixed = TRUE)[[1]]

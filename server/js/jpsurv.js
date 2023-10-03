@@ -32,6 +32,7 @@ window.jpsurvData = {
     intervals: [5, 10],
     absTmp: [NaN, NaN],
     absChgRange: null,
+    viewConditional: false,
   },
   tokenId: 'unknown',
   status: 'unknown',
@@ -412,6 +413,11 @@ function addEventListeners() {
         },
       });
     $('#parameters').submit();
+  });
+
+  $('#toggleConditionalView').on('click', (e) => {
+    jpsurvData.additional.viewConditional = e.target.checked;
+    setCalculateData();
   });
 
   $('#file_data').on('change', checkInputFiles);
@@ -1954,9 +1960,12 @@ function handleSubmit(e) {
 
 function retrieveResults(cohort_com, jpInd, switch_cohort) {
   var file_name = '';
+  const prefix = jpsurvData.additional.viewConditional
+    ? 'results-conditional-'
+    : 'results-';
   if (jpInd != undefined && cohort_com != undefined && switch_cohort == false)
     file_name =
-      'jpsurvRest/results?file=results-' +
+      `jpsurvRest/results?file=${prefix}` +
       jpsurvData.tokenId +
       '-' +
       cohort_com +
@@ -1977,6 +1986,9 @@ function retrieveResults(cohort_com, jpInd, switch_cohort) {
 
 export function generateResultsFilename(cohort_com, jpInd, switch_cohort) {
   var file_name = '';
+  const prefix = jpsurvData.additional.viewConditional
+    ? 'results-conditional-'
+    : 'results-';
 
   $.ajax({
     async: false,
@@ -1991,7 +2003,7 @@ export function generateResultsFilename(cohort_com, jpInd, switch_cohort) {
     .done(function (results) {
       if (!switch_cohort) cohort_com = 1;
       file_name =
-        'jpsurvRest/results?file=results-' +
+        `jpsurvRest/results?file=${prefix}` +
         jpsurvData.tokenId +
         '-' +
         cohort_com +
@@ -2025,6 +2037,15 @@ export function loadResults(results) {
   createModelSelection();
   updateTabs();
   absChgDynamic();
+
+  $('#toggleCondControl').toggleClass(
+    'd-none',
+    !jpsurvData.calculate.form.relaxProp
+  );
+  $('#toggleConditionalView').prop(
+    'checked',
+    jpsurvData.additional.viewConditional
+  );
 
   // restore user trend if available
   var survTrend = jpsurvData.results.yearData.survTrend;
@@ -2268,10 +2289,12 @@ function setupParameters() {
       $('#relaxPropForm').removeClass('d-none');
       $('#cutPoint').prop('disabled', false);
       jpsurvData.calculate.form.relaxProp = true;
+      jpsurvData.additional.viewConditional = true;
     } else {
       $('#relaxPropForm').addClass('d-none');
       $('#cutPoint').prop('disabled', true);
       jpsurvData.calculate.form.relaxProp = false;
+      jpsurvData.additional.viewConditional = false;
     }
   });
   // disable relax proportionality for less than 2

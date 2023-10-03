@@ -630,9 +630,11 @@ def stage3_recalculate():
             # app.logger.debug(data[int(cohort_com)-1])
             jpInd = str(data[int(cohort_com) - 1])
 
+    viewConditional = jpsurvData["additional"]["viewConditional"]
+    prefix = '/results-conditional-' if viewConditional == True else '/results-'
     fname = (
         input_dir
-        + "/results-"
+        + prefix
         + jpsurvData["tokenId"]
         + "-"
         + cohort_com
