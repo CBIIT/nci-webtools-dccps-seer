@@ -286,9 +286,10 @@ function loadConditionalResults(model) {
       const years = yearDataEnd.map((e) => e[yodColName]);
       const predicted = yearDataEnd.map((e) => e.pred_cum);
       const predicted_se = yearDataEnd.map((e) => e.pred_cum_se);
-      const intervals = yearDataEnd.map(
+      const range = yearDataEnd.map(
         (e) => `${e['Start.interval']} - ${e.Interval}`
       );
+      const intervals = yearDataEnd.map((e) => e.Interval);
 
       const observed = Object.values(
         yearData.reduce((obj, e, i) => {
@@ -365,6 +366,7 @@ function loadConditionalResults(model) {
 
       return {
         years,
+        range,
         intervals,
         predicted,
         predicted_se,
@@ -409,7 +411,8 @@ function loadConditionalResults(model) {
     const yearHeaders = [
       ...jpsurvData.calculate.form.cohortVars,
       'Year of Diagnosis',
-      'Interval',
+      'Range',
+      'Conditional Interval',
       `Conditional ${obsIntSur}`,
       `Conditional ${obsIntSurSe}`,
       'Predicted Conditional Cumulative Survival (%)',
@@ -446,6 +449,7 @@ function loadConditionalResults(model) {
         const years = [year, ...timeDataEnd.map((e) => e[yodColName])];
         const predicted = [100, ...timeDataEnd.map((e) => e.pred_cum)];
         const allIntervals = timeDataEnd.map((e) => e.Interval);
+        const range = Array(predicted.length).fill(`${start} - ${end}`);
         const intervals = [Math.min(...allIntervals) - 1, ...allIntervals];
         const observed = timeDataEnd
           .reduce(
@@ -482,6 +486,7 @@ function loadConditionalResults(model) {
           start,
           end,
           years,
+          range,
           intervals,
           predicted,
           observed,
@@ -556,6 +561,7 @@ function loadConditionalResults(model) {
     const timeHeader = [
       ...jpsurvData.calculate.form.cohortVars,
       'Year of Diagnosis',
+      'Range',
       'Conditional Interval',
       obsHeader,
       'Predicted Conditional Cumulative Relative Survival (%)',
@@ -598,8 +604,15 @@ function addTable(table, type, data = [], headers = []) {
 
   const tableBody = $('<tbody>');
   data.forEach((dataPerInterval) => {
-    const { years, intervals, observed, observed_se, predicted, predicted_se } =
-      dataPerInterval;
+    const {
+      years,
+      range,
+      intervals,
+      observed,
+      observed_se,
+      predicted,
+      predicted_se,
+    } = dataPerInterval;
     years.forEach(function (year, index) {
       const row = $('<tr>');
       const cohort_array = jpsurvData.results.Runs.split('jpcom');
@@ -620,6 +633,7 @@ function addTable(table, type, data = [], headers = []) {
       // add year of diagnosis
       $('<td>').text(year).appendTo(row);
       // add interval
+      $('<td>').text(range[index]).appendTo(row);
       $('<td>').text(intervals[index]).appendTo(row);
 
       // add predicted data and error
