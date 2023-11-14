@@ -16,6 +16,8 @@ services:
     queue_processor:
         build:
             context: '.'
+            args:
+                - RENV_CACHE_HOST=./server/renv/cache
             dockerfile: './docker/queueProcessor.dockerfile'
         volumes:
             - './config:/app/config:ro'
