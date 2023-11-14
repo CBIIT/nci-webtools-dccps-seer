@@ -6,7 +6,8 @@ RUN dnf -y update \
    make \
    nodejs \
    npm \
-   R \
+   R-4.1.3 \
+   rsync \
    && dnf clean all
 
 RUN mkdir -p /app/server /app/logs /app/wsgi

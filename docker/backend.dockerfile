@@ -13,6 +13,7 @@ RUN dnf -y update \
     python3-setuptools \
     python3-wheel \
     R-4.1.3 \
+    rsync \
     && dnf clean all
 
 RUN mkdir -p /app/server /app/logs /app/wsgi
