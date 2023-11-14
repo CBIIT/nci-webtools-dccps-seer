@@ -1,8 +1,9 @@
 import ini from 'ini';
 import fs from 'fs';
+import { unlink, rmdir } from 'fs/promises';
 import rWrapper from 'r-wrapper';
 import { SQSClient } from '@aws-sdk/client-sqs';
-import { getFile, putFile } from './services/aws.js';
+import { deleteFile, getFile, putFile } from './services/aws.js';
 import { processMessages } from './services/queue.js';
 import { getLogger } from './services/logger.js';
 import path from 'path';
@@ -48,6 +49,7 @@ export async function startQueueWorker() {
 
         // extract archive
         const dataPath = extractArchive(archivePath, config.folders.output_dir);
+        await unlink(archivePath);
 
         // main calculation
         const resultsFile = await calculate(state, dataPath);
@@ -112,6 +114,9 @@ export async function startQueueWorker() {
             templateData
           ),
         });
+      } finally {
+        // delete input data from s3
+        await deleteFile(inputKey, config);
       }
     },
     errorHandler: logger.error,
