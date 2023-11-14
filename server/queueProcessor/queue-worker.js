@@ -1,6 +1,6 @@
 import ini from 'ini';
 import fs from 'fs';
-import { unlink, rmdir } from 'fs/promises';
+import { rm } from 'fs/promises';
 import rWrapper from 'r-wrapper';
 import { SQSClient } from '@aws-sdk/client-sqs';
 import { deleteFile, getFile, putFile } from './services/aws.js';
@@ -49,7 +49,7 @@ export async function startQueueWorker() {
 
         // extract archive
         const dataPath = extractArchive(archivePath, config.folders.output_dir);
-        await unlink(archivePath);
+        await rm(archivePath);
 
         // main calculation
         const resultsFile = await calculate(state, dataPath);
@@ -66,7 +66,7 @@ export async function startQueueWorker() {
 
         // archive results
         const archiveFile = await putData(id + '.zip', dataPath);
-
+        await rm(dataPath, { recursive: true });
         // specify email template variables
         const templateData = {
           timestamp: timestamp,
