@@ -31,8 +31,8 @@ COPY r-packages /app/r-packages
 # copy renv cache if available
 ENV RENV_PATHS_CACHE=/app/server/renv/cache
 RUN mkdir ${RENV_PATHS_CACHE}
-ARG RENV_CACHE_HOST=/renvCach[e]
-COPY ${RENV_CACHE_HOST} ${RENV_PATHS_CACHE}
+ARG R_RENV_CACHE_HOST=/renvCach[e]
+COPY ${R_RENV_CACHE_HOST} ${RENV_PATHS_CACHE}
 WORKDIR /app/server
 RUN R -e "options(Ncpus=parallel::detectCores()); renv::restore()"
 

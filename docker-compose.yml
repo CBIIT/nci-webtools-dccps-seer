@@ -4,7 +4,7 @@ services:
         build:
             context: '.'
             args:
-                - RENV_CACHE_HOST=./server/renv/cache
+                - R_RENV_CACHE_HOST=./server/renv/cache
             dockerfile: './docker/backend.dockerfile'
         volumes:
             - './config:/app/config:ro'
@@ -17,7 +17,7 @@ services:
         build:
             context: '.'
             args:
-                - RENV_CACHE_HOST=./server/renv/cache
+                - R_RENV_CACHE_HOST=./server/renv/cache
             dockerfile: './docker/queueProcessor.dockerfile'
         volumes:
             - './config:/app/config:ro'
