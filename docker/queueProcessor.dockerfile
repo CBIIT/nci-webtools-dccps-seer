@@ -31,11 +31,10 @@ RUN R -e "options(Ncpus=parallel::detectCores()); renv::restore()"
 # COPY r-packages /app/r-packages
 # RUN R -e "install.packages('/tmp/jpsurv.tar.gz', repos = NULL)"
 
-# copy server
-COPY server /app/server/
-RUN rm /app/server/.Rprofile
-# COPY server /app/server/jpsurv
-# COPY docker/additional-configuration.conf /app/wsgi/additional-configuration.conf
+# copy queue processor
+COPY server/queueProcessor /app/server/queueProcessor
+COPY server/templates /app/server/templates
+COPY server/JPSurvWrapper.R /app/server/
 
 WORKDIR /app/server/queueProcessor
 
