@@ -15,7 +15,7 @@
   "Packages": {
     "JPSurv": {
       "Package": "JPSurv",
-      "Version": "3.0.14",
+      "Version": "3.0.15",
       "Source": "Local",
       "RemoteType": "local",
       "RemoteUrl": "../r-packages/JPSurv_R_package.tar.gz",
@@ -25,7 +25,7 @@
         "ggrepel",
         "scales"
       ],
-      "Hash": "4892e9015c3dee6315222a3ed010e2dc"
+      "Hash": "9456b35f31dd8a38e69b092df1ef5b4f"
     },
     "MASS": {
       "Package": "MASS",
