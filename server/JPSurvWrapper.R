@@ -257,11 +257,7 @@ validateCohort <- function(jpsurvData, filePath, seerFilePrefix, allVars, yearOf
   valid <- input.valid(seerdata, subsetStr)
   sink()
   close(con)
-  if (valid == 1) {
-    return(1)
-  } else {
-    return(stdout)
-  }
+  return(valid)
 }
 
 getFittedResultForVarCombo <- function(modelIndex, jpsurvData, filePath, seerFilePrefix, yearOfDiagnosisVarName,
