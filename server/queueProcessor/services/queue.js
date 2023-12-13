@@ -3,7 +3,7 @@ import {
   DeleteMessageCommand,
   GetQueueUrlCommand,
   ReceiveMessageCommand,
-} from "@aws-sdk/client-sqs";
+} from '@aws-sdk/client-sqs';
 
 export async function processMessages({
   sqs,
@@ -27,14 +27,11 @@ export async function processMessages({
   };
 
   try {
-    await processMessage(args)
+    await processMessage(args);
   } catch (exception) {
     errorHandler(exception);
   } finally {
-    setTimeout(
-      () => processMessages(args), 
-      pollInterval * 1000
-    );
+    setTimeout(() => processMessages(args), pollInterval * 1000);
   }
 }
 
@@ -51,7 +48,7 @@ export async function processMessage({
     const { QueueUrl: queueUrl } = await sqs.send(
       new GetQueueUrlCommand({
         QueueName: queueName,
-      }),
+      })
     );
 
     // to simplify running multiple workers in parallel,
@@ -62,7 +59,7 @@ export async function processMessage({
         MaxNumberOfMessages: 1,
         VisibilityTimeout: visibilityTimeout,
         WaitTimeSeconds: waitTime,
-      }),
+      })
     );
 
     if (data.Messages && data.Messages.length > 0) {
@@ -76,9 +73,9 @@ export async function processMessage({
             QueueUrl: queueUrl,
             ReceiptHandle: message.ReceiptHandle,
             VisibilityTimeout: visibilityTimeout,
-          }),
+          })
         );
-      }, 1000 * (visibilityTimeout / 2));
+      }, 1000 * (visibilityTimeout / 3));
 
       try {
         await messageHandler(messageBody);
@@ -91,7 +88,7 @@ export async function processMessage({
           new DeleteMessageCommand({
             QueueUrl: queueUrl,
             ReceiptHandle: message.ReceiptHandle,
-          }),
+          })
         );
       }
     }
