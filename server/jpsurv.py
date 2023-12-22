@@ -807,12 +807,13 @@ def downloadS3():
 def sendResultsFile():
     file = request.args.get("file")
     tokenId = request.args.get("tokenId")
-    filePath = safe_join(app.config["folders"]["input_dir"], tokenId, file)
-    app.logger.debug(filePath)
-    # fileName = filePath.split('/')[-1]
+    filePathInput = safe_join(app.config["folders"]["input_dir"], tokenId, file)
+    filePathOutput = safe_join(app.config["folders"]["output_dir"], tokenId, file)
 
-    if path.exists(filePath):
-        return send_file(filePath)
+    if path.exists(filePathInput):
+        return send_file(filePathInput)
+    elif path.exists(filePathOutput):
+        return send_file(filePathOutput)
     else:
         return ("", 404)
 
