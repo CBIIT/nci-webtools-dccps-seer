@@ -20,7 +20,7 @@ const logger = getLogger('queueProcessor.log', {
 });
 
 (async function main() {
-  startQueueWorker();
+  await startQueueWorker();
 })();
 
 export async function startQueueWorker() {
@@ -31,7 +31,7 @@ export async function startQueueWorker() {
     port: 25,
   });
 
-  processMessages({
+  await processMessages({
     sqs,
     queueName: config.sqs.queue_name,
     visibilityTimeout: config.sqs.visibility_timeout || 300,
