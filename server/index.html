@@ -478,56 +478,6 @@
                           </span>
                         </span>
                       </div>
-                      <div class="jpsurv-label-container">
-                        <div class="form-group form-check">
-                          <input
-                            type="checkbox"
-                            class="form-check-input"
-                            name="toggleConditionalJp"
-                            id="toggleConditionalJp"
-                          />
-                          <label
-                            class="form-check-label jpsurv-label"
-                            for="toggleConditionalJp"
-                            >Conditional Survival Model Using Truncated
-                            Data</label
-                          >
-                        </div>
-                        <div id="conditionalForm" class="form d-none">
-                          <div class="row">
-                            <div class="form-group mb-0 col-sm-auto">
-                              <label class="font-weight-bold" for="condIntStart"
-                                >Start Interval:</label
-                              >
-                              <select
-                                id="condIntStart"
-                                name="condIntStart"
-                                class="mx-3"
-                                aria-label="interval start"
-                              ></select>
-                            </div>
-                            <div class="form-group mb-0 col-sm-auto">
-                              <label class="font-weight-bold" for="condIntEnd"
-                                >End Interval:</label
-                              >
-                              <select
-                                id="condIntEnd"
-                                name="condIntEnd"
-                                class="mx-3"
-                                aria-label="end"
-                              ></select>
-                            </div>
-                          </div>
-                          <div class="row">
-                            <label
-                              id="condIntStart-error"
-                              for="condIntStart"
-                              class="text-danger error col-sm-auto"
-                            >
-                            </label>
-                          </div>
-                        </div>
-                      </div>
                       <div class="jpsurv-label-container d-flex">
                         <div class="jpsurv-label" style="width: 250px">
                           Max No. of Years from Diagnosis (follow-up) to
@@ -589,6 +539,58 @@
                         ></i>
                       </div>
                       <div>
+                        <div class="jpsurv-label-container">
+                          <div class="form-group form-check">
+                            <input
+                              type="checkbox"
+                              class="form-check-input"
+                              name="toggleConditionalJp"
+                              id="toggleConditionalJp"
+                            />
+                            <label
+                              class="form-check-label jpsurv-label"
+                              for="toggleConditionalJp"
+                              >Conditional Survival Model Using Truncated
+                              Data</label
+                            >
+                          </div>
+                          <div id="conditionalForm" class="form d-none">
+                            <div class="row">
+                              <div class="form-group mb-0 col-sm-auto">
+                                <label
+                                  class="font-weight-bold"
+                                  for="condIntStart"
+                                  >Start Interval:</label
+                                >
+                                <select
+                                  id="condIntStart"
+                                  name="condIntStart"
+                                  class="mx-3"
+                                  aria-label="interval start"
+                                ></select>
+                              </div>
+                              <div class="form-group mb-0 col-sm-auto">
+                                <label class="font-weight-bold" for="condIntEnd"
+                                  >End Interval:</label
+                                >
+                                <select
+                                  id="condIntEnd"
+                                  name="condIntEnd"
+                                  class="mx-3"
+                                  aria-label="end"
+                                ></select>
+                              </div>
+                            </div>
+                            <div class="row">
+                              <label
+                                id="condIntStart-error"
+                                for="condIntStart"
+                                class="text-danger error col-sm-auto"
+                              >
+                              </label>
+                            </div>
+                          </div>
+                        </div>
                         <div class="form-group form-check">
                           <input
                             type="checkbox"
@@ -599,11 +601,11 @@
                           <label class="jpsurv-label" for="toggleRelaxProp"
                             >Relax Proportionality</label
                           >
+                          <p class="text-muted">
+                            Relaxing the proportionality assumption will require
+                            additional compute time
+                          </p>
                         </div>
-                        <p class="text-muted">
-                          Relaxing the proportionality assumption will require
-                          additional compute time
-                        </p>
                         <div id="relaxPropForm" class="form-group d-none">
                           <label class="font-weight-bold" for="cutPoint"
                             >Cut Point:</label
@@ -933,7 +935,10 @@
                   </thead>
                   <tbody></tbody>
                 </table>
-                <div id="toggleCondControl" class="custom-control custom-switch d-none">
+                <div
+                  id="toggleCondControl"
+                  class="custom-control custom-switch d-none"
+                >
                   <input
                     type="checkbox"
                     class="custom-control-input"

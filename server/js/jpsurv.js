@@ -2279,9 +2279,14 @@ function setupParameters() {
     if (e.target.checked) {
       $('#conditionalForm').attr('class', 'form');
       jpsurvData.calculate.form.conditional = true;
+      // disable relax proportionality
+      $('#toggleRelaxProp').prop('disabled', true);
+      $('#toggleRelaxProp').prop('checked', false).change();
     } else {
       $('#conditionalForm').attr('class', 'form d-none');
       jpsurvData.calculate.form.conditional = false;
+      // enable relax proportionality
+      $('#toggleRelaxProp').prop('disabled', false);
     }
   });
   $('#toggleRelaxProp').on('change', (e) => {
@@ -2290,11 +2295,16 @@ function setupParameters() {
       $('#cutPoint').prop('disabled', false);
       jpsurvData.calculate.form.relaxProp = true;
       jpsurvData.additional.viewConditional = true;
+      // disable conditional survival
+      $('#toggleConditionalJp').prop('disabled', true);
+      $('#toggleConditionalJp').prop('checked', false).change();
     } else {
       $('#relaxPropForm').addClass('d-none');
       $('#cutPoint').prop('disabled', true);
       jpsurvData.calculate.form.relaxProp = false;
       jpsurvData.additional.viewConditional = false;
+      // enable conditional survival
+      $('#toggleConditionalJp').prop('disabled', false);
     }
   });
   // disable relax proportionality for less than 2
