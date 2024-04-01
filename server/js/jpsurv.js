@@ -363,9 +363,7 @@ function addEventListeners() {
       link.onclick = function (event) {
         event.preventDefault();
         jpsurvData.additional.recalculate = 'true';
-        jpsurvData.additional.use_default = 'false';
         setCalculateData();
-        jpsurvData.additional.use_default = 'true';
       };
     }
   );
@@ -768,7 +766,6 @@ function dropdownListener() {
     jpsurvData.plot.static.imageId = 0;
 
     jpsurvData.switch = true;
-    jpsurvData.additional.use_default = 'true';
 
     resetShowTrend();
     calculate(true);
@@ -1604,7 +1601,6 @@ function calculateAllDataCallback() {
   var jpInd = jpsurvData.additional.headerJoinPoints;
   retrieveResults(cohort_com, jpInd, jpsurvData.switch);
   jpsurvData.switch = false;
-  jpsurvData.additional.use_default = 'true';
 }
 
 function calculateFittedResults() {
@@ -1619,7 +1615,6 @@ function calculateFittedResultsCallback() {
   Slide_menu_Horz('hide');
 
   retrieveResults();
-  jpsurvData.additional.use_default = 'true';
 
   //Set precision if cookie is available
   var precision = getCookie('precision');
@@ -1832,7 +1827,6 @@ function calculate(run) {
       setIntervalsDefault();
       getIntervals();
       setUrlParameter('request', 'true');
-      jpsurvData.additional.use_default = 'true';
       jpsurvData.queue.url = encodeURIComponent(
         window.location.href.toString()
       );
@@ -1863,7 +1857,6 @@ function calculate(run) {
       jpsurvData.additional.yearOfDiagnosis_default = [
         parseInt($('#year_of_diagnosis_start').val()),
       ];
-      jpsurvData.additional.use_default = 'true';
       jpsurvData.additional.del = control_data.del;
       //   jpsurvData.additional.rates=control.rates
       var maxJP = jpsurvData.calculate.form.maxjoinPoints;
@@ -1981,7 +1974,6 @@ function retrieveResults(cohort_com, jpInd, switch_cohort) {
   });
 
   jpsurvData.switch = false;
-  jpsurvData.additional.use_default = 'true';
 }
 
 export function generateResultsFilename(cohort_com, jpInd, switch_cohort) {

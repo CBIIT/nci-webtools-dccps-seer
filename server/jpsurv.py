@@ -613,12 +613,7 @@ def stage3_recalculate():
     app.logger.debug("SWITCH?")
     app.logger.debug(switch)
 
-    use_default = False
-    if str(jpsurvData["additional"]["use_default"]) == "true":
-        use_default = True
-
-    app.logger.debug("USE_DEFAULT")
-    app.logger.debug(use_default)
+    
 
     if switch == True:
         with open(
@@ -654,7 +649,6 @@ def stage3_recalculate():
                 input_dir,
                 jpsurvDataString,
                 switch,
-                use_default,
                 input_dir + "/cohortCombo-" + jpsurvData["tokenId"] + ".json",
             )
             status = 200
@@ -921,13 +915,6 @@ def recalculateBatch():
         app.logger.debug("SWITCH?")
         app.logger.debug(switch)
 
-        use_default = False
-        if str(jpsurvData["additional"]["use_default"]) == "true":
-            use_default = True
-
-        app.logger.debug("USE_DEFAULT")
-        app.logger.debug(use_default)
-
         if switch == True:
             with open(
                 input_dir + "/cohort_models-" + jpsurvData["tokenId"] + ".json"
@@ -961,7 +948,6 @@ def recalculateBatch():
                     input_dir,
                     jpsurvDataString,
                     switch,
-                    use_default,
                     input_dir + "/cohortCombo-" + jpsurvData["tokenId"] + ".json",
                 )
                 with open(fname, "r") as jsonFile:
