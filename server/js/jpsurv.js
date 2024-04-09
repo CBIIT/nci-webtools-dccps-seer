@@ -63,6 +63,10 @@ $(document).ready(function () {
   ) {
     $('#calculate').prop('disabled', true);
   }
+  // disable calculate button if loading queue result
+  if (getUrlParameter('request') == 'true') {
+    $('#calculate').prop('disabled', true);
+  }
   if (jpsurvData.status === 'uploaded') {
     $('#description').html(
       '<div style="font-size:1.25rem;">Please select Cohort and Model specifications on the left and click on Calculate / Submit.</div>'
@@ -124,14 +128,6 @@ function checkInput(id) {
   }
 }
 
-function checkEmail(email) {
-  var re =
-    /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  var result = re.test(email);
-
-  return result;
-}
-
 function validateEmail() {
   var id = 'e-mail';
   var errorMsg = 'Please enter a valid email address before submitting.';
@@ -141,7 +137,11 @@ function validateEmail() {
     $('#calculate').prop('disabled', true);
   } else {
     $('#' + id).removeAttr('title');
-    $('#calculate').prop('disabled', false);
+    if (getUrlParameter('request') == 'true') {
+      $('#calculate').prop('disabled', true);
+    } else {
+      $('#calculate').prop('disabled', false);
+    }
   }
 
   //var pattern = new RegExp('^' + $(this).attr('pattern') + '$');
@@ -201,7 +201,11 @@ function hide_display_email() {
     validateEmail();
   } else {
     $('.e-mail-grp').fadeOut();
-    $('#calculate').prop('disabled', false);
+    if (getUrlParameter('request') == 'true') {
+      $('#calculate').prop('disabled', true);
+    } else {
+      $('#calculate').prop('disabled', false);
+    }
   }
 }
 
