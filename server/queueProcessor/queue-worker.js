@@ -158,7 +158,6 @@ async function calculateModels(state, dataPath) {
           dataPath,
           JSON.stringify(params),
           false,
-          true,
           path.join(dataPath, `cohortCombo-${state.tokenId}.json`),
         ]);
 
