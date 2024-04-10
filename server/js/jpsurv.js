@@ -412,6 +412,9 @@ function addEventListeners() {
           jpsurvData.stage2completed = false;
           checkUnselectedCohorts();
           setCalculateData();
+          if (useQueue()) {
+            $('#calculate').prop('disabled', true);
+          }
         },
       });
     $('#parameters').submit();
