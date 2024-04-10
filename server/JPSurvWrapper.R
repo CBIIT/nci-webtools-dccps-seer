@@ -230,7 +230,7 @@ getFittedResultWrapper <- function(filePath, jpsurvDataString) {
   write(cohortModels, cohortModelsPath)
   write(cohortCombo, cohortComboPath)
   # Calculates graphs, model estimates etc for first combination by setting first_calc=TRUE
-  getAllData(filePath, jpsurvDataString, TRUE, TRUE, cohortComboPath, errors)
+  getAllData(filePath, jpsurvDataString, TRUE, cohortComboPath, errors)
 }
 
 validateCohort <- function(jpsurvData, filePath, seerFilePrefix, allVars, yearOfDiagnosisVarName, yearOfDiagnosisRange, cohortVars, cohortValues, type, del) {
@@ -277,7 +277,7 @@ getFittedResultForVarCombo <- function(modelIndex, jpsurvData, filePath, seerFil
   return(jpInd)
 }
 
-getAllData <- function(filePath, jpsurvDataString, first_calc = FALSE, use_default = TRUE, valid_com_matrix, errors = NULL) {
+getAllData <- function(filePath, jpsurvDataString, first_calc = FALSE, valid_com_matrix, errors = NULL) {
   jpsurvData <- rjson::fromJSON(jpsurvDataString)
   imageId <- jpsurvData$plot$static$imageId
   com <- as.integer(jpsurvData$run)
@@ -331,12 +331,10 @@ getAllData <- function(filePath, jpsurvDataString, first_calc = FALSE, use_defau
   if (first_calc == TRUE || is.null(jpInd)) {
     jpInd <- SelectedModel - 1
   }
-  yod <- jpsurvData$additional$yearOfDiagnosis
-  intervals <- jpsurvData$additional$intervals
-  if (use_default == TRUE) {
-    yod <- jpsurvData$additional$yearOfDiagnosis_default
-    intervals <- jpsurvData$additional$intervals_default
-  }
+
+  yod <- jpsurvData$additional$yearOfDiagnosis_default
+  intervals <- jpsurvData$additional$intervals_default
+
 
   # get year column var name
   yearVar <- getCorrectFormat(jpsurvData$calculate$static$yearOfDiagnosisVarName)

@@ -63,6 +63,10 @@ $(document).ready(function () {
   ) {
     $('#calculate').prop('disabled', true);
   }
+  // disable calculate button if loading queue result
+  if (getUrlParameter('request') == 'true') {
+    $('#calculate').prop('disabled', true);
+  }
   if (jpsurvData.status === 'uploaded') {
     $('#description').html(
       '<div style="font-size:1.25rem;">Please select Cohort and Model specifications on the left and click on Calculate / Submit.</div>'
@@ -124,14 +128,6 @@ function checkInput(id) {
   }
 }
 
-function checkEmail(email) {
-  var re =
-    /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  var result = re.test(email);
-
-  return result;
-}
-
 function validateEmail() {
   var id = 'e-mail';
   var errorMsg = 'Please enter a valid email address before submitting.';
@@ -141,7 +137,11 @@ function validateEmail() {
     $('#calculate').prop('disabled', true);
   } else {
     $('#' + id).removeAttr('title');
-    $('#calculate').prop('disabled', false);
+    if (getUrlParameter('request') == 'true') {
+      $('#calculate').prop('disabled', true);
+    } else {
+      $('#calculate').prop('disabled', false);
+    }
   }
 
   //var pattern = new RegExp('^' + $(this).attr('pattern') + '$');
@@ -201,7 +201,11 @@ function hide_display_email() {
     validateEmail();
   } else {
     $('.e-mail-grp').fadeOut();
-    $('#calculate').prop('disabled', false);
+    if (getUrlParameter('request') == 'true') {
+      $('#calculate').prop('disabled', true);
+    } else {
+      $('#calculate').prop('disabled', false);
+    }
   }
 }
 
@@ -363,9 +367,7 @@ function addEventListeners() {
       link.onclick = function (event) {
         event.preventDefault();
         jpsurvData.additional.recalculate = 'true';
-        jpsurvData.additional.use_default = 'false';
         setCalculateData();
-        jpsurvData.additional.use_default = 'true';
       };
     }
   );
@@ -410,6 +412,9 @@ function addEventListeners() {
           jpsurvData.stage2completed = false;
           checkUnselectedCohorts();
           setCalculateData();
+          if (useQueue()) {
+            $('#calculate').prop('disabled', true);
+          }
         },
       });
     $('#parameters').submit();
@@ -768,7 +773,6 @@ function dropdownListener() {
     jpsurvData.plot.static.imageId = 0;
 
     jpsurvData.switch = true;
-    jpsurvData.additional.use_default = 'true';
 
     resetShowTrend();
     calculate(true);
@@ -1604,7 +1608,6 @@ function calculateAllDataCallback() {
   var jpInd = jpsurvData.additional.headerJoinPoints;
   retrieveResults(cohort_com, jpInd, jpsurvData.switch);
   jpsurvData.switch = false;
-  jpsurvData.additional.use_default = 'true';
 }
 
 function calculateFittedResults() {
@@ -1619,7 +1622,6 @@ function calculateFittedResultsCallback() {
   Slide_menu_Horz('hide');
 
   retrieveResults();
-  jpsurvData.additional.use_default = 'true';
 
   //Set precision if cookie is available
   var precision = getCookie('precision');
@@ -1832,7 +1834,6 @@ function calculate(run) {
       setIntervalsDefault();
       getIntervals();
       setUrlParameter('request', 'true');
-      jpsurvData.additional.use_default = 'true';
       jpsurvData.queue.url = encodeURIComponent(
         window.location.href.toString()
       );
@@ -1863,7 +1864,6 @@ function calculate(run) {
       jpsurvData.additional.yearOfDiagnosis_default = [
         parseInt($('#year_of_diagnosis_start').val()),
       ];
-      jpsurvData.additional.use_default = 'true';
       jpsurvData.additional.del = control_data.del;
       //   jpsurvData.additional.rates=control.rates
       var maxJP = jpsurvData.calculate.form.maxjoinPoints;
@@ -1981,7 +1981,6 @@ function retrieveResults(cohort_com, jpInd, switch_cohort) {
   });
 
   jpsurvData.switch = false;
-  jpsurvData.additional.use_default = 'true';
 }
 
 export function generateResultsFilename(cohort_com, jpInd, switch_cohort) {
@@ -2279,9 +2278,14 @@ function setupParameters() {
     if (e.target.checked) {
       $('#conditionalForm').attr('class', 'form');
       jpsurvData.calculate.form.conditional = true;
+      // disable relax proportionality
+      $('#toggleRelaxProp').prop('disabled', true);
+      $('#toggleRelaxProp').prop('checked', false).change();
     } else {
       $('#conditionalForm').attr('class', 'form d-none');
       jpsurvData.calculate.form.conditional = false;
+      // enable relax proportionality
+      $('#toggleRelaxProp').prop('disabled', false);
     }
   });
   $('#toggleRelaxProp').on('change', (e) => {
@@ -2290,11 +2294,16 @@ function setupParameters() {
       $('#cutPoint').prop('disabled', false);
       jpsurvData.calculate.form.relaxProp = true;
       jpsurvData.additional.viewConditional = true;
+      // disable conditional survival
+      $('#toggleConditionalJp').prop('disabled', true);
+      $('#toggleConditionalJp').prop('checked', false).change();
     } else {
       $('#relaxPropForm').addClass('d-none');
       $('#cutPoint').prop('disabled', true);
       jpsurvData.calculate.form.relaxProp = false;
       jpsurvData.additional.viewConditional = false;
+      // enable conditional survival
+      $('#toggleConditionalJp').prop('disabled', false);
     }
   });
   // disable relax proportionality for less than 2

@@ -247,8 +247,6 @@ function retrieveCohortComboResults(data) {
 
   jpsurvData.switch = false;
 
-  jpsurvData.additional.use_default = 'true';
-
   //Set precision if cookie is available
   var precision = getCookie('precision');
   if (parseInt(precision) > 0) {
