@@ -1,31 +1,15 @@
-import {
-  updateTabs,
-  showMessage,
-  formatCell,
-  changePrecision,
-} from './jpsurv.js';
-import {
-  makeLineTrace,
-  makeDashTrace,
-  makeMarkerTrace,
-  drawPlot,
-  makeLayout,
-  makeLegendTrace,
-} from './plots.js';
+import { updateTabs, showMessage, formatCell, changePrecision } from './jpsurv.js';
+import { makeLineTrace, makeDashTrace, makeMarkerTrace, drawPlot, makeLayout, makeLegendTrace } from './plots.js';
 
 // define controls and actions
 const formContainer = $('#conditionalIntervalContainer');
 const addForm = $('#addConditionalInterval').click(addCondIntForm);
-const conditionalRecalculateButton = $('#recalculateConditional').click(
-  recalculateConditional
-);
+const conditionalRecalculateButton = $('#recalculateConditional').click(recalculateConditional);
 
 // toggle and update select forms options
 $('#useConditionalJp').change((e) => {
   const checked = e.currentTarget.checked;
-  const allFormSelects = $(
-    '.conditionalIntervalStart, .conditionalIntervalEnd'
-  );
+  const allFormSelects = $('.conditionalIntervalStart, .conditionalIntervalEnd');
   $('#recalculateConditional').prop('disabled', !checked);
   allFormSelects.each((i, e) => $(e).prop('disabled', !checked));
 
@@ -65,10 +49,7 @@ $('#useConditionalJp').change((e) => {
   if (checked) {
     populateCondIntOptions();
     const [model] = getCurrentModel();
-    if (
-      jpsurvData?.recalculateConditional &&
-      jpsurvData.recalculateConditional[model]
-    ) {
+    if (jpsurvData?.recalculateConditional && jpsurvData.recalculateConditional[model]) {
       loadConditionalResults(model);
     }
   } else {
@@ -87,15 +68,11 @@ export function getIntervalOptions() {
 
 export function populateCondIntOptions() {
   const intervals = getIntervalOptions();
-  const allFormSelects = $(
-    '.conditionalIntervalStart, .conditionalIntervalEnd'
-  );
+  const allFormSelects = $('.conditionalIntervalStart, .conditionalIntervalEnd');
   // add options
   allFormSelects.each((_, e) => {
     if ($(e).find('option').length == 0) {
-      intervals.forEach((i) =>
-        $(e).append(`<option value="${i}">${i}</option>`)
-      );
+      intervals.forEach((i) => $(e).append(`<option value="${i}">${i}</option>`));
     }
   });
 }
@@ -233,8 +210,7 @@ function recalculateConditional() {
             // parse and save results
             const data = await res.json();
             const [model] = getCurrentModel();
-            if (!jpsurvData.recalculateConditional)
-              jpsurvData.recalculateConditional = {};
+            if (!jpsurvData.recalculateConditional) jpsurvData.recalculateConditional = {};
             jpsurvData.recalculateConditional[model] = data;
 
             loadConditionalResults(model);
@@ -269,8 +245,7 @@ function getCurrentModel(results = jpsurvData.results) {
  */
 function loadConditionalResults(model) {
   const conditional = jpsurvData.recalculateConditional[model].data;
-  const { startIntervals, endIntervals } =
-    jpsurvData.recalculateConditional[model].params;
+  const { startIntervals, endIntervals } = jpsurvData.recalculateConditional[model].params;
   const yodColName = jpsurvData.calculate.static.yearOfDiagnosisVarName
     .replace(/\(|\)|-/g, '')
     .replace(/__/g, '_')
@@ -279,24 +254,18 @@ function loadConditionalResults(model) {
 
   function loadSurvivalData() {
     const dataPerInterval = intervalRanges.map(([start, end], index) => {
-      const yearData = conditional.filter(
-        (e) => e['Start.interval'] == start && e.Interval <= end
-      );
+      const yearData = conditional.filter((e) => e['Start.interval'] == start && e.Interval <= end);
       const yearDataEnd = yearData.filter((e) => e.Interval == end);
       const years = yearDataEnd.map((e) => e[yodColName]);
       const predicted = yearDataEnd.map((e) => e.pred_cum);
       const predicted_se = yearDataEnd.map((e) => e.pred_cum_se);
-      const range = yearDataEnd.map(
-        (e) => `${e['Start.interval']} - ${e.Interval}`
-      );
+      const range = yearDataEnd.map((e) => `${e['Start.interval']} - ${e.Interval}`);
       const intervals = yearDataEnd.map((e) => e.Interval);
 
       const observed = Object.values(
         yearData.reduce((obj, e, i) => {
           const year = e[yodColName];
-          const obs =
-            (e?.Relative_Survival_Interval ||
-              e?.CauseSpecific_Survival_Interval) / 100;
+          const obs = (e?.Relative_Survival_Interval || e?.CauseSpecific_Survival_Interval) / 100;
           const prev = obj[year] || 1;
 
           return { ...obj, [year]: prev * obs };
@@ -383,31 +352,19 @@ function loadConditionalResults(model) {
     const jpInd = jpsurvData.results.jpInd;
     const jpLocation = jpsurvData.results.jpLocation;
     const jp = jpInd ? ` (${jpLocation[jpInd].replace(/\s/g, ', ')})` : '';
-    const modelInfo = [
-      cohort ? cohort + ' - ' : '',
-      `Joinpoint ${jpInd}`,
-      jp,
-    ].join('');
+    const modelInfo = [cohort ? cohort + ' - ' : '', `Joinpoint ${jpInd}`, jp].join('');
 
     const years = [...new Set(dataPerInterval.map((e) => e.years).flat())];
     const xTitle = 'Year at Diagnosis';
     const yTitle = 'Conditional Relative Survival';
-    const layout = makeLayout(
-      divId,
-      [Math.min(...years), Math.max(...years)],
-      xTitle,
-      yTitle,
-      statistic,
-      modelInfo
-    );
+    const layout = makeLayout(divId, [Math.min(...years), Math.max(...years)], xTitle, yTitle, statistic, modelInfo);
     const traces = dataPerInterval.map((e) => e.traces).flat();
 
     drawPlot(divId, traces, layout);
 
     //Add the Year Table
     const obsIntSur = statistic.replace('Cum', 'Interval') + ' (%)';
-    const obsIntSurSe =
-      statistic.replace('Cum', 'Interval Std. Err.') + ' Std. Err. (%)';
+    const obsIntSurSe = statistic.replace('Cum', 'Interval Std. Err.') + ' Std. Err. (%)';
     const yearHeaders = [
       ...jpsurvData.calculate.form.cohortVars,
       'Year of Diagnosis',
@@ -419,31 +376,20 @@ function loadConditionalResults(model) {
       'Predicted Conditional Cumulative Survival Std. Err. (%)',
     ];
     addTable($('#graph-year-table'), 'survival', dataPerInterval, yearHeaders);
-    const yearTableRows = dataPerInterval.reduce(
-      (total, e) => total + e.years.length,
-      0
-    );
+    const yearTableRows = dataPerInterval.reduce((total, e) => total + e.years.length, 0);
     $('#year-tab-rows').html('Total Row Count: ' + yearTableRows);
   }
 
   function loadTimeData() {
     const divId = 'timePlot';
     const dataPerInterval = intervalRanges.map(([start, end], controlIndex) => {
-      const timeData = conditional.filter(
-        (e) => e['Start.interval'] == start && e.Interval <= end
-      );
+      const timeData = conditional.filter((e) => e['Start.interval'] == start && e.Interval <= end);
       const allYears = timeData.map((e) => e[yodColName]);
       const uniqueYears = [...new Set(allYears)];
       const timeInterval =
-        uniqueYears.length < 5
-          ? uniqueYears
-          : jStat
-              .quantiles(uniqueYears, [0, 0.25, 0.5, 0.75, 1])
-              .map(Math.round);
+        uniqueYears.length < 5 ? uniqueYears : jStat.quantiles(uniqueYears, [0, 0.25, 0.5, 0.75, 1]).map(Math.round);
 
-      const condTimeData = timeData.filter((e) =>
-        timeInterval.includes(e[yodColName])
-      );
+      const condTimeData = timeData.filter((e) => timeInterval.includes(e[yodColName]));
       return timeInterval.map((year, index) => {
         const timeDataEnd = condTimeData.filter((e) => e[yodColName] == year);
         const years = [year, ...timeDataEnd.map((e) => e[yodColName])];
@@ -454,9 +400,7 @@ function loadConditionalResults(model) {
         const observed = timeDataEnd
           .reduce(
             (arr, e, i) => {
-              const obs =
-                (e?.Relative_Survival_Interval ||
-                  e?.CauseSpecific_Survival_Interval) / 100;
+              const obs = (e?.Relative_Survival_Interval || e?.CauseSpecific_Survival_Interval) / 100;
               const prev = i > 0 ? arr[i] : 1;
               return [...arr, obs * prev];
             },
@@ -504,11 +448,7 @@ function loadConditionalResults(model) {
     const jpInd = jpsurvData.results.jpInd;
     const jpLocation = jpsurvData.results.jpLocation;
     const jp = jpInd ? ` (${jpLocation[jpInd].replace(/\s/g, ', ')})` : '';
-    const modelInfo = [
-      cohort ? cohort + ' - ' : '',
-      `Joinpoint ${jpInd}`,
-      jp,
-    ].join('');
+    const modelInfo = [cohort ? cohort + ' - ' : '', `Joinpoint ${jpInd}`, jp].join('');
 
     const xTitle = 'Conditional Interval';
     const yTitle = 'Conditional Relative Survival';
@@ -522,42 +462,20 @@ function loadConditionalResults(model) {
     $('#timePlots').empty();
     dataPerInterval.forEach((plotData) => {
       const { controlIndex, start } = plotData[0];
-      const layout = makeLayout(
-        divId,
-        [0, maxInterval],
-        xTitle,
-        yTitle,
-        statistic,
-        modelInfo
-      );
-      const startingIntervalTrace = makeDashTrace(
-        divId,
-        '',
-        '',
-        [start, start],
-        [0, 1]
-      );
+      const layout = makeLayout(divId, [0, maxInterval], xTitle, yTitle, statistic, modelInfo);
+      const startingIntervalTrace = makeDashTrace(divId, '', '', [start, start], [0, 1]);
       const traces = plotData
-        .map((e) => [
-          e.predictedTraces,
-          e.observedTraces,
-          e.legendTrace,
-          startingIntervalTrace,
-        ])
+        .map((e) => [e.predictedTraces, e.observedTraces, e.legendTrace, startingIntervalTrace])
         .flat();
       const newPlot = `${divId}-${controlIndex}`;
-      $('#timePlots').append(
-        `<div id="${newPlot}" class="mx-auto mt-1 d-block"></div>`
-      );
+      $('#timePlots').append(`<div id="${newPlot}" class="mx-auto mt-1 d-block"></div>`);
       drawPlot(newPlot, traces, layout);
     });
 
     //Add the Time Table
     let obsHeader = '';
-    if (statistic == 'Cause-Specific Survival')
-      obsHeader = 'Conditional Cumulative CauseSpecific Survival (%)';
-    if (statistic == 'Relative Survival')
-      obsHeader = 'Conditional Cumulative Relative Survival (%)';
+    if (statistic == 'Cause-Specific Survival') obsHeader = 'Conditional Cumulative CauseSpecific Survival (%)';
+    if (statistic == 'Relative Survival') obsHeader = 'Conditional Cumulative Relative Survival (%)';
     const timeHeader = [
       ...jpsurvData.calculate.form.cohortVars,
       'Year of Diagnosis',
@@ -566,15 +484,8 @@ function loadConditionalResults(model) {
       obsHeader,
       'Predicted Conditional Cumulative Relative Survival (%)',
     ];
-    addTable(
-      $('#graph-time-table'),
-      'time',
-      dataPerInterval.flat(),
-      timeHeader
-    );
-    const timeTableRows = dataPerInterval
-      .flat()
-      .reduce((total, e) => total + e.years.length, 0);
+    addTable($('#graph-time-table'), 'time', dataPerInterval.flat(), timeHeader);
+    const timeTableRows = dataPerInterval.flat().reduce((total, e) => total + e.years.length, 0);
     $('#time-tab-rows').html('Total Row Count: ' + timeTableRows);
   }
 
@@ -595,24 +506,13 @@ function addTable(table, type, data = [], headers = []) {
   table.empty();
   const tableHeader = $('<tr>').append();
   headers.forEach(function (header) {
-    $('<th>')
-      .attr('scope', 'col')
-      .text(header.replace(/_/g, ' '))
-      .appendTo(tableHeader);
+    $('<th>').attr('scope', 'col').text(header.replace(/_/g, ' ')).appendTo(tableHeader);
   });
   table.append($('<thead>').append(tableHeader));
 
   const tableBody = $('<tbody>');
   data.forEach((dataPerInterval) => {
-    const {
-      years,
-      range,
-      intervals,
-      observed,
-      observed_se,
-      predicted,
-      predicted_se,
-    } = dataPerInterval;
+    const { years, range, intervals, observed, observed_se, predicted, predicted_se } = dataPerInterval;
     years.forEach(function (year, index) {
       const row = $('<tr>');
       const cohort_array = jpsurvData.results.Runs.split('jpcom');

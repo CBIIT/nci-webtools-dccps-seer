@@ -77,14 +77,11 @@ export function exportBackEnd(event) {
   data.dictionary = jpsurvData.file.dictionary;
   data.form = jpsurvData.file.form;
   data.tokenId = jpsurvData.tokenId;
-  data.filename =
-    data.tokenId + '-' + data.dictionary.split('.')[0] + '.jpsurv';
+  data.filename = data.tokenId + '-' + data.dictionary.split('.')[0] + '.jpsurv';
 
   /* Saving the Form Variables */
-  data.yearOfDiagnosisRangeStart =
-    jpsurvData.calculate.form.yearOfDiagnosisRange[0];
-  data.yearOfDiagnosisRangeEnd =
-    jpsurvData.calculate.form.yearOfDiagnosisRange[1];
+  data.yearOfDiagnosisRangeStart = jpsurvData.calculate.form.yearOfDiagnosisRange[0];
+  data.yearOfDiagnosisRangeEnd = jpsurvData.calculate.form.yearOfDiagnosisRange[1];
   data.cohortVariables = jpsurvData.results.Runs;
   data.maxJoinPoints = jpsurvData.calculate.form.maxjoinPoints;
   data.intFromDiagnosis = jpsurvData.calculate.form.interval;
@@ -138,22 +135,12 @@ export function exportBackEnd(event) {
 // Import -- Once the backend has unarchvied the data and restored the files the front end will need to call the
 // query string and
 //
-function importFrontEnd(
-  idOfForm,
-  idOfOthers,
-  txtFile,
-  controlFile,
-  dataType,
-  imageIdStartCount,
-  delimiter
-) {
+function importFrontEnd(idOfForm, idOfOthers, txtFile, controlFile, dataType, imageIdStartCount, delimiter) {
   localStorage.setItem('importing', 'YES');
   localStorage.setItem('initialIdCnt', imageIdStartCount.toString());
   localStorage.setItem('delimiter', delimiter);
 
-  var url = [location.protocol, '//', location.host, location.pathname].join(
-    ''
-  );
+  var url = [location.protocol, '//', location.host, location.pathname].join('');
 
   // The URL that will called causing the input window to appear.  The window for the cohor and the window with the
   // three tabs ( Survival Graph/Data, Model Estimates, Trends
@@ -181,11 +168,7 @@ function importFrontEnd(
  */
 function updatePageAfterRefresh(e) {
   try {
-    if (
-      window.location.search === undefined ||
-      window.location.search.length === 0
-    )
-      return;
+    if (window.location.search === undefined || window.location.search.length === 0) return;
 
     jpsurvData.stage2completed = true;
     setIntervalsDefault();
@@ -193,17 +176,13 @@ function updatePageAfterRefresh(e) {
     parse_diagnosis_years();
     setData();
     load_ajax_with_success_callback(generateResultsFilename(), loadResults);
-    load_ajax_with_success_callback(
-      createFormValuesFilename(),
-      retrieveCohortComboResults
-    );
+    load_ajax_with_success_callback(createFormValuesFilename(), retrieveCohortComboResults);
     updateCohortDropdown();
     setRun();
     setAbsChangeDefault();
     buildTimeYod();
 
-    jpsurvData.plot.static.imageId =
-      parseInt(localStorage.getItem('initialIdCnt')) - 1;
+    jpsurvData.plot.static.imageId = parseInt(localStorage.getItem('initialIdCnt')) - 1;
     jpsurvData.additional.del = localStorage.getItem('delimiter');
     jpsurvData.stage2completed = true;
 
@@ -225,14 +204,7 @@ function retrieveCohortComboResults(data) {
   $('#icon').css('visibility', 'visible');
   Slide_menu_Horz('hide');
 
-  const filename =
-    'results-' +
-    data.tokenId +
-    '-' +
-    data.selectedCohort +
-    '-' +
-    data.headerJP +
-    '.json';
+  const filename = 'results-' + data.tokenId + '-' + data.selectedCohort + '-' + data.headerJP + '.json';
 
   $.get(
     'jpsurvRest/results',
@@ -250,10 +222,7 @@ function retrieveCohortComboResults(data) {
   //Set precision if cookie is available
   var precision = getCookie('precision');
   if (parseInt(precision) > 0) {
-    $('#precision>option:eq(' + (parseInt(precision) - 1) + ')').prop(
-      'selected',
-      true
-    );
+    $('#precision>option:eq(' + (parseInt(precision) - 1) + ')').prop('selected', true);
   }
 }
 
@@ -267,12 +236,8 @@ function loadUserInput(data) {
    */
   function modifyForm(data, intervals) {
     $('e-mail').val(data.email);
-    $('#year_of_diagnosis_start')
-      .val(data.yearOfDiagnosisRangeStart)
-      .trigger('change');
-    $('#year_of_diagnosis_end')
-      .val(data.yearOfDiagnosisRangeEnd)
-      .trigger('change');
+    $('#year_of_diagnosis_start').val(data.yearOfDiagnosisRangeStart).trigger('change');
+    $('#year_of_diagnosis_end').val(data.yearOfDiagnosisRangeEnd).trigger('change');
     $('#max_join_point_select').val(data.maxJoinPoints).trigger('change');
     $('#intervals_from_diagnosis').val(data.intFromDiagnosis).trigger('change');
     $('#cohort-variables').find(':checkbox').prop('checked', false);
@@ -293,9 +258,7 @@ function loadUserInput(data) {
     });
 
     // Go through cohort matrix to set checkboxes for each value selected
-    var cohortOptions = Array.prototype.slice.call(
-      document.querySelectorAll('#cohort-variables fieldset')
-    );
+    var cohortOptions = Array.prototype.slice.call(document.querySelectorAll('#cohort-variables fieldset'));
 
     if (cohortOptions.length > 0) {
       cohortOptions.forEach(function (element, index) {
@@ -331,18 +294,13 @@ function loadUserInput(data) {
    */
   function modifyJPSurv(data, intervals) {
     jpsurvData.queue.email = data.email;
-    jpsurvData.calculate.form.yearOfDiagnosisRange[0] = parseInt(
-      data.yearOfDiagnosisRangeStart
-    );
-    jpsurvData.calculate.form.yearOfDiagnosisRange[1] = parseInt(
-      data.yearOfDiagnosisRangeEnd
-    );
+    jpsurvData.calculate.form.yearOfDiagnosisRange[0] = parseInt(data.yearOfDiagnosisRangeStart);
+    jpsurvData.calculate.form.yearOfDiagnosisRange[1] = parseInt(data.yearOfDiagnosisRangeEnd);
     jpsurvData.calculate.form.maxjoinPoints = parseInt(data.maxJoinPoints);
     jpsurvData.calculate.form.cohortVars = JSON.parse(data.cohortVars);
     jpsurvData.calculate.form.cohortValues = JSON.parse(data.cohortValues);
 
-    jpsurvData.calculate.static.advanced.advDeleteInterval =
-      data.advDelInterval;
+    jpsurvData.calculate.static.advanced.advDeleteInterval = data.advDelInterval;
     jpsurvData.calculate.static.advanced.advBetween = parseInt(data.advBetween);
     jpsurvData.calculate.static.advanced.advFirst = parseInt(data.advFirst);
     jpsurvData.calculate.static.advanced.advLast = parseInt(data.advLast);
@@ -365,13 +323,7 @@ function loadUserInput(data) {
 
 // Creates the filename for the storage for the values of the form
 function createFormValuesFilename() {
-  return (
-    'jpsurvRest/results?file=currentState-' +
-    jpsurvData.tokenId +
-    '.json' +
-    '&tokenId=' +
-    jpsurvData.tokenId
-  );
+  return 'jpsurvRest/results?file=currentState-' + jpsurvData.tokenId + '.json' + '&tokenId=' + jpsurvData.tokenId;
 }
 
 // Loads data using ajax and then calls a function.  This routine is needed since the GetJSON is asynchronous and the
