@@ -13,20 +13,6 @@
     ]
   },
   "Packages": {
-    "JPSurv": {
-      "Package": "JPSurv",
-      "Version": "3.0.15",
-      "Source": "Local",
-      "RemoteType": "local",
-      "RemoteUrl": "../r-packages/JPSurv_R_package.tar.gz",
-      "Requirements": [
-        "R",
-        "ggplot2",
-        "ggrepel",
-        "scales"
-      ],
-      "Hash": "9456b35f31dd8a38e69b092df1ef5b4f"
-    },
     "MASS": {
       "Package": "MASS",
       "Version": "7.3-55",

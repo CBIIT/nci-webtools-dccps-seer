@@ -37,7 +37,7 @@ WORKDIR /app/server
 RUN R -e "options(Ncpus=parallel::detectCores()); renv::restore()"
 
 # install JPSurv
-# RUN R -e "renv::install('/app/r-packages/JPSurv_R_package.tar.gz')"
+RUN R -e "renv::install('/app/r-packages/JPSurv_3.0.15.tar.gz')"
 
 # copy server folder, ignore renv folder
 COPY server/[^renv]* /app/server/
