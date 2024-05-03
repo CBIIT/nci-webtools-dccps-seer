@@ -5,6 +5,7 @@ import shutil
 import datetime
 
 from os import path, getcwd, rename, chdir, listdir
+from pathlib import Path
 from traceback import format_exc
 from flask import (
     Flask,
@@ -77,7 +78,7 @@ def getInputDir(token):
     input_dir = safe_join(app.config["folders"]["input_dir"], token)
     if not path.exists(input_dir):
         make_dirs(input_dir)
-    return input_dir
+    return str(Path(input_dir).resolve())
 
 
 app.logger.debug("JPSurv is starting...")
@@ -590,8 +591,6 @@ def stage2_calculate():
 
 @app.route("/jpsurvRest/stage3_recalculate", methods=["GET"])
 def stage3_recalculate():
-    app.logger.debug("****** Stage 3: PLOT BUTTON ***** ")
-
     jpsurvDataString = unquote(request.args.get("jpsurvData", False))
     app.logger.debug("The jpsurv STRING::::::")
     jpsurvData = json.loads(jpsurvDataString)
@@ -613,8 +612,6 @@ def stage3_recalculate():
     app.logger.debug("SWITCH?")
     app.logger.debug(switch)
 
-    
-
     if switch == True:
         with open(
             input_dir + "/cohort_models-" + jpsurvData["tokenId"] + ".json"
@@ -625,8 +622,10 @@ def stage3_recalculate():
             # app.logger.debug(data[int(cohort_com)-1])
             jpInd = str(data[int(cohort_com) - 1])
 
-    viewConditional = jpsurvData["additional"]["viewConditional"]
-    prefix = '/results-conditional-' if viewConditional == True else '/results-'
+    viewConditional = jpsurvData["viewConditional"]
+    relaxProp = jpsurvData["calculate"]["form"]["relaxProp"]
+    cutPointIndex = "-%s" % jpsurvData["cutPointIndex"] if relaxProp else ""
+    prefix = "/results-conditional-" if viewConditional == True else "/results-"
     fname = (
         input_dir
         + prefix
@@ -635,6 +634,7 @@ def stage3_recalculate():
         + cohort_com
         + "-"
         + jpInd
+        + cutPointIndex
         + ".json"
     )
     # app.logger.debug(fname)
@@ -645,12 +645,20 @@ def stage3_recalculate():
         app.logger.debug("**** Calling getAllData ****")
         # Next line execute the R Program
         try:
-            r.getAllData(
-                input_dir,
-                jpsurvDataString,
-                switch,
-                input_dir + "/cohortCombo-" + jpsurvData["tokenId"] + ".json",
-            )
+            if relaxProp == True:
+                r.relaxPropResults(
+                    input_dir,
+                    jpsurvDataString,
+                    switch,
+                    input_dir + "/cohortCombo-" + jpsurvData["tokenId"] + ".json",
+                )
+            else:
+                r.getAllData(
+                    input_dir,
+                    jpsurvDataString,
+                    switch,
+                    input_dir + "/cohortCombo-" + jpsurvData["tokenId"] + ".json",
+                )
             status = 200
             out_json = json.dumps({"status": "OK"})
         except Exception as e:
@@ -925,14 +933,19 @@ def recalculateBatch():
                 # app.logger.debug(data[int(cohort_com)-1])
                 jpInd = str(data[int(cohort_com) - 1])
 
+        viewConditional = jpsurvData["viewConditional"]
+        relaxProp = jpsurvData["calculate"]["form"]["relaxProp"]
+        cutPointIndex = "-%s" % jpsurvData["cutPointIndex"] if relaxProp else ""
+        prefix = "/results-conditional-" if viewConditional == True else "/results-"
         fname = (
             input_dir
-            + "/results-"
+            + prefix
             + jpsurvData["tokenId"]
             + "-"
             + cohort_com
             + "-"
             + jpInd
+            + cutPointIndex
             + ".json"
         )
         # app.logger.debug(fname)
@@ -944,12 +957,20 @@ def recalculateBatch():
             app.logger.debug("**** Calling getAllData ****")
             # Next line execute the R Program
             try:
-                file = r.getAllData(
-                    input_dir,
-                    jpsurvDataString,
-                    switch,
-                    input_dir + "/cohortCombo-" + jpsurvData["tokenId"] + ".json",
-                )
+                if relaxProp == True:
+                    r.relaxPropResults(
+                        input_dir,
+                        jpsurvDataString,
+                        switch,
+                        input_dir + "/cohortCombo-" + jpsurvData["tokenId"] + ".json",
+                    )
+                else:
+                    r.getAllData(
+                        input_dir,
+                        jpsurvDataString,
+                        switch,
+                        input_dir + "/cohortCombo-" + jpsurvData["tokenId"] + ".json",
+                    )
                 with open(fname, "r") as jsonFile:
                     return json.load(jsonFile)
             except Exception as e:

@@ -403,7 +403,7 @@ function addEventListeners() {
   });
 
   $('#toggleConditionalView').on('click', (e) => {
-    jpsurvData.additional.viewConditional = e.target.checked;
+    jpsurvData.viewConditional = e.target.checked;
     setCalculateData();
   });
 
@@ -707,21 +707,35 @@ export function updateCohortDropdown() {
   dropdownListener();
 }
 
-//populates the inpout json with the desired cohort combination based on the cohort dropdown window
+export function updateCutPointOptions() {
+  $('#cutpoint-display').empty();
+  const cutPoint = +$('#cutPoint').val();
+  for (let i = 0; i <= cutPoint; i++) {
+    const option = new Option(i, i + 1);
+    $('#cutpoint-display').append(option);
+  }
+
+  $('#cutpoint-display').on('select2:select', function () {
+    jpsurvData.cutPointIndex = $('#cutpoint-display option:selected')?.val() || 1;
+    jpsurvData.plot.static.imageId = 0;
+    jpsurvData.additional.recalculate = 'true';
+    resetShowTrend();
+    calculate(true);
+  });
+}
+
+//populates the input json with the desired cohort combination based on the cohort dropdown window
 function dropdownListener() {
   $('#cohort-display').on('select2:select', function () {
     //splits the cohorts based on a " + "
     var cohorts = $('#cohort-display option:selected').text().split(' + ');
     //adds each cohort to the json
-
     jpsurvData.calculate.form.cohortValues = cohorts.map(function (cohort) {
       return '"' + cohort + '"';
     });
     //resets the image id
     jpsurvData.plot.static.imageId = 0;
-
     jpsurvData.switch = true;
-
     resetShowTrend();
     calculate(true);
   });
@@ -980,16 +994,12 @@ function setUploadData() {
   jpsurvData.status = getUrlParameter('status');
 }
 
-function setupModel() {
+function createModelSelection() {
   if (jpsurvData.results.SelectedModel == 'NA') {
     jpsurvData.results.SelectedModel = 1;
   }
-
   jpsurvData.additional.headerJoinPoints = jpsurvData.results.jpInd;
-}
 
-function createModelSelection() {
-  setupModel();
   var ModelSelection = jpsurvData.results.ModelSelection;
   var jp = 0;
   var title = 'Click row to change Number of Joinpoints to ';
@@ -1509,7 +1519,6 @@ export function formatCell(x) {
 
 function setCalculateData() {
   setData();
-
   if (validateVariables()) {
     calculate();
   }
@@ -1517,7 +1526,6 @@ function setCalculateData() {
 
 export function setData() {
   updateCohortDisplay();
-
   jpsurvData.queue = {};
   jpsurvData.queue.email = $('#e-mail').val();
   jpsurvData.queue.url = encodeURIComponent(window.location.href.toString() + '&request=true');
@@ -1760,8 +1768,10 @@ function handleSubmit(e) {
 }
 
 function retrieveResults(cohort_com, jpInd, switch_cohort) {
-  var file_name = '';
-  const prefix = jpsurvData.additional.viewConditional ? 'results-conditional-' : 'results-';
+  let file_name = '';
+  const relaxProp = jpsurvData.calculate.form.relaxProp;
+  const cutPoint = jpsurvData.cutPointIndex;
+  const prefix = jpsurvData.viewConditional ? 'results-conditional-' : 'results-';
   if (jpInd != undefined && cohort_com != undefined && switch_cohort == false)
     file_name =
       `jpsurvRest/results?file=${prefix}` +
@@ -1770,6 +1780,7 @@ function retrieveResults(cohort_com, jpInd, switch_cohort) {
       cohort_com +
       '-' +
       jpInd +
+      (relaxProp ? `-${cutPoint}` : '') +
       '.json&tokenId=' +
       jpsurvData.tokenId;
   else {
@@ -1783,9 +1794,10 @@ function retrieveResults(cohort_com, jpInd, switch_cohort) {
 }
 
 export function generateResultsFilename(cohort_com, jpInd, switch_cohort) {
-  var file_name = '';
-  const prefix = jpsurvData.additional.viewConditional ? 'results-conditional-' : 'results-';
-
+  let file_name = '';
+  const relaxProp = jpsurvData.calculate.form.relaxProp;
+  const cutPoint = jpsurvData.cutPointIndex;
+  const prefix = jpsurvData.viewConditional ? 'results-conditional-' : 'results-';
   $.ajax({
     async: false,
     type: 'GET',
@@ -1805,6 +1817,7 @@ export function generateResultsFilename(cohort_com, jpInd, switch_cohort) {
         cohort_com +
         '-' +
         results[cohort_com - 1] +
+        (relaxProp ? `-${cutPoint}` : '') +
         '.json&tokenId=' +
         jpsurvData.tokenId;
     })
@@ -1819,6 +1832,7 @@ export function loadResults(results) {
   jpsurvData.results = results;
   if (!jpsurvData.stage2completed) {
     updateCohortDropdown();
+    updateCutPointOptions();
   } else {
     // restore calculated trend if available
     if (jpsurvData.results.yearData.survTrend) {
@@ -1832,8 +1846,10 @@ export function loadResults(results) {
   updateTabs();
   absChgDynamic();
 
-  $('#toggleCondControl').toggleClass('d-none', !jpsurvData.calculate.form.relaxProp);
-  $('#toggleConditionalView').prop('checked', jpsurvData.additional.viewConditional);
+  const relaxProp = jpsurvData.calculate.form.relaxProp;
+  $('#toggleCondControl').toggleClass('d-none', !relaxProp || +jpsurvData.cutPointIndex == 1);
+  $('#cutpoint-display-control').toggleClass('d-none', !relaxProp);
+  $('#toggleConditionalView').prop('checked', jpsurvData.viewConditional);
 
   // restore user trend if available
   var survTrend = jpsurvData.results.yearData.survTrend;
@@ -1895,6 +1911,8 @@ function incrementImageId() {
 function stage2(action) {
   $('#jpsurv-message-container').hide();
   jpsurvData.recentTrends = 0;
+  jpsurvData.cutPointIndex = 1;
+  jpsurvData.viewConditional = false;
   setIntervalsDefault();
   getIntervals();
   setAbsChangeDefault();
@@ -2007,7 +2025,7 @@ function setupParameters() {
   const intervals = getIntervalOptions();
   jpsurvData.calculate.form.condIntStart = +intervals[0];
   jpsurvData.calculate.form.condIntEnd = +intervals.unshift();
-  jpsurvData.calculate.form.cutPoint = +intervals.unshift() - 1;
+  jpsurvData.calculate.form.cutPoint = +intervals.length - 1 < 5 ? intervals.length - 1 : 5;
   $('#condIntStart').each((_, e) => {
     if ($(e).find('option').length == 0) {
       intervals.forEach((v, i) => $(e).append(`<option ${i == 0 ? 'selected' : ''} value="${v}">${v}</option>`));
@@ -2022,15 +2040,8 @@ function setupParameters() {
   });
   $('#cutPoint').each((_, e) => {
     if ($(e).find('option').length == 0) {
-      intervals
-        .slice(0, -1)
-        .forEach((v, i, arr) =>
-          $(e).append(
-            `<option ${
-              arr.length < 5 ? (i == arr.length - 1 ? 'selected' : '') : i == 4 ? 'selected' : ''
-            } value="${v}">${v}</option>`
-          )
-        );
+      intervals.slice(0, -1).forEach((v, i, arr) => $(e).append(`<option value="${v}">${v}</option>`));
+      $(e).val(jpsurvData.calculate.form.cutPoint);
     }
   });
 
@@ -2054,7 +2065,6 @@ function setupParameters() {
       $('#relaxPropForm').removeClass('d-none');
       $('#cutPoint').prop('disabled', false);
       jpsurvData.calculate.form.relaxProp = true;
-      jpsurvData.additional.viewConditional = true;
       // disable conditional survival
       $('#toggleConditionalJp').prop('disabled', true);
       $('#toggleConditionalJp').prop('checked', false).change();
@@ -2062,14 +2072,12 @@ function setupParameters() {
       $('#relaxPropForm').addClass('d-none');
       $('#cutPoint').prop('disabled', true);
       jpsurvData.calculate.form.relaxProp = false;
-      jpsurvData.additional.viewConditional = false;
       // enable conditional survival
       $('#toggleConditionalJp').prop('disabled', false);
     }
   });
   // disable relax proportionality for less than 2
   if (intervals.length == 1) {
-    console.log('dis');
     $('#toggleRelaxProp').prop('disabled', true);
   } else {
     $('#toggleRelaxProp').prop('disabled', false);
@@ -3369,25 +3377,39 @@ async function getData() {
   const models = Object.keys(jpsurvData.results.ModelSelection);
   const paramsBatch = cohorts
     .map((cohort, cohortIndex) =>
-      models.map((_, jp) => {
-        let { results, ...params } = jpsurvData;
-        // params.run = cohortIndex + 1;
-        // params.additional.headerJoinPoints = jp;
-        // params.calculate.form.cohortValues = cohort.split(' + ');
-
-        return {
-          ...params,
-          run: cohortIndex + 1,
-          additional: { ...params.additional, headerJoinPoints: jp },
-          calculate: {
-            ...params.calculate,
-            form: {
-              ...params.calculate.form,
-              cochortValues: cohort.split(' + '),
+      models
+        .map((_, jp) => {
+          const { results, ...params } = jpsurvData;
+          const calcParams = {
+            ...params,
+            run: cohortIndex + 1,
+            additional: { ...params.additional, headerJoinPoints: jp },
+            calculate: {
+              ...params.calculate,
+              form: {
+                ...params.calculate.form,
+                cochortValues: cohort.split(' + '),
+              },
             },
-          },
-        };
-      })
+            viewConditional: false,
+          };
+
+          const relaxProp = jpsurvData.calculate.form.relaxProp;
+          if (relaxProp) {
+            const cutPoint = +jpsurvData.calculate.form.cutPoint;
+            return [...Array(cutPoint).keys()]
+              .map((i) => {
+                const rpParams = { ...calcParams, cutPointIndex: i + 1 };
+                const paramsArray = [rpParams];
+                if (i != 0) paramsArray.push({ ...rpParams, viewConditional: true });
+                return paramsArray.flat();
+              })
+              .flat();
+          } else {
+            return calcParams;
+          }
+        })
+        .flat()
     )
     .flat();
 

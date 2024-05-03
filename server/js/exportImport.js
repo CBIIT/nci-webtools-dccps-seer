@@ -7,6 +7,7 @@ import {
   loadResults,
   getCookie,
   updateCohortDropdown,
+  updateCutPointOptions,
   setRun,
   setAbsChangeDefault,
   buildTimeYod,
@@ -178,6 +179,7 @@ function updatePageAfterRefresh(e) {
     load_ajax_with_success_callback(generateResultsFilename(), loadResults);
     load_ajax_with_success_callback(createFormValuesFilename(), retrieveCohortComboResults);
     updateCohortDropdown();
+    updateCutPointOptions();
     setRun();
     setAbsChangeDefault();
     buildTimeYod();

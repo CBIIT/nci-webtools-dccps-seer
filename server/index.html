@@ -657,10 +657,12 @@
                   <label for="cohort-display" class="font-weight-bold">Cohort</label>
                   <select id="cohort-display" aria-label="cohort display"></select>
                 </div>
-                <div class="d-inline">
-                  <label for="precision" title="Rounded to decimal places." class="ml-3"
-                    >Number of Decimal Places</label
-                  >
+                <div id="cutpoint-display-control" class="ml-3 d-none">
+                  <label for="cutpoint-display" class="font-weight-bold">Cut Point</label>
+                  <select id="cutpoint-display" aria-label="select cut point"></select>
+                </div>
+                <div class="d-inline ml-3">
+                  <label for="precision" title="Rounded to decimal places.">Number of Decimal Places</label>
                   <select name="abcselect" id="precision" aria-label="Round">
                     <option>1</option>
                     <option selected>2</option>

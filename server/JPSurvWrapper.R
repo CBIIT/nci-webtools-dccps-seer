@@ -230,7 +230,11 @@ getFittedResultWrapper <- function(filePath, jpsurvDataString) {
   write(cohortModels, cohortModelsPath)
   write(cohortCombo, cohortComboPath)
   # Calculates graphs, model estimates etc for first combination by setting first_calc=TRUE
-  getAllData(filePath, jpsurvDataString, TRUE, cohortComboPath, errors)
+  if (relaxProp == TRUE) {
+    relaxPropResults(filePath, jpsurvDataString, TRUE, cohortComboPath, errors)
+  } else {
+    getAllData(filePath, jpsurvDataString, TRUE, cohortComboPath, errors)
+  }
 }
 
 validateCohort <- function(jpsurvData, filePath, seerFilePrefix, allVars, yearOfDiagnosisVarName, yearOfDiagnosisRange, cohortVars, cohortValues, type, del) {
@@ -320,7 +324,7 @@ getAllData <- function(filePath, jpsurvDataString, first_calc = FALSE, valid_com
     interval <- "Interval"
     input_type <- "dic"
   }
-  viewConditional <- jpsurvData$additional$viewConditional
+  viewConditional <- jpsurvData$viewConditional
   ModelSelection <- geALLtModelWrapper(filePath, jpsurvDataString, com)
   Coefficients <- getcoefficientsWrapper(filePath, jpsurvDataString, first_calc, com)
   JP <- getJPWrapper(filePath, jpsurvDataString, first_calc, com)
@@ -379,6 +383,125 @@ getAllData <- function(filePath, jpsurvDataString, first_calc = FALSE, valid_com
   exportJson <- rjson::toJSON(jsonl)
   filePrefix <- if (viewConditional) "results-conditional-" else "results-"
   filename <- file.path(filePath, paste0(filePrefix, jpsurvData$tokenId, "-", com, "-", jpInd, ".json"))
+  write(exportJson, filename)
+  return(filename)
+}
+
+relaxPropResults <- function(filePath, jpsurvDataString, first_calc = FALSE, valid_com_matrix, errors = NULL) {
+  state <- rjson::fromJSON(jpsurvDataString)
+  imageId <- state$plot$static$imageId
+  com <- as.integer(state$run)
+  interval <- ""
+  observed <- ""
+  type <- state$additional$input_type # csv or dictionary
+  headers <- list()
+  runs <- getRunsString(valid_com_matrix) # gets run string
+  # if input type is a CSV file
+  if (type == "csv") {
+    header <- as.logical(state$additional$has_header) # contains headers?
+    seerFilePrefix <- state$file$dictionary
+    file_name <- paste(state$session_tokenId, seerFilePrefix, sep = "")
+    file <- paste(filePath, file_name, sep = "/")
+    del <- state$additional$del
+    if (del == "\t" || del == " ") {
+      del <- ""
+    }
+    seerdata <- read.table(file, header = TRUE, dec = ".", sep = del, na.strings = "NA", check.names = FALSE)
+    observed <- names(seerdata)[state$additional$observed]
+    interval <- names(seerdata)[as.integer(state$additional$interval)]
+    input_type <- "csv"
+    died <- names(seerdata)[state$additional$died]
+    alive_at_start <- names(seerdata)[state$additional$alive_at_start]
+    lost_to_followup <- names(seerdata)[state$additional$lost_to_followup]
+    exp_int <- names(seerdata)[state$additional$exp_int]
+    statistic <- state$additional$statistic
+    if (statistic == "Relative Survival") {
+      headers <- list("Died" = died, "Alive_at_Start" = alive_at_start, "Lost_to_followup" = lost_to_followup, "Expected_Survival_Interval" = exp_int, "Interval" = interval, "Relative_Survival_Cum" = observed)
+    } else if (statistic == "Cause-Specific Survival") {
+      headers <- list("Died" = died, "Alive_at_Start" = alive_at_start, "Lost_to_followup" = lost_to_followup, "Expected_Survival_Interval" = exp_int, "Interval" = interval, "CauseSpecific_Survival_Cum" = observed)
+    }
+  } else {
+    observed <- state$additional$DataTypeVariable
+    interval <- "Interval"
+    input_type <- "dic"
+  }
+  viewConditional <- state$viewConditional
+
+
+  SelectedModel <- getSelectedModel(filePath, jpsurvDataString, com)
+  statistic <- state$additional$statistic
+  if (statistic == "Relative Survival") {
+    statistic <- "Relative_Survival_Cum"
+  } else if (statistic == "Cause-Specific Survival") {
+    statistic <- "CauseSpecific_Survival_Cum"
+  }
+  jpInd <- state$additional$headerJoinPoints
+  if (first_calc == TRUE || is.null(jpInd)) {
+    jpInd <- SelectedModel - 1
+  }
+
+  yod <- state$additional$yearOfDiagnosis_default
+  intervals <- state$additional$intervals_default
+
+
+  file <- file.path(filePath, paste("output-", state$tokenId, "-", com, ".rds", sep = ""))
+  data <- readRDS(file)
+  seerdata <- data$seerdata
+
+  # get year column var name
+  yearVar <- getCorrectFormat(state$calculate$static$yearOfDiagnosisVarName)
+
+  viewConditional <- state$viewConditional
+  cutPointIndex <- strtoi(state$cutPointIndex)
+  JP <- getJPWrapper2(data$fittedResult$all.results[[cutPointIndex]]$fit.uncond, state, first_calc, com)
+  cut <- data$fittedResult$all.results[[cutPointIndex]]
+  fit <- NULL
+  if (length(cut$fit.cond) > 1 & viewConditional) {
+    fit <- cut$fit.cond
+  } else {
+    fit <- cut$fit.uncond
+  }
+
+  fullDownload <- downloadData2(state, seerdata, fit, com, runs, yearVar, jpInd, "full")
+  deathGraphData <- downloadData2(state, seerdata, fit, com, runs, yearVar, jpInd, "death")
+  survGraphData <- downloadData2(state, seerdata, fit, com, runs, yearVar, jpInd, "year")
+  timeGraphData <- downloadData2(state, seerdata, fit, com, runs, yearVar, jpInd, "time")
+  # create graphs
+  deathGraph <- getGraph2(state, seerdata, fit, first_calc, com, NULL, interval, deathGraphData, "death", statistic)
+  yearGraph <- getGraph2(state, seerdata, fit, first_calc, com, NULL, interval, survGraphData, "year", statistic)
+  timeGraph <- getGraph2(state, seerdata, fit, first_calc, com, runs, interval, timeGraphData, "time", statistic)
+
+
+  # get jp locations
+  jpLocation <- getAllJP2(fit, state, com)
+
+  jsonl <- list(
+    "Coefficients" = getcoefficientsWrapper2(fit, state, first_calc, com),
+    "ModelSelection" = getAllModels(fit, state, com),
+    "JP" = JP,
+    "SelectedModel" = SelectedModel,
+    "Runs" = runs,
+    "input_type" = input_type,
+    "headers" = headers,
+    "statistic" = statistic,
+    "com" = com,
+    "jpInd" = jpInd,
+    "imageId" = imageId,
+    "yod" = yod,
+    "intervals" = intervals,
+    "yearVar" = yearVar,
+    "deathData" = deathGraph,
+    "yearData" = yearGraph,
+    "timeData" = timeGraph,
+    "fullDownload" = fullDownload,
+    "jpLocation" = jpLocation,
+    "cutpoint" = cutPointIndex - 1,
+    "conditional" = viewConditional,
+    "errors" = errors
+  )
+  exportJson <- rjson::toJSON(jsonl)
+  filePrefix <- if (viewConditional) "results-conditional-" else "results-"
+  filename <- file.path(filePath, paste0(filePrefix, state$tokenId, "-", com, "-", jpInd, "-", cutPointIndex, ".json"))
   write(exportJson, filename)
   return(filename)
 }
@@ -545,7 +668,7 @@ getcoefficientsWrapper <- function(filePath, jpsurvDataString, first_calc, com) 
   file <- paste(filePath, fileName, sep = "/")
   outputData <- readRDS(file)
   relaxProp <- jpsurvData$calculate$form$relaxProp
-  viewConditional <- jpsurvData$additional$viewConditional
+  viewConditional <- jpsurvData$viewConditional
   data <- outputData$fittedResult
   if (relaxProp && viewConditional) {
     data <- data$fit.cond
@@ -553,6 +676,23 @@ getcoefficientsWrapper <- function(filePath, jpsurvDataString, first_calc, com) 
     data <- data$fit.uncond
   }
   coefficients <- data$FitList[[jpInd + 1]]$coefficients
+  Xvector <- paste(rownames(coefficients), collapse = ", ")
+  length <- length(coefficients) / 2
+  Estimates <- paste(coefficients[1:length, 1], collapse = ", ")
+  Std_Error <- paste(coefficients[1:length, 2], collapse = ", ")
+  results <- list("Xvectors" = Xvector, "Estimates" = Estimates, "Std_Error" = Std_Error)
+  return(results)
+}
+
+getcoefficientsWrapper2 <- function(fit, state, first_calc, com) {
+  jpInd <- state$additional$headerJoinPoints
+  if (first_calc == TRUE || is.null(jpInd)) {
+    jpInd <- getSelectedModel2(fit, state, com) - 1
+  }
+
+  relaxProp <- state$calculate$form$relaxProp
+  viewConditional <- state$viewConditional
+  coefficients <- fit$FitList[[jpInd + 1]]$coefficients
   Xvector <- paste(rownames(coefficients), collapse = ", ")
   length <- length(coefficients) / 2
   Estimates <- paste(coefficients[1:length, 1], collapse = ", ")
@@ -570,7 +710,7 @@ geALLtModelWrapper <- function(filePath, jpsurvDataString, com) {
   outputData <- readRDS(file)
   jsonl <- list()
   relaxProp <- jpsurvData$calculate$form$relaxProp
-  viewConditional <- jpsurvData$additional$viewConditional
+  viewConditional <- jpsurvData$viewConditional
   data <- outputData$fittedResult
   if (relaxProp && viewConditional) {
     data <- data$fit.cond
@@ -592,6 +732,26 @@ geALLtModelWrapper <- function(filePath, jpsurvDataString, com) {
   return(ModelSelection)
 }
 
+getAllModels <- function(fit, state, com) {
+  jpInd <- state$additional$headerJoinPoints
+  jsonl <- list()
+  relaxProp <- state$calculate$form$relaxProp
+  viewConditional <- state$viewConditional
+  fitList <- fit$FitList
+  joints <- list()
+  ModelSelection <- list()
+  for (i in 1:length(fitList)) {
+    aicJson <- fitList[[i]]$aic
+    bicJson <- fitList[[i]]$bic
+    llJson <- fitList[[i]]$ll
+    convergedJson <- fitList[[i]]$converged
+    name <- paste0("joinpoint", i)
+    joints[[name]] <- list("aic" = aicJson, "bic" = bicJson, "ll" = llJson, "converged" = convergedJson)
+  }
+  ModelSelection <- joints
+  return(ModelSelection)
+}
+
 getTrendWrapper <- function(filePath, jpsurvDataString, com) {
   jsonl <- c()
   jpsurvData <- rjson::fromJSON(jpsurvDataString)
@@ -604,7 +764,7 @@ getTrendWrapper <- function(filePath, jpsurvDataString, com) {
   interval <- strtoi(jpsurvData$trendsInterval)
   file <- paste(filePath, fileName, sep = "/")
   relaxProp <- jpsurvData$calculate$form$relaxProp
-  viewConditional <- jpsurvData$additional$viewConditional
+  viewConditional <- jpsurvData$viewConditional
   data <- outputData$fittedResult
   if (relaxProp && viewConditional) {
     data <- data$fit.cond
@@ -627,7 +787,7 @@ getJPWrapper <- function(filePath, jpsurvDataString, first_calc, com) {
     jpInd <- getSelectedModel(filePath, jpsurvDataString, com) - 1
   }
   relaxProp <- jpsurvData$calculate$form$relaxProp
-  viewConditional <- jpsurvData$additional$viewConditional
+  viewConditional <- jpsurvData$viewConditional
   data <- outputData$fittedResult
   if (relaxProp && viewConditional) {
     data <- data$fit.cond
@@ -639,6 +799,18 @@ getJPWrapper <- function(filePath, jpsurvDataString, first_calc, com) {
   return(JP)
 }
 
+getJPWrapper2 <- function(fit, state, first_calc, com) {
+  jpInd <- state$additional$headerJoinPoints
+  if (first_calc == TRUE || is.null(jpInd)) {
+    jpInd <- getSelectedModel2(fit, state, com) - 1
+  }
+  relaxProp <- state$calculate$form$relaxProp
+  viewConditional <- state$viewConditional
+  JP_List <- fit$FitList[[jpInd + 1]]$jp
+  JP <- paste(JP_List, collapse = " ")
+  return(JP)
+}
+
 getAllJP <- function(filePath, jpsurvDataString, com) {
   jpsurvData <- rjson::fromJSON(jpsurvDataString)
   file <- paste(filePath, paste("output-", jpsurvData$tokenId, "-", com, ".rds", sep = ""), sep = "/")
@@ -646,7 +818,7 @@ getAllJP <- function(filePath, jpsurvDataString, com) {
   maxJP <- jpsurvData$calculate$form$maxjoinPoints
   allJP <- c("None")
   relaxProp <- jpsurvData$calculate$form$relaxProp
-  viewConditional <- jpsurvData$additional$viewConditional
+  viewConditional <- jpsurvData$viewConditional
   data <- outputData$fittedResult
   if (relaxProp && viewConditional) {
     data <- data$fit.cond
@@ -662,12 +834,26 @@ getAllJP <- function(filePath, jpsurvDataString, com) {
   return(allJP)
 }
 
+getAllJP2 <- function(fit, state, com) {
+  maxJP <- state$calculate$form$maxjoinPoints
+  allJP <- c("None")
+  relaxProp <- state$calculate$form$relaxProp
+  viewConditional <- state$viewConditional
+  if (maxJP > 0) {
+    for (i in 1:maxJP) {
+      JP_List <- fit$FitList[[i + 1]]$jp
+      allJP <- append(allJP, paste(JP_List, collapse = " "))
+    }
+  }
+  return(allJP)
+}
+
 getSelectedModel <- function(filePath, jpsurvDataString, com) {
   jpsurvData <- rjson::fromJSON(jpsurvDataString)
   file <- paste(filePath, paste("output-", jpsurvData$tokenId, "-", com, ".rds", sep = ""), sep = "/")
   outputData <- readRDS(file)
   relaxProp <- jpsurvData$calculate$form$relaxProp
-  viewConditional <- jpsurvData$additional$viewConditional
+  viewConditional <- jpsurvData$viewConditional
   data <- outputData$fittedResult
   if (relaxProp && viewConditional) {
     data <- data$fit.cond
@@ -676,6 +862,13 @@ getSelectedModel <- function(filePath, jpsurvDataString, com) {
   }
   model <- length(data$jp) + 1
 
+  return(model)
+}
+
+getSelectedModel2 <- function(fit, state, com) {
+  relaxProp <- state$calculate$form$relaxProp
+  viewConditional <- state$viewConditional
+  model <- length(fit$jp) + 1
   return(model)
 }
 
@@ -736,7 +929,7 @@ downloadDataWrapper <- function(jpsurvDataString, filePath, com, runs, yearVar, 
   outputData <- readRDS(file)
   input <- outputData[["seerdata"]]
   relaxProp <- jpsurvData$calculate$form$relaxProp
-  viewConditional <- jpsurvData$additional$viewConditional
+  viewConditional <- jpsurvData$viewConditional
   fit <- outputData$fittedResult
   if (relaxProp && viewConditional) {
     fit <- fit$fit.cond
@@ -781,6 +974,44 @@ downloadDataWrapper <- function(jpsurvDataString, filePath, com, runs, yearVar, 
   }
 }
 
+downloadData2 <- function(state, seerdata, fittedResult, com, runs, yearVar, jpInd, downloadtype) {
+  yearOfDiagnosisRange <- state$calculate$form$yearOfDiagnosisRange
+  cohortVars <- state$calculate$form$cohortVars
+  cohortValues <- c()
+  if (runs != "") {
+    cohortCombo <- strsplit(runs, "jpcom")[[1]][[com]]
+    cohortCombo <- strsplit(cohortCombo, "+", fixed = TRUE)[[1]]
+    for (cohort in cohortCombo) {
+      value <- paste0('\"', trimws(cohort), '\"')
+      cohortValues <- append(cohortValues, value)
+    }
+  }
+  subsetStr <- getSubsetStr(yearVar, yearOfDiagnosisRange, cohortVars, cohortValues)
+  intervals <- c()
+  if (downloadtype == "year") {
+    for (i in state$additional$intervals) {
+      intervals <- c(intervals, i)
+    }
+    data <- download.data(seerdata, fittedResult, jpInd, yearVar, downloadtype = "full", int.select = intervals, subset = subsetStr)
+    data <- subset(data, Interval %in% intervals)
+    return(data)
+  } else if (downloadtype == "death") {
+    for (i in 1:length(state$additional$intervalsDeath)) {
+      intervals <- c(intervals, state$additional$intervalsDeath[[i]])
+    }
+    data <- download.data(seerdata, fittedResult, jpInd, yearVar, downloadtype = "full", int.select = intervals, subset = subsetStr)
+    data <- subset(data, Interval %in% intervals)
+    return(data)
+  } else if (downloadtype == "time") {
+    intervalRange <- as.integer(state$calculate$form$interval)
+    range <- (c(1:intervalRange))
+    return(download.data(seerdata, fittedResult, jpInd, yearVar, downloadtype = "graph", int.select = range, subset = subsetStr))
+  } else {
+    fullData <- download.data(seerdata, fittedResult, jpInd, yearVar, downloadtype = "full", subset = subsetStr)
+    return(scaleTo(fullData))
+  }
+}
+
 # creates graphs
 getGraphWrapper <- function(filePath, jpsurvDataString, first_calc, com, runs, interval, graphData, type, statistic) {
   jpsurvData <- rjson::fromJSON(jpsurvDataString)
@@ -793,7 +1024,7 @@ getGraphWrapper <- function(filePath, jpsurvDataString, first_calc, com, runs, i
   data <- paste(filePath, paste("output-", jpsurvData$tokenId, "-", com, ".rds", sep = ""), sep = "/")
   outputData <- readRDS(data)
   relaxProp <- jpsurvData$calculate$form$relaxProp
-  viewConditional <- jpsurvData$additional$viewConditional
+  viewConditional <- jpsurvData$viewConditional
   fit <- outputData$fittedResult
   if (relaxProp && viewConditional) {
     fit <- fit$fit.cond
@@ -942,6 +1173,139 @@ getGraphWrapper <- function(filePath, jpsurvDataString, first_calc, com, runs, i
     # graph <- Plot.surv.int.multiyears(graphData, fit, nJP, yearVar, obscumvar, predcumvar, interval, year.select = years)
     # graphFile <- paste(filePath, paste("plot_Int-", jpsurvData$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/")
     # ggsave(file = paste(filePath, paste("plot_Int-", jpsurvData$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/"))
+    graphData <- scaleTo(graphData)
+    graphData <- graphData[graphData[[yearVar]] %in% years, ]
+    if (exists("minYear")) {
+      results <- list("timeTable" = graphData, "minYear" = minYear, "maxYear" = maxYear, "minInt" = minInterval, "maxInt" = maxInterval)
+      # results <- list("timeGraph" = graphFile, "timeTable" = graphData, "minYear" = minYear, "maxYear" = maxYear, "minInt" = minInterval, "maxInt" = maxInterval)
+    } else {
+      results <- list("timeTable" = graphData)
+      # results <- list("timeGraph" = graphFile, "timeTable" = graphData)
+    }
+    return(results)
+  }
+}
+
+getGraph2 <- function(state, seerdata, fit, first_calc, com, runs, interval, graphData, type, statistic) {
+  iteration <- state$plot$static$imageId
+  yearVar <- getCorrectFormat(state$calculate$static$yearOfDiagnosisVarName)
+  nJP <- state$additional$headerJoinPoints
+  if (first_calc == TRUE || is.null(nJP)) {
+    nJP <- getSelectedModel2(fit, state, com) - 1
+  }
+
+  obsintvar <- "Relative_Survival_Interval"
+  predintvar <- "Predicted_ProbDeath_Int"
+  obscumvar <- "Relative_Survival_Cum"
+  predcumvar <- "Predicted_Survival_Cum"
+  if (statistic == "CauseSpecific_Survival_Cum") {
+    obsintvar <- "CauseSpecific_Survival_Interval"
+    obscumvar <- "CauseSpecific_Survival_Cum"
+  }
+  # create graph
+  if (type == "death") {
+    trend <- state$additional$deathTrend
+    data <- NULL
+    # check if annotation is possible
+    if (!is.null(trend) && trend == 1) {
+      data <- Plot.dying.year.annotate(graphData, fit, nJP, yearVar, obsintvar, predintvar, interval, annotation = 0, trend = 1)
+    } else {
+      graphData <- (scaleTo(graphData))
+      results <- list("deathTable" = graphData)
+      return(results)
+    }
+    if (length(data) == 2) {
+      # Trend + plot
+      trendTable <- data[[1]]
+      graphData <- (scaleTo(graphData))
+      results <- list("deathTable" = graphData, "deathTrend" = trendTable)
+      return(results)
+    }
+  } else if (type == "year") {
+    trend <- state$additional$yearTrend
+    absRange <- state$additional$absChgRange
+    intervals <- state$additional$intervals
+    data <- NULL
+    # check if annotation is possible
+    if ((!is.null(trend) && trend == 1) || !is.null(absRange)) {
+      # if (nJP <= 3 && length(intervals) <= 3) {
+      # data = Plot.surv.year.annotate(graphData, fit, nJP, yearVar, obscumvar, predcumvar, interval, annotation = 1, trend = 1)
+      # } else {
+      data <- Plot.surv.year.annotate(graphData, fit, nJP, yearVar, obscumvar, predcumvar, interval, annotation = 0, trend = 1)
+      # }
+    } else {
+      # plot <- Plot.surv.year.annotate(graphData, fit, nJP, yearVar, obscumvar, predcumvar, interval, annotation = 0, trend = 0)
+      # ggsave(file = paste(filePath, paste("plot_Year-", state$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/"))
+      # graphFile <- paste(filePath, paste("plot_Year-", state$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/")
+      graphData <- (scaleTo(graphData))
+      results <- list("survTable" = graphData)
+      # results <- list("survGraph" = graphFile, "survTable" = graphData)
+      return(results)
+    }
+
+    if (is.null(absRange)) {
+      # between joinpoint only
+      trends <- list("ACS.jp" = data[[1]])
+    } else {
+      # check if both trends
+      if (is.null(trend) || trend == 0) {
+        # between calendar only
+        trends <- list("ACS.user" = aapc.multiints(fit$FitList[[nJP + 1]], type = "AbsChgSur", int.select = intervals, ACS.range = absRange, ACS.out = "user"))
+      } else {
+        trends <- aapc.multiints(fit$FitList[[nJP + 1]], type = "AbsChgSur", int.select = intervals, ACS.range = absRange, ACS.out = "both")
+      }
+    }
+
+    if (length(data) == 2) {
+      # Trend + plot
+      # plot <- data[[2]]
+      # ggsave(file = paste(filePath, paste("plot_Year-", state$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/"), plot = plot)
+      # graphFile <- paste(filePath, paste("plot_Year-", state$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/")
+      graphData <- (scaleTo(graphData))
+      results <- list("survTable" = graphData, "survTrend" = trends)
+      # results <- list("survGraph" = graphFile, "survTable" = graphData, "survTrend" = trends)
+      return(results)
+      # } else if (length(data) == 3) {   # Trend + plot + anno
+      #   plot.anno = data[[2]]
+      #   ggsave(file=paste(filePath, paste("plot_YearAnno-", state$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/"), plot = plot.anno)
+      #   plot = data[[3]]
+      #   ggsave(file=paste(filePath, paste("plot_Year-", state$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/"), plot = plot)
+      #   graphFile = paste(filePath, paste("plot_Year-", state$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/")
+      #   graphAnnoFile = paste(filePath, paste("plot_YearAnno-", state$tokenId,"-",com,"-",nJP,"-",iteration,".png", sep=""), sep="/")
+      #   graphData = (scaleTo(graphData))
+      #   results = list("survGraph" = graphFile, "survGraphAnno" = graphAnnoFile, "survTable" = graphData, "survTrend" = trends)
+      #   return(results)
+    }
+  } else if (type == "time") {
+    years <- state$additional$yearOfDiagnosis
+    params <- state$calculate$form
+
+    data <- fit$FitList[[nJP + 1]]$predicted
+    if (length(params$cohortVars) > 0) {
+      cohortCombo <- strsplit(runs, "jpcom")[[1]][[com]]
+      cohortCombo <- strsplit(cohortCombo, "+", fixed = TRUE)[[1]]
+      # fix cohort variable names
+      for (i in 1:length(params$cohortVars)) {
+        if (params$cohortValues[i] != "\"\"") {
+          cohortVar <- getCorrectFormat(params$cohortVars[i])
+          seerdata <- seerdata[seerdata[cohortVar] == trimws(cohortCombo[i]), ]
+        }
+      }
+      minInterval <- min(data$Interval)
+      maxInterval <- max(data$Interval)
+      maxYear <- max(seerdata[, yearVar])
+      minYear <- min(seerdata[, yearVar])
+      if (length(years) > 0) {
+        if (minYear > years) {
+          years <- minYear
+        }
+      } else {
+        years <- minYear
+      }
+    }
+    # graph <- Plot.surv.int.multiyears(graphData, data, nJP, yearVar, obscumvar, predcumvar, interval, year.select = years)
+    # graphFile <- paste(filePath, paste("plot_Int-", state$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/")
+    # ggsave(file = paste(filePath, paste("plot_Int-", state$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/"))
     graphData <- scaleTo(graphData)
     graphData <- graphData[graphData[[yearVar]] %in% years, ]
     if (exists("minYear")) {
