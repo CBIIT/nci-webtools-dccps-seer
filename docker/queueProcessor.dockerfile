@@ -28,8 +28,7 @@ WORKDIR /app/server
 RUN R -e "options(Ncpus=parallel::detectCores()); renv::restore()"
 
 # install JPSurv
-# COPY r-packages /app/r-packages
-# RUN R -e "install.packages('/tmp/jpsurv.tar.gz', repos = NULL)"
+RUN R -e "renv::install('/app/r-packages/JPSurv_3.0.15.tar.gz')"
 
 # copy queue processor
 COPY server/queueProcessor /app/server/queueProcessor
