@@ -1952,13 +1952,6 @@ export function getIntervals() {
   });
 }
 
-function append_plot_intervals(max_interval) {
-  $('#plot_intervals').empty();
-  for (var i = 1; i <= max_interval; i++) {
-    $('#plot_intervals').append($('<option>').val(i).html(i));
-  }
-}
-
 function load_form() {
   $('#diagnosis_title')
     .empty()
@@ -2205,29 +2198,38 @@ export function setIntervalsDefault() {
     jpsurvData.additional.intervalsDeath = selectedYears;
   }
 
-  setIntervalYears([1, maxInt]);
+  setIntervalYears(1, maxInt);
 }
 
-function setIntervalYears(range) {
-  var defaultInt = jpsurvData.additional.intervals_default;
-  var oldSurvInt = jpsurvData.additional.intervals || [];
-  var oldDeathInt = jpsurvData.additional.intervalsDeath || [];
-  var survSelected = oldSurvInt.length ? oldSurvInt : defaultInt;
-  var deathSelected = oldDeathInt.length ? oldDeathInt : defaultInt;
-
+function setIntervalYears(min, max) {
   clearIntervalYears();
+  const defaultIntervals = jpsurvData.additional.intervals_default;
+  const [defMin, defMax] = defaultIntervals;
+  const prevInt = jpsurvData.additional.intervals || [];
+  const prevIntDeath = jpsurvData.additional.intervalsDeath || [];
 
-  for (var i = range[0]; i <= range[1]; i++) {
-    if ($.inArray(i, survSelected) >= 0) {
-      $('#interval-years').append($('<option>').attr('selected', 'selected').text(i));
-    } else {
-      $('#interval-years').append($('<option>').text(i));
-    }
-    if ($.inArray(i, deathSelected) >= 0) {
-      $('#interval-years-death').append($('<option>').attr('selected', 'selected').text(i));
-    } else {
-      $('#interval-years-death').append($('<option>').text(i));
-    }
+  for (let i = min; i <= max; i++) {
+    $('#interval-years').append(new Option(i, i));
+    $('#interval-years-death').append(new Option(i, i));
+  }
+
+  if (prevInt.length && prevInt.some((e) => e >= min && e <= max)) {
+    $('#interval-years').val(prevInt).trigger('change');
+  } else if (min <= defMin || max >= defMax) {
+    $('#interval-years').val(defaultIntervals).trigger('change');
+  } else {
+    $('#interval-years')
+      .val([max - 1, max])
+      .trigger('change');
+  }
+  if (prevIntDeath.length && prevIntDeath.some((e) => e >= min && e <= max)) {
+    $('#interval-years-death').val(prevIntDeath).trigger('change');
+  } else if (min <= defMin || max >= defMax) {
+    $('#interval-years-death').val(defaultIntervals).trigger('change');
+  } else {
+    $('#interval-years-death')
+      .val([max - 1, max])
+      .trigger('change');
   }
 }
 
@@ -2353,7 +2355,7 @@ function clearIntervalYears() {
 function setIntervalsDynamic() {
   if (Object.keys(jpsurvData.results).length > 0) {
     if (jpsurvData.results.timeData.maxInt) {
-      setIntervalYears([jpsurvData.results.timeData.minInt, jpsurvData.results.timeData.maxInt]);
+      setIntervalYears(jpsurvData.results.timeData.minInt, jpsurvData.results.timeData.maxInt);
     }
   }
 }
@@ -2482,11 +2484,10 @@ function build_output_format_column() {
 }
 
 function jpsurvRest2(action, callback) {
-  var params = getParams();
-
+  const params = getParams();
   $('#calculating-spinner').modal({ backdrop: 'static' });
   $('#calculating-spinner').modal('show');
-  var url = 'jpsurvRest/' + action + '?jpsurvData=' + encodeURIComponent(params);
+  const url = 'jpsurvRest/' + action + '?jpsurvData=' + encodeURIComponent(params);
   return $.ajax({
     type: 'GET',
     url: url,
