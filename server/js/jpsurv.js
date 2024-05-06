@@ -382,15 +382,6 @@ function addEventListeners() {
         rules,
         messages,
         submitHandler: async (form) => {
-          const formData = new FormData(form);
-          const params = Object.fromEntries(formData);
-          // hide conditional recalculation if conditional calculation was used
-          if (params?.toggleConditionalJp == 'on') {
-            $('#conditionalRecalcVis').addClass('d-none');
-          } else {
-            $('#conditionalRecalcVis').removeClass('d-none');
-          }
-
           jpsurvData.stage2completed = false;
           checkUnselectedCohorts();
           setCalculateData();
@@ -1845,6 +1836,9 @@ export function loadResults(results) {
   createModelSelection();
   updateTabs();
   absChgDynamic();
+
+  const conditional = jpsurvData.calculate.form.conditional;
+  $('#conditionalRecalcVis').toggleClass('d-none', conditional == false);
 
   const relaxProp = jpsurvData.calculate.form.relaxProp;
   $('#toggleCondControl').toggleClass('d-none', !relaxProp || +jpsurvData.cutPointIndex == 1);
