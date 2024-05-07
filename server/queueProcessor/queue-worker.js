@@ -52,6 +52,7 @@ export async function startQueueWorker() {
         await rm(archivePath);
 
         // main calculation
+        logger.info('main calculation');
         const resultsFile = await calculate(state, dataPath);
         const results = {
           ...state,
@@ -59,9 +60,11 @@ export async function startQueueWorker() {
         };
 
         // process models
+        logger.info('process models');
         const modelData = await calculateModels(results, dataPath);
 
         // generate full dataset xlsx
+        logger.info('generate full dataset download');
         const xlsxFile = await multiExport(modelData, dataPath, results);
 
         // archive results
