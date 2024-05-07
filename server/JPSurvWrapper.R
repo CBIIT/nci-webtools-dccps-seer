@@ -341,7 +341,6 @@ getAllData <- function(filePath, jpsurvDataString, first_calc = FALSE, valid_com
   }
 
   yod <- jpsurvData$additional$yearOfDiagnosis_default
-  intervals <- jpsurvData$additional$intervals_default
 
 
   # get year column var name
@@ -371,7 +370,6 @@ getAllData <- function(filePath, jpsurvDataString, first_calc = FALSE, valid_com
     "jpInd" = jpInd,
     "imageId" = imageId,
     "yod" = yod,
-    "intervals" = intervals,
     "yearVar" = yearVar,
     "deathData" = deathGraph,
     "yearData" = yearGraph,
@@ -441,8 +439,6 @@ relaxPropResults <- function(filePath, jpsurvDataString, first_calc = FALSE, val
   }
 
   yod <- state$additional$yearOfDiagnosis_default
-  intervals <- state$additional$intervals_default
-
 
   file <- file.path(filePath, paste("output-", state$tokenId, "-", com, ".rds", sep = ""))
   data <- readRDS(file)
@@ -488,7 +484,6 @@ relaxPropResults <- function(filePath, jpsurvDataString, first_calc = FALSE, val
     "jpInd" = jpInd,
     "imageId" = imageId,
     "yod" = yod,
-    "intervals" = intervals,
     "yearVar" = yearVar,
     "deathData" = deathGraph,
     "yearData" = yearGraph,

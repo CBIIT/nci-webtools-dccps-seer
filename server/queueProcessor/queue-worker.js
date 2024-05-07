@@ -128,9 +128,10 @@ async function calculateModels(state, dataPath) {
       params.run = cohortIndex + 1;
       params.additional.headerJoinPoints = jp;
       params.calculate.form.cohortValues = cohort.split(' + ');
+      params.viewConditional = false;
 
       const relaxProp = params.calculate.form.relaxProp;
-      const filePrefix = relaxProp ? 'results-conditional' : 'results';
+      const filePrefix = params.viewConditional ? 'results-conditional' : 'results';
       const cutPointIndex = relaxProp ? `-${params.cutPointIndex}` : '';
       const resultsFile = path.join(
         dataPath,
@@ -142,13 +143,17 @@ async function calculateModels(state, dataPath) {
         return await JSON.parse(await fs.promises.readFile(resultsFile));
       } else {
         // otherwise calculate model
-        if (params.relaxProp) {
-          await r('../server/JPSurvWrapper.R', 'relaxPropResults', [
-            dataPath,
-            JSON.stringify(params),
-            false,
-            path.join(dataPath, `cohortCombo-${state.tokenId}.json`),
-          ]);
+        if (relaxProp) {
+          const cutPoint = +params.calculate.form.cutPoint;
+          [...Array(cutPoint).keys()].forEach(
+            async (i) =>
+              await r('../server/JPSurvWrapper.R', 'relaxPropResults', [
+                dataPath,
+                JSON.stringify({ ...params, cutPointIndex: i + 1 }),
+                false,
+                path.join(dataPath, `cohortCombo-${state.tokenId}.json`),
+              ])
+          );
         } else {
           await r('../server/JPSurvWrapper.R', 'getAllData', [
             dataPath,

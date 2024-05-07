@@ -25,7 +25,6 @@ window.jpsurvData = {
     intervals: [5, 10],
     absTmp: [NaN, NaN],
     absChgRange: null,
-    viewConditional: false,
   },
   tokenId: 'unknown',
   status: 'unknown',
@@ -1645,6 +1644,9 @@ function calculate(run) {
     // jpsurvData.tokenId = renewTokenId(true);
     incrementImageId();
     jpsurvData.run = 1;
+    jpsurvData.recentTrends = 0;
+    jpsurvData.cutPointIndex = 1;
+    jpsurvData.viewConditional = false;
     if (useQueue() && validateVariables()) {
       setIntervalsDefault();
       getIntervals();
@@ -1904,9 +1906,6 @@ function incrementImageId() {
 
 function stage2(action) {
   $('#jpsurv-message-container').hide();
-  jpsurvData.recentTrends = 0;
-  jpsurvData.cutPointIndex = 1;
-  jpsurvData.viewConditional = false;
   setIntervalsDefault();
   getIntervals();
   setAbsChangeDefault();
