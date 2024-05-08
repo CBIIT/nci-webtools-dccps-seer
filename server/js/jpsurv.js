@@ -394,6 +394,7 @@ function addEventListeners() {
 
   $('#toggleConditionalView').on('click', (e) => {
     jpsurvData.viewConditional = e.target.checked;
+    resetShowTrend();
     setCalculateData();
   });
 
@@ -2208,7 +2209,7 @@ function setIntervalYears(min, max) {
 
   if (prevInt.length && prevInt.some((e) => e >= min && e <= max)) {
     $('#interval-years').val(prevInt).trigger('change');
-  } else if (min <= defMin || max >= defMax) {
+  } else if (min <= defMin && max >= defMax) {
     $('#interval-years').val(defaultIntervals).trigger('change');
   } else {
     $('#interval-years')
@@ -2346,10 +2347,8 @@ function clearIntervalYears() {
 
 // only allow intervals within range of cohort combo
 function setIntervalsDynamic() {
-  if (Object.keys(jpsurvData.results).length > 0) {
-    if (jpsurvData.results.timeData.maxInt) {
-      setIntervalYears(jpsurvData.results.timeData.minInt, jpsurvData.results.timeData.maxInt);
-    }
+  if (jpsurvData.results?.timeData?.maxInt) {
+    setIntervalYears(jpsurvData.results.timeData.minInt, jpsurvData.results.timeData.maxInt);
   }
 }
 
