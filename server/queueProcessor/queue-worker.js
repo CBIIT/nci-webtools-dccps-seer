@@ -145,14 +145,15 @@ async function calculateModels(state, dataPath) {
         // otherwise calculate model
         if (relaxProp) {
           const cutPoint = +params.calculate.form.cutPoint;
-          [...Array(cutPoint).keys()].forEach(
-            async (i) =>
-              await r('../server/JPSurvWrapper.R', 'relaxPropResults', [
+          await Promise.all(
+            [...Array(cutPoint).keys()].map((i) =>
+              r('../server/JPSurvWrapper.R', 'relaxPropResults', [
                 dataPath,
                 JSON.stringify({ ...params, cutPointIndex: i + 1 }),
                 false,
                 path.join(dataPath, `cohortCombo-${state.tokenId}.json`),
               ])
+            )
           );
         } else {
           await r('../server/JPSurvWrapper.R', 'getAllData', [
