@@ -700,11 +700,17 @@ export function updateCohortDropdown() {
 
 export function updateCutPointOptions() {
   $('#cutpoint-display').empty();
-  const cutPoint = +$('#cutPoint').val();
-  for (let i = 0; i <= cutPoint; i++) {
-    const option = new Option(i, i + 1);
+  const maxCutPoint = +$('#maxCutPoint').val();
+  const cutPoint = jpsurvData.results.cutPoint + 1;
+  const optimalIndex = jpsurvData.results.optimalCutpointIndex;
+  for (let i = 0; i <= maxCutPoint; i++) {
+    const label = i == optimalIndex - 1 ? `${i} (Optimal)` : i;
+    const option = new Option(label, i + 1);
     $('#cutpoint-display').append(option);
   }
+
+  $('#cutpoint-display').val(cutPoint).trigger('change');
+  jpsurvData.cutPointIndex = cutPoint;
 
   $('#cutpoint-display').on('select2:select', function () {
     jpsurvData.cutPointIndex = $('#cutpoint-display option:selected')?.val() || 1;
@@ -726,7 +732,7 @@ function dropdownListener() {
     });
     //resets the image id
     jpsurvData.plot.static.imageId = 0;
-    jpsurvData.switch = true;
+    jpsurvData.firstCalc = true;
     resetShowTrend();
     calculate(true);
   });
@@ -1440,22 +1446,18 @@ function calculateAllData() {
 function calculateAllDataCallback() {
   var cohort_com = jpsurvData.run;
   var jpInd = jpsurvData.additional.headerJoinPoints;
-  retrieveResults(cohort_com, jpInd, jpsurvData.switch);
-  jpsurvData.switch = false;
+  retrieveResults(cohort_com, jpInd, jpsurvData.firstCalc);
+  jpsurvData.firstCalc = false;
 }
 
-function calculateFittedResults() {
-  jpsurvRest2('stage2_calculate', calculateFittedResultsCallback);
-}
-
-function calculateFittedResultsCallback() {
+function calculateFittedResultsCallback(file = ['']) {
   $('#right_panel').show();
   $('#right_panel').css('display', 'inline-block');
   $('#descriptionCard').hide();
   $('#icon').css('visibility', 'visible');
   Slide_menu_Horz('hide');
 
-  retrieveResults();
+  retrieveResults(false, false, false, file[0]);
 
   //Set precision if cookie is available
   var precision = getCookie('precision');
@@ -1761,12 +1763,14 @@ function handleSubmit(e) {
   });
 }
 
-function retrieveResults(cohort_com, jpInd, switch_cohort) {
+function retrieveResults(cohort_com, jpInd, firstCalc, file = '') {
   let file_name = '';
-  const relaxProp = jpsurvData.calculate.form.relaxProp;
-  const cutPoint = jpsurvData.cutPointIndex;
-  const prefix = jpsurvData.viewConditional ? 'results-conditional-' : 'results-';
-  if (jpInd != undefined && cohort_com != undefined && switch_cohort == false)
+  if (file) {
+    file_name = `jpsurvRest/results?file=${file}&tokenId=${jpsurvData.tokenId}`;
+  } else if (jpInd != undefined && cohort_com != undefined && firstCalc == false) {
+    const relaxProp = jpsurvData.calculate.form.relaxProp;
+    const cutPointIndex = jpsurvData.cutPointIndex;
+    const prefix = jpsurvData.viewConditional ? 'results-conditional-' : 'results-';
     file_name =
       `jpsurvRest/results?file=${prefix}` +
       jpsurvData.tokenId +
@@ -1774,23 +1778,23 @@ function retrieveResults(cohort_com, jpInd, switch_cohort) {
       cohort_com +
       '-' +
       jpInd +
-      (relaxProp ? `-${cutPoint}` : '') +
+      (relaxProp ? `-${cutPointIndex}` : '') +
       '.json&tokenId=' +
       jpsurvData.tokenId;
-  else {
-    file_name = generateResultsFilename(cohort_com, jpInd, switch_cohort);
+  } else {
+    file_name = generateResultsFilename(cohort_com, jpInd, firstCalc);
   }
   $.getJSON(file_name, function (results) {
     loadResults(results);
   });
 
-  jpsurvData.switch = false;
+  jpsurvData.firstCalc = false;
 }
 
-export function generateResultsFilename(cohort_com, jpInd, switch_cohort) {
+export function generateResultsFilename(cohort_com, jpInd, firstCalc) {
   let file_name = '';
   const relaxProp = jpsurvData.calculate.form.relaxProp;
-  const cutPoint = jpsurvData.cutPointIndex;
+  const cutPointIndex = jpsurvData.cutPointIndex;
   const prefix = jpsurvData.viewConditional ? 'results-conditional-' : 'results-';
   $.ajax({
     async: false,
@@ -1803,7 +1807,7 @@ export function generateResultsFilename(cohort_com, jpInd, switch_cohort) {
     dataType: 'json',
   })
     .done(function (results) {
-      if (!switch_cohort) cohort_com = 1;
+      if (!firstCalc) cohort_com = 1;
       file_name =
         `jpsurvRest/results?file=${prefix}` +
         jpsurvData.tokenId +
@@ -1811,7 +1815,7 @@ export function generateResultsFilename(cohort_com, jpInd, switch_cohort) {
         cohort_com +
         '-' +
         results[cohort_com - 1] +
-        (relaxProp ? `-${cutPoint}` : '') +
+        (relaxProp ? `-${cutPointIndex}` : '') +
         '.json&tokenId=' +
         jpsurvData.tokenId;
     })
@@ -1839,6 +1843,7 @@ export function loadResults(results) {
   createModelSelection();
   updateTabs();
   absChgDynamic();
+  setIntervalsDynamic();
 
   const conditional = jpsurvData.calculate.form.conditional;
   $('#conditionalRecalcVis').toggleClass('d-none', conditional == false);
@@ -1856,7 +1861,6 @@ export function loadResults(results) {
     $('#absChgFrom').val(trend['start.year']).trigger('change');
     $('#absChgTo').val(trend['end.year']).trigger('change');
   }
-  setIntervalsDynamic();
   jpsurvData.stage2completed = true;
   jpsurvData.additional.recalculate = 'false';
   updateTrend();
@@ -1915,7 +1919,7 @@ function stage2(action) {
   getTrendTables();
   jpsurvData.additional.yearOfDiagnosis[0] = jpsurvData.calculate.form.yearOfDiagnosisRange[0].toString();
   if (action == 'calculate') {
-    calculateFittedResults();
+    jpsurvRest2('stage2_calculate', calculateFittedResultsCallback);
   } else {
     calculateFittedResultsCallback();
   }
@@ -2012,7 +2016,7 @@ function setupParameters() {
   const intervals = getIntervalOptions();
   jpsurvData.calculate.form.condIntStart = +intervals[0];
   jpsurvData.calculate.form.condIntEnd = +intervals.unshift();
-  jpsurvData.calculate.form.cutPoint = +intervals.length - 1 < 5 ? intervals.length - 1 : 5;
+  jpsurvData.calculate.form.maxCutPoint = +intervals.length - 1 < 5 ? intervals.length - 1 : 5;
   $('#condIntStart').each((_, e) => {
     if ($(e).find('option').length == 0) {
       intervals.forEach((v, i) => $(e).append(`<option ${i == 0 ? 'selected' : ''} value="${v}">${v}</option>`));
@@ -2025,10 +2029,10 @@ function setupParameters() {
       );
     }
   });
-  $('#cutPoint').each((_, e) => {
+  $('#maxCutPoint').each((_, e) => {
     if ($(e).find('option').length == 0) {
       intervals.slice(0, -1).forEach((v, i, arr) => $(e).append(`<option value="${v}">${v}</option>`));
-      $(e).val(jpsurvData.calculate.form.cutPoint);
+      $(e).val(jpsurvData.calculate.form.maxCutPoint);
     }
   });
 
@@ -2050,14 +2054,14 @@ function setupParameters() {
   $('#toggleRelaxProp').on('change', (e) => {
     if (e.target.checked) {
       $('#relaxPropForm').removeClass('d-none');
-      $('#cutPoint').prop('disabled', false);
+      $('#maxCutPoint').prop('disabled', false);
       jpsurvData.calculate.form.relaxProp = true;
       // disable conditional survival
       $('#toggleConditionalJp').prop('disabled', true);
       $('#toggleConditionalJp').prop('checked', false).change();
     } else {
       $('#relaxPropForm').addClass('d-none');
-      $('#cutPoint').prop('disabled', true);
+      $('#maxCutPoint').prop('disabled', true);
       jpsurvData.calculate.form.relaxProp = false;
       // enable conditional survival
       $('#toggleConditionalJp').prop('disabled', false);
@@ -2077,8 +2081,8 @@ function setupParameters() {
   $('#condIntEnd').change((e) => {
     jpsurvData.calculate.form.condIntEnd = +e.target.value;
   });
-  $('#cutPoint').change((e) => {
-    jpsurvData.calculate.form.cutPoint = +e.target.value;
+  $('#maxCutPoint').change((e) => {
+    jpsurvData.calculate.form.maxCutPoint = +e.target.value;
   });
 }
 
@@ -2218,7 +2222,7 @@ function setIntervalYears(min, max) {
   }
   if (prevIntDeath.length && prevIntDeath.some((e) => e >= min && e <= max)) {
     $('#interval-years-death').val(prevIntDeath).trigger('change');
-  } else if (min <= defMin || max >= defMax) {
+  } else if (min <= defMin && max >= defMax) {
     $('#interval-years-death').val(defaultIntervals).trigger('change');
   } else {
     $('#interval-years-death')
@@ -2485,8 +2489,8 @@ function jpsurvRest2(action, callback) {
     url: url,
     contentType: 'application/json',
   })
-    .done(function (msg) {
-      callback();
+    .done(function (data) {
+      callback(data);
       $('#calculating-spinner').modal('hide');
     })
     .fail(function (jqXHR, textStatus) {
@@ -3389,8 +3393,8 @@ async function getData() {
 
           const relaxProp = jpsurvData.calculate.form.relaxProp;
           if (relaxProp) {
-            const cutPoint = +jpsurvData.calculate.form.cutPoint;
-            return [...Array(cutPoint).keys()]
+            const maxCutPoint = +jpsurvData.calculate.form.maxCutPoint;
+            return [...Array(maxCutPoint).keys()]
               .map((i) => {
                 const rpParams = { ...calcParams, cutPointIndex: i + 1 };
                 const paramsArray = [rpParams];

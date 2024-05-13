@@ -219,7 +219,7 @@ function retrieveCohortComboResults(data) {
     }
   );
 
-  jpsurvData.switch = false;
+  jpsurvData.firstCalc = false;
 
   //Set precision if cookie is available
   var precision = getCookie('precision');

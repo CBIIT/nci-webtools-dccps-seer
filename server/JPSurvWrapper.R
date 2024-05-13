@@ -143,7 +143,7 @@ getFittedResultWrapper <- function(filePath, jpsurvDataString) {
   condIntStart <- jpsurvData$calculate$form$condIntStart
   condIntEnd <- jpsurvData$calculate$form$condIntEnd
   relaxProp <- jpsurvData$calculate$form$relaxProp
-  cutPoint <- jpsurvData$calculate$form$cutPoint
+  maxCutPoint <- jpsurvData$calculate$form$maxCutPoint
   numbetwn <- as.integer(jpsurvData$calculate$static$advanced$advBetween)
   numfromstart <- as.integer(jpsurvData$calculate$static$advanced$advFirst)
   numtoend <- as.integer(jpsurvData$calculate$static$advanced$advLast)
@@ -197,7 +197,7 @@ getFittedResultWrapper <- function(filePath, jpsurvDataString) {
           jsonl[[i]] <- getFittedResultForVarCombo(
             i, jpsurvData, filePath, seerFilePrefix, yearOfDiagnosisVarName,
             yearOfDiagnosisRange, allVars, cohortVars, valid_com_matrix[i, ], numJP, advanced_options,
-            delLastIntvl, jpsurvDataString, projyear, type, conditional, condIntStart, condIntEnd, relaxProp, cutPoint
+            delLastIntvl, jpsurvDataString, projyear, type, conditional, condIntStart, condIntEnd, relaxProp, maxCutPoint
           )
         },
         error = function(e) {
@@ -231,9 +231,9 @@ getFittedResultWrapper <- function(filePath, jpsurvDataString) {
   write(cohortCombo, cohortComboPath)
   # Calculates graphs, model estimates etc for first combination by setting first_calc=TRUE
   if (relaxProp == TRUE) {
-    relaxPropResults(filePath, jpsurvDataString, TRUE, cohortComboPath, errors)
+    return(relaxPropResults(filePath, jpsurvDataString, TRUE, cohortComboPath, errors))
   } else {
-    getAllData(filePath, jpsurvDataString, TRUE, cohortComboPath, errors)
+    return(getAllData(filePath, jpsurvDataString, TRUE, cohortComboPath, errors))
   }
 }
 
@@ -271,7 +271,7 @@ validateCohort <- function(jpsurvData, filePath, seerFilePrefix, allVars, yearOf
 getFittedResultForVarCombo <- function(modelIndex, jpsurvData, filePath, seerFilePrefix, yearOfDiagnosisVarName,
                                        yearOfDiagnosisRange, allVars, cohortVars, cohortValues, numJP, advanced_options, delLastIntvl,
                                        jpsurvDataString, projyear, type,
-                                       conditional = FALSE, condIntStart = NULL, condIntEnd = NULL, relaxProp = FALSE, cutPoint = NULL) {
+                                       conditional = FALSE, condIntStart = NULL, condIntEnd = NULL, relaxProp = FALSE, maxCutPoint = NULL) {
   fileName <- paste("output", jpsurvData$tokenId, modelIndex, sep = "-")
   fileName <- paste(fileName, "rds", sep = ".")
   outputFileName <- paste(filePath, fileName, sep = "/")
@@ -279,7 +279,7 @@ getFittedResultForVarCombo <- function(modelIndex, jpsurvData, filePath, seerFil
   getFittedResult(
     jpsurvData$session_tokenId, filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange,
     allVars, cohortVars, cohortValues, numJP, advanced_options, delLastIntvl, outputFileName, jpsurvDataString, projyear, type,
-    conditional, condIntStart, condIntEnd, relaxProp, cutPoint
+    conditional, condIntStart, condIntEnd, relaxProp, maxCutPoint
   )
   jpInd <- getSelectedModel(filePath, jpsurvDataString, modelIndex) - 1
   return(jpInd)
@@ -382,7 +382,7 @@ getAllData <- function(filePath, jpsurvDataString, first_calc = FALSE, valid_com
   filePrefix <- if (viewConditional) "results-conditional-" else "results-"
   filename <- file.path(filePath, paste0(filePrefix, jpsurvData$tokenId, "-", com, "-", jpInd, ".json"))
   write(exportJson, filename)
-  return(filename)
+  return(jsonlite::toJSON(basename(filename)))
 }
 
 relaxPropResults <- function(filePath, jpsurvDataString, first_calc = FALSE, valid_com_matrix, errors = NULL) {
@@ -443,12 +443,18 @@ relaxPropResults <- function(filePath, jpsurvDataString, first_calc = FALSE, val
   file <- file.path(filePath, paste("output-", state$tokenId, "-", com, ".rds", sep = ""))
   data <- readRDS(file)
   seerdata <- data$seerdata
+  fitInfo <- data$fittedResult$fit.info
+  optimalCutpointIndex <- which(fitInfo[["BestFit(Min BIC)"]] == "*")
+  if (first_calc == TRUE) {
+    cutPointIndex <- optimalCutpointIndex
+  } else {
+    cutPointIndex <- strtoi(state$cutPointIndex)
+  }
 
   # get year column var name
   yearVar <- getCorrectFormat(state$calculate$static$yearOfDiagnosisVarName)
 
   viewConditional <- state$viewConditional
-  cutPointIndex <- strtoi(state$cutPointIndex)
   JP <- getJPWrapper2(data$fittedResult$all.results[[cutPointIndex]]$fit.uncond, state, first_calc, com)
   cut <- data$fittedResult$all.results[[cutPointIndex]]
   fit <- NULL
@@ -490,15 +496,17 @@ relaxPropResults <- function(filePath, jpsurvDataString, first_calc = FALSE, val
     "timeData" = timeGraph,
     "fullDownload" = fullDownload,
     "jpLocation" = jpLocation,
-    "cutpoint" = cutPointIndex - 1,
     "conditional" = viewConditional,
+    "fitInfo" = fitInfo,
+    "cutPoint" = cutPointIndex - 1,
+    "optimalCutpointIndex" = optimalCutpointIndex,
     "errors" = errors
   )
   exportJson <- rjson::toJSON(jsonl)
   filePrefix <- if (viewConditional) "results-conditional-" else "results-"
   filename <- file.path(filePath, paste0(filePrefix, state$tokenId, "-", com, "-", jpInd, "-", cutPointIndex, ".json"))
   write(exportJson, filename)
-  return(filename)
+  return(jsonlite::toJSON(basename(filename)))
 }
 
 getTrendsData <- function(filePath, jpsurvDataString, com) {
@@ -514,7 +522,7 @@ getTrendsData <- function(filePath, jpsurvDataString, com) {
 # Creates the SEER Data and Fitted Result
 getFittedResult <- function(tokenId, filePath, seerFilePrefix, yearOfDiagnosisVarName, yearOfDiagnosisRange,
                             allVars, cohortVars, cohortValues, numJP, advanced_options, delLastIntvlAdv, outputFileName, jpsurvDataString, projyear, type,
-                            conditional = FALSE, condIntStart = NULL, condIntEnd = NULL, relaxProp = FALSE, cutPoint = NULL,
+                            conditional = FALSE, condIntStart = NULL, condIntEnd = NULL, relaxProp = FALSE, maxCutPoint = NULL,
                             alive_at_start = NULL, interval = NULL, died = NULL, lost_to_followup = NULL, rel_cum = NULL) {
   jpsurvData <- rjson::fromJSON(jpsurvDataString)
   type <- jpsurvData$additional$input_type
@@ -553,7 +561,7 @@ getFittedResult <- function(tokenId, filePath, seerFilePrefix, yearOfDiagnosisVa
       fittedResult <- joinpoint.relaxProp(
         seerdataSub,
         subset = subsetStr,
-        max.cutpoint = cutPoint,
+        max.cutpoint = maxCutPoint,
         year = year,
         model.form = ~NULL,
         op = advanced_options,
@@ -615,7 +623,7 @@ getFittedResult <- function(tokenId, filePath, seerFilePrefix, yearOfDiagnosisVa
       fittedResult <- joinpoint.relaxProp(
         seerdataSub,
         subset = subsetStr,
-        max.cutpoint = cutPoint,
+        max.cutpoint = maxCutPoint,
         year = year,
         interval = interval,
         number.event = died,

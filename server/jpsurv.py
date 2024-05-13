@@ -578,9 +578,10 @@ def stage2_calculate():
         for p in Path(input_dir).glob("*.rds"):
             p.unlink()
 
-        r.getFittedResultWrapper(input_dir, jpsurvDataString)
+        resultsFile = r.getFittedResultWrapper(input_dir, jpsurvDataString)
+        print(resultsFile)
         status = 200
-        out_json = json.dumps({"status": "OK"})
+        out_json = resultsFile
     except Exception as e:
         app.logger.debug(e)
         status = 400
@@ -608,11 +609,11 @@ def stage3_recalculate():
     app.logger.debug("RECALC?")
     app.logger.debug(recalc)
 
-    switch = jpsurvData["switch"]
-    app.logger.debug("SWITCH?")
-    app.logger.debug(switch)
+    firstCalc = jpsurvData["firstCalc"]
+    app.logger.debug("firstCalc?")
+    app.logger.debug(firstCalc)
 
-    if switch == True:
+    if firstCalc == True:
         with open(
             input_dir + "/cohort_models-" + jpsurvData["tokenId"] + ".json"
         ) as data_file:
@@ -649,14 +650,14 @@ def stage3_recalculate():
                 r.relaxPropResults(
                     input_dir,
                     jpsurvDataString,
-                    switch,
+                    firstCalc,
                     input_dir + "/cohortCombo-" + jpsurvData["tokenId"] + ".json",
                 )
             else:
                 r.getAllData(
                     input_dir,
                     jpsurvDataString,
-                    switch,
+                    firstCalc,
                     input_dir + "/cohortCombo-" + jpsurvData["tokenId"] + ".json",
                 )
             status = 200
@@ -919,11 +920,11 @@ def recalculateBatch():
         app.logger.debug("RECALC?")
         app.logger.debug(recalc)
 
-        switch = jpsurvData["switch"]
-        app.logger.debug("SWITCH?")
-        app.logger.debug(switch)
+        firstCalc = jpsurvData["firstCalc"]
+        app.logger.debug("firstCalc?")
+        app.logger.debug(firstCalc)
 
-        if switch == True:
+        if firstCalc == True:
             with open(
                 input_dir + "/cohort_models-" + jpsurvData["tokenId"] + ".json"
             ) as data_file:
@@ -961,14 +962,14 @@ def recalculateBatch():
                     r.relaxPropResults(
                         input_dir,
                         jpsurvDataString,
-                        switch,
+                        firstCalc,
                         input_dir + "/cohortCombo-" + jpsurvData["tokenId"] + ".json",
                     )
                 else:
                     r.getAllData(
                         input_dir,
                         jpsurvDataString,
-                        switch,
+                        firstCalc,
                         input_dir + "/cohortCombo-" + jpsurvData["tokenId"] + ".json",
                     )
                 with open(fname, "r") as jsonFile:

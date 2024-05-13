@@ -144,9 +144,9 @@ async function calculateModels(state, dataPath) {
       } else {
         // otherwise calculate model
         if (relaxProp) {
-          const cutPoint = +params.calculate.form.cutPoint;
+          const maxCutPoint = +params.calculate.form.maxCutPoint;
           await Promise.all(
-            [...Array(cutPoint).keys()].map((i) =>
+            [...Array(maxCutPoint).keys()].map((i) =>
               r('../server/JPSurvWrapper.R', 'relaxPropResults', [
                 dataPath,
                 JSON.stringify({ ...params, cutPointIndex: i + 1 }),
