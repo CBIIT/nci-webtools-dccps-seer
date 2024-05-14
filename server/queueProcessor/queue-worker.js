@@ -53,7 +53,7 @@ export async function startQueueWorker() {
 
         // main calculation
         logger.info('main calculation');
-        const resultsFile = await calculate(state, dataPath);
+        const resultsFile = path.resolve(dataPath, JSON.parse(await calculate(state, dataPath))[0]);
         const results = {
           ...state,
           results: JSON.parse(await fs.promises.readFile(resultsFile)),
