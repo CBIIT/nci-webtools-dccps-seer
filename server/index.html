@@ -6,10 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>JPsurv Analysis Tool</title>
     <!-- Google tag (gtag.js) -->
-    <script
-      async
-      src="https://www.googletagmanager.com/gtag/js?id=G-DGFTR3EY14"
-    ></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-DGFTR3EY14"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag() {
@@ -61,26 +58,15 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
-    <link
-      rel="stylesheet"
-      href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.min.css"
-    />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.min.css" />
     <link rel="stylesheet" href="css/jpsurv.css" />
     <link rel="icon" type="image/png" href="images/seer_logo.png" />
   </head>
 
   <body role="document" class="bg-light">
-    <a class="sr-only sr-only-focusable" title="Skip to content" href="#main"
-      >Skip to content</a
-    >
+    <a class="sr-only sr-only-focusable" title="Skip to content" href="#main">Skip to content</a>
     <header>
       <include-html
         src="https://cbiit.github.io/nci-softwaresolutions-elements/banners/government-shutdown.html"
@@ -101,9 +87,7 @@
           <div id="ribbon" class="clearfix bg-primary">
             <div class="wrapper">
               <h1>
-                <a href="/" title="Return to SRP Home"
-                  >Surveillance Research Program</a
-                >
+                <a href="/" title="Return to SRP Home">Surveillance Research Program</a>
               </h1>
             </div>
           </div>
@@ -112,10 +96,7 @@
     </header>
     <div class="bg-dark w-100">
       <div class="container">
-        <nav
-          class="navbar navbar-expand-lg navbar-dark bg-dark p-0"
-          role="navigation"
-        >
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark p-0" role="navigation">
           <button
             class="navbar-toggler"
             type="button"
@@ -129,12 +110,7 @@
           </button>
           <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
             <div class="navbar-nav">
-              <a
-                class="nav-item nav-link active"
-                id="analysisNav"
-                href="#analysis"
-                >Analysis</a
-              >
+              <a class="nav-item nav-link active" id="analysisNav" href="#analysis">Analysis</a>
               <a class="nav-item nav-link" id="helpNav" href="#help">Help</a>
             </div>
           </div>
@@ -145,11 +121,7 @@
 
     <div id="main" class="container">
       <div class="row">
-        <div
-          class="col-lg-12 col-lg-offset-1 w-100 ml-0"
-          id="jpsurv-message-container"
-          style="display: none"
-        >
+        <div class="col-lg-12 col-lg-offset-1 w-100 ml-0" id="jpsurv-message-container" style="display: none">
           <div class="card bg-white">
             <div class="card-header bg-danger">Error</div>
             <div class="card-body">
@@ -196,10 +168,7 @@
                     </a>
                   </span> -->
                   <!-- Upload FORM - STAGE 1 -->
-                  <div
-                    class="box col-xs-12 border rounded"
-                    style="overflow: hidden; width: 100%"
-                  >
+                  <div class="box col-xs-12 border rounded" style="overflow: hidden; width: 100%">
                     <form
                       id="upload-form"
                       class="form-horizontal"
@@ -208,36 +177,16 @@
                       enctype="multipart/form-data"
                       action="jpsurvRest/stage1_upload"
                     >
-                      <label
-                        class="col-xs-3 font-weight-bold"
-                        id="inputTypeLabel"
-                        >File Format:</label
-                      >
-                      <div
-                        id="input_type_select"
-                        style="margin-bottom: 2%"
-                        class="d-flex"
-                      >
+                      <label class="col-xs-3 font-weight-bold" id="inputTypeLabel">File Format:</label>
+                      <div id="input_type_select" style="margin-bottom: 2%" class="d-flex">
                         <div
                           class="custom-control custom-radio custom-control-inline"
                           data-toggle="tooltip"
                           data-placement="top"
                           title="SEER*Stat survival text and dictionary files"
                         >
-                          <input
-                            type="radio"
-                            id="dic"
-                            name="data"
-                            value="dic"
-                            class="custom-control-input"
-                            checked
-                          />
-                          <label
-                            class="custom-control-label"
-                            for="dic"
-                            aria-label="dictionary"
-                            >Dic/Data Files</label
-                          >
+                          <input type="radio" id="dic" name="data" value="dic" class="custom-control-input" checked />
+                          <label class="custom-control-label" for="dic" aria-label="dictionary">Dic/Data Files</label>
                         </div>
                         <div
                           class="custom-control custom-radio custom-control-inline"
@@ -245,19 +194,8 @@
                           data-placement="top"
                           title="SEER Data File"
                         >
-                          <input
-                            type="radio"
-                            id="csv"
-                            name="data"
-                            value="csv"
-                            class="custom-control-input"
-                          />
-                          <label
-                            class="custom-control-label"
-                            for="csv"
-                            aria-label="csv"
-                            >CSV Files</label
-                          >
+                          <input type="radio" id="csv" name="data" value="csv" class="custom-control-input" />
+                          <label class="custom-control-label" for="csv" aria-label="csv">CSV Files</label>
                         </div>
                         <div
                           class="custom-control custom-radio custom-control-inline"
@@ -272,10 +210,7 @@
                             value="importRadioButton"
                             class="custom-control-input"
                           />
-                          <label
-                            class="custom-control-label"
-                            for="importRadioButton"
-                            aria-label="importRadioButton"
+                          <label class="custom-control-label" for="importRadioButton" aria-label="importRadioButton"
                             >Workspace</label
                           >
                         </div>
@@ -286,9 +221,7 @@
                       <div id="dic_container">
                         <div id="file_control_container" class="mx-0 mb-0">
                           <div class="mb-2">
-                            <label class="font-weight-bold" for="file_control"
-                              >SEER Stat Dictionary/Data Files:</label
-                            >
+                            <label class="font-weight-bold" for="file_control">SEER Stat Dictionary/Data Files:</label>
                             <a
                               style="font-size: small; color: #3273ab"
                               href="./data/Tutorial_JPSURV.dic"
@@ -314,11 +247,7 @@
                                 multiple
                                 max-uploads="2"
                               />
-                              <label
-                                class="custom-file-label"
-                                for="file_control"
-                                >Choose files (dic, txt)</label
-                              >
+                              <label class="custom-file-label" for="file_control">Choose files (dic, txt)</label>
                             </div>
                             <div class="input-group-append">
                               <button
@@ -341,11 +270,7 @@
                       <div id="csv_container" style="display: none">
                         <div id="file_control_container_csv" class="mx-0 mb-0">
                           <div class="mb-2">
-                            <label
-                              class="font-weight-bold"
-                              for="file_control_csv"
-                              >CSV File:</label
-                            >
+                            <label class="font-weight-bold" for="file_control_csv">CSV File:</label>
                             <a
                               style="font-size: small; color: #3273ab"
                               href="./data/Breast_RelativeSurvival_Head_NA0.csv"
@@ -373,11 +298,7 @@
                                 accept=".csv, .txt"
                                 aria-label="csv file chooser"
                               />
-                              <label
-                                class="custom-file-label"
-                                for="file_control_csv"
-                                >Choose file (csv, txt)</label
-                              >
+                              <label class="custom-file-label" for="file_control_csv">Choose file (csv, txt)</label>
                             </div>
                             <div class="input-group-append">
                               <button
@@ -397,12 +318,7 @@
                       </div>
                       <div id="import_container" style="display: none">
                         <div class="mb-2">
-                          <label
-                            class="font-weight-bold"
-                            for="import_container"
-                          >
-                            Workspace file:
-                          </label>
+                          <label class="font-weight-bold" for="import_container"> Workspace file: </label>
                         </div>
                         <div class="input-group mb-2">
                           <div class="custom-file">
@@ -416,9 +332,7 @@
                               value="Import"
                               title="Import"
                             />
-                            <label class="custom-file-label" for="fileSelect"
-                              >Choose file (*.jpsurv)</label
-                            >
+                            <label class="custom-file-label" for="fileSelect">Choose file (*.jpsurv)</label>
                           </div>
                           <div class="input-group-append">
                             <button
@@ -439,70 +353,38 @@
                     </form>
                   </div>
                   <!-- Calculate - STAGE 2 -->
-                  <div
-                    id="stage2-calculate"
-                    class="box col-xs-12 border rounded"
-                    style="display: none"
-                  >
+                  <div id="stage2-calculate" class="box col-xs-12 border rounded" style="display: none">
                     <form id="parameters" class="form-horizontal" novalidate>
-                      <h5 class="card-title">
-                        Cohort and Model Specifications
-                      </h5>
+                      <h5 class="card-title">Cohort and Model Specifications</h5>
                       <hr class="stage-separator" />
                       <div id="diagnosis_title"></div>
                       <div class="jpsurv-label-container">
                         <span class="jpsurv-label"
                           >Year of Diagnosis Range:
                           <span>
-                            <span
-                              class="jpsurv-label-content font-weight-normal"
-                            >
-                              <label
-                                for="year_of_diagnosis_start"
-                                class="d-none"
-                                >Start Year</label
-                              >
-                              <select
-                                id="year_of_diagnosis_start"
-                                name="year_of_diagnosis_start"
-                              ></select>
+                            <span class="jpsurv-label-content font-weight-normal">
+                              <label for="year_of_diagnosis_start" class="d-none">Start Year</label>
+                              <select id="year_of_diagnosis_start" name="year_of_diagnosis_start"></select>
                               to
-                              <label for="year_of_diagnosis_end" class="d-none"
-                                >End Year</label
-                              >
-                              <select
-                                id="year_of_diagnosis_end"
-                                name="year_of_diagnosis_end"
-                              ></select>
+                              <label for="year_of_diagnosis_end" class="d-none">End Year</label>
+                              <select id="year_of_diagnosis_end" name="year_of_diagnosis_end"></select>
                             </span>
                           </span>
                         </span>
                       </div>
                       <div class="jpsurv-label-container d-flex">
                         <div class="jpsurv-label" style="width: 250px">
-                          Max No. of Years from Diagnosis (follow-up) to
-                          include:
+                          Max No. of Years from Diagnosis (follow-up) to include:
                         </div>
                         <div class="jpsurv-label-content font-weight-normal">
-                          <label for="intervals_from_diagnosis" class="d-none"
-                            >Select</label
-                          >
-                          <select
-                            id="intervals_from_diagnosis"
-                            name="intervals_from_diagnosis"
-                          ></select>
+                          <label for="intervals_from_diagnosis" class="d-none">Select</label>
+                          <select id="intervals_from_diagnosis" name="intervals_from_diagnosis"></select>
                         </div>
                       </div>
                       <div id="cohort-variables"></div>
 
-                      <div
-                        id="popover"
-                        class="mx-0 mb-0 jpsurv-label-container"
-                        style="display: none"
-                      >
-                        <label class="jpsurv-label" for="covariate_select"
-                          >Covariates:</label
-                        >
+                      <div id="popover" class="mx-0 mb-0 jpsurv-label-container" style="display: none">
+                        <label class="jpsurv-label" for="covariate_select">Covariates:</label>
                         <select
                           id="covariate_select"
                           class="jpsurv-label-content"
@@ -511,14 +393,8 @@
                         ></select>
                       </div>
                       <div class="form-group">
-                        <label for="max_join_point_select" class="jpsurv-label"
-                          >Maximum Joinpoints:</label
-                        >
-                        <select
-                          id="max_join_point_select"
-                          class="jpsurv-label-content"
-                          name="max_join_point_select"
-                        >
+                        <label for="max_join_point_select" class="jpsurv-label">Maximum Joinpoints:</label>
+                        <select id="max_join_point_select" class="jpsurv-label-content" name="max_join_point_select">
                           <option>0</option>
                           <option>1</option>
                           <option>2</option>
@@ -547,21 +423,14 @@
                               name="toggleConditionalJp"
                               id="toggleConditionalJp"
                             />
-                            <label
-                              class="form-check-label jpsurv-label"
-                              for="toggleConditionalJp"
-                              >Conditional Survival Model Using Truncated
-                              Data</label
+                            <label class="form-check-label jpsurv-label" for="toggleConditionalJp"
+                              >Conditional Survival Model Using Truncated Data</label
                             >
                           </div>
                           <div id="conditionalForm" class="form d-none">
                             <div class="row">
                               <div class="form-group mb-0 col-sm-auto">
-                                <label
-                                  class="font-weight-bold"
-                                  for="condIntStart"
-                                  >Start Interval:</label
-                                >
+                                <label class="font-weight-bold" for="condIntStart">Start Interval:</label>
                                 <select
                                   id="condIntStart"
                                   name="condIntStart"
@@ -570,76 +439,44 @@
                                 ></select>
                               </div>
                               <div class="form-group mb-0 col-sm-auto">
-                                <label class="font-weight-bold" for="condIntEnd"
-                                  >End Interval:</label
-                                >
-                                <select
-                                  id="condIntEnd"
-                                  name="condIntEnd"
-                                  class="mx-3"
-                                  aria-label="end"
-                                ></select>
+                                <label class="font-weight-bold" for="condIntEnd">End Interval:</label>
+                                <select id="condIntEnd" name="condIntEnd" class="mx-3" aria-label="end"></select>
                               </div>
                             </div>
                             <div class="row">
-                              <label
-                                id="condIntStart-error"
-                                for="condIntStart"
-                                class="text-danger error col-sm-auto"
-                              >
+                              <label id="condIntStart-error" for="condIntStart" class="text-danger error col-sm-auto">
                               </label>
                             </div>
                           </div>
                         </div>
                         <div class="form-group form-check">
-                          <input
-                            type="checkbox"
-                            class="form-check-input"
-                            name="toggleRelaxProp"
-                            id="toggleRelaxProp"
-                          />
-                          <label class="jpsurv-label" for="toggleRelaxProp"
-                            >Relax Proportionality</label
-                          >
+                          <input type="checkbox" class="form-check-input" name="toggleRelaxProp" id="toggleRelaxProp" />
+                          <label class="jpsurv-label" for="toggleRelaxProp">Relax Proportionality</label>
                           <p class="text-muted">
-                            Relaxing the proportionality assumption will require
-                            additional compute time
+                            Relaxing the proportionality assumption will require additional compute time
                           </p>
                         </div>
                         <div id="relaxPropForm" class="form-group d-none">
-                          <label class="font-weight-bold" for="cutPoint"
-                            >Cut Point:</label
-                          >
+                          <label class="font-weight-bold" for="maxCutPoint">Cut Point:</label>
                           <select
-                            id="cutPoint"
-                            name="cutPoint"
+                            id="maxCutPoint"
+                            name="maxCutPoint"
                             class="mx-3"
                             aria-label="end"
                             disabled
                             required
                           ></select>
                           <p class="text-muted">
-                            The cut-point is the time after diagnosis that
-                            splits data into two groups. Cluster 1 includes
-                            years 1 to the cut-point. Separate JPSurv models are
-                            applied to each cluster.
+                            The cut-point is the time after diagnosis that splits data into two groups. Cluster 1
+                            includes years 1 to the cut-point. Separate JPSurv models are applied to each cluster.
                           </p>
                         </div>
                       </div>
                       <div class="row">
-                        <div
-                          id="e-mail-msg"
-                          class="e-mail-grp"
-                          style="padding: 5px 15px; display: none"
-                        ></div>
+                        <div id="e-mail-msg" class="e-mail-grp" style="padding: 5px 15px; display: none"></div>
                       </div>
                       <div class="mx-0 mb-0 e-mail-grp" style="display: none">
-                        <label
-                          for="e-mail"
-                          class="jpsurv-label"
-                          title="Enter a valid e-mail"
-                          >E-mail:</label
-                        >
+                        <label for="e-mail" class="jpsurv-label" title="Enter a valid e-mail">E-mail:</label>
                         <input
                           class="arrow"
                           tabindex="0"
@@ -652,34 +489,22 @@
                         />
                       </div>
                       <div class="row">
-                        <div
-                          class="advanced ml-auto mr-3"
-                          onclick="Slide_menu_Vert('stage2b-advanced','both')"
-                        >
+                        <div class="advanced ml-auto mr-3" onclick="Slide_menu_Vert('stage2b-advanced','both')">
                           Advanced Options
                         </div>
                       </div>
 
                       <!-- Advanced Options - STAGE 2b -->
-                      <div
-                        class="box col-md-12 border rounded"
-                        div
-                        id="stage2b-advanced"
-                        style="display: none"
-                      >
+                      <div class="box col-md-12 border rounded" div id="stage2b-advanced" style="display: none">
                         <h2 class="h4">Advanced Options</h2>
                         <hr class="stage-separator" />
                         <div id="adv-options">
                           <!-- Delete Last Interval -->
                           <div class="row" style="margin-bottom: 10px">
-                            <label for="adv-delete-interval" class="mr-auto"
-                              >Delete Last Interval:</label
-                            >
+                            <label for="adv-delete-interval" class="mr-auto">Delete Last Interval:</label>
                             <div class="ml-auto">
                               <form id="adv-delete-interval">
-                                <div
-                                  class="custom-control custom-radio custom-control-inline"
-                                >
+                                <div class="custom-control custom-radio custom-control-inline">
                                   <input
                                     class="custom-control-input"
                                     type="radio"
@@ -688,15 +513,9 @@
                                     name="adv-delete-interval"
                                     aria-label="Yes"
                                   />
-                                  <label
-                                    class="custom-control-label"
-                                    for="del-int-yes"
-                                    >Yes</label
-                                  >
+                                  <label class="custom-control-label" for="del-int-yes">Yes</label>
                                 </div>
-                                <div
-                                  class="custom-control custom-radio custom-control-inline"
-                                >
+                                <div class="custom-control custom-radio custom-control-inline">
                                   <input
                                     class="custom-control-input"
                                     type="radio"
@@ -706,11 +525,7 @@
                                     aria-label="No"
                                     checked
                                   />
-                                  <label
-                                    class="custom-control-label"
-                                    for="del-int-no"
-                                    >No</label
-                                  >
+                                  <label class="custom-control-label" for="del-int-no">No</label>
                                 </div>
                               </form>
                             </div>
@@ -718,8 +533,7 @@
                           <!-- Skipped Observations between (adv-between)-->
                           <div class="row form-inline pb-3">
                             <label for="adv-between" class="mr-auto"
-                              >Minimum Number of Years between Joinpoints
-                              (Excluding Joinpoints):
+                              >Minimum Number of Years between Joinpoints (Excluding Joinpoints):
                             </label>
                             <input
                               id="adv-between"
@@ -735,8 +549,7 @@
                           <!-- Skipped Obervations from First (adv-first) -->
                           <div class="row form-inline pb-3">
                             <label for="adv-first" class="mr-auto"
-                              >Minimum Number of Years before First Joinpoint
-                              (Excluding Joinpoint):
+                              >Minimum Number of Years before First Joinpoint (Excluding Joinpoint):
                             </label>
                             <input
                               id="adv-first"
@@ -752,8 +565,7 @@
                           <!-- Skipped Obervations to Last (adv-last) -->
                           <div class="row form-inline pb-3">
                             <label for="adv-last" class="mr-auto"
-                              >Minimum Number of Years after Last Joinpoint
-                              (Excluding Joinpoint):
+                              >Minimum Number of Years after Last Joinpoint (Excluding Joinpoint):
                             </label>
                             <input
                               id="adv-last"
@@ -767,8 +579,7 @@
                           <!-- Number of Calendar Year of Project (adv-year) -->
                           <div class="row form-inline pb-3">
                             <label for="adv-year" class="mr-auto"
-                              >Number of Calendar Years of Projected
-                              Survival:</label
+                              >Number of Calendar Years of Projected Survival:</label
                             >
                             <input
                               id="adv-year"
@@ -782,16 +593,10 @@
                           </div>
 
                           <div class="row justify-content-between">
-                            <div
-                              class="col-sm-auto advanced"
-                              onclick="resetAdvancedOptions()"
-                            >
+                            <div class="col-sm-auto advanced" onclick="resetAdvancedOptions()">
                               Reset Advanced Options
                             </div>
-                            <div
-                              class="col-sm-auto advanced"
-                              onclick="Slide_menu_Vert('stage2b-advanced','both')"
-                            >
+                            <div class="col-sm-auto advanced" onclick="Slide_menu_Vert('stage2b-advanced','both')">
                               Hide
                             </div>
                           </div>
@@ -826,11 +631,7 @@
         </div>
         <!-- </form> -->
         <!-- Main Menu Tabs -->
-        <div
-          class="card col-md-12 col-lg-8 border rounded bg-white"
-          id="descriptionCard"
-          style="margin-top: 2rem"
-        >
+        <div class="card col-md-12 col-lg-8 border rounded bg-white" id="descriptionCard" style="margin-top: 2rem">
           <div id="description" class="card-body h-auto overflow-auto">
             <div class="row">
               <div
@@ -848,31 +649,20 @@
             </div>
           </div>
         </div>
-        <div
-          id="right_panel"
-          class="col-md-12 col-lg-8"
-          style="display: none; margin-top: 2%"
-        >
-          <div
-            id="cohort-join-points"
-            class="card bg-white border rounded mb-4 shadow-sm"
-          >
+        <div id="right_panel" class="col-md-12 col-lg-8" style="display: none; margin-top: 2%">
+          <div id="cohort-join-points" class="card bg-white border rounded mb-4 shadow-sm">
             <div class="card-body">
               <div class="d-flex pb-3">
                 <div class="d-inline">
-                  <label for="cohort-display" class="font-weight-bold"
-                    >Cohort</label
-                  >
-                  <select
-                    id="cohort-display"
-                    aria-label="cohort display"
-                  ></select>
-                  <label
-                    for="precision"
-                    title="Rounded to decimal places."
-                    class="ml-3"
-                    >Number of Decimal Places</label
-                  >
+                  <label for="cohort-display" class="font-weight-bold">Cohort</label>
+                  <select id="cohort-display" aria-label="cohort display"></select>
+                </div>
+                <div id="cutpoint-display-control" class="ml-3 d-none">
+                  <label for="cutpoint-display" class="font-weight-bold">Cut Point</label>
+                  <select id="cutpoint-display" aria-label="select cut point"></select>
+                </div>
+                <div class="d-inline ml-3">
+                  <label for="precision" title="Rounded to decimal places.">Number of Decimal Places</label>
                   <select name="abcselect" id="precision" aria-label="Round">
                     <option>1</option>
                     <option selected>2</option>
@@ -918,10 +708,7 @@
                 </div>
               </div>
               <div class="table-responsive">
-                <table
-                  id="model-selection-table"
-                  class="table table-hover condense"
-                >
+                <table id="model-selection-table" class="table table-hover condense">
                   <thead>
                     <tr>
                       <th scope="col">Model #</th>
@@ -935,21 +722,9 @@
                   </thead>
                   <tbody></tbody>
                 </table>
-                <div
-                  id="toggleCondControl"
-                  class="custom-control custom-switch d-none"
-                >
-                  <input
-                    type="checkbox"
-                    class="custom-control-input"
-                    id="toggleConditionalView"
-                    checked="true"
-                  />
-                  <label
-                    class="custom-control-label"
-                    for="toggleConditionalView"
-                    >Conditional Results</label
-                  >
+                <div id="toggleCondControl" class="custom-control custom-switch d-none">
+                  <input type="checkbox" class="custom-control-input" id="toggleConditionalView" checked="true" />
+                  <label class="custom-control-label" for="toggleConditionalView">Conditional Results</label>
                 </div>
               </div>
             </div>
@@ -970,12 +745,7 @@
                   <b>Conditional Survival Calculation</b>
                 </button>
               </div>
-              <div
-                id="collapseOne"
-                class="collapse"
-                aria-labelledby="headingOne"
-                data-parent="#conditionalRecalcVis"
-              >
+              <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#conditionalRecalcVis">
                 <div class="card-body p-0">
                   <form id="conditionalJoinpointForm" novalidate>
                     <div class="row">
@@ -984,34 +754,20 @@
                           Support for <i>Survival vs. Year at Diagnosis</i> and
                           <i>Survival vs. Time since Diagnosis</i> only
                         </b>
-                        <div
-                          class="custom-control custom-checkbox form-group ml-4"
-                        >
-                          <input
-                            class="custom-control-input"
-                            type="checkbox"
-                            id="useConditionalJp"
-                          />
+                        <div class="custom-control custom-checkbox form-group ml-4">
+                          <input class="custom-control-input" type="checkbox" id="useConditionalJp" />
                           <label
                             class="custom-control-label font-weight-bold"
                             for="useConditionalJp"
                             aria-label="Conditional survival recalculation based on model previously fit to all intervals"
-                            >Conditional survival recalculation based on model
-                            previously fit to all intervals:</label
+                            >Conditional survival recalculation based on model previously fit to all intervals:</label
                           >
                         </div>
                         <div id="conditionalIntervalContainer" class="ml-4">
-                          <div
-                            id="conditionalIntervalForm-0"
-                            class="conditionalIntervalForm d-flex"
-                          >
+                          <div id="conditionalIntervalForm-0" class="conditionalIntervalForm d-flex">
                             <div class="d-block">
                               <div class="form-group mb-0 mr-3">
-                                <label
-                                  class="font-weight-bold"
-                                  for="intervalStart0"
-                                  >Start Interval:</label
-                                >
+                                <label class="font-weight-bold" for="intervalStart0">Start Interval:</label>
                                 <select
                                   id="intervalStart0"
                                   name="intervalStart0"
@@ -1021,17 +777,10 @@
                                   required
                                 ></select>
                               </div>
-                              <label
-                                id="intervalStart0-error"
-                                for="intervalStart0"
-                                class="text-danger error"
-                              >
-                              </label>
+                              <label id="intervalStart0-error" for="intervalStart0" class="text-danger error"> </label>
                             </div>
                             <div class="form-group mb-0">
-                              <label class="font-weight-bold" for="intervalEnd0"
-                                >End Interval:</label
-                              >
+                              <label class="font-weight-bold" for="intervalEnd0">End Interval:</label>
                               <select
                                 id="intervalEnd0"
                                 name="intervalEnd0"
@@ -1041,26 +790,14 @@
                                 required
                               ></select>
                             </div>
-                            <button
-                              id="addConditionalInterval"
-                              type="button"
-                              class="btn btn-link mb-4"
-                              disabled
-                            >
+                            <button id="addConditionalInterval" type="button" class="btn btn-link mb-4" disabled>
                               + Add Interval
                             </button>
                           </div>
                         </div>
                       </div>
-                      <div
-                        class="col-sm-2 d-flex p-4 justify-content-center align-items-center"
-                      >
-                        <button
-                          id="recalculateConditional"
-                          class="btn btn-primary btn-sm"
-                          type="submit"
-                          disabled
-                        >
+                      <div class="col-sm-2 d-flex p-4 justify-content-center align-items-center">
+                        <button id="recalculateConditional" class="btn btn-primary btn-sm" type="submit" disabled>
                           Recalculate
                         </button>
                       </div>
@@ -1075,45 +812,24 @@
           <div class="card border rounded shadow-sm">
             <div class="card-header">
               <div class="d-flex">
-                <ul
-                  id="jpsurv-tabs"
-                  class="nav nav-tabs card-header-tabs font-weight-bold flex-nowrap"
-                >
+                <ul id="jpsurv-tabs" class="nav nav-tabs card-header-tabs font-weight-bold flex-nowrap">
                   <li class="nav-item">
-                    <a
-                      class="nav-link active"
-                      id="graph-year-link"
-                      href="#graph-year-tab"
-                      data-toggle="tab"
+                    <a class="nav-link active" id="graph-year-link" href="#graph-year-tab" data-toggle="tab"
                       >Survival vs. Year at Diagnosis</a
                     >
                   </li>
                   <li class="nav-item">
-                    <a
-                      class="nav-link"
-                      id="graph-death-link"
-                      href="#graph-death-tab"
-                      data-toggle="tab"
+                    <a class="nav-link" id="graph-death-link" href="#graph-death-tab" data-toggle="tab"
                       >Death vs. Year at Diagnosis</a
                     >
                   </li>
                   <li class="nav-item">
-                    <a
-                      class="nav-link"
-                      id="graph-time-link"
-                      href="#graph-time-tab"
-                      data-toggle="tab"
+                    <a class="nav-link" id="graph-time-link" href="#graph-time-tab" data-toggle="tab"
                       >Survival vs. Time Since Diagnosis</a
                     >
                   </li>
                   <li class="nav-item">
-                    <a
-                      class="nav-link"
-                      id="estimates-link"
-                      href="#estimates-tab"
-                      data-toggle="tab"
-                      >Model Estimates</a
-                    >
+                    <a class="nav-link" id="estimates-link" href="#estimates-tab" data-toggle="tab">Model Estimates</a>
                   </li>
                 </ul>
               </div>
@@ -1129,37 +845,20 @@
                       <div class="col-sm-10 border-right">
                         <div class="row">
                           <div class="col-sm-auto m-3">
-                            <label
-                              for="interval-years"
-                              class="align-self-center ml-1 mr-3"
-                            >
-                              Select years since diagnosis (follow-up) for
-                              survival plot and/or trend measures
+                            <label for="interval-years" class="align-self-center ml-1 mr-3">
+                              Select years since diagnosis (follow-up) for survival plot and/or trend measures
                             </label>
-                            <select
-                              id="interval-years"
-                              class="mx-1"
-                              multiple
-                            ></select>
+                            <select id="interval-years" class="mx-1" multiple></select>
                           </div>
                         </div>
                         <div class="row">
                           <div class="col-md-auto m-3">
-                            <span class="font-weight-bold"
-                              >Include Trend Measures</span
-                            >
+                            <span class="font-weight-bold">Include Trend Measures</span>
                           </div>
                           <div class="col-md-auto m-3">
                             <div class="custom-control custom-checkbox">
-                              <input
-                                class="custom-control-input"
-                                type="checkbox"
-                                id="showYearTrend"
-                              />
-                              <label
-                                class="custom-control-label"
-                                for="showYearTrend"
-                                aria-label="show year trend"
+                              <input class="custom-control-input" type="checkbox" id="showYearTrend" />
+                              <label class="custom-control-label" for="showYearTrend" aria-label="show year trend"
                                 >Between Joinpoints</label
                               >
                             </div>
@@ -1167,11 +866,7 @@
                           <div class="col-md-auto m-3">
                             <div class="d-flex">
                               <span class="custom-control custom-checkbox mr-2">
-                                <input
-                                  class="custom-control-input"
-                                  type="checkbox"
-                                  id="toggleAbsSelect"
-                                />
+                                <input class="custom-control-input" type="checkbox" id="toggleAbsSelect" />
                                 <label
                                   class="custom-control-label"
                                   for="toggleAbsSelect"
@@ -1191,35 +886,19 @@
                                   title="Average Absolute Change over Calendar Year Interval"
                                   >From</label
                                 > -->
-                                <select
-                                  disabled
-                                  aria-label="from"
-                                  id="absChgFrom"
-                                  class="mx-1"
-                                ></select>
+                                <select disabled aria-label="from" id="absChgFrom" class="mx-1"></select>
                                 <label for="absChgTo" class="mx-2">to</label>
-                                <select
-                                  disabled
-                                  id="absChgTo"
-                                  class="mx-1"
-                                ></select>
+                                <select disabled id="absChgTo" class="mx-1"></select>
                               </span>
                             </div>
                           </div>
                         </div>
                       </div>
-                      <div
-                        class="col-sm-2 d-flex pl-0 justify-content-center align-items-center"
-                      >
+                      <div class="col-sm-2 d-flex pl-0 justify-content-center align-items-center">
                         <div class="row">
                           <div class="col">
                             <div id="warning-wrapper">
-                              <button
-                                class="btn btn-primary btn-sm recalculate"
-                                type="button"
-                              >
-                                Recalculate
-                              </button>
+                              <button class="btn btn-primary btn-sm recalculate" type="button">Recalculate</button>
                             </div>
                           </div>
                         </div>
@@ -1229,16 +908,11 @@
 
                   <div id="yearTrendTable" class="d-none mb-4">
                     <div class="d-flex">
-                      <h4 id="yearTrendHeader">
-                        Average Absolute Change in Survival
-                      </h4>
+                      <h4 id="yearTrendHeader">Average Absolute Change in Survival</h4>
                       <span class="text-secondary ml-2 pt-1">*</span>
                     </div>
                     <div class="table-responsive">
-                      <table
-                        id="trend-aac"
-                        class="table table-striped table-hover table-condensed condense"
-                      >
+                      <table id="trend-aac" class="table table-striped table-hover table-condensed condense">
                         <thead>
                           <tr>
                             <th scope="col">Interval</th>
@@ -1256,33 +930,24 @@
                     </div>
                     <div id="footnote">
                       <sup
-                        >*Numbers represent the difference in cumulative
-                        survival rate (as the percent surviving) from one year
-                        at diagnosis to the previous.</sup
+                        >*Numbers represent the difference in cumulative survival rate (as the percent surviving) from
+                        one year at diagnosis to the previous.</sup
                       >
                     </div>
                     <div>
                       <sup
-                        >Plot: Annotations only available when less than four
-                        interval years or four joinpoints are selected.</sup
+                        >Plot: Annotations only available when less than four interval years or four joinpoints are
+                        selected.</sup
                       >
                     </div>
                   </div>
 
                   <div class="row px-3 mb-1">
-                    <button
-                      id="addYearAnno"
-                      type="button"
-                      class="btn btn-link col-sm-auto addPlotAnno"
-                    >
+                    <button id="addYearAnno" type="button" class="btn btn-link col-sm-auto addPlotAnno">
                       + Add Annotation
                     </button>
-                    <div
-                      class="d-flex mb-0 align-self-center form-group col-sm-auto"
-                    >
-                      <label class="mb-0 align-self-center" for="yearFont"
-                        >Plot Font Size</label
-                      >
+                    <div class="d-flex mb-0 align-self-center form-group col-sm-auto">
+                      <label class="mb-0 align-self-center" for="yearFont">Plot Font Size</label>
                       <input
                         type="number"
                         id="yearFont"
@@ -1293,20 +958,9 @@
                         value="14"
                       />
                     </div>
-                    <div
-                      id="yearAnnoControl"
-                      class="col-sm-auto custom-control custom-checkbox ml-4 align-self-center"
-                    >
-                      <input
-                        class="custom-control-input"
-                        type="checkbox"
-                        id="yearAnno"
-                        name="yearAnno"
-                      />
-                      <label
-                        class="custom-control-label"
-                        for="yearAnno"
-                        aria-label="showTrendsOnGraph"
+                    <div id="yearAnnoControl" class="col-sm-auto custom-control custom-checkbox ml-4 align-self-center">
+                      <input class="custom-control-input" type="checkbox" id="yearAnno" name="yearAnno" />
+                      <label class="custom-control-label" for="yearAnno" aria-label="showTrendsOnGraph"
                         >Hide Trend Label</label
                       >
                     </div>
@@ -1317,11 +971,7 @@
                     <div id="yearPlot" class="mx-auto mt-1 d-block"></div>
                   </div>
                   <div class="d-flex">
-                    <span
-                      id="year-tab-rows"
-                      class="mr-auto"
-                      style="padding: 0.375rem 0.75rem"
-                    ></span>
+                    <span id="year-tab-rows" class="mr-auto" style="padding: 0.375rem 0.75rem"></span>
                     <button
                       id="graph-year-dataset-link"
                       class="btn btn-link ml-auto"
@@ -1332,10 +982,7 @@
                     </button>
                   </div>
                   <div class="table-responsive" style="max-height: 500px">
-                    <table
-                      id="graph-year-table"
-                      class="table table-hover table-striped table-condensed condense"
-                    >
+                    <table id="graph-year-table" class="table table-hover table-striped table-condensed condense">
                       <thead>
                         <tr>
                           <th scope="col">Year of Diagnosis 1975</th>
@@ -1362,54 +1009,30 @@
                       <div class="col-sm-10 border-right">
                         <div class="row">
                           <div class="col-sm-auto m-3">
-                            <label
-                              for="interval-years-death"
-                              class="align-self-center ml-1 mr-3"
-                            >
-                              Select years since diagnosis (follow-up) for
-                              survival plot and/or trend measures
+                            <label for="interval-years-death" class="align-self-center ml-1 mr-3">
+                              Select years since diagnosis (follow-up) for survival plot and/or trend measures
                             </label>
-                            <select
-                              id="interval-years-death"
-                              class="mx-1"
-                              multiple
-                            ></select>
+                            <select id="interval-years-death" class="mx-1" multiple></select>
                           </div>
                         </div>
                         <div class="row">
                           <div class="col-md-auto m-3">
-                            <span class="font-weight-bold"
-                              >Include Trend Measures</span
-                            >
+                            <span class="font-weight-bold">Include Trend Measures</span>
                           </div>
                           <div class="col-md-auto m-3">
                             <div class="custom-control custom-checkbox">
-                              <input
-                                class="custom-control-input"
-                                type="checkbox"
-                                id="showDeathTrend"
-                              />
-                              <label
-                                class="custom-control-label"
-                                for="showDeathTrend"
-                                aria-label="showDeathTrend"
+                              <input class="custom-control-input" type="checkbox" id="showDeathTrend" />
+                              <label class="custom-control-label" for="showDeathTrend" aria-label="showDeathTrend"
                                 >Between Joinpoints</label
                               >
                             </div>
                           </div>
                         </div>
                       </div>
-                      <div
-                        class="col-sm-2 d-flex pl-0 justify-content-center align-items-center"
-                      >
+                      <div class="col-sm-2 d-flex pl-0 justify-content-center align-items-center">
                         <div class="row">
                           <div class="col">
-                            <button
-                              class="btn btn-primary btn-sm recalculate"
-                              type="button"
-                            >
-                              Recalculate
-                            </button>
+                            <button class="btn btn-primary btn-sm recalculate" type="button">Recalculate</button>
                           </div>
                         </div>
                       </div>
@@ -1417,15 +1040,9 @@
                   </div>
 
                   <div id="deathTrendTable" class="d-none mb-4">
-                    <h4>
-                      Percent Change in the Annual Probability of Dying of
-                      Cancer by Diagnosis Year
-                    </h4>
+                    <h4>Percent Change in the Annual Probability of Dying of Cancer by Diagnosis Year</h4>
                     <div class="table-responsive">
-                      <table
-                        id="trend-dap"
-                        class="table table-striped table-condensed condense"
-                      >
+                      <table id="trend-dap" class="table table-striped table-condensed condense">
                         <thead>
                           <tr>
                             <th scope="col">Interval</th>
@@ -1443,26 +1060,18 @@
                     </div>
                     <div>
                       <sup
-                        >Plot: Annotations only available when less than four
-                        interval years or four joinpoints are selected.</sup
+                        >Plot: Annotations only available when less than four interval years or four joinpoints are
+                        selected.</sup
                       >
                     </div>
                   </div>
 
                   <div class="row px-3 mb-1">
-                    <button
-                      id="addDeathAnno"
-                      type="button"
-                      class="btn btn-link col-sm-auto addPlotAnno"
-                    >
+                    <button id="addDeathAnno" type="button" class="btn btn-link col-sm-auto addPlotAnno">
                       + Add Annotation
                     </button>
-                    <div
-                      class="d-flex mb-0 align-self-center form-group col-sm-auto"
-                    >
-                      <label class="mb-0 align-self-center" for="deathFont"
-                        >Plot Font Size
-                      </label>
+                    <div class="d-flex mb-0 align-self-center form-group col-sm-auto">
+                      <label class="mb-0 align-self-center" for="deathFont">Plot Font Size </label>
                       <input
                         type="number"
                         id="deathFont"
@@ -1477,16 +1086,8 @@
                       id="deathAnnoControl"
                       class="col-sm-auto custom-control custom-checkbox ml-4 align-self-center"
                     >
-                      <input
-                        class="custom-control-input"
-                        type="checkbox"
-                        id="deathAnno"
-                        name="deathAnno"
-                      />
-                      <label
-                        class="custom-control-label"
-                        for="deathAnno"
-                        aria-label="showTrendsOnGraph"
+                      <input class="custom-control-input" type="checkbox" id="deathAnno" name="deathAnno" />
+                      <label class="custom-control-label" for="deathAnno" aria-label="showTrendsOnGraph"
                         >Hide Trend Label</label
                       >
                     </div>
@@ -1497,11 +1098,7 @@
                     <div id="deathPlot" class="mx-auto mt-1 d-block"></div>
                   </div>
                   <div class="d-flex">
-                    <span
-                      id="death-tab-rows"
-                      class="mr-auto"
-                      style="padding: 0.375rem 0.75rem"
-                    ></span>
+                    <span id="death-tab-rows" class="mr-auto" style="padding: 0.375rem 0.75rem"></span>
                     <button
                       id="graph-death-dataset-link"
                       class="btn btn-link ml-auto"
@@ -1512,10 +1109,7 @@
                     </button>
                   </div>
                   <div class="table-responsive" style="max-height: 500px">
-                    <table
-                      id="graph-death-table"
-                      class="table table-hover table-striped table-condensed condense"
-                    >
+                    <table id="graph-death-table" class="table table-hover table-striped table-condensed condense">
                       <thead>
                         <tr>
                           <th scope="col">Year of Diagnosis 1975</th>
@@ -1541,43 +1135,24 @@
                     <div class="row">
                       <div class="col-md-3 m-3">
                         <div class="form-group">
-                          <label for="year-of-diagnosis" class="mx-1 mr-3">
-                            Year of Diagnosis
-                          </label>
-                          <select
-                            id="year-of-diagnosis"
-                            class="mx-1"
-                            multiple="multiple"
-                          >
+                          <label for="year-of-diagnosis" class="mx-1 mr-3"> Year of Diagnosis </label>
+                          <select id="year-of-diagnosis" class="mx-1" multiple="multiple">
                             <option selected>1975</option>
                           </select>
                         </div>
                       </div>
                       <div class="col m-3">
-                        <button
-                          class="btn btn-primary btn-sm recalculate"
-                          type="button"
-                        >
-                          Recalculate
-                        </button>
+                        <button class="btn btn-primary btn-sm recalculate" type="button">Recalculate</button>
                       </div>
                     </div>
                   </div>
 
                   <div class="row px-3 mb-1">
-                    <button
-                      id="addTimeAnno"
-                      type="button"
-                      class="btn btn-link col-sm-auto addPlotAnno"
-                    >
+                    <button id="addTimeAnno" type="button" class="btn btn-link col-sm-auto addPlotAnno">
                       + Add Annotation
                     </button>
-                    <div
-                      class="d-flex mb-0 align-self-center form-group col-sm-auto"
-                    >
-                      <label class="mb-0 align-self-center" for="timeFont">
-                        Plot Font Size
-                      </label>
+                    <div class="d-flex mb-0 align-self-center form-group col-sm-auto">
+                      <label class="mb-0 align-self-center" for="timeFont"> Plot Font Size </label>
                       <input
                         type="number"
                         id="timeFont"
@@ -1596,11 +1171,7 @@
                     </div>
                   </div>
                   <div class="d-flex">
-                    <span
-                      id="time-tab-rows"
-                      class="mr-auto"
-                      style="padding: 0.375rem 0.75rem"
-                    ></span>
+                    <span id="time-tab-rows" class="mr-auto" style="padding: 0.375rem 0.75rem"></span>
                     <button
                       id="graph-time-dataset-link"
                       class="btn btn-link ml-auto"
@@ -1611,18 +1182,13 @@
                     </button>
                   </div>
                   <div class="table-responsive">
-                    <table
-                      id="graph-time-table"
-                      class="table table-hover table-striped table-condensed condense"
-                    >
+                    <table id="graph-time-table" class="table table-hover table-striped table-condensed condense">
                       <thead>
                         <tr>
                           <th scope="col">Year of Diagnosis</th>
                           <th scope="col">Interval</th>
                           <th scope="col">Cumulative Relative Survival</th>
-                          <th scope="col">
-                            Predicted Cumulative Relative Survival
-                          </th>
+                          <th scope="col">Predicted Cumulative Relative Survival</th>
                         </tr>
                       </thead>
                       <tbody></tbody>
@@ -1632,9 +1198,7 @@
                 <!-- Model Estimates Tab -->
                 <div id="estimates-tab" class="tab-pane fade">
                   <div class="d-flex justify-content-between">
-                    <h3 style="margin-bottom: 3px">
-                      Estimates of the Joinpoints
-                    </h3>
+                    <h3 style="margin-bottom: 3px">Estimates of the Joinpoints</h3>
                     <button
                       id="model-estimates-link"
                       class="btn btn-link ml-auto"
@@ -1649,16 +1213,11 @@
                     <span id="yod-range">1975</span>
                   </div>
                   <div class="table-responsive">
-                    <table
-                      id="estimates-jp"
-                      class="table table-condensed condense"
-                    >
+                    <table id="estimates-jp" class="table table-condensed condense">
                       <thead>
                         <tr>
                           <th scope="col">Estimates</th>
-                          <th scope="col">
-                            Joinpoint <span id="estimates-jp-selected">0</span>
-                          </th>
+                          <th scope="col">Joinpoint <span id="estimates-jp-selected">0</span></th>
                         </tr>
                       </thead>
                       <tbody></tbody>
@@ -1667,10 +1226,7 @@
 
                   <h3>Coefficients</h3>
                   <div class="table-responsive">
-                    <table
-                      id="estimates-coefficients"
-                      class="table table-condensed condense"
-                    >
+                    <table id="estimates-coefficients" class="table table-condensed condense">
                       <thead>
                         <tr>
                           <th scope="col">Parameter</th>
@@ -1693,57 +1249,31 @@
       <div class="container">
         <ul class="list-inline text-light">
           <li class="pb-1 d-block d-md-inline">
-            <a
-              class="text-light m-1"
-              target="_blank"
-              href="https://www.cancer.gov/"
-              >Home</a
-            >
+            <a class="text-light m-1" target="_blank" href="https://www.cancer.gov/">Home</a>
           </li>
           <li class="pb-1 d-none d-md-inline">|</li>
           <li class="pb-1 d-block d-md-inline">
-            <a
-              class="text-light m-1"
-              target="_top"
-              href="mailto:NCIJPSurvWebAdmin@mail.nih.gov?subject=JPSurv"
+            <a class="text-light m-1" target="_top" href="mailto:NCIJPSurvWebAdmin@mail.nih.gov?subject=JPSurv"
               >Support</a
             >
           </li>
           <li class="pb-1 d-none d-md-inline">|</li>
           <li class="pb-1 d-block d-md-inline">
-            <a
-              class="text-light m-1"
-              target="_blank"
-              href="https://www.cancer.gov/global/web/policies"
-              >Policies</a
-            >
+            <a class="text-light m-1" target="_blank" href="https://www.cancer.gov/global/web/policies">Policies</a>
           </li>
           <li class="pb-1 d-none d-md-inline">|</li>
           <li class="pb-1 d-block d-md-inline">
-            <a
-              class="text-light m-1"
-              target="_blank"
-              href="https://www.cancer.gov/global/web/policies/accessibility"
+            <a class="text-light m-1" target="_blank" href="https://www.cancer.gov/global/web/policies/accessibility"
               >Accessibility</a
             >
           </li>
           <li class="pb-1 d-none d-md-inline">|</li>
           <li class="pb-1 d-block d-md-inline">
-            <a
-              class="text-light m-1"
-              target="_blank"
-              href="https://cancer.gov/global/viewing-files"
-              >Viewing Files</a
-            >
+            <a class="text-light m-1" target="_blank" href="https://cancer.gov/global/viewing-files">Viewing Files</a>
           </li>
           <li class="pb-1 d-none d-md-inline">|</li>
           <li class="pb-1 d-block d-md-inline">
-            <a
-              class="text-light m-1"
-              target="_blank"
-              href="https://www.cancer.gov/global/web/policies/foia"
-              >FOIA</a
-            >
+            <a class="text-light m-1" target="_blank" href="https://www.cancer.gov/global/web/policies/foia">FOIA</a>
           </li>
           <li class="pb-1 d-none d-md-inline">|</li>
           <li class="pb-1 d-block d-md-inline">
@@ -1757,33 +1287,21 @@
         </ul>
         <ul class="list-inline">
           <li class="pb-1 d-block d-md-inline">
-            <a
-              class="text-light m-1"
-              target="_blank"
-              href="https://www.hhs.gov/"
+            <a class="text-light m-1" target="_blank" href="https://www.hhs.gov/"
               >U.S. Department of Health and Human Services</a
             >
           </li>
           <li class="pb-1 d-none d-md-inline">|</li>
           <li class="pb-1 d-block d-md-inline">
-            <a class="text-light m-1" target="_blank" href="https://www.nih.gov"
-              >National Institutes of Health</a
-            >
+            <a class="text-light m-1" target="_blank" href="https://www.nih.gov">National Institutes of Health</a>
           </li>
           <li class="pb-1 d-none d-md-inline">|</li>
           <li class="pb-1 d-block d-md-inline">
-            <a
-              class="text-light m-1"
-              target="_blank"
-              href="https://www.cancer.gov/"
-              >National Cancer Institute</a
-            >
+            <a class="text-light m-1" target="_blank" href="https://www.cancer.gov/">National Cancer Institute</a>
           </li>
           <li class="pb-1 d-none d-md-inline">|</li>
           <li class="pb-1 d-block d-md-inline">
-            <a class="text-light m-1" target="_blank" href="https://usa.gov"
-              >USA.gov</a
-            >
+            <a class="text-light m-1" target="_blank" href="https://usa.gov">USA.gov</a>
           </li>
         </ul>
         <div>
@@ -1816,9 +1334,7 @@
             <p>...</p>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-primary" data-dismiss="modal">
-              OK
-            </button>
+            <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
           </div>
         </div>
         <!-- /.modal-content -->

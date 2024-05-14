@@ -52,16 +52,19 @@ export async function startQueueWorker() {
         await rm(archivePath);
 
         // main calculation
-        const resultsFile = await calculate(state, dataPath);
+        logger.info('main calculation');
+        const resultsFile = path.resolve(dataPath, JSON.parse(await calculate(state, dataPath))[0]);
         const results = {
           ...state,
           results: JSON.parse(await fs.promises.readFile(resultsFile)),
         };
 
         // process models
+        logger.info('process models');
         const modelData = await calculateModels(results, dataPath);
 
         // generate full dataset xlsx
+        logger.info('generate full dataset download');
         const xlsxFile = await multiExport(modelData, dataPath, results);
 
         // archive results
@@ -72,9 +75,7 @@ export async function startQueueWorker() {
           timestamp: timestamp,
           resultsURL: state.queue.url,
           datasetURL: `${config.mail.baseURL}/api/queueDownloadResult?dataset=${xlsxFile}&archive=${archiveFile}`,
-          files: `${state.file.dictionary}${
-            state.file.data ? `, ${state.file.data}` : ''
-          }`,
+          files: `${state.file.dictionary}${state.file.data ? `, ${state.file.data}` : ''}`,
           admin_support: config.mail.admin_support,
         };
 
@@ -82,13 +83,8 @@ export async function startQueueWorker() {
         await mailer.sendMail({
           from: config.mail.admin_support,
           to: email,
-          subject: `JPSurv Calculation Results - ${
-            state.file.data || state.file.form
-          }`,
-          html: await readTemplate(
-            'templates/user_success_email.html',
-            templateData
-          ),
+          subject: `JPSurv Calculation Results - ${state.file.data || state.file.form}`,
+          html: await readTemplate('templates/user_success_email.html', templateData),
         });
       } catch (exception) {
         logger.error(`An error occured while processing - ${id}`);
@@ -96,9 +92,7 @@ export async function startQueueWorker() {
         // specify email template variables
         const templateData = {
           timestamp: timestamp,
-          files: `${state.file.dictionary}${
-            state.file.data ? `, ${state.file.data}` : ''
-          }`,
+          files: `${state.file.dictionary}${state.file.data ? `, ${state.file.data}` : ''}`,
           admin_support: config.mail.admin_support,
         };
 
@@ -106,13 +100,8 @@ export async function startQueueWorker() {
         await mailer.sendMail({
           from: config.mail.admin_support,
           to: email,
-          subject: `JPSurv Calculation Error - ${
-            state.file.data || state.file.form
-          }`,
-          html: await readTemplate(
-            'templates/user_error_email.html',
-            templateData
-          ),
+          subject: `JPSurv Calculation Error - ${state.file.data || state.file.form}`,
+          html: await readTemplate('templates/user_error_email.html', templateData),
         });
       } finally {
         // delete input data from s3
@@ -125,12 +114,9 @@ export async function startQueueWorker() {
 
 // main JPSurv calculation
 async function calculate(state, path) {
-  return await r(
-    '../server/JPSurvWrapper.R',
-    'getFittedResultWrapper',
-    [path, JSON.stringify(state)],
-    { stdio: 'inherit' }
-  );
+  return await r('../server/JPSurvWrapper.R', 'getFittedResultWrapper', [path, JSON.stringify(state)], {
+    stdio: 'inherit',
+  });
 }
 
 // process models for all jp cohort combinations
@@ -144,10 +130,14 @@ async function calculateModels(state, dataPath) {
       params.run = cohortIndex + 1;
       params.additional.headerJoinPoints = jp;
       params.calculate.form.cohortValues = cohort.split(' + ');
+      params.viewConditional = false;
 
+      const relaxProp = params.calculate.form.relaxProp;
+      const filePrefix = params.viewConditional ? 'results-conditional' : 'results';
+      const cutPointIndex = relaxProp ? `-${params.cutPointIndex}` : '';
       const resultsFile = path.join(
         dataPath,
-        `results-${state.tokenId}-${cohortIndex + 1}-${jp}.json`
+        `${filePrefix}-${state.tokenId}-${cohortIndex + 1}-${jp}${cutPointIndex}.json`
       );
 
       // load json result if file exists
@@ -155,13 +145,26 @@ async function calculateModels(state, dataPath) {
         return await JSON.parse(await fs.promises.readFile(resultsFile));
       } else {
         // otherwise calculate model
-
-        await r('../server/JPSurvWrapper.R', 'getAllData', [
-          dataPath,
-          JSON.stringify(params),
-          false,
-          path.join(dataPath, `cohortCombo-${state.tokenId}.json`),
-        ]);
+        if (relaxProp) {
+          const maxCutPoint = +params.calculate.form.maxCutPoint;
+          await Promise.all(
+            [...Array(maxCutPoint).keys()].map((i) =>
+              r('../server/JPSurvWrapper.R', 'relaxPropResults', [
+                dataPath,
+                JSON.stringify({ ...params, cutPointIndex: i + 1 }),
+                false,
+                path.join(dataPath, `cohortCombo-${state.tokenId}.json`),
+              ])
+            )
+          );
+        } else {
+          await r('../server/JPSurvWrapper.R', 'getAllData', [
+            dataPath,
+            JSON.stringify(params),
+            false,
+            path.join(dataPath, `cohortCombo-${state.tokenId}.json`),
+          ]);
+        }
 
         return await JSON.parse(await fs.promises.readFile(resultsFile));
       }
@@ -188,8 +191,5 @@ async function readTemplate(filePath, data) {
   const template = await fs.promises.readFile(path.resolve(filePath));
 
   // replace {tokens} with data values or removes them if not found
-  return String(template).replace(
-    /{[^{}]+}/g,
-    (key) => data[key.replace(/[{}]+/g, '')] || ''
-  );
+  return String(template).replace(/{[^{}]+}/g, (key) => data[key.replace(/[{}]+/g, '')] || '');
 }
