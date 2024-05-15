@@ -1846,9 +1846,8 @@ export function loadResults(results) {
   setIntervalsDynamic();
 
   const conditional = jpsurvData.calculate.form.conditional;
-  $('#conditionalRecalcVis').toggleClass('d-none', conditional == true);
-
   const relaxProp = jpsurvData.calculate.form.relaxProp;
+  $('#conditionalRecalcVis').toggleClass('d-none', conditional || relaxProp);
   $('#toggleCondControl').toggleClass('d-none', !relaxProp || +jpsurvData.cutPointIndex == 1);
   $('#cutpoint-display-control').toggleClass('d-none', !relaxProp);
   $('#toggleConditionalView').prop('checked', jpsurvData.viewConditional);
