@@ -114,7 +114,9 @@ export async function startQueueWorker() {
 
 // main JPSurv calculation
 async function calculate(state, path) {
-  return await r('../server/JPSurvWrapper.R', 'getFittedResultWrapper', [path, JSON.stringify(state)]);
+  return await r('../server/JPSurvWrapper.R', 'getFittedResultWrapper', [path, JSON.stringify(state)], {
+    stdio: 'inherit',
+  });
 }
 
 // process models for all jp cohort combinations

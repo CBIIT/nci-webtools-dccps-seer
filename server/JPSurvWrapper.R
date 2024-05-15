@@ -201,8 +201,8 @@ getFittedResultWrapper <- function(filePath, jpsurvDataString) {
           )
         },
         error = function(e) {
-          save(e, file = paste0(filePath, "/error_", i, ".RData"))
           print(e)
+          save(e, file = file.path(filePath, paste0("error_", i, ".RData")))
           cohortErrorsIndex <<- append(cohortErrorsIndex, i)
           cohorts <- gsub('\"', "", paste(as.vector(valid_com_matrix[i, ]), collapse = " + "))
           errors[["errorCohorts"]] <<- append(errors[["errorCohorts"]], cohorts)
@@ -261,11 +261,7 @@ validateCohort <- function(jpsurvData, filePath, seerFilePrefix, allVars, yearOf
   valid <- input.valid(seerdata, subsetStr)
   sink()
   close(con)
-  if (valid == 1) {
-    return(1)
-  } else {
-    return(stdout)
-  }
+  return(valid)
 }
 
 getFittedResultForVarCombo <- function(modelIndex, jpsurvData, filePath, seerFilePrefix, yearOfDiagnosisVarName,
