@@ -3,6 +3,8 @@ library(jsonlite)
 library(JPSurv)
 library(ggplot2)
 library(ggrepel)
+library(tidyr)
+library(dplyr)
 
 VERBOSE <- TRUE
 
@@ -316,7 +318,7 @@ getAllData <- function(filePath, jpsurvDataString, first_calc = FALSE, valid_com
       headers <- list("Died" = died, "Alive_at_Start" = alive_at_start, "Lost_to_followup" = lost_to_followup, "Expected_Survival_Interval" = exp_int, "Interval" = interval, "CauseSpecific_Survival_Cum" = observed)
     }
   } else {
-    observed <- jpsurvData$additional$DataTypeVariable
+    observed <- jpsurvData$additional$observed
     interval <- "Interval"
     input_type <- "dic"
   }
@@ -415,7 +417,7 @@ relaxPropResults <- function(filePath, jpsurvDataString, first_calc = FALSE, val
       headers <- list("Died" = died, "Alive_at_Start" = alive_at_start, "Lost_to_followup" = lost_to_followup, "Expected_Survival_Interval" = exp_int, "Interval" = interval, "CauseSpecific_Survival_Cum" = observed)
     }
   } else {
-    observed <- state$additional$DataTypeVariable
+    observed <- state$additional$observed
     interval <- "Interval"
     input_type <- "dic"
   }
@@ -524,7 +526,7 @@ getFittedResult <- function(tokenId, filePath, seerFilePrefix, yearOfDiagnosisVa
   type <- jpsurvData$additional$input_type
   varLabels <- getCorrectFormat(allVars)
   intervalRange <- as.integer(jpsurvData$calculate$form$interval)
-  statistic <- jpsurvData$additional$DataTypeVariable
+  statistic <- jpsurvData$additional$observed
   subsetStr <- getSubsetStr(yearOfDiagnosisVarName, yearOfDiagnosisRange, cohortVars, cohortValues)
   if (type == "dic") {
     file_name <- paste(tokenId, seerFilePrefix, sep = "")
@@ -912,7 +914,8 @@ scaleTo <- function(data) {
     "pred_cum",
     "pred_cum_se",
     "pred_int",
-    "pred_int_se"
+    "pred_int_se",
+    "observed"
   )
   for (col in columns) {
     if (!is.null(data[[col]])) {
@@ -948,18 +951,13 @@ downloadDataWrapper <- function(jpsurvDataString, filePath, com, runs, yearVar, 
     }
   }
   subsetStr <- getSubsetStr(yearVar, yearOfDiagnosisRange, cohortVars, cohortValues)
-  intervals <- c()
   if (downloadtype == "year") {
-    for (i in 1:length(jpsurvData$additional$intervals)) {
-      intervals <- c(intervals, jpsurvData$additional$intervals[[i]])
-    }
+    intervals <- jpsurvData$additional$intervals
     data <- download.data(input, fit, jpInd, yearVar, downloadtype = "full", int.select = intervals, subset = subsetStr)
     data <- subset(data, Interval %in% intervals)
     return(data)
   } else if (downloadtype == "death") {
-    for (i in 1:length(jpsurvData$additional$intervalsDeath)) {
-      intervals <- c(intervals, jpsurvData$additional$intervalsDeath[[i]])
-    }
+    intervals <- jpsurvData$additional$intervalsDeath
     data <- download.data(input, fit, jpInd, yearVar, downloadtype = "full", int.select = intervals, subset = subsetStr)
     data <- subset(data, Interval %in% intervals)
     return(data)
@@ -986,18 +984,20 @@ downloadData2 <- function(state, seerdata, fittedResult, com, runs, yearVar, jpI
     }
   }
   subsetStr <- getSubsetStr(yearVar, yearOfDiagnosisRange, cohortVars, cohortValues)
-  intervals <- c()
   if (downloadtype == "year") {
-    for (i in state$additional$intervals) {
-      intervals <- c(intervals, i)
-    }
+    intervals <- state$additional$intervals
     data <- download.data(seerdata, fittedResult, jpInd, yearVar, downloadtype = "full", int.select = intervals, subset = subsetStr)
+    if (any(data$Interval %in% intervals)) {
+      intervals <- intervals[intervals %in% data$Interval]
+    } else {
+      intervals <- max(data$Interval)
+    }
+    observed <- getObservedValues(data, intervals, yearVar)
     data <- subset(data, Interval %in% intervals)
+    data$observed <- observed
     return(data)
   } else if (downloadtype == "death") {
-    for (i in 1:length(state$additional$intervalsDeath)) {
-      intervals <- c(intervals, state$additional$intervalsDeath[[i]])
-    }
+    intervals <- state$additional$intervalsDeath
     data <- download.data(seerdata, fittedResult, jpInd, yearVar, downloadtype = "full", int.select = intervals, subset = subsetStr)
     data <- subset(data, Interval %in% intervals)
     return(data)
@@ -1009,6 +1009,21 @@ downloadData2 <- function(state, seerdata, fittedResult, com, runs, yearVar, jpI
     fullData <- download.data(seerdata, fittedResult, jpInd, yearVar, downloadtype = "full", subset = subsetStr)
     return(scaleTo(fullData))
   }
+}
+
+getObservedValues <- function(data, intervals, yearCol) {
+  observed <- lapply(intervals, function(i) {
+    cols <- as.character(c(min(data$Interval):i))
+    observed <- data %>%
+      select({{ yearCol }}, Interval, Relative_Survival_Interval) %>%
+      pivot_wider(names_from = Interval, values_from = Relative_Survival_Interval) %>%
+      select(-{{ yearCol }}) %>%
+      select(matches(cols))
+    apply(observed, 1, prod)
+  })
+  observed <- as.data.frame(observed)
+  names(observed) <- as.character(intervals)
+  unlist(pivot_longer(observed, everything()) %>% select(value))
 }
 
 # creates graphs
@@ -1157,8 +1172,7 @@ getGraphWrapper <- function(filePath, jpsurvDataString, first_calc, com, runs, i
           seerdata <- seerdata[seerdata[cohortVar] == trimws(cohortCombo[i]), ]
         }
       }
-      minInterval <- min(fit$Interval)
-      maxInterval <- max(fit$Interval)
+
       maxYear <- max(seerdata[, yearVar])
       minYear <- min(seerdata[, yearVar])
       if (length(years) > 0) {
@@ -1175,8 +1189,8 @@ getGraphWrapper <- function(filePath, jpsurvDataString, first_calc, com, runs, i
     graphData <- scaleTo(graphData)
     graphData <- graphData[graphData[[yearVar]] %in% years, ]
     if (exists("minYear")) {
-      results <- list("timeTable" = graphData, "minYear" = minYear, "maxYear" = maxYear, "minInt" = minInterval, "maxInt" = maxInterval)
-      # results <- list("timeGraph" = graphFile, "timeTable" = graphData, "minYear" = minYear, "maxYear" = maxYear, "minInt" = minInterval, "maxInt" = maxInterval)
+      results <- list("timeTable" = graphData, "minYear" = minYear, "maxYear" = maxYear)
+      # results <- list("timeGraph" = graphFile, "timeTable" = graphData, "minYear" = minYear, "maxYear" = maxYear)
     } else {
       results <- list("timeTable" = graphData)
       # results <- list("timeGraph" = graphFile, "timeTable" = graphData)
@@ -1290,8 +1304,6 @@ getGraph2 <- function(state, seerdata, fit, first_calc, com, runs, interval, gra
           seerdata <- seerdata[seerdata[cohortVar] == trimws(cohortCombo[i]), ]
         }
       }
-      minInterval <- min(data$Interval)
-      maxInterval <- max(data$Interval)
       maxYear <- max(seerdata[, yearVar])
       minYear <- min(seerdata[, yearVar])
       if (length(years) > 0) {
@@ -1308,8 +1320,8 @@ getGraph2 <- function(state, seerdata, fit, first_calc, com, runs, interval, gra
     graphData <- scaleTo(graphData)
     graphData <- graphData[graphData[[yearVar]] %in% years, ]
     if (exists("minYear")) {
-      results <- list("timeTable" = graphData, "minYear" = minYear, "maxYear" = maxYear, "minInt" = minInterval, "maxInt" = maxInterval)
-      # results <- list("timeGraph" = graphFile, "timeTable" = graphData, "minYear" = minYear, "maxYear" = maxYear, "minInt" = minInterval, "maxInt" = maxInterval)
+      results <- list("timeTable" = graphData, "minYear" = minYear, "maxYear" = maxYear)
+      # results <- list("timeGraph" = graphFile, "timeTable" = graphData, "minYear" = minYear, "maxYear" = maxYear)
     } else {
       results <- list("timeTable" = graphData)
       # results <- list("timeGraph" = graphFile, "timeTable" = graphData)

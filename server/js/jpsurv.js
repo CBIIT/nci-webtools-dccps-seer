@@ -713,7 +713,8 @@ export function updateCutPointOptions() {
   jpsurvData.cutPointIndex = cutPoint;
 
   $('#cutpoint-display').on('select2:select', function () {
-    jpsurvData.cutPointIndex = $('#cutpoint-display option:selected')?.val() || 1;
+    jpsurvData.cutPointIndex = this.value || 1;
+    if (this.value == 1) jpsurvData.viewConditional = false;
     jpsurvData.plot.static.imageId = 0;
     jpsurvData.additional.recalculate = 'true';
     resetShowTrend();
@@ -1057,8 +1058,8 @@ function drawPlot(plot, update = false) {
       .replace(/\s\+\s/g, ' - ');
     const jpInd = jpsurvData.results.jpInd;
     const jp = jpInd ? ` (${jpsurvData.results.jpLocation[jpInd].replace(/\s/g, ', ')})` : '';
-
     const modelInfo = [cohort ? cohort + ' - ' : '', `Joinpoint ${jpInd}`, jp].join('');
+    const observed = jpsurvData.additional.observed;
 
     if (plot == 'year') {
       const yearData = jpsurvData.results.yearData;
@@ -1071,7 +1072,7 @@ function drawPlot(plot, update = false) {
         ? updatePlotData(
             'yearPlot',
             checkArray(yearData.survTable[yodVarName]),
-            checkArray(yearData.survTable.Relative_Survival_Cum || yearData.survTable.CauseSpecific_Survival_Cum),
+            checkArray(yearData.survTable?.observed || yearData.survTable[observed]),
             checkArray(yearData.survTable.Predicted_Survival_Cum),
             checkArray(yearData.survTable.Interval),
             trend
@@ -1079,7 +1080,7 @@ function drawPlot(plot, update = false) {
         : drawLineChart(
             'yearPlot',
             checkArray(yearData.survTable[yodVarName]),
-            checkArray(yearData.survTable.Relative_Survival_Cum || yearData.survTable.CauseSpecific_Survival_Cum),
+            checkArray(yearData.survTable?.observed || yearData.survTable[observed]),
             checkArray(yearData.survTable.Predicted_Survival_Cum),
             checkArray(yearData.survTable.Interval),
             trend,
@@ -1118,7 +1119,7 @@ function drawPlot(plot, update = false) {
       drawLineChart(
         'timePlot',
         checkArray(timeData.Interval),
-        checkArray(timeData.Relative_Survival_Cum || timeData.CauseSpecific_Survival_Cum),
+        checkArray(timeData[observed]),
         checkArray(timeData.Predicted_Survival_Cum),
         checkArray(timeData[yodVarName]),
         null,
@@ -1151,7 +1152,7 @@ function updateGraphs() {
   //Add the Year Table
   if (jpsurvData.results.yearData.survTable != undefined) {
     var yodCol = jpsurvData.results.yearData.survTable[yodVarName];
-    var data_type = jpsurvData.results.statistic.replace('Cum', 'Cumulative');
+    var data_type =  jpsurvData.results.statistic.replace('Cum', 'Cumulative');
     var data_se = jpsurvData.results.statistic.replace('Survival', 'SE');
     var se_col = jpsurvData.results.statistic.replace('Cum', 'Cumulative Std. Err.');
     var yearHeaders = [
@@ -1195,14 +1196,14 @@ function updateGraphs() {
   if (jpsurvData.results.timeData.timeTable != undefined) {
     yodCol = jpsurvData.results.timeData.timeTable[yodVarName];
     var data_type = jpsurvData.results.statistic;
-    var Cumulative_header = '';
-    if (data_type == 'CauseSpecific_Survival_Cum') Cumulative_header = 'Cumulative CauseSpecific Survival';
-    if (data_type == 'Relative_Survival_Cum') Cumulative_header = 'Cumulative Relative Survival';
+    let observed_header = '';
+    if (data_type == 'CauseSpecific_Survival_Cum') observed_header = 'Cumulative CauseSpecific Survival';
+    if (data_type == 'Relative_Survival_Cum') observed_header = 'Cumulative Relative Survival';
 
     var timeHeader = [
       'Year of Diagnosis',
       'Interval',
-      Cumulative_header + ' (%)',
+      observed_header + ' (%)',
       'Predicted Cumulative Relative Survival (%)',
     ];
     var allHeaders = jpsurvData.calculate.form.cohortVars.concat(timeHeader);
@@ -1557,12 +1558,12 @@ export function setData() {
     jpsurvData.additional.yearOfDiagnosis[index] = parseInt(value);
   });
 
-  jpsurvData.additional.DataTypeVariable = 'Relative_Survival_Cum';
-  if (jpsurvData.additional.statistic == 'Relative Survival') {
-    jpsurvData.additional.DataTypeVariable = 'Relative_Survival_Cum';
-  }
+  jpsurvData.additional.observed = 'Relative_Survival_Cum';
+  // if (jpsurvData.additional.statistic == 'Relative Survival') {
+  //   jpsurvData.additional.observed = 'Relative_Survival_Interval';
+  // }
   if (jpsurvData.additional.statistic == 'Cause-Specific Survival') {
-    jpsurvData.additional.DataTypeVariable = 'CauseSpecific_Survival_Cum';
+    jpsurvData.additional.observed = 'CauseSpecific_Survival_Cum';
   }
 }
 
@@ -1851,7 +1852,6 @@ export function loadResults(results) {
   $('#conditionalRecalcVis').toggleClass('d-none', conditional || relaxProp);
   $('#toggleCondControl').toggleClass('d-none', !relaxProp || +jpsurvData.cutPointIndex == 1);
   $('#cutpoint-display-control').toggleClass('d-none', !relaxProp);
-  
   $('#toggleConditionalView').prop('checked', jpsurvData.viewConditional);
   $('#toggleConditionalJp').prop('checked', conditional);
   $('#toggleRelaxProp').prop('checked', relaxProp);
@@ -2204,33 +2204,23 @@ export function setIntervalsDefault() {
 
 function setIntervalYears(min, max) {
   clearIntervalYears();
-  const defaultIntervals = jpsurvData.additional.intervals_default;
-  const [defMin, defMax] = defaultIntervals;
   const prevInt = jpsurvData.additional.intervals || [];
   const prevIntDeath = jpsurvData.additional.intervalsDeath || [];
 
-  for (let i = min; i <= max; i++) {
+  for (let i = +min; i <= +max; i++) {
     $('#interval-years').append(new Option(i, i));
     $('#interval-years-death').append(new Option(i, i));
   }
 
   if (prevInt.length && prevInt.some((e) => e >= min && e <= max)) {
     $('#interval-years').val(prevInt).trigger('change');
-  } else if (min <= defMin && max >= defMax) {
-    $('#interval-years').val(defaultIntervals).trigger('change');
   } else {
-    $('#interval-years')
-      .val([max - 1, max])
-      .trigger('change');
+    $('#interval-years').val([max]).trigger('change');
   }
   if (prevIntDeath.length && prevIntDeath.some((e) => e >= min && e <= max)) {
     $('#interval-years-death').val(prevIntDeath).trigger('change');
-  } else if (min <= defMin && max >= defMax) {
-    $('#interval-years-death').val(defaultIntervals).trigger('change');
   } else {
-    $('#interval-years-death')
-      .val([max - 1, max])
-      .trigger('change');
+    $('#interval-years-death').val([max]).trigger('change');
   }
 }
 
@@ -2354,8 +2344,16 @@ function clearIntervalYears() {
 
 // only allow intervals within range of cohort combo
 function setIntervalsDynamic() {
-  if (jpsurvData.results?.timeData?.maxInt) {
-    setIntervalYears(jpsurvData.results.timeData.minInt, jpsurvData.results.timeData.maxInt);
+  const { Interval } = jpsurvData.results?.timeData;
+  const relaxProp = jpsurvData.calculate.form.relaxProp;
+  if (relaxProp) {
+    const { fitInfo, cutPoint } = jpsurvData.results;
+    const [min, max] = (jpsurvData.viewConditional ? fitInfo['Intervals.2'] : fitInfo['Intervals.1'])[cutPoint].split(
+      ' - '
+    );
+    setIntervalYears(min, max);
+  } else if (Interval?.length) {
+    setIntervalYears(Math.min(...Interval), Math.max(...Interval));
   }
 }
 
