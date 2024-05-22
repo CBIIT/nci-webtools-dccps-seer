@@ -1005,6 +1005,11 @@ downloadData2 <- function(state, seerdata, fittedResult, com, runs, yearVar, jpI
   } else if (downloadtype == "death") {
     intervals <- state$additional$intervalsDeath
     data <- download.data(seerdata, fittedResult, jpInd, yearVar, downloadtype = "full", int.select = intervals, subset = subsetStr)
+    if (any(data$Interval %in% intervals)) {
+      intervals <- intervals[intervals %in% data$Interval]
+    } else {
+      intervals <- max(data$Interval)
+    }
     data <- subset(data, Interval %in% intervals)
     return(data)
   } else if (downloadtype == "time") {
