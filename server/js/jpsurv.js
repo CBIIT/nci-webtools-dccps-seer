@@ -1151,8 +1151,11 @@ function updateGraphs() {
 
   //Add the Year Table
   if (jpsurvData.results.yearData.survTable != undefined) {
+    const observedCol = jpsurvData.calculate.form.relaxProp
+      ? 'Relative Survival Interval'
+      : jpsurvData.results.statistic;
     var yodCol = jpsurvData.results.yearData.survTable[yodVarName];
-    var data_type =  jpsurvData.results.statistic.replace('Cum', 'Cumulative');
+    var data_type = observedCol.replace('Cum', 'Cumulative');
     var data_se = jpsurvData.results.statistic.replace('Survival', 'SE');
     var se_col = jpsurvData.results.statistic.replace('Cum', 'Cumulative Std. Err.');
     var yearHeaders = [
@@ -1845,12 +1848,14 @@ export function loadResults(results) {
   updateTabs();
   absChgDynamic();
   setIntervalsDynamic();
+  addCutpointInfo();
 
   const conditional = jpsurvData.calculate.form.conditional;
   const relaxProp = jpsurvData.calculate.form.relaxProp;
 
+  $('#cutpointInfo').toggleClass('d-none', !relaxProp);
   $('#conditionalRecalcVis').toggleClass('d-none', conditional || relaxProp);
-  $('#toggleCondControl').toggleClass('d-none', !relaxProp || +jpsurvData.cutPointIndex == 1);
+  $('#toggleConditionalView').prop('disabled', +jpsurvData.cutPointIndex == 1);
   $('#cutpoint-display-control').toggleClass('d-none', !relaxProp);
   $('#toggleConditionalView').prop('checked', jpsurvData.viewConditional);
   $('#toggleConditionalJp').prop('checked', conditional);
@@ -1890,6 +1895,14 @@ export function loadResults(results) {
 
     showMessage('jpsurv', msg, 'Warning');
   }
+}
+
+function addCutpointInfo() {
+  const { AIC, BIC } = jpsurvData.results.fitInfo;
+  const { cutPoint } = jpsurvData.results;
+  $('#cpBic').html(parseFloat(BIC[cutPoint]).toFixed($('#precision').val()));
+  $('#cpAic').html(parseFloat(AIC[cutPoint]).toFixed($('#precision').val()));
+  // $('#cpLog').html('');
 }
 
 function defaultTrends() {

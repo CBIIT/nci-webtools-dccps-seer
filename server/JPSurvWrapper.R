@@ -706,10 +706,8 @@ getcoefficientsWrapper2 <- function(fit, state, first_calc, com) {
 geALLtModelWrapper <- function(filePath, jpsurvDataString, com) {
   jpsurvData <- rjson::fromJSON(jpsurvDataString)
   fileName <- paste("output-", jpsurvData$tokenId, "-", com, ".rds", sep = "")
-  jpInd <- jpsurvData$additional$headerJoinPoints
   file <- paste(filePath, fileName, sep = "/")
   outputData <- readRDS(file)
-  jsonl <- list()
   relaxProp <- jpsurvData$calculate$form$relaxProp
   viewConditional <- jpsurvData$viewConditional
   data <- outputData$fittedResult
@@ -719,7 +717,6 @@ geALLtModelWrapper <- function(filePath, jpsurvDataString, com) {
     data <- data$fit.uncond
   }
   saved <- data$FitList
-  joints <- list()
   ModelSelection <- list()
   for (i in 1:length(saved)) {
     name <- paste0("joinpoint", i)
@@ -727,19 +724,13 @@ geALLtModelWrapper <- function(filePath, jpsurvDataString, com) {
     bicJson <- saved[[i]]$bic
     llJson <- saved[[i]]$ll
     convergedJson <- saved[[i]]$converged
-    joints[[name]] <- list("aic" = aicJson, "bic" = bicJson, "ll" = llJson, "converged" = convergedJson)
+    ModelSelection[[name]] <- list("aic" = aicJson, "bic" = bicJson, "ll" = llJson, "converged" = convergedJson)
   }
-  ModelSelection <- joints
   return(ModelSelection)
 }
 
 getAllModels <- function(fit, state, com) {
-  jpInd <- state$additional$headerJoinPoints
-  jsonl <- list()
-  relaxProp <- state$calculate$form$relaxProp
-  viewConditional <- state$viewConditional
   fitList <- fit$FitList
-  joints <- list()
   ModelSelection <- list()
   for (i in 1:length(fitList)) {
     aicJson <- fitList[[i]]$aic
@@ -747,9 +738,24 @@ getAllModels <- function(fit, state, com) {
     llJson <- fitList[[i]]$ll
     convergedJson <- fitList[[i]]$converged
     name <- paste0("joinpoint", i)
-    joints[[name]] <- list("aic" = aicJson, "bic" = bicJson, "ll" = llJson, "converged" = convergedJson)
+    ModelSelection[[name]] <- list("aic" = aicJson, "bic" = bicJson, "ll" = llJson, "converged" = convergedJson)
   }
-  ModelSelection <- joints
+
+  return(ModelSelection)
+}
+
+getAllModelsCutpoint <- function(cutpoint, state, com) {
+  fitList <- fit$FitList
+  ModelSelection <- list()
+  for (i in 1:length(fitList)) {
+    aicJson <- fitList[[i]]$aic
+    bicJson <- fitList[[i]]$bic
+    llJson <- fitList[[i]]$ll
+    convergedJson <- fitList[[i]]$converged
+    name <- paste0("joinpoint", i)
+    ModelSelection[[name]] <- list("aic" = aicJson, "bic" = bicJson, "ll" = llJson, "converged" = convergedJson)
+  }
+
   return(ModelSelection)
 }
 

@@ -657,10 +657,6 @@
                   <label for="cohort-display" class="font-weight-bold">Cohort</label>
                   <select id="cohort-display" aria-label="cohort display"></select>
                 </div>
-                <div id="cutpoint-display-control" class="ml-3 d-none">
-                  <label for="cutpoint-display" class="font-weight-bold">Cut Point</label>
-                  <select id="cutpoint-display" aria-label="select cut point"></select>
-                </div>
                 <div class="d-inline ml-3">
                   <label for="precision" title="Rounded to decimal places.">Number of Decimal Places</label>
                   <select name="abcselect" id="precision" aria-label="Round">
@@ -722,9 +718,26 @@
                   </thead>
                   <tbody></tbody>
                 </table>
-                <div id="toggleCondControl" class="custom-control custom-switch d-none">
-                  <input type="checkbox" class="custom-control-input" id="toggleConditionalView" checked="true" />
-                  <label class="custom-control-label" for="toggleConditionalView">Conditional Results</label>
+              </div>
+              <div id="cutpointInfo" class="container border rounded p-3 d-none">
+                <div class="row">
+                  <div id="cutpoint-display-control" class="col-sm-auto d-none">
+                    <label for="cutpoint-display" class="font-weight-bold">Cut Point</label>
+                    <select id="cutpoint-display" aria-label="select cut point"></select>
+                  </div>
+                </div>
+                <div class="row">
+                  <div id="toggleCondControl" class="col-sm-auto ml-3 custom-control custom-switch">
+                    <input type="checkbox" class="custom-control-input" id="toggleConditionalView" checked="true" />
+                    <label class="custom-control-label" for="toggleConditionalView">Conditional Cluster</label>
+                  </div>
+                  <div class="col-sm-auto font-weight-bold">
+                    Cluster Penalized BIC: <span id="cpBic" class="font-weight-normal"></span>
+                  </div>
+                  <div class="col-sm-auto font-weight-bold">
+                    AIC: <span id="cpAic" class="font-weight-normal"></span>
+                  </div>
+                  <!-- <div class="col-sm-auto font-weight-bold">Log Likelihood <span id="cpLog"></span></div> -->
                 </div>
               </div>
             </div>
