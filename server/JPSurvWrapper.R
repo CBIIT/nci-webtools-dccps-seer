@@ -497,7 +497,6 @@ relaxPropResults <- function(filePath, jpsurvDataString, first_calc = FALSE, val
     "conditional" = viewConditional,
     "fitInfo" = fitInfo,
     "cutPoint" = cutPointIndex - 1,
-    "optimalCutpointIndex" = optimalCutpointIndex,
     "errors" = errors
   )
   exportJson <- rjson::toJSON(jsonl)

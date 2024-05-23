@@ -700,17 +700,21 @@ export function updateCohortDropdown() {
 
 export function updateCutPointOptions() {
   $('#cutpoint-display').empty();
+  const { AIC, BIC, ...rest } = jpsurvData.results.fitInfo;
   const maxCutPoint = +$('#maxCutPoint').val();
-  const cutPoint = jpsurvData.results.cutPoint + 1;
-  const optimalIndex = jpsurvData.results.optimalCutpointIndex;
+  const optimalIndex = rest['BestFit(Min BIC)'].indexOf('*');
+  const cutPointIndex = jpsurvData.results.cutPoint + 1;
+
   for (let i = 0; i <= maxCutPoint; i++) {
-    const label = i == optimalIndex - 1 ? `${i} (Optimal)` : i;
+    const cpBic = parseFloat(BIC[i]).toFixed($('#precision').val());
+    const cpAic = parseFloat(AIC[i]).toFixed($('#precision').val());
+    const label = `${i} | AIC: ${cpAic} | BIC: ${cpBic}${i == optimalIndex ? ' (Optimal)' : ''}`;
     const option = new Option(label, i + 1);
     $('#cutpoint-display').append(option);
   }
 
-  $('#cutpoint-display').val(cutPoint).trigger('change');
-  jpsurvData.cutPointIndex = cutPoint;
+  $('#cutpoint-display').val(cutPointIndex).trigger('change');
+  jpsurvData.cutPointIndex = cutPointIndex;
 
   $('#cutpoint-display').on('select2:select', function () {
     jpsurvData.cutPointIndex = this.value || 1;
@@ -1282,7 +1286,7 @@ export function addTable(yodCol, headers, table, data, data_se, graph) {
       }
     } else {
       if (jpsurvData.results.input_type == 'dic') {
-        row.append(formatCell(data?.observed[index] || data[jpsurvData.results.statistic][index]));
+        row.append(formatCell(data?.observed?.[index] || data[jpsurvData.results.statistic][index]));
       } else if (jpsurvData.results.input_type == 'csv') {
         row.append(
           formatCell(data?.observed[index] || data[jpsurvData.results.headers[jpsurvData.results.statistic]][index])
@@ -1904,7 +1908,6 @@ function addCutpointInfo() {
   const { cutPoint } = jpsurvData.results;
   $('#cpBic').html(parseFloat(BIC[cutPoint]).toFixed($('#precision').val()));
   $('#cpAic').html(parseFloat(AIC[cutPoint]).toFixed($('#precision').val()));
-  // $('#cpLog').html('');
 }
 
 function defaultTrends() {
