@@ -1155,7 +1155,7 @@ function updateGraphs() {
 
   //Add the Year Table
   if (jpsurvData.results.yearData.survTable != undefined) {
-    const observedCol = jpsurvData.calculate.form.relaxProp
+    const observedCol = jpsurvData.calculate.form.relaxProp || jpsurvData.calculate.form.conditional
       ? 'Relative Survival Interval'
       : jpsurvData.results.statistic;
     var yodCol = jpsurvData.results.yearData.survTable[yodVarName];

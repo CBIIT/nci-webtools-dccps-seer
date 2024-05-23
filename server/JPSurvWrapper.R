@@ -340,13 +340,17 @@ getAllData <- function(filePath, jpsurvDataString, first_calc = FALSE, valid_com
 
   yod <- jpsurvData$additional$yearOfDiagnosis_default
 
+  file <- file.path(filePath, paste("output-", jpsurvData$tokenId, "-", com, ".rds", sep = ""))
+  data <- readRDS(file)
+  seerdata <- data$seerdata
+  fit <- data$fittedResult
 
   # get year column var name
   yearVar <- getCorrectFormat(jpsurvData$calculate$static$yearOfDiagnosisVarName)
   # create datasets for download
   fullDownload <- downloadDataWrapper(jpsurvDataString, filePath, com, runs, yearVar, jpInd, "full")
   deathGraphData <- downloadDataWrapper(jpsurvDataString, filePath, com, runs, yearVar, jpInd, "death")
-  survGraphData <- downloadDataWrapper(jpsurvDataString, filePath, com, runs, yearVar, jpInd, "year")
+  survGraphData <- downloadData2(jpsurvData, seerdata, fit, com, runs, yearVar, jpInd, "year")
   timeGraphData <- downloadDataWrapper(jpsurvDataString, filePath, com, runs, yearVar, jpInd, "time")
   # create graphs
   deathGraph <- getGraphWrapper(filePath, jpsurvDataString, first_calc, com, NULL, interval, deathGraphData, "death", statistic)
@@ -935,14 +939,8 @@ downloadDataWrapper <- function(jpsurvDataString, filePath, com, runs, yearVar, 
   file <- paste(filePath, paste("output-", jpsurvData$tokenId, "-", com, ".rds", sep = ""), sep = "/")
   outputData <- readRDS(file)
   input <- outputData[["seerdata"]]
-  relaxProp <- jpsurvData$calculate$form$relaxProp
-  viewConditional <- jpsurvData$viewConditional
   fit <- outputData$fittedResult
-  if (relaxProp && viewConditional) {
-    fit <- fit$fit.cond
-  } else if (relaxProp && !viewConditional) {
-    fit <- fit$fit.uncond
-  }
+
 
   yearOfDiagnosisRange <- jpsurvData$calculate$form$yearOfDiagnosisRange
   cohortVars <- jpsurvData$calculate$form$cohortVars
@@ -999,7 +997,9 @@ downloadData2 <- function(state, seerdata, fittedResult, com, runs, yearVar, jpI
     }
     observed <- getObservedValues(data, intervals, yearVar)
     data <- subset(data, Interval %in% intervals)
-    data$observed <- observed
+    if (state$calculate$form$relaxProp || state$calculate$form$conditional) {
+      data$observed <- observed
+    }
     return(data)
   } else if (downloadtype == "death") {
     intervals <- state$additional$intervalsDeath
