@@ -1837,10 +1837,12 @@ export function generateResultsFilename(cohort_com, jpInd, firstCalc) {
 }
 
 export function loadResults(results) {
+  const relaxProp = jpsurvData.calculate.form.relaxProp;
   jpsurvData.results = results;
+
   if (!jpsurvData.stage2completed) {
     updateCohortDropdown();
-    updateCutPointOptions();
+    if (relaxProp) updateCutPointOptions();
   } else {
     // restore calculated trend if available
     if (jpsurvData.results.yearData.survTrend) {
@@ -1854,10 +1856,9 @@ export function loadResults(results) {
   updateTabs();
   absChgDynamic();
   setIntervalsDynamic();
-  addCutpointInfo();
 
   const conditional = jpsurvData.calculate.form.conditional;
-  const relaxProp = jpsurvData.calculate.form.relaxProp;
+  if (relaxProp) addCutpointInfo();
 
   $('#cutpointInfo').toggleClass('d-none', !relaxProp);
   $('#conditionalRecalcVis').toggleClass('d-none', conditional || relaxProp);
