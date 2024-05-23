@@ -1282,9 +1282,11 @@ export function addTable(yodCol, headers, table, data, data_se, graph) {
       }
     } else {
       if (jpsurvData.results.input_type == 'dic') {
-        row.append(formatCell(data[jpsurvData.results.statistic][index]));
+        row.append(formatCell(data?.observed[index] || data[jpsurvData.results.statistic][index]));
       } else if (jpsurvData.results.input_type == 'csv') {
-        row.append(formatCell(data[jpsurvData.results.headers[jpsurvData.results.statistic]][index]));
+        row.append(
+          formatCell(data?.observed[index] || data[jpsurvData.results.headers[jpsurvData.results.statistic]][index])
+        );
       }
       row.append(formatCell(data.Predicted_Survival_Cum[index]));
     }
