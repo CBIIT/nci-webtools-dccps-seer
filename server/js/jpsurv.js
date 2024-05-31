@@ -392,8 +392,8 @@ function addEventListeners() {
     $('#parameters').submit();
   });
 
-  $('#toggleConditionalView').on('click', (e) => {
-    jpsurvData.viewConditional = e.target.checked;
+  $('#clusterControl :input').on('change', (e) => {
+    jpsurvData.viewConditional = e.target.value == 'conditional';
     resetShowTrend();
     setCalculateData();
   });
@@ -700,15 +700,13 @@ export function updateCohortDropdown() {
 
 export function updateCutPointOptions() {
   $('#cutpoint-display').empty();
-  const { AIC, BIC, ...rest } = jpsurvData.results.fitInfo;
+  const fitInfo = jpsurvData.results.fitInfo;
   const maxCutPoint = +$('#maxCutPoint').val();
-  const optimalIndex = rest['BestFit(Min BIC)'].indexOf('*');
+  const optimalIndex = fitInfo['BestFit(Min BIC)'].indexOf('*');
   const cutPointIndex = jpsurvData.results.cutPoint + 1;
 
   for (let i = 0; i <= maxCutPoint; i++) {
-    const cpBic = parseFloat(BIC[i]).toFixed($('#precision').val());
-    const cpAic = parseFloat(AIC[i]).toFixed($('#precision').val());
-    const label = `${i} | AIC: ${cpAic} | BIC: ${cpBic}${i == optimalIndex ? ' (Optimal)' : ''}`;
+    const label = `${i}${i == optimalIndex ? ' (Optimal)' : ''}`;
     const option = new Option(label, i + 1);
     $('#cutpoint-display').append(option);
   }
@@ -1155,9 +1153,10 @@ function updateGraphs() {
 
   //Add the Year Table
   if (jpsurvData.results.yearData.survTable != undefined) {
-    const observedCol = jpsurvData.calculate.form.relaxProp || jpsurvData.calculate.form.conditional
-      ? 'Relative Survival Interval'
-      : jpsurvData.results.statistic;
+    const observedCol =
+      jpsurvData.calculate.form.relaxProp || jpsurvData.calculate.form.conditional
+        ? 'Relative Survival Interval'
+        : jpsurvData.results.statistic;
     var yodCol = jpsurvData.results.yearData.survTable[yodVarName];
     var data_type = observedCol.replace('Cum', 'Cumulative');
     var data_se = jpsurvData.results.statistic.replace('Survival', 'SE');
@@ -1860,11 +1859,12 @@ export function loadResults(results) {
   const conditional = jpsurvData.calculate.form.conditional;
   if (relaxProp) addCutpointInfo();
 
+  $('#clusterControl').toggleClass('d-none', !relaxProp);
+  $('#cutpoint-display-control').toggleClass('d-none', !relaxProp);
   $('#cutpointInfo').toggleClass('d-none', !relaxProp);
   $('#conditionalRecalcVis').toggleClass('d-none', conditional || relaxProp);
-  $('#toggleConditionalView').prop('disabled', +jpsurvData.cutPointIndex == 1);
-  $('#cutpoint-display-control').toggleClass('d-none', !relaxProp);
-  $('#toggleConditionalView').prop('checked', jpsurvData.viewConditional);
+  $('#viewCluster2').prop('disabled', +jpsurvData.cutPointIndex == 1);
+  // $('#toggleConditionalView').prop('checked', jpsurvData.viewConditional);
   $('#toggleConditionalJp').prop('checked', conditional);
   $('#toggleRelaxProp').prop('checked', relaxProp);
 
@@ -1906,9 +1906,10 @@ export function loadResults(results) {
 
 function addCutpointInfo() {
   const { AIC, BIC } = jpsurvData.results.fitInfo;
-  const { cutPoint } = jpsurvData.results;
+  const { cutPoint, totalBic } = jpsurvData.results;
   $('#cpBic').html(parseFloat(BIC[cutPoint]).toFixed($('#precision').val()));
-  $('#cpAic').html(parseFloat(AIC[cutPoint]).toFixed($('#precision').val()));
+  $('#totalAic').html(parseFloat(AIC[cutPoint]).toFixed($('#precision').val()));
+  $('#totalBic').html(parseFloat(totalBic[cutPoint]).toFixed($('#precision').val()));
 }
 
 function defaultTrends() {

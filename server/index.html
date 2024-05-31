@@ -657,6 +657,10 @@
                   <label for="cohort-display" class="font-weight-bold">Cohort</label>
                   <select id="cohort-display" aria-label="cohort display"></select>
                 </div>
+                <div id="cutpoint-display-control" class="ml-3 d-none">
+                  <label for="cutpoint-display" class="font-weight-bold">Cut Point</label>
+                  <select id="cutpoint-display" aria-label="select cut point"></select>
+                </div>
                 <div class="d-inline ml-3">
                   <label for="precision" title="Rounded to decimal places.">Number of Decimal Places</label>
                   <select name="abcselect" id="precision" aria-label="Round">
@@ -703,6 +707,32 @@
                   </button>
                 </div>
               </div>
+              <form id="clusterControl" class="mb-3">
+                <!-- <input type="checkbox" class="custom-control-input" id="toggleConditionalView" checked="true" />
+                <label class="custom-control-label" for="toggleConditionalView">Conditional Cluster</label> -->
+                <span class="font-weight-bold">View&nbsp;</span>
+                <div class="custom-control custom-radio custom-control-inline">
+                  <input
+                    type="radio"
+                    id="viewCluster1"
+                    name="viewCluster"
+                    value="unconditional"
+                    class="custom-control-input"
+                    checked
+                  />
+                  <label class="custom-control-label" for="viewCluster1">Cluster 1</label>
+                </div>
+                <div class="custom-control custom-radio custom-control-inline">
+                  <input
+                    type="radio"
+                    id="viewCluster2"
+                    name="viewCluster"
+                    value="conditional"
+                    class="custom-control-input"
+                  />
+                  <label class="custom-control-label" for="viewCluster2">Cluster 2</label>
+                </div>
+              </form>
               <div class="table-responsive">
                 <table id="model-selection-table" class="table table-hover condense">
                   <thead>
@@ -721,18 +751,14 @@
               </div>
               <div id="cutpointInfo" class="container border rounded p-3 d-none">
                 <div class="row">
-                  <div id="cutpoint-display-control" class="col-sm-auto d-none">
-                    <label for="cutpoint-display" class="font-weight-bold">Cut Point</label>
-                    <select id="cutpoint-display" aria-label="select cut point"></select>
-                  </div>
+                  <div class="col-sm-auto"><b>Fit Statistics for Both Clusters Combined</b></div>
                 </div>
                 <div class="row">
-                  <div id="toggleCondControl" class="col-sm-auto ml-3 custom-control custom-switch">
-                    <input type="checkbox" class="custom-control-input" id="toggleConditionalView" checked="true" />
-                    <label class="custom-control-label" for="toggleConditionalView">Conditional Cluster</label>
+                  <div class="col-sm-auto font-weight-bold">
+                    Total BIC: <span id="totalBic" class="font-weight-normal"></span>
                   </div>
                   <div class="col-sm-auto font-weight-bold">
-                    Total AIC: <span id="cpAic" class="font-weight-normal"></span>
+                    Total AIC: <span id="totalAic" class="font-weight-normal"></span>
                   </div>
                   <div class="col-sm-auto font-weight-bold">
                     Cluster Penalized BIC: <span id="cpBic" class="font-weight-normal"></span>

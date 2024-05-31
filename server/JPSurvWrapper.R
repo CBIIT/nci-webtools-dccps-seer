@@ -482,6 +482,7 @@ relaxPropResults <- function(filePath, jpsurvDataString, first_calc = FALSE, val
   jsonl <- list(
     "Coefficients" = getcoefficientsWrapper2(fit, state, first_calc, com),
     "ModelSelection" = getAllModels(fit, state, com),
+    "totalBic" = totalBic(data$fittedResult$all.results),
     "JP" = JP,
     "SelectedModel" = SelectedModel,
     "Runs" = runs,
@@ -747,19 +748,15 @@ getAllModels <- function(fit, state, com) {
   return(ModelSelection)
 }
 
-getAllModelsCutpoint <- function(cutpoint, state, com) {
-  fitList <- fit$FitList
-  ModelSelection <- list()
-  for (i in 1:length(fitList)) {
-    aicJson <- fitList[[i]]$aic
-    bicJson <- fitList[[i]]$bic
-    llJson <- fitList[[i]]$ll
-    convergedJson <- fitList[[i]]$converged
-    name <- paste0("joinpoint", i)
-    ModelSelection[[name]] <- list("aic" = aicJson, "bic" = bicJson, "ll" = llJson, "converged" = convergedJson)
+totalBic <- function(allResults) {
+  bic <- c()
+  for (i in seq_along(allResults)) {
+    bic[[i]] <- allResults[[i]]$fit.uncond$bic
+    if ("fit.cond" %in% names(allResults[[i]])) {
+      bic[[i]] <- bic[[i]] + allResults[[i]]$fit.cond$bic
+    }
   }
-
-  return(ModelSelection)
+  return(bic)
 }
 
 getTrendWrapper <- function(filePath, jpsurvDataString, com) {
