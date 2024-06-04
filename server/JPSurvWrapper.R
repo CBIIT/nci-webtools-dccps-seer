@@ -483,6 +483,7 @@ relaxPropResults <- function(filePath, jpsurvDataString, first_calc = FALSE, val
     "Coefficients" = getcoefficientsWrapper2(fit, state, first_calc, com),
     "ModelSelection" = getAllModels(fit, state, com),
     "totalBic" = totalBic(data$fittedResult$all.results),
+    "totalLog" = totalLog(data$fittedResult$all.results),
     "JP" = JP,
     "SelectedModel" = SelectedModel,
     "Runs" = runs,
@@ -757,6 +758,17 @@ totalBic <- function(allResults) {
     }
   }
   return(bic)
+}
+
+totalLog <- function(allResults) {
+  ll <- c()
+  for (i in seq_along(allResults)) {
+    ll[[i]] <- allResults[[i]]$fit.uncond$ll
+    if ("fit.cond" %in% names(allResults[[i]])) {
+      ll[[i]] <- ll[[i]] + allResults[[i]]$fit.cond$ll
+    }
+  }
+  return(ll)
 }
 
 getTrendWrapper <- function(filePath, jpsurvDataString, com) {

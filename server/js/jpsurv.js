@@ -1906,10 +1906,11 @@ export function loadResults(results) {
 
 function addCutpointInfo() {
   const { AIC, BIC } = jpsurvData.results.fitInfo;
-  const { cutPoint, totalBic } = jpsurvData.results;
+  const { cutPoint, totalBic,totalLog } = jpsurvData.results;
   $('#cpBic').html(parseFloat(BIC[cutPoint]).toFixed($('#precision').val()));
   $('#totalAic').html(parseFloat(AIC[cutPoint]).toFixed($('#precision').val()));
   $('#totalBic').html(parseFloat(totalBic[cutPoint]).toFixed($('#precision').val()));
+  $('#totalLog').html(parseFloat(totalLog[cutPoint]).toFixed($('#precision').val()));
 }
 
 function defaultTrends() {
