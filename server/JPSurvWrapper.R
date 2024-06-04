@@ -1021,9 +1021,10 @@ downloadData2 <- function(state, seerdata, fittedResult, com, runs, yearVar, jpI
     data <- subset(data, Interval %in% intervals)
     return(data)
   } else if (downloadtype == "time") {
-    intervalRange <- as.integer(state$calculate$form$interval)
-    range <- (c(1:intervalRange))
-    return(download.data(seerdata, fittedResult, jpInd, yearVar, downloadtype = "graph", int.select = range, subset = subsetStr))
+    interval <- as.integer(state$calculate$form$interval)
+    range <- (c(1:interval))
+    data <- download.data(seerdata, fittedResult, jpInd, yearVar, downloadtype = "full", int.select = range, subset = subsetStr)
+    return(data)
   } else {
     fullData <- download.data(seerdata, fittedResult, jpInd, yearVar, downloadtype = "full", subset = subsetStr)
     return(scaleTo(fullData))
@@ -1031,14 +1032,15 @@ downloadData2 <- function(state, seerdata, fittedResult, com, runs, yearVar, jpI
 }
 
 getObservedValues <- function(data, intervals, yearCol) {
-  observed <- lapply(intervals, function(i) {
-    cols <- as.character(c(min(data$Interval):i))
-    observed <- data %>%
-      select({{ yearCol }}, Interval, Relative_Survival_Interval) %>%
-      pivot_wider(names_from = Interval, values_from = Relative_Survival_Interval) %>%
-      select(-{{ yearCol }}) %>%
+  transform <- data %>%
+    select({{ yearCol }}, Interval, Relative_Survival_Interval) %>%
+    pivot_wider(names_from = Interval, values_from = Relative_Survival_Interval) %>%
+    select(-{{ yearCol }})
+  observed <- lapply(intervals, function(index) {
+    cols <- as.character(c(min(data$Interval):index))
+    selectIntervals <- transform %>%
       select(matches(cols))
-    apply(observed, 1, prod)
+    apply(selectIntervals, 1, prod)
   })
   observed <- as.data.frame(observed)
   names(observed) <- as.character(intervals)
