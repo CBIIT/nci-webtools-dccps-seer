@@ -1,6 +1,5 @@
 .git
 **/node_modules/
-**/data/
 **/logs/
 **/apache_logs/
 **/tmp/
