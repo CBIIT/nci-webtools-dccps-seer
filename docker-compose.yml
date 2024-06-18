@@ -1,27 +1,20 @@
-version: '3'
 services:
-    backend:
-        build:
-            context: '.'
-            args:
-                - R_RENV_CACHE_HOST=./server/renv/cache
-            dockerfile: './docker/backend.dockerfile'
-        volumes:
-            - './config:/app/config:ro'
-            - './tmp:/app/tmp'
-            - './logs:/app/logs'
-        ports: 
-            - '9002:80'
+  backend:
+    build:
+      context: '.'
+      dockerfile: './docker/backend.dockerfile'
+    volumes:
+      - './config:/app/config:ro'
+      - './tmp:/app/tmp'
+      - './logs:/app/logs'
+    ports:
+      - '9002:80'
 
-    queue_processor:
-        build:
-            context: '.'
-            args:
-                - R_RENV_CACHE_HOST=./server/renv/cache
-            dockerfile: './docker/queueProcessor.dockerfile'
-        volumes:
-            - './config:/app/config:ro'
-            - './tmp:/app/tmp'
-            - './logs:/app/logs'
-
-
+  queue_processor:
+    build:
+      context: '.'
+      dockerfile: './docker/queueProcessor.dockerfile'
+    volumes:
+      - './config:/app/config:ro'
+      - './tmp:/app/tmp'
+      - './logs:/app/logs'
