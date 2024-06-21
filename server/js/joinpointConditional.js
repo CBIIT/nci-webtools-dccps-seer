@@ -405,7 +405,7 @@ function loadConditionalResults(model) {
         const allIntervals = timeDataEnd.map((e) => e.Interval);
         const range = Array(predicted.length).fill(`${start} - ${end}`);
         const intervals = [Math.min(...allIntervals) - 1, ...allIntervals];
-        const observed = [1, ...timeDataEnd.map((e) => e.observed)];
+        const observed = [100, ...timeDataEnd.map((e) => e.observed)];
         // const observed = timeDataEnd
         //   .reduce(
         //     (arr, e, i) => {
