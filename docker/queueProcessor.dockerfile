@@ -21,7 +21,7 @@ options(\
 )' >> /usr/lib64/R/library/base/R/Rprofile
 
 COPY r-packages /app/r-packages
-COPY server /app/server/
+COPY server/deps.R /app/server/
 
 WORKDIR /app/server
 
@@ -29,9 +29,10 @@ WORKDIR /app/server
 RUN Rscript deps.R
 
 # copy queue processor
-COPY server/queueProcessor /app/server/queueProcessor
-COPY server/templates /app/server/templates
-COPY server/JPSurvWrapper.R /app/server/
+COPY server /app/server/
+# COPY server/queueProcessor /app/server/queueProcessor
+# COPY server/templates /app/server/templates
+# COPY server/JPSurvWrapper.R /app/server/
 
 WORKDIR /app/server/queueProcessor
 

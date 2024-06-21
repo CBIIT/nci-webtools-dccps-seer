@@ -26,7 +26,8 @@ options(\
 )' >> /usr/lib64/R/library/base/R/Rprofile
 
 COPY r-packages /app/r-packages
-COPY server /app/server/
+COPY server/requirements.txt /app/server/
+COPY server/deps.R /app/server/
 
 WORKDIR /app/server
 
@@ -36,7 +37,8 @@ RUN pip3 install -r requirements.txt
 # install R packages
 RUN Rscript deps.R
 
-# copy client to static directory
+# copy rest of server
+COPY server /app/server/
 COPY server /app/server/jpsurv
 # copy additional wsgi config
 COPY docker/additional-configuration.conf /app/wsgi/additional-configuration.conf
