@@ -405,16 +405,17 @@ function loadConditionalResults(model) {
         const allIntervals = timeDataEnd.map((e) => e.Interval);
         const range = Array(predicted.length).fill(`${start} - ${end}`);
         const intervals = [Math.min(...allIntervals) - 1, ...allIntervals];
-        const observed = timeDataEnd
-          .reduce(
-            (arr, e, i) => {
-              const obs = (e?.Relative_Survival_Interval || e?.CauseSpecific_Survival_Interval) / 100;
-              const prev = i > 0 ? arr[i] : 1;
-              return [...arr, obs * prev];
-            },
-            [1]
-          )
-          .map((e) => e * 100);
+        const observed = [1, ...timeDataEnd.map((e) => e.observed)];
+        // const observed = timeDataEnd
+        //   .reduce(
+        //     (arr, e, i) => {
+        //       const obs = (e?.Relative_Survival_Interval || e?.CauseSpecific_Survival_Interval) / 100;
+        //       const prev = i > 0 ? arr[i] : 1;
+        //       return [...arr, obs * prev];
+        //     },
+        //     [1]
+        //   )
+        //   .map((e) => e * 100);
         const traceGroup = `${year} (Int. ${start} - ${end})`;
 
         const predictedTraces = makeLineTrace(

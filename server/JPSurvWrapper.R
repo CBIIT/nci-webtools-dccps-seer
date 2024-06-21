@@ -1366,6 +1366,18 @@ conditionalJoinpoint <- function(jsonParams, folder) {
   fit <- data$fittedResult
   conditionalSurvival <- joinpoint.conditional(fit, startIntervals, endIntervals, params$njp)
 
+  # Transform observed cumulative data to be conditional
+  year <- colnames(conditionalSurvival)[[1]]
+  observed <- NULL
+  n_year <- length(unique(conditionalSurvival[[1]]))
+  year_uniq <- sort(unique(conditionalSurvival[[1]]))
+  for (i in 1:n_year) {
+    dat.i <- conditionalSurvival[conditionalSurvival[[year]] == year_uniq[i], ]
+    cond_surv.i <- cumprod(dat.i$Relative_Survival_Interval)
+    observed <- c(observed, cond_surv.i)
+  }
+  conditionalSurvival$observed <- observed
+
   # scale to percentage
   scaleData <- scaleTo(conditionalSurvival)
   savePath <- file.path(folder, "conditionalSurvivalPrediction.rds")

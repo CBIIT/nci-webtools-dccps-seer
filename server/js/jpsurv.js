@@ -1842,6 +1842,8 @@ export function loadResults(results) {
   if (!jpsurvData.stage2completed) {
     updateCohortDropdown();
     if (relaxProp) updateCutPointOptions();
+    // reset toggle
+    $('#useConditionalJp').prop('checked', false).change();
   } else {
     // restore calculated trend if available
     if (jpsurvData.results.yearData.survTrend) {
@@ -1906,7 +1908,7 @@ export function loadResults(results) {
 
 function addCutpointInfo() {
   const { AIC, BIC } = jpsurvData.results.fitInfo;
-  const { cutPoint, totalBic,totalLog } = jpsurvData.results;
+  const { cutPoint, totalBic, totalLog } = jpsurvData.results;
   $('#cpBic').html(parseFloat(BIC[cutPoint]).toFixed($('#precision').val()));
   $('#totalAic').html(parseFloat(AIC[cutPoint]).toFixed($('#precision').val()));
   $('#totalBic').html(parseFloat(totalBic[cutPoint]).toFixed($('#precision').val()));
@@ -2495,10 +2497,6 @@ function add_cohort_covariance_variable_select(field, variable_name, variable_ti
     $('#' + variable_name + '_select').attr('multiple', '');
   }
   $('#cohort_value_0_select').change(change_cohort_first_index_select);
-}
-
-function build_output_format_column() {
-  $('#output_format').fadeIn();
 }
 
 function jpsurvRest2(action, callback) {
