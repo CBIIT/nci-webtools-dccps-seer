@@ -387,7 +387,15 @@ function loadConditionalResults(model) {
       const allYears = timeData.map((e) => e[yodColName]);
       const uniqueYears = [...new Set(allYears)];
       const timeInterval =
-        uniqueYears.length < 5 ? uniqueYears : jStat.quantiles(uniqueYears, [0, 0.25, 0.5, 0.75, 1]).map(Math.round);
+        uniqueYears.length < 5
+          ? uniqueYears
+          : (() => {
+              const years = [];
+              for (let i = uniqueYears[0]; i < uniqueYears.at(-1); i += 10) {
+                years.push(i);
+              }
+              return years;
+            })();
 
       const condTimeData = timeData.filter((e) => timeInterval.includes(e[yodColName]));
       return timeInterval.map((year, index) => {
