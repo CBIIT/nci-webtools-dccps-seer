@@ -133,7 +133,8 @@ async function calculateModels(state, dataPath) {
       params.viewConditional = false;
 
       const relaxProp = params.calculate.form.relaxProp;
-      const filePrefix = params.viewConditional ? 'results-conditional' : 'results';
+      let filePrefix = params.viewConditional ? 'results-conditional' : 'results';
+      if (params.merged) filePrefix += 'merged-';
       const cutPointIndex = relaxProp ? `-${params.cutPointIndex}` : '';
       const resultsFile = path.join(
         dataPath,

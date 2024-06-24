@@ -624,9 +624,12 @@ def stage3_recalculate():
             jpInd = str(data[int(cohort_com) - 1])
 
     viewConditional = jpsurvData["viewConditional"]
+    merged = jpsurvData["merged"]
     relaxProp = jpsurvData["calculate"]["form"]["relaxProp"]
     cutPointIndex = "-%s" % jpsurvData["cutPointIndex"] if relaxProp else ""
     prefix = "/results-conditional-" if viewConditional == True else "/results-"
+    if merged:
+        prefix = prefix + "merged-"
     fname = (
         input_dir
         + prefix
@@ -935,9 +938,12 @@ def recalculateBatch():
                 jpInd = str(data[int(cohort_com) - 1])
 
         viewConditional = jpsurvData["viewConditional"]
+        merged = jpsurvData["merged"]
         relaxProp = jpsurvData["calculate"]["form"]["relaxProp"]
         cutPointIndex = "-%s" % jpsurvData["cutPointIndex"] if relaxProp else ""
         prefix = "/results-conditional-" if viewConditional == True else "/results-"
+        if merged:
+            prefix = prefix + "merged-"
         fname = (
             input_dir
             + prefix

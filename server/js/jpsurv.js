@@ -393,7 +393,8 @@ function addEventListeners() {
   });
 
   $('#clusterControl :input').on('change', (e) => {
-    jpsurvData.viewConditional = e.target.value == 'conditional';
+    jpsurvData.viewConditional = ['conditional', 'merged'].includes(e.target.value);
+    jpsurvData.merged = e.target.value == 'merged';
     resetShowTrend();
     setCalculateData();
   });
@@ -1659,6 +1660,7 @@ function calculate(run) {
     jpsurvData.recentTrends = 0;
     jpsurvData.cutPointIndex = 1;
     jpsurvData.viewConditional = false;
+    jpsurvData.merged = false;
     if (useQueue() && validateVariables()) {
       setIntervalsDefault();
       getIntervals();
@@ -1779,7 +1781,8 @@ function retrieveResults(cohort_com, jpInd, firstCalc, file = '') {
   } else if (jpInd != undefined && cohort_com != undefined && firstCalc == false) {
     const relaxProp = jpsurvData.calculate.form.relaxProp;
     const cutPointIndex = jpsurvData.cutPointIndex;
-    const prefix = jpsurvData.viewConditional ? 'results-conditional-' : 'results-';
+    let prefix = jpsurvData.viewConditional ? 'results-conditional-' : 'results-';
+    if (jpsurvData.merged) prefix += 'merged-';
     file_name =
       `jpsurvRest/results?file=${prefix}` +
       jpsurvData.tokenId +
@@ -1804,7 +1807,8 @@ export function generateResultsFilename(cohort_com, jpInd, firstCalc) {
   let file_name = '';
   const relaxProp = jpsurvData.calculate.form.relaxProp;
   const cutPointIndex = jpsurvData.cutPointIndex;
-  const prefix = jpsurvData.viewConditional ? 'results-conditional-' : 'results-';
+  let prefix = jpsurvData.viewConditional ? 'results-conditional-' : 'results-';
+  if (jpsurvData.merged) prefix += 'merged-';
   $.ajax({
     async: false,
     type: 'GET',
@@ -1866,6 +1870,7 @@ export function loadResults(results) {
   $('#cutpointInfo').toggleClass('d-none', !relaxProp);
   $('#conditionalRecalcVis').toggleClass('d-none', conditional || relaxProp);
   $('#viewCluster2').prop('disabled', +jpsurvData.cutPointIndex == 1);
+  $('#viewCluster3').prop('disabled', +jpsurvData.cutPointIndex == 1);
   // $('#toggleConditionalView').prop('checked', jpsurvData.viewConditional);
   $('#toggleConditionalJp').prop('checked', conditional);
   $('#toggleRelaxProp').prop('checked', relaxProp);
@@ -2370,10 +2375,13 @@ function setIntervalsDynamic() {
   const { Interval } = jpsurvData.results?.timeData;
   const relaxProp = jpsurvData.calculate.form.relaxProp;
   if (relaxProp) {
-    const { fitInfo, cutPoint } = jpsurvData.results;
-    const [min, max] = (jpsurvData.viewConditional ? fitInfo['Intervals.2'] : fitInfo['Intervals.1'])[cutPoint].split(
-      ' - '
-    );
+    const { fitInfo, cutPoint, fullDownload } = jpsurvData.results;
+    const [min, max] = jpsurvData.merged
+      ? [
+          Math.min(...fullDownload.Interval.filter(Number.isFinite)),
+          Math.max(...fullDownload.Interval.filter(Number.isFinite)),
+        ]
+      : (jpsurvData.viewConditional ? fitInfo['Intervals.2'] : fitInfo['Intervals.1'])[cutPoint].split(' - ');
     setIntervalYears(min, max);
   } else if (Interval?.length) {
     setIntervalYears(Math.min(...Interval), Math.max(...Interval));

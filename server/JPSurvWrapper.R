@@ -322,7 +322,7 @@ getAllData <- function(filePath, jpsurvDataString, first_calc = FALSE, valid_com
     interval <- "Interval"
     input_type <- "dic"
   }
-  viewConditional <- jpsurvData$viewConditional
+
   ModelSelection <- geALLtModelWrapper(filePath, jpsurvDataString, com)
   Coefficients <- getcoefficientsWrapper(filePath, jpsurvDataString, first_calc, com)
   JP <- getJPWrapper(filePath, jpsurvDataString, first_calc, com)
@@ -381,8 +381,7 @@ getAllData <- function(filePath, jpsurvDataString, first_calc = FALSE, valid_com
     "errors" = errors
   )
   exportJson <- rjson::toJSON(jsonl)
-  filePrefix <- if (viewConditional) "results-conditional-" else "results-"
-  filename <- file.path(filePath, paste0(filePrefix, jpsurvData$tokenId, "-", com, "-", jpInd, ".json"))
+  filename <- file.path(filePath, paste0("results-", jpsurvData$tokenId, "-", com, "-", jpInd, ".json"))
   write(exportJson, filename)
   return(jsonlite::toJSON(basename(filename)))
 }
@@ -426,7 +425,7 @@ relaxPropResults <- function(filePath, jpsurvDataString, first_calc = FALSE, val
     input_type <- "dic"
   }
   viewConditional <- state$viewConditional
-
+  merged <- state$merged
 
   SelectedModel <- getSelectedModel(filePath, jpsurvDataString, com)
   statistic <- state$additional$statistic
@@ -460,7 +459,19 @@ relaxPropResults <- function(filePath, jpsurvDataString, first_calc = FALSE, val
   JP <- getJPWrapper2(data$fittedResult$all.results[[cutPointIndex]]$fit.uncond, state, first_calc, com)
   cut <- data$fittedResult$all.results[[cutPointIndex]]
   fit <- NULL
-  if (length(cut$fit.cond) > 1 & viewConditional) {
+
+  if (length(cut$fit.cond) > 1 && viewConditional && merged) {
+    # merge conditional and unconditional models
+    fit <- cut$fit.uncond
+    n_models <- length(cut$fit.cond$FitList)
+    for (i in 1:n_models) {
+      uncond <- cut$fit.uncond$FitList[[i]]$fullpredicted
+      cond <- cut$fit.cond$FitList[[i]]$fullpredicted
+      merge <- rbind(uncond, cond[, -ncol(cond)])
+      merge <- merge[order(merge[[yearVar]], merge$Interval), ]
+      fit$FitList[[i]]$fullpredicted <- merge
+    }
+  } else if (length(cut$fit.cond) > 1 && viewConditional) {
     fit <- cut$fit.cond
   } else {
     fit <- cut$fit.uncond
@@ -501,12 +512,13 @@ relaxPropResults <- function(filePath, jpsurvDataString, first_calc = FALSE, val
     "fullDownload" = fullDownload,
     "jpLocation" = jpLocation,
     "conditional" = viewConditional,
+    "merged" = merged,
     "fitInfo" = fitInfo,
     "cutPoint" = cutPointIndex - 1,
     "errors" = errors
   )
   exportJson <- rjson::toJSON(jsonl)
-  filePrefix <- if (viewConditional) "results-conditional-" else "results-"
+  filePrefix <- if (merged) "results-conditional-merged-" else if (viewConditional) "results-conditional-" else "results-"
   filename <- file.path(filePath, paste0(filePrefix, state$tokenId, "-", com, "-", jpInd, "-", cutPointIndex, ".json"))
   write(exportJson, filename)
   return(jsonlite::toJSON(basename(filename)))
