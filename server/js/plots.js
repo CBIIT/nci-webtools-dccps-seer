@@ -96,10 +96,10 @@ export function makeLayout(divId, range, xTitle, yTitle, statistic, modelInfo) {
     },
     legend: {
       orientation: 'h',
-      x: 0.5,
+      // x: 0.5,
       y: -0.15,
-      yanchor: 'top',
-      xanchor: 'center',
+      // yanchor: 'top',
+      // xanchor: 'center',
     },
     xaxis: {
       title: '<b>' + xTitle + '</b>',
@@ -221,7 +221,7 @@ export function processPlotData(divID, x, yMark, yLine, dimension, trends) {
         mode: 'lines',
         line: { dash: 'dash', color: colors[i % 10] },
         type: 'scatter',
-        legendgroup: interval + 'projected',
+        legendgroup: interval,
       };
 
       lineTrendLabel[interval] = {
@@ -281,8 +281,8 @@ export function processPlotData(divID, x, yMark, yLine, dimension, trends) {
             ? divID == 'yearPlot'
               ? `${interval}-year Projected`
               : `Interval ${interval - 1}-${interval} Projected`
-            : interval,
-        legendgroup: interval + 'projected',
+            : interval + ' Projected',
+        legendgroup: interval,
       };
     }
   });
@@ -463,10 +463,10 @@ export async function drawLineChart(divID, x, yMark, yLine, dimension, trends, m
     },
     legend: {
       orientation: 'h',
-      x: 0.5,
+      // x: 0.5,
       y: -0.15,
-      yanchor: 'top',
-      xanchor: 'center',
+      // yanchor: 'top',
+      // xanchor: 'center',
     },
     xaxis: {
       title: '<b>' + titles(statistic)[divID].xTitle + '</b>',
