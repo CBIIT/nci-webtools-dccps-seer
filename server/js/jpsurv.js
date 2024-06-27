@@ -2327,14 +2327,14 @@ function toggleAbsSelect() {
 function clearAbsChg() {
   jpsurvData.additional.absTmp = [NaN, NaN];
   jpsurvData.additional.absChgRange = null;
-  $('#absChgFrom').empty();
-  $('#absChgTo').empty();
-  $('#absChgFrom').append('<OPTION value="">----</OPTION>');
-  $('#absChgTo').append('<OPTION value="">----</OPTION>');
+  $('#absChgFrom').empty().append('<OPTION value="">----</OPTION>');
+  $('#absChgTo').empty().append('<OPTION value="">----</OPTION>');
   $('#toggleAbsSelect').prop('checked', false).trigger('change');
 }
 
 function setAbsRange(range) {
+  $('#absChgFrom').empty();
+  $('#absChgTo').empty();
   for (var year = range[0]; year <= range[1]; year++) {
     $('#absChgFrom').append('<OPTION>' + year + '</OPTION>');
     $('#absChgTo').append('<OPTION>' + year + '</OPTION>');
