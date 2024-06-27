@@ -47,6 +47,7 @@ $(document).ready(function () {
   addEventListeners();
   addMessages();
   hide_display_email();
+  $('#precision').val(getCookie('precision') || 2);
   // disable calculate button on document load if there are cohorts to select
   if (
     !getUrlParameter('request') &&
