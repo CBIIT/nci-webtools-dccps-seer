@@ -1,0 +1,24 @@
+{
+  "name": "jpsurv-analysis",
+  "version": "4.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "prettier --write --ignore-unknown ."
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "lint-staged": "^13.0.2",
+    "prettier": "^2.7.1"
+  },
+  "prettier": {
+    "printWidth": 120,
+    "quoteProps": "consistent",
+    "bracketSameLine": true
+  },
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown"
+  }
+}
