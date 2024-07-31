@@ -120,9 +120,7 @@ export default function AnalysisForm() {
     const yearOptions = seerStatDictionary
       .filter(({ label }) => /year/gi.test(label))
       .map((e) => ({ label: e.label, name: e.name }));
-    const yearRangeOptions = seerStatDictionary.filter(({ name }) => name === yearOptions[0].name)[0][
-      "factors"
-    ];
+    const yearRangeOptions = seerStatDictionary.filter(({ name }) => name === yearOptions[0].name)[0]["factors"];
     const intervals = seerStatDictionary.filter(({ name }) => name === "Interval")[0]["factors"];
     // const intervals = [...Array(+config["Session Options"]["NumberOfIntervals"]).keys()].map((i) => i + 1);
     // by default, use 25 years of follow-up (less if there are fewer years of follow-up in the data)
@@ -168,10 +166,10 @@ export default function AnalysisForm() {
    * @returns {Object} - An object containing the filtered cohorts and cohort parameters.
    */
   function processCohorts(formData) {
-    const filterCohorts = formData.cohorts.map(({ name, options }) => {
+    const filterCohorts = formData.cohorts.map(({ options, ...rest }) => {
       const noSelect = options.filter((e) => e.checked).length === 0;
       return {
-        name,
+        ...rest,
         options: noSelect ? options.map((e) => ({ ...e, checked: true })) : options,
       };
     });
@@ -194,12 +192,14 @@ export default function AnalysisForm() {
     const id = crypto.randomUUID();
     const { filterCohorts, cohortParams } = processCohorts(formData);
     const statistic = seerData.config["Session Options"]["Statistic"];
+    const rates = seerData.config["Session Options"]["RatesDisplayedAs"];
 
     const params = {
       ...formData,
       id,
       cohorts: cohortParams,
       observed: statistic === "Relative Survival" ? "Relative_Survival_Cum" : "CauseSpecific_Survival_Cum",
+      rates,
       files: {
         dictionaryFile: seerData?.dictionaryFile,
         dataFile: seerData.dataFile,
@@ -216,8 +216,8 @@ export default function AnalysisForm() {
     const seerDataFile = asFileList(
       new File([JSON.stringify(seerData.seerStatData)], params.files.seerStatDataFile, { type: "application/json" })
     );
-    await uploadFiles(`/api/upload/${id}`, { ...formData, seerDataFile, });
-    // await uploadFiles(`/api/upload/${id}`, { seerDataFile });
+    // await uploadFiles(`/api/upload/${id}`, { ...formData, seerDataFile });
+    await uploadFiles(`/api/upload/${id}`, { seerDataFile });
     submit.mutate({ id, params });
   }
 
@@ -257,6 +257,13 @@ export default function AnalysisForm() {
           />
           <Form.Text className="text-danger">{errors?.referenceDataFiles?.message}</Form.Text>
         </Form.Group>
+        {Object.keys(seerData).length > 0 && (
+          <div>
+            <b>Data Type: </b>
+            {seerData.config["Session Options"]["Statistic"]} in{" "}
+            {seerData.config["Session Options"]["RatesDisplayedAs"]}
+          </div>
+        )}
         <div className="text-end mb-3">
           <Button variant="primary" onClick={() => handleLoadData()} disabled={false}>
             Load

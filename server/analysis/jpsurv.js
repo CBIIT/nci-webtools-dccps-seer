@@ -8,11 +8,15 @@ export async function jpsurv(params, logger, env) {
   const outputFolder = path.resolve(env.OUTPUT_FOLDER, id);
   const statusFilePath = path.resolve(outputFolder, "status.json");
 
-  const data = await r.async("analysis/jpsurv.R", "calculateJoinpoint", { inputFolder, outputFolder });
-  const status = { id, status: "COMPLETED" };
+  await writeJson(statusFilePath, { id, status: "IN PROGRESS" });
 
-  await writeJson(statusFilePath, status);
+  try {
+    const data = await r.async("analysis/jpsurv.R", "calculateJoinpoint", { inputFolder, outputFolder });
+    console.log("worker done");
 
-  console.log(data);
-  return data;
+    await writeJson(statusFilePath, { id, status: "COMPLETED" });
+  } catch (error) {
+    await writeJson(paths.statusFile, { id, status: "FAILED", error: error.message });
+  }
+  return false;
 }
