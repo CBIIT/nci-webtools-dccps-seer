@@ -16,7 +16,8 @@ export async function jpsurv(params, logger, env) {
 
     await writeJson(statusFilePath, { id, status: "COMPLETED" });
   } catch (error) {
-    await writeJson(paths.statusFile, { id, status: "FAILED", error: error.message });
+    logger.error(error);
+    await writeJson(statusFilePath, { id, status: "FAILED", error: error.message });
   }
   return false;
 }
