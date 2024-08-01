@@ -1,4 +1,5 @@
 import dynamic from "next/dynamic";
+import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import Form from "react-bootstrap/Form";
@@ -16,7 +17,9 @@ const FileInput = dynamic(() => import("@/components/file-input"), {
   ssr: false,
 });
 
-export default function AnalysisForm() {
+export default function AnalysisForm({ id }) {
+  const router = useRouter();
+  const pathname = usePathname();
   // const { setState, resetStore, seerData, modelOptions } = useStore((state) => state);
   const setState = useStore((state) => state.setState);
   const resetStore = useStore((state) => state.resetStore);
@@ -51,19 +54,26 @@ export default function AnalysisForm() {
     },
   });
 
-  // const status = useQuery({
-  //   queryKey: ["status", form.id],
-  //   queryFn: async () => {
-  //     return axios.post(`/api/query/${form.id}`, { table: "status" });
-  //   },
-  // });
+  const session = useQuery({
+    queryKey: ["params", id],
+    queryFn: async () => {
+      const params = (await axios.get(`/api/data/input/${id}/params.json`)).data;
+      const seerData = (await axios.get(`/api/data/input/${id}/seerStatData.json`)).data;
+      return { params, seerData };
+    },
+    enabled: !!id,
+  });
 
-  // useEffect(() => reset(params), [reset, params]);
+  // load previous params if available
   useEffect(() => {
-    if (!getValues("id") && form.id) reset(form);
-  }, [reset, getValues, form.id]);
+    if (session.isSuccess && !getValues("id")) {
+      setState({ seerData: session.data.seerData });
+      setModelOptions(session.data.seerData);
+      reset(session.data.params);
+    }
+  }, [getValues, session]);
   useEffect(() => {
-    if (inputType && inputFile && !Object.keys(seerData).length) handleLoadData();
+    if (inputFile && !Object.keys(seerData).length) handleLoadData();
   }, [inputType, inputFile, seerData, handleLoadData]);
 
   function handleChange(event) {
@@ -104,8 +114,8 @@ export default function AnalysisForm() {
             config,
           };
           console.log("seer", seer);
-          const options = setModelOptions(seer);
-          setState({ seerData: seer, modelOptions: options });
+          setModelOptions(seer);
+          setState({ seerData: seer });
         } else {
           throw new Error("Invalid SEER*STAT files selected.");
         }
@@ -142,7 +152,6 @@ export default function AnalysisForm() {
     setValue("interval", interval);
 
     setState({ modelOptions: { yearOptions, yearRangeOptions, intervals, cohortVariables } });
-    return { yearOptions, yearRangeOptions, intervals, cohortVariables };
   }
 
   /**
@@ -166,7 +175,7 @@ export default function AnalysisForm() {
    * @returns {Object} - An object containing the filtered cohorts and cohort parameters.
    */
   function processCohorts(formData) {
-    const filterCohorts = formData.cohorts.map(({ options, ...rest }) => {
+    const cohorts = formData.cohorts.map(({ options, ...rest }) => {
       const noSelect = options.filter((e) => e.checked).length === 0;
       return {
         ...rest,
@@ -174,7 +183,7 @@ export default function AnalysisForm() {
       };
     });
 
-    const cohortParams = filterCohorts.reduce(
+    const selectedCohorts = cohorts.reduce(
       (acc, { name, options }) => ({
         ...acc,
         [name]: options.filter((e) => e.checked).map((e) => e.value),
@@ -182,47 +191,44 @@ export default function AnalysisForm() {
       {}
     );
 
-    // const cohortCombination = cohortParams.reduce((acc, { name, selected }) => {});
-    const yearStr = `${formData.year} >= ${formData.yearStart} & ${formData.year} <= ${formData.yearEnd}`;
-
-    return { filterCohorts, cohortParams };
+    return { cohorts, selectedCohorts };
   }
 
   async function onSubmit(formData) {
     const id = crypto.randomUUID();
-    const { filterCohorts, cohortParams } = processCohorts(formData);
+    const { cohorts, selectedCohorts } = processCohorts(formData);
     const statistic = seerData.config["Session Options"]["Statistic"];
     const rates = seerData.config["Session Options"]["RatesDisplayedAs"];
 
     const params = {
       ...formData,
       id,
-      cohorts: cohortParams,
+      cohorts,
+      selectedCohorts,
       observed: statistic === "Relative Survival" ? "Relative_Survival_Cum" : "CauseSpecific_Survival_Cum",
       rates,
       files: {
         dictionaryFile: seerData?.dictionaryFile,
         dataFile: seerData.dataFile,
         headers: seerData.seerStatDictionary.map((e) => e.name),
-        seerStatDataFile: "seerStatData.json",
+        seerStatFile: "seerStatData.json",
       },
     };
-
-    setValue("id", id);
-    setValue("cohorts", filterCohorts);
     console.log("params", params);
-    setState({ form: formData });
 
-    const seerDataFile = asFileList(
-      new File([JSON.stringify(seerData.seerStatData)], params.files.seerStatDataFile, { type: "application/json" })
+    const seerStatFile = asFileList(
+      new File([JSON.stringify(seerData)], params.files.seerStatFile, { type: "application/json" })
     );
     // await uploadFiles(`/api/upload/${id}`, { ...formData, seerDataFile });
-    await uploadFiles(`/api/upload/${id}`, { seerDataFile });
+    await uploadFiles(`/api/upload/${id}`, { seerStatFile });
     submit.mutate({ id, params });
+    reset(params);
+    router.replace(`${pathname}?id=${id}`, { shallow: true });
   }
 
   function onReset(event) {
     event.preventDefault();
+    router.replace("/analysis", { shallow: true });
     reset(defaultForm);
     resetStore();
   }

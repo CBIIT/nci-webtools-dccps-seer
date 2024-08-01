@@ -9,10 +9,10 @@ import AnalysisMain from "./main";
 import { SidebarContainer, SidebarPanel, MainPanel } from "@/components/sidebar-container";
 import { useStore } from "./store";
 
-export default function Analysis() {
+export default function Analysis({ searchParams }) {
   const error = "";
   const { openSidebar, toggleSidebar } = useStore((state) => state);
-
+  const { id } = searchParams;
   return (
     <Container className="py-4">
       <Row>
@@ -21,7 +21,7 @@ export default function Analysis() {
             <Col>
               <div className="p-3 border rounded" style={{ minHeight: "400px" }}>
                 <Suspense fallback={<strong>Loading</strong>}>
-                  <AnalysisForm />
+                  <AnalysisForm id={id} />
                 </Suspense>
               </div>
             </Col>
@@ -30,7 +30,7 @@ export default function Analysis() {
             <Col>
               <div className="p-3 border rounded" style={{ minHeight: "400px" }}>
                 <Suspense fallback={<strong>Loading</strong>}>
-                  <AnalysisMain />
+                  <AnalysisMain id={id} />
                 </Suspense>
               </div>
               {/* {error && <Alert variant="danger">Results expired</Alert>} */}

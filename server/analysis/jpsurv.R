@@ -9,18 +9,18 @@ calculateJoinpoint <- function(inputFolder, outputFolder) {
     # dataFile <- file.path(inputFolder, params$files$dataFile)
     # data2 <- read.table(dataFile, header = FALSE, fill = TRUE, na.strings = ".")
     # names(data2) <- params$files$headers
-    data <- read_json(file.path(inputFolder, params$files$seerStatDataFile), simplifyDataFrame = T)
-    data <- subset(data, Interval <= params$interval)
+    data <- read_json(file.path(inputFolder, params$files$seerStatFile), simplifyDataFrame = T)
+    data <- subset(data$seerStatData, Interval <= params$interval)
     if (params$rates == "Percents") {
         data <- toProportion(data)
     }
 
     # subset strings for filtering
     yearStr <- sprintf("%s >= %s & %s <= %s", params$year, params$yearStart, params$year, params$yearEnd)
-    cohortVars <- names(params$cohorts)
+    cohortVars <- names(params$selectedCohorts)
     cohortMatrix <- c()
-    for (i in seq_along(params$cohorts)) {
-        cohortMatrix[[i]] <- unlist(params$cohorts[[i]])
+    for (i in seq_along(params$selectedCohorts)) {
+        cohortMatrix[[i]] <- unlist(params$selectedCohorts[[i]])
     }
     cohortMatrix <- as.matrix(expand.grid(cohortMatrix))
     cohortSubsets <- apply(cohortMatrix, 1, function(cohortRow) {
