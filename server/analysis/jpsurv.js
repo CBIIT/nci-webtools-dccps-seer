@@ -8,7 +8,7 @@ export async function jpsurv(params, logger, env) {
   const outputFolder = path.resolve(env.OUTPUT_FOLDER, id);
   const statusFilePath = path.resolve(outputFolder, "status.json");
 
-  await writeJson(statusFilePath, { id, status: "IN PROGRESS" });
+  await writeJson(statusFilePath, { id, status: "IN_PROGRESS" });
 
   try {
     const data = await r.async("analysis/jpsurv.R", "calculateJoinpoint", { inputFolder, outputFolder });
