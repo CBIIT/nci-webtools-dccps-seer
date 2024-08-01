@@ -21,11 +21,3 @@ export async function submit(params, env = process.env) {
   worker(id).catch(console.error);
   return status;
 }
-
-export async function query(params, env = process.env) {
-  const { id } = params;
-  const outputFolder = path.resolve(env.OUTPUT_FOLDER, id);
-  const statusFilePath = path.resolve(outputFolder, "status.json");
-  const status = await readJson(statusFilePath);
-  return status;
-}

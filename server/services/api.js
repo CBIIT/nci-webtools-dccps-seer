@@ -7,7 +7,7 @@ import multer from "multer";
 import path from "path";
 import DiskStorage from "./storage.js";
 import { logRequests, logErrors, logFiles, handleValidationErrors } from "./middleware.js";
-import { submit, query } from "./analysis.js";
+import { submit } from "./analysis.js";
 
 export function createApi(env) {
   // define middleware
@@ -37,10 +37,6 @@ export function createApi(env) {
 
   router.post("/submit/:id", validate, handleValidationErrors, async (req, res) => {
     res.json(await submit({ ...req.body, id: req.params.id }));
-  });
-
-  router.post("/query/:id", async (req, res) => {
-    res.json(await query({ ...req.body, id: req.params.id }, process.env));
   });
 
   router.use(logErrors());
