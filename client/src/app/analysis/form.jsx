@@ -24,7 +24,6 @@ export default function AnalysisForm({ id }) {
   // const { setState, resetStore, seerData, modelOptions } = useStore((state) => state);
   const setState = useStore((state) => state.setState);
   const resetStore = useStore((state) => state.resetStore);
-  const form = useStore((state) => state.form);
   const seerData = useStore((state) => state.seerData);
   const modelOptions = useStore((state) => state.modelOptions);
 

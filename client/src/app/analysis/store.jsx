@@ -17,7 +17,6 @@ export const defaultForm = {
 };
 
 export const defaultState = {
-  form: defaultForm,
   results: {},
   seerData: {},
   modelOptions: {},
