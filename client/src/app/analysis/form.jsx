@@ -6,7 +6,7 @@ import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useStore, defaultForm } from "./store";
 import { parseSeerStatDictionary, parseSeerStatFiles } from "@/services/file/file.service";
@@ -18,6 +18,7 @@ const FileInput = dynamic(() => import("@/components/file-input"), {
 });
 
 export default function AnalysisForm({ id }) {
+  const queryClient = useQueryClient();
   const router = useRouter();
   const pathname = usePathname();
   // const { setState, resetStore, seerData, modelOptions } = useStore((state) => state);
@@ -45,7 +46,6 @@ export default function AnalysisForm({ id }) {
 
   const inputType = watch("inputType");
   const inputFile = watch("inputFile");
-  const year = watch("year");
   const sendNotification = watch("sendNotification");
 
   const submit = useMutation({
@@ -54,22 +54,23 @@ export default function AnalysisForm({ id }) {
     },
   });
 
-  const session = useQuery({
+  const { data: session } = useQuery({
     queryKey: ["params", id],
     queryFn: async () => {
       const params = (await axios.get(`/api/data/input/${id}/params.json`)).data;
       const seerData = (await axios.get(`/api/data/input/${id}/seerStatData.json`)).data;
       return { params, seerData };
     },
+    retry: false,
     enabled: !!id,
   });
 
   // load previous params if available
   useEffect(() => {
-    if (session.isSuccess && !getValues("id")) {
-      setState({ seerData: session.data.seerData });
-      setModelOptions(session.data.seerData);
-      reset(session.data.params);
+    if (session && !getValues("id")) {
+      setState({ seerData: session.seerData });
+      setModelOptions(session.seerData);
+      reset(session.params);
     }
   }, [getValues, session]);
   useEffect(() => {
@@ -223,14 +224,15 @@ export default function AnalysisForm({ id }) {
     await uploadFiles(`/api/upload/${id}`, { seerStatFile });
     submit.mutate({ id, params });
     reset(params);
-    router.replace(`${pathname}?id=${id}`, { shallow: true });
+    router.push(`${pathname}?id=${id}`, { shallow: true });
   }
 
   function onReset(event) {
     event.preventDefault();
-    router.replace("/analysis", { shallow: true });
+    router.push("/analysis", { shallow: false });
     reset(defaultForm);
     resetStore();
+    queryClient.invalidateQueries();
   }
 
   return (
