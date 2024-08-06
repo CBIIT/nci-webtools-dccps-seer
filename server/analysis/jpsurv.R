@@ -32,7 +32,7 @@ calculateJoinpoint <- function(inputFolder, outputFolder) {
     save(data, subset, file = "~/Desktop/data.RData")
 
 
-    calculate <- joinpoint(
+    results <- joinpoint(
         data = data,
         subset = subset,
         year = params$year,
@@ -41,9 +41,9 @@ calculateJoinpoint <- function(inputFolder, outputFolder) {
         maxnum.jp = params$maxJp
     )
 
-    save(calculate, file = "~/Desktop/calculate.RData")
-    write_json(calculate$FitList, path = file.path(outputFolder, "output.json"), pretty = TRUE, auto_unbox = TRUE)
-    calculate
+    save(results, file = "~/Desktop/results.RData")
+    write_json(results$FitList, path = file.path(outputFolder, "results.json"), pretty = TRUE, auto_unbox = TRUE)
+    results
 }
 
 #
