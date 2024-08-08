@@ -1,0 +1,19 @@
+{
+    "apps": [
+      {
+        "name": "prod",
+        "script": "server.js",
+        "node_args": "--env-file=.env",
+        "exec_mode": "cluster",
+        "instances": "max"
+      },
+      {
+        "name": "dev",
+        "script": "server.js",
+        "node_args": "--env-file=.env ",
+        "watch": ["."],
+        "ignore_watch": ["node_modules", "tmp", "logs"]
+      }
+    ]
+  }
+  

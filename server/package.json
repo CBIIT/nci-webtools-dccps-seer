@@ -6,7 +6,9 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node --env-file=.env server.js"
+    "start": "pm2-runtime start pm2.config.json --only prod",
+    "start:dev": "pm2-runtime start pm2.config.json --only dev",
+    "start:debug": "node -r dotenv/config server.js"
   },
   "author": "",
   "license": "ISC",
@@ -21,6 +23,7 @@
     "lodash-es": "^4.17.21",
     "multer": "^1.4.5-lts.1",
     "node-mailer": "^0.1.1",
+    "pm2": "^5.4.2",
     "r-wrapper": "^1.1.2",
     "winston": "^3.13.0"
   }
