@@ -1,16 +1,36 @@
 "use client";
 import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
-import { useMemo } from "react";
+import { useMemo, useRef, useEffect } from "react";
 import { Table } from "react-bootstrap";
 
-export default function ModelTable({ data }) {
+export default function ModelTable({ data, handleRowSelect }) {
   const models = useMemo(
     () => data.map((m, i) => ({ index: i, aic: m.aic, bic: m.bic, ll: m.ll, converged: m.converged ? "Yes" : "No" })),
     [data]
   );
-  console.log(models);
+
   const columnHelper = createColumnHelper();
   const columns = [
+    {
+      id: "select",
+      cell: ({ row }) => (
+        <div className="px-1">
+          <IndeterminateCheckbox
+            {...{
+              checked: row.getIsSelected(),
+              disabled: !row.getCanSelect(),
+              indeterminate: row.getIsSomeSelected(),
+              onChange: () => {
+                const selected = row.getIsSelected();
+                table.toggleAllRowsSelected(false);
+                row.toggleSelected(!selected);
+                handleRowSelect(table.getSelectedRowModel().rows[0].index);
+              },
+            }}
+          />
+        </div>
+      ),
+    },
     columnHelper.accessor("index", {
       header: () => "Model",
       cell: (info) => info.getValue() + 1,
@@ -42,7 +62,18 @@ export default function ModelTable({ data }) {
     data: models,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    enableRowSelection: true,
   });
+
+  function IndeterminateCheckbox({ indeterminate, className = "", ...rest }) {
+    const ref = useRef(null);
+    useEffect(() => {
+      if (typeof indeterminate === "boolean") {
+        ref.current.indeterminate = !rest.checked && indeterminate;
+      }
+    }, [ref, indeterminate]);
+    return <input type="radio" ref={ref} className={className + " cursor-pointer"} {...rest} />;
+  }
 
   return (
     <Table striped bordered>

@@ -18,7 +18,7 @@ export default function Analysis({ searchParams }) {
         <SidebarContainer collapsed={!openSidebar} onCollapsed={toggleSidebar}>
           <SidebarPanel>
             <Col>
-              <div className="p-3 border rounded" style={{ minHeight: "400px" }}>
+              <div className="p-3 border rounded bg-white" style={{ minHeight: "400px" }}>
                 <Suspense fallback={<strong>Loading</strong>}>
                   <AnalysisForm id={id} />
                 </Suspense>
@@ -27,7 +27,7 @@ export default function Analysis({ searchParams }) {
           </SidebarPanel>
           <MainPanel>
             <Col>
-              <div className="p-3 border rounded" style={{ minHeight: "400px" }}>
+              <div className="p-3 border rounded bg-white" style={{ minHeight: "400px" }}>
                 <Suspense fallback={<strong>Loading</strong>}>
                   <AnalysisMain id={id} />
                 </Suspense>

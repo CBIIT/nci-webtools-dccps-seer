@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import dynamic from "next/dynamic";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
@@ -68,7 +68,7 @@ export default function AnalysisForm({ id }) {
   // load previous params if available
   useEffect(() => {
     if (session && !getValues("id")) {
-      setState({ seerData: session.seerData });
+      setState({ seerData: session.seerData, form: session.params });
       setModelOptions(session.seerData);
       reset(session.params);
     }

@@ -4,9 +4,16 @@ import { useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import ModelTable from "./model-table";
+import SurvivalVsYear from "./survivalVsYear";
+import { useStore } from "./store";
 
 export default function AnalysisMain({ id }) {
   const queryClient = useQueryClient();
+  const setState = useStore((state) => state.setState);
+  const seerData = useStore((state) => state.seerData);
+  const params = useStore((state) => state.form);
+  const { cohortIndex, modelIndex } = useStore((state) => state.main);
+
   const { data: jobStatus } = useQuery({
     queryKey: ["status", id],
     queryFn: async () => {
@@ -29,12 +36,17 @@ export default function AnalysisMain({ id }) {
     }
   }, [jobStatus]);
 
+  function setModelIndex(index) {
+    setState({ main: { modelIndex: index } });
+  }
+
   return (
     <Container>
       <code>{JSON.stringify(jobStatus)}</code>
-      {results && (
+      {results && seerData && Object.keys(seerData).length > 0 && Object.keys(params).length > 0 && (
         <>
-          <ModelTable data={results} />
+          <ModelTable data={results} handleRowSelect={setModelIndex} />
+          <SurvivalVsYear data={results[modelIndex].fullpredicted} seerData={seerData} params={params} />
         </>
       )}
 
