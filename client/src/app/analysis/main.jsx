@@ -1,5 +1,5 @@
 "use client";
-import { Container } from "react-bootstrap";
+import { Container, Tab, Tabs } from "react-bootstrap";
 import { useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
@@ -46,7 +46,21 @@ export default function AnalysisMain({ id }) {
       {results && seerData && Object.keys(seerData).length > 0 && Object.keys(params).length > 0 && (
         <>
           <ModelTable data={results} handleRowSelect={setModelIndex} />
-          <SurvivalVsYear data={results[modelIndex].fullpredicted} seerData={seerData} params={params} />
+
+          <Tabs defaultActiveKey="survival" className="my-3">
+            <Tab eventKey="survival" title="Survival vs. Year at Diagnosis">
+              <SurvivalVsYear data={results[modelIndex].fullpredicted} seerData={seerData} params={params} />
+            </Tab>
+            <Tab eventKey="death" title="Death vs. Year at Diagnosis">
+              Tab content for Profile
+            </Tab>
+            <Tab eventKey="time" title="Survival vs. Time Since Diagnosis">
+              Tab content for Contact
+            </Tab>
+            <Tab eventKey="estimates" title="Model Estimates">
+              Tab content for Contact
+            </Tab>
+          </Tabs>
         </>
       )}
 
