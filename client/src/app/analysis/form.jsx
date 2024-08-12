@@ -224,6 +224,7 @@ export default function AnalysisForm({ id }) {
     await uploadFiles(`/api/upload/${id}`, { seerStatFile });
     submit.mutate({ id, params });
     reset(params);
+    setState({ form: params });
     router.push(`${pathname}?id=${id}`, { shallow: true });
   }
 
