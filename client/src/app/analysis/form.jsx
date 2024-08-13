@@ -191,13 +191,18 @@ export default function AnalysisForm({ id }) {
       }),
       {}
     );
+    const cohortVars = Object.keys(selectedCohorts);
+    const cohortCombos = Object.values(selectedCohorts).reduce(
+      (acc, row) => acc.flatMap((prefix) => row.map((value) => [...prefix, value])),
+      [[]]
+    );
 
-    return { cohorts, selectedCohorts };
+    return { cohorts, cohortVars, cohortCombos };
   }
 
   async function onSubmit(formData) {
     const id = crypto.randomUUID();
-    const { cohorts, selectedCohorts } = processCohorts(formData);
+    const { cohorts, cohortVars, cohortCombos } = processCohorts(formData);
     const statistic = seerData.config["Session Options"]["Statistic"];
     const rates = seerData.config["Session Options"]["RatesDisplayedAs"];
 
@@ -205,7 +210,8 @@ export default function AnalysisForm({ id }) {
       ...formData,
       id,
       cohorts,
-      selectedCohorts,
+      cohortVars,
+      cohortCombos,
       observed: statistic === "Relative Survival" ? "Relative_Survival_Cum" : "CauseSpecific_Survival_Cum",
       rates,
       files: {

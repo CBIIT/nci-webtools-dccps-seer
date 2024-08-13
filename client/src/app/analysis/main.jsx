@@ -5,6 +5,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import ModelTable from "./model-table";
 import SurvivalVsYear from "./survivalVsYear";
+import CohortSelect from "./cohort-select";
 import { useStore } from "./store";
 
 export default function AnalysisMain({ id }) {
@@ -22,9 +23,9 @@ export default function AnalysisMain({ id }) {
     enabled: !!id,
   });
   const { data: results } = useQuery({
-    queryKey: ["results", id],
+    queryKey: ["results", id, cohortIndex],
     queryFn: async () => {
-      return (await axios.get(`/api/data/output/${id}/results.json`)).data;
+      return (await axios.get(`/api/data/output/${id}/${cohortIndex}.json`)).data;
     },
 
     enabled: jobStatus === "COMPLETED",
@@ -37,7 +38,7 @@ export default function AnalysisMain({ id }) {
   }, [jobStatus]);
 
   function setModelIndex(index) {
-    setState({ main: { modelIndex: index } });
+    setState({ main: { cohortIndex, modelIndex: index } });
   }
 
   return (
@@ -45,8 +46,8 @@ export default function AnalysisMain({ id }) {
       <code>{JSON.stringify(jobStatus)}</code>
       {results && seerData && Object.keys(seerData).length > 0 && Object.keys(params).length > 0 && (
         <>
+          <CohortSelect params={params} />
           <ModelTable data={results} handleRowSelect={setModelIndex} />
-
           <Tabs defaultActiveKey="survival" className="my-3">
             <Tab eventKey="survival" title="Survival vs. Year at Diagnosis">
               <SurvivalVsYear data={results[modelIndex].fullpredicted} seerData={seerData} params={params} />

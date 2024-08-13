@@ -21,10 +21,8 @@ export default function ModelTable({ data, handleRowSelect }) {
               disabled: !row.getCanSelect(),
               indeterminate: row.getIsSomeSelected(),
               onChange: () => {
-                const selected = row.getIsSelected();
-                table.toggleAllRowsSelected(false);
-                row.toggleSelected(!selected);
-                handleRowSelect(table.getSelectedRowModel().rows[0].index);
+                row.toggleSelected();
+                handleRowSelect(row.index);
               },
             }}
           />
@@ -63,6 +61,8 @@ export default function ModelTable({ data, handleRowSelect }) {
     columns,
     getCoreRowModel: getCoreRowModel(),
     enableRowSelection: true,
+    enableMultiRowSelection: false,
+    initialState: { rowSelection: { 0: true } },
   });
 
   function IndeterminateCheckbox({ indeterminate, className = "", ...rest }) {

@@ -18,7 +18,7 @@ export const defaultForm = {
 
 export const defaultState = {
   form: defaultForm,
-  main: { cohortIndex: 0, modelIndex: 0 },
+  main: { cohortIndex: 1, modelIndex: 0 },
   results: {},
   seerData: {},
   modelOptions: {},
