@@ -351,7 +351,7 @@ getAllData <- function(filePath, jpsurvDataString, first_calc = FALSE, valid_com
   fullDownload <- downloadDataWrapper(jpsurvDataString, filePath, com, runs, yearVar, jpInd, "full")
   deathGraphData <- downloadDataWrapper(jpsurvDataString, filePath, com, runs, yearVar, jpInd, "death")
   survGraphData <- downloadData2(jpsurvData, seerdata, fit, com, runs, yearVar, jpInd, "year")
-  timeGraphData <- downloadDataWrapper(jpsurvDataString, filePath, com, runs, yearVar, jpInd, "time")
+  timeGraphData <- downloadData2(jpsurvData, seerdata, fit, com, runs, yearVar, jpInd, "time")
   # create graphs
   deathGraph <- getGraphWrapper(filePath, jpsurvDataString, first_calc, com, NULL, interval, deathGraphData, "death", statistic)
   yearGraph <- getGraphWrapper(filePath, jpsurvDataString, first_calc, com, NULL, interval, survGraphData, "year", statistic)
@@ -753,9 +753,9 @@ getAllModels <- function(fit, state, com) {
     aicJson <- fitList[[i]]$aic
     bicJson <- fitList[[i]]$bic
     llJson <- fitList[[i]]$ll
-    convergedJson <- fitList[[i]]$converged
+    converged <- fitList[[i]]$converged
     name <- paste0("joinpoint", i)
-    ModelSelection[[name]] <- list("aic" = aicJson, "bic" = bicJson, "ll" = llJson, "converged" = convergedJson)
+    ModelSelection[[name]] <- list("aic" = aicJson, "bic" = bicJson, "ll" = llJson, "converged" = converged)
   }
 
   return(ModelSelection)
@@ -1016,9 +1016,9 @@ downloadData2 <- function(state, seerdata, fittedResult, com, runs, yearVar, jpI
     } else {
       intervals <- max(data$Interval)
     }
-    observed <- getObservedValues(data, intervals, yearVar)
     data <- subset(data, Interval %in% intervals)
     if (state$calculate$form$relaxProp || state$calculate$form$conditional) {
+      observed <- getObservedValues(data, intervals, yearVar)
       data$observed <- observed
     }
     return(data)
@@ -1036,6 +1036,10 @@ downloadData2 <- function(state, seerdata, fittedResult, com, runs, yearVar, jpI
     interval <- as.integer(state$calculate$form$interval)
     range <- (c(1:interval))
     data <- download.data(seerdata, fittedResult, jpInd, yearVar, downloadtype = "full", int.select = range, subset = subsetStr)
+    if (state$calculate$form$relaxProp || state$calculate$form$conditional) {
+      observed <- getObservedValues(data, unique(data$Interval), yearVar)
+      data$observed <- observed
+    }
     return(data)
   } else {
     fullData <- download.data(seerdata, fittedResult, jpInd, yearVar, downloadtype = "full", subset = subsetStr)

@@ -1123,7 +1123,7 @@ function drawPlot(plot, update = false) {
       drawLineChart(
         'timePlot',
         checkArray(timeData.Interval),
-        checkArray(timeData[observed]),
+        checkArray(timeData.observed || timeData[observed]),
         checkArray(timeData.Predicted_Survival_Cum),
         checkArray(timeData[yodVarName]),
         null,
