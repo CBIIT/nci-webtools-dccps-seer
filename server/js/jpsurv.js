@@ -1,6 +1,6 @@
 import { singleExport, multiExport, exportTableWithSettings } from '../queueProcessor/services/xlsxExport.js';
 import { importBackEnd } from './exportImport.js';
-import { updatePlotData, drawLineChart } from './plots.js';
+import { updatePlotData, drawLineChart, addAnnotation } from './plots.js';
 import { populateCondIntOptions, getIntervalOptions } from './joinpointConditional.js';
 
 window.control_data = {};
