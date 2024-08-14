@@ -104,7 +104,7 @@ export function makeLayout(divId, range, xTitle, yTitle, statistic, modelInfo) {
     xaxis: {
       title: '<b>' + xTitle + '</b>',
       range: range,
-      autorange: false,
+      autorange: divId == 'timePlot' ? true : false,
       dtick: divId == 'timePlot' ? 1 : null,
     },
     yaxis: {
@@ -174,8 +174,8 @@ export function processPlotData(divID, x, yMark, yLine, dimension, trends) {
   uniqueDimensions.forEach(function (interval, i) {
     if (!legend[interval]) {
       markerTrace[interval] = {
-        x: divID == 'timePlot' ? [0] : [],
-        y: divID == 'timePlot' ? [1] : [],
+        x: [],
+        y: [],
         showlegend: false,
         hovertemplate: [],
         hoverlabel: {
@@ -191,8 +191,8 @@ export function processPlotData(divID, x, yMark, yLine, dimension, trends) {
       };
 
       lineTrace[interval] = {
-        x: divID == 'timePlot' ? [0] : [],
-        y: divID == 'timePlot' ? [1] : [],
+        x: [],
+        y: [],
         showlegend: false,
         hovertemplate: [],
         hoverlabel: {
@@ -453,38 +453,17 @@ const titles = (statistic, modelInfo) => ({
 
 export async function drawLineChart(divID, x, yMark, yLine, dimension, trends, modelInfo) {
   // fontSize defined in jpsurv.js
-  const statistic = jpsurvData.additional.statistic;
-  const layout = {
-    title: titles(statistic, modelInfo)[divID].plotTitle,
-    hovermode: 'closest',
-    font: {
-      size: fontSize,
-      family: '"Helvetica Neue", Helvetica, Arial, sans-serif',
-    },
-    legend: {
-      orientation: 'h',
-      // x: 0.5,
-      y: -0.15,
-      // yanchor: 'top',
-      // xanchor: 'center',
-    },
-    xaxis: {
-      title: '<b>' + titles(statistic)[divID].xTitle + '</b>',
-      range: [divID == 'timePlot' ? 0 : Math.min(...x), Math.max(...x)],
-      autorange: false,
-    },
-    yaxis: {
-      title: '<b>' + titles(statistic)[divID].yTitle + '</b>',
-      showline: true,
-      tickformat: '%',
-      tickmode: 'auto',
-      nticks: 11,
-      range: [0, 1.05],
-      autorange: false,
-    },
-    height: 700,
-    width: 900,
-  };
+  const conditional = jpsurvData.calculate.form.conditional;
+  const statistic = (conditional ? 'Conditional ' : '') + jpsurvData.additional.statistic;
+  const plotTitles = titles(statistic);
+  const layout = makeLayout(
+    divID,
+    [Math.min(...x), Math.max(...x)],
+    plotTitles[divID].xTitle,
+    plotTitles[divID].yTitle,
+    statistic,
+    modelInfo
+  );
 
   const data = processPlotData(divID, x, yMark, yLine, dimension, trends);
 
