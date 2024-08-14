@@ -471,7 +471,7 @@ function loadConditionalResults(model) {
     $('#timePlots').empty();
     dataPerInterval.forEach((plotData) => {
       const { controlIndex, start } = plotData[0];
-      const layout = makeLayout(divId, [0, maxInterval], xTitle, yTitle, statistic, modelInfo);
+      const layout = makeLayout(divId, [minInterval, maxInterval], xTitle, yTitle, statistic, modelInfo);
       const startingIntervalTrace = makeDashTrace(divId, '', '', [start, start], [0, 1]);
       const traces = plotData
         .map((e) => [e.predictedTraces, e.observedTraces, e.legendTrace, startingIntervalTrace])
