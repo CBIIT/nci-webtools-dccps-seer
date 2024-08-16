@@ -167,7 +167,7 @@ function importFrontEnd(idOfForm, idOfOthers, txtFile, controlFile, dataType, im
  * One of the requirements was that the data not be calculated again, but read from the files
  * that were created from the previous section.
  */
-function updatePageAfterRefresh(e) {
+async function updatePageAfterRefresh(e) {
   try {
     if (window.location.search === undefined || window.location.search.length === 0) return;
 
@@ -176,7 +176,9 @@ function updatePageAfterRefresh(e) {
     getIntervals();
     parse_diagnosis_years();
     setData();
-    load_ajax_with_success_callback(generateResultsFilename(), loadResults);
+    const resultsFiles = await (await fetch(`jpsurvRest/list-results?tokenId=${jpsurvData.tokenId}`)).json();
+    const resultsUrl = `jpsurvRest/results?file=${resultsFiles[0]}&tokenId=${jpsurvData.tokenId}`
+    load_ajax_with_success_callback(resultsUrl, loadResults);
     load_ajax_with_success_callback(createFormValuesFilename(), retrieveCohortComboResults);
     updateCohortDropdown();
     updateCutPointOptions();
@@ -341,7 +343,8 @@ function load_ajax_with_success_callback(url, callback) {
       callback(data);
     })
     .fail(function (jqXHR, textStatus) {
-      alert('Fail on load_ajax');
+      console.error(jqXHR, textStatus);
+      // alert('Fail on load_ajax');
       //console.dir(jqXHR);
       //console.warn('Error on load_ajax');
       //console.log(jqXHR.status);

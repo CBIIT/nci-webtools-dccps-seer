@@ -820,7 +820,20 @@ def sendResultsFile():
     if path.exists(filePath):
         return send_file(filePath)
     else:
-        return ("", 404)
+        return ("file does not exist", 404)
+
+
+@app.route("/jpsurvRest/list-results", methods=["GET"])
+def listResults():
+    tokenId = request.args.get("tokenId")
+    resultsPath = safe_join(app.config["folders"]["input_dir"], tokenId)
+
+    if not path.isdir(resultsPath):
+        return ([], 404)
+
+    resultsSearch = path.join(resultsPath, "results-*")
+    filepaths = glob(resultsSearch)
+    return jsonify([path.basename(filepath) for filepath in filepaths])
 
 
 @app.route("/api/queueDownload", methods=["POST"])
