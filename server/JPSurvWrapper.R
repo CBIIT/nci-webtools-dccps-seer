@@ -1017,9 +1017,12 @@ downloadData2 <- function(state, seerdata, fittedResult, com, runs, yearVar, jpI
       intervals <- max(data$Interval)
     }
     data <- subset(data, Interval %in% intervals)
-    if (state$calculate$form$relaxProp || state$calculate$form$conditional) {
+    # modify observed values if needed
+    if (state$calculate$form$conditional) {
       observed <- getObservedValues(data, intervals, yearVar)
       data$observed <- observed
+    } else if (state$calculate$form$relaxProp) {
+      data <- getConditionalValues(data, yearVar)
     }
     return(data)
   } else if (downloadtype == "death") {
@@ -1061,6 +1064,25 @@ getObservedValues <- function(data, intervals, yearCol) {
   observed <- as.data.frame(observed)
   names(observed) <- as.character(intervals)
   unlist(pivot_longer(observed, everything()) %>% select(value))
+}
+
+getConditionalValues <- function(data, yearCol) {
+  n_year <- length(unique(data[[yearCol]]))
+  year_uniq <- sort(unique(data[[yearCol]]))
+  rel_surv_cum <- NULL
+  pred_rel_surv_cum <- NULL
+
+  for (i in 1:n_year) {
+    dat.i <- data[data[[yearCol]] == year_uniq[i], ]
+    cum_surv.i <- cumprod(dat.i$Relative_Survival_Interval)
+    pred_cum_surv.i <- cumprod(dat.i$Predicted_Survival_Int)
+    rel_surv_cum <- c(rel_surv_cum, cum_surv.i)
+    pred_rel_surv_cum <- c(pred_rel_surv_cum, pred_cum_surv.i)
+  }
+
+  data$Relative_Survival_Cum <- rel_surv_cum
+  data$Predicted_Survival_Cum <- pred_rel_surv_cum
+  data
 }
 
 # creates graphs
