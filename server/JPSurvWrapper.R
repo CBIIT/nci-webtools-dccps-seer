@@ -1016,14 +1016,11 @@ downloadData2 <- function(state, seerdata, fittedResult, com, runs, yearVar, jpI
     } else {
       intervals <- max(data$Interval)
     }
-    data <- subset(data, Interval %in% intervals)
     # modify observed values if needed
-    if (state$calculate$form$conditional) {
-      observed <- getObservedValues(data, intervals, yearVar)
-      data$observed <- observed
-    } else if (state$calculate$form$relaxProp) {
-      data <- getConditionalValues(data, yearVar)
+    if (state$calculate$form$conditional || state$calculate$form$relaxProp) {
+      data <- getConditionalValues(data, yearVar, state$calculate$form$relaxProp)
     }
+    data <- subset(data, Interval %in% intervals)
     return(data)
   } else if (downloadtype == "death") {
     intervals <- state$additional$intervalsDeath
@@ -1066,7 +1063,7 @@ getObservedValues <- function(data, intervals, yearCol) {
   unlist(pivot_longer(observed, everything()) %>% select(value))
 }
 
-getConditionalValues <- function(data, yearCol) {
+getConditionalValues <- function(data, yearCol, conditionalPredicted = FALSE) {
   n_year <- length(unique(data[[yearCol]]))
   year_uniq <- sort(unique(data[[yearCol]]))
   rel_surv_cum <- NULL
@@ -1081,7 +1078,7 @@ getConditionalValues <- function(data, yearCol) {
   }
 
   data$Relative_Survival_Cum <- rel_surv_cum
-  data$Predicted_Survival_Cum <- pred_rel_surv_cum
+  if (conditionalPredicted) data$Predicted_Survival_Cum <- pred_rel_surv_cum
   data
 }
 
