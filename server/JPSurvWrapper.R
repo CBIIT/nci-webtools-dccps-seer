@@ -1295,37 +1295,32 @@ getGraph2 <- function(state, seerdata, fit, first_calc, com, runs, interval, gra
     absRange <- state$additional$absChgRange
     intervals <- state$additional$intervals
     data <- NULL
-    # check if annotation is possible
-    if ((!is.null(trend) && trend == 1) || !is.null(absRange)) {
-      # if (nJP <= 3 && length(intervals) <= 3) {
-      # data = Plot.surv.year.annotate(graphData, fit, nJP, yearVar, obscumvar, predcumvar, interval, annotation = 1, trend = 1)
-      # } else {
-      data <- Plot.surv.year.annotate(graphData, fit, nJP, yearVar, obscumvar, predcumvar, interval, annotation = 0, trend = 1)
-      # }
-    } else {
+    # check if trend/annotation is possible
+    getTrend <- (!is.null(trend) && trend == 1) || !is.null(absRange)
+    if (!getTrend) {
       # plot <- Plot.surv.year.annotate(graphData, fit, nJP, yearVar, obscumvar, predcumvar, interval, annotation = 0, trend = 0)
       # ggsave(file = paste(filePath, paste("plot_Year-", state$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/"))
       # graphFile <- paste(filePath, paste("plot_Year-", state$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/")
       graphData <- (scaleTo(graphData))
       results <- list("survTable" = graphData)
-      # results <- list("survGraph" = graphFile, "survTable" = graphData)
       return(results)
     }
 
     if (is.null(absRange)) {
       # between joinpoint only
-      trends <- list("ACS.jp" = data[[1]])
+      trends <- list("ACS.jp" = aapc.multiints(fit$FitList[[nJP + 1]], type = "AbsChgSur", int.select = as.numeric(unique(graphData[, interval]))))
     } else {
       # check if both trends
       if (is.null(trend) || trend == 0) {
         # between calendar only
         trends <- list("ACS.user" = aapc.multiints(fit$FitList[[nJP + 1]], type = "AbsChgSur", int.select = intervals, ACS.range = absRange, ACS.out = "user"))
       } else {
+        #both
         trends <- aapc.multiints(fit$FitList[[nJP + 1]], type = "AbsChgSur", int.select = intervals, ACS.range = absRange, ACS.out = "both")
       }
     }
 
-    if (length(data) == 2) {
+    if (getTrend) {
       # Trend + plot
       # plot <- data[[2]]
       # ggsave(file = paste(filePath, paste("plot_Year-", state$tokenId, "-", com, "-", nJP, "-", iteration, ".png", sep = ""), sep = "/"), plot = plot)
