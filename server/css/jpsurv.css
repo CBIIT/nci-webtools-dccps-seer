@@ -383,6 +383,10 @@ input[type='file'] {
   border-color: #1861ac;
 }
 
+.btn-link {
+  color: #0050d8;
+}
+
 .text-primary {
   color: #1861ac !important;
 }
