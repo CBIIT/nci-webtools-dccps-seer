@@ -6,6 +6,11 @@ video {
   max-width: 1200px;
 }
 
+a {
+  color: #0050d8;
+  text-decoration: underline;
+}
+
 /* Plotly hover text */
 .hoverlayer {
   opacity: 0.85;
@@ -181,7 +186,7 @@ input[type='file'] {
 }
 
 .advanced {
-  color: #007bff;
+  color: #0050d8;
   font-weight: bold;
   padding-left: 5px;
   padding-top: 15px;
@@ -315,8 +320,7 @@ input[type='file'] {
   margin: 0;
   letter-spacing: 0.015em;
   font-weight: normal;
-  background: url('https://surveillance.cancer.gov/images/dccps_logo.png') right -5px
-    no-repeat;
+  background: url('https://surveillance.cancer.gov/images/dccps_logo.png') right -5px no-repeat;
 }
 #ribbon {
   color: #fff;
@@ -554,11 +558,11 @@ span.select2 {
 }
 
 .accordion .card-header .btn:after {
-  font-family: 'FontAwesome';  
-  content: "\f068";
-  float: right; 
+  font-family: 'FontAwesome';
+  content: '\f068';
+  float: right;
 }
 .accordion .card-header .btn.collapsed:after {
   /* symbol for "collapsed" panels */
-  content: "\f067"; 
+  content: '\f067';
 }
