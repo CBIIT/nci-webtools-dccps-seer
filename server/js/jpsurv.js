@@ -2336,9 +2336,11 @@ function setAbsRange(range) {
   $('#absChgFrom').empty();
   $('#absChgTo').empty();
   for (var year = range[0]; year <= range[1]; year++) {
-    $('#absChgFrom').append('<OPTION>' + year + '</OPTION>');
-    $('#absChgTo').append('<OPTION>' + year + '</OPTION>');
+    $('#absChgFrom').append(`<OPTION value=${year}>${year}</OPTION>`);
+    $('#absChgTo').append(`<OPTION value=${year}>${year}</OPTION>`);
   }
+  $('#absChgFrom').val('').trigger('change');
+  $('#absChgTo').val('').trigger('change');
 }
 
 export function setAbsChangeDefault() {
