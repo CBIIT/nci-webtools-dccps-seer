@@ -1,6 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  basePath: process.env?.APP_PATH || "",
   async rewrites() {
     return [
       {
