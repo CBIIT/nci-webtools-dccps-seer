@@ -1,8 +1,12 @@
 "use client";
+import dynamic from "next/dynamic";
 import { useMemo } from "react";
 import { Container, Row, Col } from "react-bootstrap";
-import Plot from "react-plotly.js";
 import { groupBy } from "lodash";
+
+const Plot = dynamic(() => import("react-plotly.js"), {
+  ssr: false,
+});
 
 export default function SurvYearPlot({ plotData }) {
   const { intervals, params, seerData, data } = plotData;
