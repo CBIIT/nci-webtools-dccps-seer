@@ -11,8 +11,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useStore, defaultForm } from "./store";
 import { parseSeerStatDictionary, parseSeerStatFiles } from "@/services/file/file.service";
-import { uploadFiles } from "@/components/file-input";
-import { asFileList } from "@/components/file-input";
+import { uploadFiles, asFileList } from "@/components/file-input";
 
 const FileInput = dynamic(() => import("@/components/file-input"), {
   ssr: false,
