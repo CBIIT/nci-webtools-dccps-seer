@@ -97,7 +97,6 @@ function renderRoutes({ routes, pathName, openSubmenu, handleOpenSubmenu, handle
               // Unhighlight all other navbar items with a path
               document.querySelectorAll(".navbar-nav .nav-link.nav-menu-active").forEach((link) => {
                 link.classList.remove("nav-menu-active");
-                // console.log(`Unhighlighted navbar item: ${link.textContent}`);
               });
             }}>
             {route.title}
@@ -127,7 +126,6 @@ export default function AppNavbar({ routes = [] }) {
   const [isMobileView, setIsMobileView] = useState(false);
   const router = useRouter(); // Move the useRouter hook to the main component
   const handleSubmenuClick = (path) => {
-    //console.log("Navigating to:", path);
     router.push(path);
   };
 
