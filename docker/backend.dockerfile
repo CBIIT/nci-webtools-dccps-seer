@@ -2,21 +2,22 @@ FROM public.ecr.aws/amazonlinux/amazonlinux:2023
 
 RUN dnf -y update \
     && dnf -y install \
-    nodejs \
-    npm \
+    nodejs20 \
+    nodejs20-npm  \
     tar \ 
     R-4.3.2 \
     && dnf clean all
 
+RUN ln -s -f /usr/bin/node-20 /usr/bin/node; ln -s -f /usr/bin/npm-20 /usr/bin/npm;
 RUN mkdir -p /app/server
 
 # Add R repo config
 RUN echo '\
-options(\
-repos = c(CRAN = "https://packagemanager.posit.co/cran/__linux__/rhel9/latest"),\
-HTTPUserAgent = sprintf("R/%s R (%s)", getRversion(), paste(getRversion(), R.version["platform"], R.version["arch"], R.version["os"])),\
-Ncpus = parallel::detectCores()\
-)' >> /usr/lib64/R/library/base/R/Rprofile
+    options(\
+    repos = c(CRAN = "https://packagemanager.posit.co/cran/__linux__/rhel9/latest"),\
+    HTTPUserAgent = sprintf("R/%s R (%s)", getRversion(), paste(getRversion(), R.version["platform"], R.version["arch"], R.version["os"])),\
+    Ncpus = parallel::detectCores()\
+    )' >> /usr/lib64/R/library/base/R/Rprofile
 
 COPY r-packages /app/r-packages
 
