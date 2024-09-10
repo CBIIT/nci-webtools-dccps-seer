@@ -11,7 +11,9 @@ export default function RootLayout({ children }) {
     { title: "Analysis", path: "/analysis", subRoutes: [] },
     { title: "Help", path: "/help", subRoutes: [] },
   ];
-  const queryClient = new QueryClient();
+  const queryClient = new QueryClient({
+    // defaultOptions: { queries: { suspense: true } },
+  });
 
   return (
     <html lang="en">
@@ -25,7 +27,9 @@ export default function RootLayout({ children }) {
       <body>
         <include-html src="https://cbiit.github.io/nci-softwaresolutions-elements/banners/government-shutdown.html"></include-html>
         <Header routes={routes} />
-        <main className="position-relative d-flex flex-column flex-grow-1 align-items-stretch bg-light">
+        <main
+          className="position-relative d-flex flex-column flex-grow-1 align-items-stretch bg-light"
+          style={{ minHeight: "600px" }}>
           <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
         </main>
         <Footer />
