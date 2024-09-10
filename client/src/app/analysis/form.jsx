@@ -9,6 +9,7 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import { v4 as uuidv4 } from 'uuid';
 import { useStore, defaultForm } from "./store";
 import { parseSeerStatDictionary, parseSeerStatFiles } from "@/services/file/file.service";
 import { uploadFiles, asFileList } from "@/components/file-input";
@@ -200,7 +201,7 @@ export default function AnalysisForm({ id }) {
   }
 
   async function onSubmit(formData) {
-    const id = crypto.randomUUID();
+    const id = uuidv4();
     const { cohorts, cohortVars, cohortCombos } = processCohorts(formData);
     const statistic = seerData.config["Session Options"]["Statistic"];
     const rates = seerData.config["Session Options"]["RatesDisplayedAs"];
