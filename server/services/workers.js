@@ -41,7 +41,7 @@ export async function runLocalWorker(id, env = process.env) {
 export async function runFargateWorker(id, env = process.env) {
   const { ECS_CLUSTER, SUBNET_IDS, SECURITY_GROUP_IDS, WORKER_TASK_NAME } = env;
   const client = new ECSClient();
-  const workerCommand = ["node", "--require", "--env-file=.env", "worker.js", id];
+  const workerCommand = ["node", "worker.js", id];
   const logger = createLogger(env.APP_NAME, env.LOG_LEVEL);
   const taskCommand = new RunTaskCommand({
     cluster: ECS_CLUSTER,
