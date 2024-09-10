@@ -13,7 +13,7 @@ export async function submit(params, env = process.env) {
   await mkdirs([inputFolder, outputFolder]);
 
   const worker = getWorker(params.sendNotification ? WORKER_TYPE : "local");
-  const status = { id, status: "SUBMITTED" };
+  const status = { id, status: "SUBMITTED", submittedAt: new Date() };
 
   await writeJson(paramsFilePath, params);
   await writeJson(statusFilePath, status);

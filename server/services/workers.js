@@ -5,7 +5,7 @@ import { createLogger } from "./logger.js";
 import { jpsurv } from "../analysis/jpsurv.js";
 
 export function getWorkerCommand(id) {
-  return ["node", ["--require", "--env-file=.env", "worker.js", id]];
+  return ["node", ["--env-file=.env", "worker.js", id]];
 }
 
 export function getWorker(workerType = "local") {

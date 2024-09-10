@@ -1,7 +1,7 @@
 import path from "path";
 import { isMainModule, readJson } from "./services/utils.js";
 import { createLogger } from "./services/logger.js";
-import { jpsurv } from "./services/jpsurv.js";
+import { jpsurv } from "./analysis/jpsurv.js";
 
 if (isMainModule(import.meta)) {
   try {
@@ -18,8 +18,8 @@ export async function main(argv = process.argv, env = process.env) {
   if (!id) throw new Error("Missing id");
   const paramsFilePath = path.resolve(env.INPUT_FOLDER, id, "params.json");
   const params = await readJson(paramsFilePath);
-  const logger = createLogger(env.APP_NAME, env.LOG_LEVEL);
-  logger.log({ params });
+  const logger = createLogger(`${env.APP_NAME} - ${params.id}`, env.LOG_LEVEL);
+  logger.info(params);
 
   return await jpsurv(params, logger, env);
 }

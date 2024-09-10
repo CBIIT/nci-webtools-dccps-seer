@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>JPSurv Results</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+
+  <body>
+    Dear JPSurv User, <br />
+    <p>
+      The job you submitted to JPSurv has been processed successfully.
+    </p>
+    <b>Job Information</b>
+    <ul style="list-style-type: none">
+      <li>Job Name: <%= jobName %></li>
+      <li>Submitted Time: <%= submittedAt %> EST</li>
+    </ul>
+    <b>Results:</b><br />
+    <a href="<%= resultsUrl %>"><%= resultsUrl %></a>
+    <p>The results will be available for the next 14 days.</p>
+    <p>
+      Please contact us at
+      <a href="mailto:<%= emailAdmin %>"><%= emailAdmin %></a> for more
+      information or if you have any questions.
+    </p>
+
+    <p>
+      Respectfully, <br />
+      JPSurv Analysis Tool
+    </p>
+  </body>
+</html>
