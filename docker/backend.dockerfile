@@ -34,4 +34,7 @@ RUN npm install
 
 COPY server /app/server/
 
+# Create ENV file if it doesn't exist https://github.com/nodejs/node/issues/50993
+RUN touch .env
+
 CMD npm start
