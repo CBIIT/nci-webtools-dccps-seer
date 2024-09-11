@@ -12,7 +12,7 @@ export default function AnalysisMain({ id }) {
   const queryClient = useQueryClient();
   const setState = useStore((state) => state.setState);
   const seerData = useStore((state) => state.seerData);
-  const params = useStore((state) => state.form);
+  const params = useStore((state) => state.params);
   const { cohortIndex, modelIndex } = useStore((state) => state.main);
 
   const { data: jobStatus } = useQuery({

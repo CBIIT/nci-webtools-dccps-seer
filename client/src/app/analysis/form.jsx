@@ -9,7 +9,7 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 import { useStore, defaultForm } from "./store";
 import { parseSeerStatDictionary, parseSeerStatFiles } from "@/services/file/file.service";
 import { uploadFiles, asFileList } from "@/components/file-input";
@@ -68,7 +68,7 @@ export default function AnalysisForm({ id }) {
   // load previous params if available
   useEffect(() => {
     if (session && !getValues("id")) {
-      setState({ seerData: session.seerData, form: session.params });
+      setState({ seerData: session.seerData, params: session.params });
       setModelOptions(session.seerData);
       reset(session.params);
     }
@@ -230,7 +230,7 @@ export default function AnalysisForm({ id }) {
     await uploadFiles(`/api/upload/${id}`, { seerStatFile });
     submit.mutate({ id, params });
     reset(params);
-    setState({ form: params });
+    setState({ params });
     router.push(`${pathname}?id=${id}`, { shallow: true });
   }
 

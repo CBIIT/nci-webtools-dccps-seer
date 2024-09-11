@@ -11,9 +11,7 @@ export default function RootLayout({ children }) {
     { title: "Analysis", path: "/analysis", subRoutes: [] },
     { title: "Help", path: "/help", subRoutes: [] },
   ];
-  const queryClient = new QueryClient({
-    // defaultOptions: { queries: { suspense: true } },
-  });
+  const queryClient = new QueryClient({});
 
   return (
     <html lang="en">
