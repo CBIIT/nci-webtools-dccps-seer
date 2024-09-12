@@ -8,11 +8,11 @@ import Button from "react-bootstrap/Button";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 import { useStore, defaultForm } from "./store";
 import { parseSeerStatDictionary, parseSeerStatFiles } from "@/services/file/file.service";
 import { uploadFiles, asFileList } from "@/components/file-input";
+import { fetchSession, submit } from "./queries";
 
 const FileInput = dynamic(() => import("@/components/file-input"), {
   ssr: false,
@@ -48,19 +48,12 @@ export default function AnalysisForm({ id }) {
   const inputFile = watch("inputFile");
   const sendNotification = watch("sendNotification");
 
-  const submit = useMutation({
-    mutationFn: ({ id, params }) => {
-      return axios.post(`/api/submit/${id}`, params);
-    },
+  const submitForm = useMutation({
+    mutationFn: ({ id, params }) => submit(id, params),
   });
-
   const { data: session } = useQuery({
-    queryKey: ["params", id],
-    queryFn: async () => {
-      const params = (await axios.get(`/api/data/input/${id}/params.json`)).data;
-      const seerData = (await axios.get(`/api/data/input/${id}/seerStatData.json`)).data;
-      return { params, seerData };
-    },
+    queryKey: ["session", id],
+    queryFn: async () => fetchSession(id),
     retry: false,
     enabled: !!id,
   });
@@ -228,7 +221,7 @@ export default function AnalysisForm({ id }) {
     );
     // await uploadFiles(`/api/upload/${id}`, { ...formData, seerDataFile });
     await uploadFiles(`/api/upload/${id}`, { seerStatFile });
-    submit.mutate({ id, params });
+    submitForm.mutate({ id, params });
     reset(params);
     setState({ params });
     router.push(`${pathname}?id=${id}`, { shallow: true });
@@ -429,7 +422,7 @@ export default function AnalysisForm({ id }) {
         <Button type="reset" variant="outline-danger" className="me-1">
           Reset
         </Button>
-        <Button type="submit" variant="primary">
+        <Button type="submit" variant="primary" disabled={!inputFile.length}>
           Submit
         </Button>
       </div>

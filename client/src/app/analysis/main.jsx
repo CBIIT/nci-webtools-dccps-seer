@@ -1,12 +1,12 @@
 "use client";
 import { Container, Tab, Tabs } from "react-bootstrap";
 import { useEffect } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
+import { useQuery, useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
 import ModelTable from "./model-table";
 import SurvivalVsYear from "./survivalVsYear";
 import CohortSelect from "./cohort-select";
 import { useStore } from "./store";
+import { fetchStatus, fetchResults } from "./queries";
 
 export default function AnalysisMain({ id }) {
   const queryClient = useQueryClient();
@@ -17,16 +17,12 @@ export default function AnalysisMain({ id }) {
 
   const { data: jobStatus } = useQuery({
     queryKey: ["status", id],
-    queryFn: async () => {
-      return (await axios.get(`/api/data/output/${id}/status.json`)).data.status;
-    },
+    queryFn: () => fetchStatus(id),
     enabled: !!id,
   });
   const { data: results } = useQuery({
     queryKey: ["results", id, cohortIndex],
-    queryFn: async () => {
-      return (await axios.get(`/api/data/output/${id}/${cohortIndex}.json`)).data;
-    },
+    queryFn: () => fetchResults(id, cohortIndex),
 
     enabled: jobStatus === "COMPLETED",
   });
