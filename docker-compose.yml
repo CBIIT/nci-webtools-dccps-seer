@@ -4,6 +4,7 @@ services:
       context: "."
       dockerfile: "./docker/backend.dockerfile"
     env_file: server/.env
+    # entrypoint: ["npm", "run", "start:debug"]
     ports:
       - "9000:9000"
 
@@ -13,6 +14,6 @@ services:
       dockerfile: "./docker/frontend.dockerfile"
     environment:
       API_BASE_URL: http://backend:9000
-      APP_PATH: /
+      APP_PATH: ""
     ports:
-      - "3000:80"
+      - "80:80"
