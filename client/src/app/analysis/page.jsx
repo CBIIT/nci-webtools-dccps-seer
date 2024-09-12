@@ -1,5 +1,8 @@
 "use client";
 import { Suspense } from "react";
+import { ErrorBoundary } from "next/dist/client/components/error-boundary";
+import Alert from "react-bootstrap/Alert";
+import Loading from "./loading";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
@@ -19,18 +22,22 @@ export default function Analysis({ searchParams }) {
           <SidebarPanel>
             <Col>
               <div className="p-3 border rounded bg-white" style={{ minHeight: "400px" }}>
-                <Suspense fallback={<strong>Loading</strong>}>
-                  <AnalysisForm id={id} />
-                </Suspense>
+                <ErrorBoundary fallback={<Alert variant="warning">Error loading Form</Alert>}>
+                  <Suspense fallback={<Loading />}>
+                    <AnalysisForm id={id} />
+                  </Suspense>
+                </ErrorBoundary>
               </div>
             </Col>
           </SidebarPanel>
           <MainPanel>
             <Col>
               <div className="p-3 border rounded bg-white" style={{ minHeight: "400px" }}>
-                <Suspense fallback={<strong>Loading</strong>}>
-                  <AnalysisMain id={id} />
-                </Suspense>
+                <ErrorBoundary fallback={<Alert variant="warning">Error loading Main</Alert>}>
+                  <Suspense fallback={<Loading />}>
+                    <AnalysisMain id={id} />
+                  </Suspense>
+                </ErrorBoundary>
               </div>
             </Col>
           </MainPanel>
