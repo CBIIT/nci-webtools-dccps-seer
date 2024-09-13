@@ -8,9 +8,7 @@ const Plot = dynamic(() => import("react-plotly.js"), {
   ssr: false,
 });
 
-export default function SurvYearPlot({ plotData, title, xTitle, yTitle }) {
-  const { params, seerData, data } = plotData;
-
+export default function SurvYearPlot({ data, seerData, params, title, xTitle, yTitle }) {
   const precision = 2;
   const statistic = seerData?.config["Session Options"]["Statistic"];
   const yearStart = +seerData.seerStatDictionary.filter((e) => e.name === params.year)[0]["factors"][0].label;

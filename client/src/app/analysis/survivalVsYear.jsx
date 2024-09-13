@@ -12,13 +12,6 @@ export default function SurvivalVsYear({ data, seerData, params }) {
   const statistic = seerData?.config["Session Options"]["Statistic"];
   const memoData = useMemo(() => data.filter((e) => intervals.includes(e.Interval)), [data, intervals]);
 
-  const plotData = {
-    intervals,
-    params,
-    seerData,
-    memoData,
-  };
-
   return (
     <Container fluid>
       <Row className="my-3 py-3 border rounded">
@@ -35,7 +28,9 @@ export default function SurvivalVsYear({ data, seerData, params }) {
       <Row>
         <Col>
           <SurvYearPlot
-            plotData={plotData}
+            data={memoData}
+            seerData={seerData}
+            params={params}
             title={`${statistic} by Diagnosis Year`}
             xTitle={"Year of Diagnosis"}
             yTitle={`${statistic} (%)`}
@@ -44,7 +39,7 @@ export default function SurvivalVsYear({ data, seerData, params }) {
       </Row>
       <Row>
         <Col>
-          <SurvYearTable data={memoData} seerData={seerData} params={params} intervals={intervals} />
+          <SurvYearTable data={memoData} seerData={seerData} params={params} />
         </Col>
       </Row>
     </Container>
