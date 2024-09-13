@@ -3,8 +3,8 @@ import { useMemo } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import SelectHookForm from "@/components/selectHookForm";
-import SurvYearPlot from "@/components/plots/survYearPlot";
-import SurvYearTable from "@/components/table/survYearTable";
+import SurvYearPlot from "@/components/plots/surv-year-plot";
+import SurvYearTable from "@/components/table/surv-year-table";
 
 export default function SurvivalVsYear({ data, seerData, params }) {
   const { control, watch } = useForm({ defaultValues: { intervals: [5] } });
