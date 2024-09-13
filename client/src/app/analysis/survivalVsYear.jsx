@@ -1,8 +1,7 @@
 "use client";
 import { useMemo } from "react";
-import { Container, Row, Col, Table, Form } from "react-bootstrap";
+import { Container, Row, Col, Table } from "react-bootstrap";
 import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
-import { groupBy } from "lodash";
 import { useForm } from "react-hook-form";
 import SelectHookForm from "@/components/selectHookForm";
 import SurvYearPlot from "@/components/plots/survYearPlot";
@@ -10,17 +9,13 @@ import SurvYearPlot from "@/components/plots/survYearPlot";
 export default function SurvivalVsYear({ data, seerData, params }) {
   const { control, watch } = useForm({ defaultValues: { intervals: [5] } });
   const intervals = watch("intervals");
-  const precision = 2;
   const statistic = seerData?.config["Session Options"]["Statistic"];
   const yearStart = +seerData.seerStatDictionary.filter((e) => e.name === params.year)[0]["factors"][0].label;
-  const yearEnd = +seerData.seerStatDictionary.filter((e) => e.name === params.year)[0]["factors"].at(-1).label;
   const observedHeader = params?.observed;
   const observedSeHeader = observedHeader?.includes("Relative") ? "Relative_SE_Cum" : "CauseSpecific_SE_Cum";
   const predictedHeader = "pred_cum";
   const predictedSeHeader = "pred_cum_se";
-  // const model = useMemo(() => data, [data]);
   const model = useMemo(() => data.filter((e) => intervals.includes(e.Interval)), [data, intervals]);
-  const groupByInterval = groupBy(model, "Interval");
 
   const columnHelper = createColumnHelper();
   const columns = [
@@ -71,7 +66,6 @@ export default function SurvivalVsYear({ data, seerData, params }) {
             <SelectHookForm
               name="intervals"
               label="Select years since diagnosis (follow-up) for survival plot and/or trend measures"
-              // options={[]}
               options={[...new Set(data.map((e) => e.Interval))].map((e) => ({ label: e, value: e }))}
               control={control}
               isMulti
@@ -80,7 +74,12 @@ export default function SurvivalVsYear({ data, seerData, params }) {
         </Row>
         <Row>
           <Col>
-            <SurvYearPlot plotData={plotData} />
+            <SurvYearPlot
+              plotData={plotData}
+              title={`${statistic} by Diagnosis Year`}
+              xTitle={"Year of Diagnosis"}
+              yTitle={`${statistic} (%)`}
+            />
           </Col>
         </Row>
       </Container>

@@ -3,12 +3,13 @@ import dynamic from "next/dynamic";
 import { useMemo } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import { groupBy } from "lodash";
+import { makeLineTrace, makeMarkerTrace, makeDashTrace, makeLegendTrace, makeLayout } from "./plotUtils";
 
 const Plot = dynamic(() => import("react-plotly.js"), {
   ssr: false,
 });
 
-export default function SurvYearPlot({ plotData }) {
+export default function SurvYearPlot({ plotData, title, xTitle, yTitle }) {
   const { intervals, params, seerData, data } = plotData;
 
   const precision = 2;
@@ -16,141 +17,64 @@ export default function SurvYearPlot({ plotData }) {
   const yearStart = +seerData.seerStatDictionary.filter((e) => e.name === params.year)[0]["factors"][0].label;
   const yearEnd = +seerData.seerStatDictionary.filter((e) => e.name === params.year)[0]["factors"].at(-1).label;
   const observedHeader = params?.observed;
-  const observedSeHeader = observedHeader?.includes("Relative") ? "Relative_SE_Cum" : "CauseSpecific_SE_Cum";
   const predictedHeader = "pred_cum";
-  const predictedSeHeader = "pred_cum_se";
-  // const model = useMemo(() => data, [data]);
   const model = useMemo(() => data.filter((e) => intervals.includes(e.Interval)), [data, intervals]);
   const groupByInterval = groupBy(model, "Interval");
 
-  let observedTraces = [];
-  let predictedTraces = [];
-  let projectedTraces = [];
-
-  Object.entries(groupByInterval).forEach(([interval, group], i) => {
-    let observed = { x: [], y: [], hovertemplate: [] };
-    let predicted = { x: [], y: [], hovertemplate: [] };
-    let projected = { x: [], y: [], hovertemplate: [] };
-    const projectedStart = group.map((e) => e[observedHeader]).length;
-    group.forEach((row, i) => {
-      observed.x.push(row[params.year] + yearStart);
-      observed.y.push(row[observedHeader]);
-      observed.hovertemplate.push(
-        [
-          `<b>${interval}-year ${statistic}</b>`,
-          `<br>•    Year at Diagnosis: %{x}`,
-          `<br>•    Observed Survival: %{y:.${precision}%}<extra></extra>`,
-        ].join("")
+  const traces = Object.entries(groupByInterval)
+    .map(([interval, data], index) => {
+      const observedTraceName = `${interval}-year Observed`;
+      const predictedTraceName = `${interval}-year Predicted`;
+      const projectedTraceName = `${interval}-year Projected`;
+      const observedTraces = makeMarkerTrace(
+        observedTraceName,
+        interval,
+        index,
+        data.map((e) => e[params.year] + yearStart),
+        data.map((e) => e[observedHeader]),
+        statistic,
+        precision
       );
 
-      if (i != projectedStart) {
-        predicted.x.push(row[params.year] + yearStart);
-        predicted.y.push(row[predictedHeader]);
-        predicted.hovertemplate.push(
-          [
-            `<b>${interval}-year ${statistic}</b>`,
-            `<br>•\tYear at Diagnosis: %{x}`,
-            `<br>•\tObserved Survival: %{y:.${precision}%}<extra></extra>`,
-          ].join("")
-        );
-      } else {
-        projected.x.push(row[params.year] + yearStart);
-        projected.y.push(row[predictedHeader]);
-        projected.hovertemplate.push(
-          [
-            `<b>${interval}-year ${statistic}</b>`,
-            `<br>•    Year at Diagnosis: %{x}`,
-            `<br>•    Observed Survival: %{y:.${precision}%}<extra></extra>`,
-          ].join("")
-        );
-      }
-    });
+      const projectedStart = data.map((e) => +e[observedHeader]).findIndex(Number.isNaN);
+      const predictedData = data.slice(0, projectedStart);
+      const projectedData = data.slice(projectedStart);
 
-    observedTraces.push({
-      x: [],
-      y: [],
-      hovertemplate: [],
-      ...observed,
-      showlegend: false,
-      hoverlabel: {
-        align: "left",
-        bgcolor: "#FFF",
-        bordercolor: colors[i % 10],
-        // font: { size: fontSize, color: "black" },
-      },
-      mode: "markers",
-      type: "scatter",
-      marker: { color: colors[i % 10] },
-      legendgroup: interval,
-    });
+      const predictedTraces = makeLineTrace(
+        predictedTraceName,
+        interval,
+        index,
+        predictedData.map((e) => e[params.year] + yearStart),
+        predictedData.map((e) => e[predictedHeader]),
+        statistic,
+        precision
+      );
+      const projectedTraces = makeDashTrace(
+        projectedTraceName,
+        interval,
+        index,
+        projectedData.map((e) => e[params.year] + yearStart),
+        projectedData.map((e) => e[predictedHeader]),
+        statistic,
+        precision
+      );
 
-    predictedTraces.push({
-      x: [],
-      y: [],
-      hovertemplate: [],
-      ...predicted,
-      showlegend: false,
-      hoverlabel: {
-        align: "left",
-        bgcolor: "#FFF",
-        bordercolor: colors[i % 10],
-        // font: { size: fontSize, color: "black" },
-      },
-      mode: "lines",
-      line: { shape: "spline", color: colors[i % 10] },
-      type: "scatter",
-      legendgroup: interval,
-    });
+      const observedLegendTrace = makeLegendTrace(observedTraceName, interval, index, "markers");
+      const predictedLegendTrace = makeLegendTrace(predictedTraceName, interval, index, "lines");
+      const projectedLegendTrace = makeLegendTrace(projectedTraceName, interval, index, "lines", "dash");
 
-    projectedTraces.push({
-      x: [],
-      y: [],
-      hovertemplate: [],
-      ...projected,
-      showlegend: false,
-      hoverlabel: {
-        align: "left",
-        bgcolor: "#FFF",
-        bordercolor: colors[i % 10],
-        // font: { size: fontSize, color: "black" },
-      },
-      mode: "lines",
-      line: { dash: "dash", color: colors[i % 10] },
-      type: "scatter",
-      legendgroup: interval,
-    });
-  });
-  const layout = {
-    title: "titles(statistic, modelInfo)[divID].plotTitle",
-    hovermode: "closest",
-    font: {
-      //   size: fontSize,
-      family: "Inter, sans-serif",
-    },
-    legend: {
-      orientation: "h",
-      // x: 0.5,
-      y: -0.15,
-      // yanchor: 'top',
-      // xanchor: 'center',
-    },
-    xaxis: {
-      //   title: "<b>" + titles(statistic)[divID].xTitle + "</b>",
-      range: [yearStart, yearEnd],
-      autorange: false,
-    },
-    yaxis: {
-      //   title: "<b>" + titles(statistic)[divID].yTitle + "</b>",
-      showline: true,
-      tickformat: "1%",
-      tickmode: "auto",
-      nticks: 11,
-      range: [0, 1.05],
-      autorange: false,
-    },
-    height: 700,
-    width: 900,
-  };
+      return [
+        predictedTraces,
+        observedTraces,
+        projectedTraces,
+        observedLegendTrace,
+        predictedLegendTrace,
+        projectedLegendTrace,
+      ];
+    })
+    .flat();
+
+  const layout = makeLayout([yearStart, yearEnd], title, xTitle, yTitle);
 
   return (
     <Container fluid style={{ minHeight: layout.height || 500 }}>
@@ -160,7 +84,7 @@ export default function SurvYearPlot({ plotData }) {
             className={`w-100 $`}
             style={{ minHeight: layout.height || 500 }}
             divId={"survival"}
-            data={[...observedTraces, ...predictedTraces, ...projectedTraces]}
+            data={traces}
             layout={layout}
             config={{
               displayModeBar: true,
@@ -232,16 +156,3 @@ export default function SurvYearPlot({ plotData }) {
     </Container>
   );
 }
-
-const colors = [
-  "#1f77b4", // muted blue
-  "#ff7f0e", // safety orange
-  "#2ca02c", // cooked asparagus green
-  "#d62728", // brick red
-  "#9467bd", // muted purple
-  "#8c564b", // chestnut brown
-  "#e377c2", // raspberry yogurt pink
-  "#7f7f7f", // middle gray
-  "#bcbd22", // curry yellow-green
-  "#17becf", // blue-teal
-];
