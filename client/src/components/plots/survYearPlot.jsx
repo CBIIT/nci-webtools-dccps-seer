@@ -1,6 +1,5 @@
 "use client";
 import dynamic from "next/dynamic";
-import { useMemo } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import { groupBy } from "lodash";
 import { makeLineTrace, makeMarkerTrace, makeDashTrace, makeLegendTrace, makeLayout } from "./plotUtils";
@@ -10,7 +9,7 @@ const Plot = dynamic(() => import("react-plotly.js"), {
 });
 
 export default function SurvYearPlot({ plotData, title, xTitle, yTitle }) {
-  const { intervals, params, seerData, data } = plotData;
+  const { params, seerData, data } = plotData;
 
   const precision = 2;
   const statistic = seerData?.config["Session Options"]["Statistic"];
@@ -18,8 +17,7 @@ export default function SurvYearPlot({ plotData, title, xTitle, yTitle }) {
   const yearEnd = +seerData.seerStatDictionary.filter((e) => e.name === params.year)[0]["factors"].at(-1).label;
   const observedHeader = params?.observed;
   const predictedHeader = "pred_cum";
-  const model = useMemo(() => data.filter((e) => intervals.includes(e.Interval)), [data, intervals]);
-  const groupByInterval = groupBy(model, "Interval");
+  const groupByInterval = groupBy(data, "Interval");
 
   const traces = Object.entries(groupByInterval)
     .map(([interval, data], index) => {
@@ -77,7 +75,7 @@ export default function SurvYearPlot({ plotData, title, xTitle, yTitle }) {
   const layout = makeLayout([yearStart, yearEnd], title, xTitle, yTitle);
 
   return (
-    <Container fluid style={{ minHeight: layout.height || 500 }}>
+    <Container fluid style={{ minHeight: layout.height || 500 }} className="border rounded">
       <Row>
         <Col>
           <Plot
