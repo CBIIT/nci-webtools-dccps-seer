@@ -8,7 +8,7 @@ const Plot = dynamic(() => import("react-plotly.js"), {
   ssr: false,
 });
 
-export default function SurvYearPlot({ data, seerData, params, title, xTitle, yTitle }) {
+export default function SurvYearPlot({ data, seerData, params, title, xTitle, yTitle, className = "" }) {
   const precision = 2;
   const statistic = seerData?.config["Session Options"]["Statistic"];
   const yearStart = +seerData.seerStatDictionary.filter((e) => e.name === params.year)[0]["factors"][0].label;
@@ -73,13 +73,12 @@ export default function SurvYearPlot({ data, seerData, params, title, xTitle, yT
   const layout = makeLayout([yearStart, yearEnd], title, xTitle, yTitle);
 
   return (
-    <Container fluid style={{ minHeight: layout.height || 500 }} className="border rounded">
+    <Container fluid style={{ minHeight: layout.height || 500 }} className={className}>
       <Row>
         <Col>
           <Plot
-            className={`w-100 $`}
+            className={`w-100`}
             style={{ minHeight: layout.height || 500 }}
-            divId={"survival"}
             data={traces}
             layout={layout}
             config={{

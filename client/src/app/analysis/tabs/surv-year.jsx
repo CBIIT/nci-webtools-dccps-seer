@@ -14,9 +14,10 @@ export default function SurvivalVsYear({ data, seerData, params }) {
 
   return (
     <Container fluid>
-      <Row className="my-3 py-3 border rounded">
-        <Col sm="auto">
+      <Row>
+        <Col>
           <SelectHookForm
+            className="p-3 border rounded"
             name="intervals"
             label="Select years since diagnosis (follow-up) for survival plot and/or trend measures"
             options={[...new Set(data.map((e) => e.Interval))].map((e) => ({ label: e, value: e }))}

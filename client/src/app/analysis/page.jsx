@@ -32,7 +32,7 @@ export default function Analysis({ searchParams }) {
           </SidebarPanel>
           <MainPanel>
             <Col>
-              <div className="p-3 border rounded bg-white" style={{ minHeight: "400px" }}>
+              <div className="border rounded bg-white" style={{ minHeight: "400px" }}>
                 <ErrorBoundary fallback={<Alert variant="warning">Error loading Main</Alert>}>
                   <Suspense fallback={<Loading />}>
                     <AnalysisMain id={id} />
