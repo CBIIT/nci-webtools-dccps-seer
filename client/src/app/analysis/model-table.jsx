@@ -13,6 +13,7 @@ export default function ModelTable({ data, handleRowSelect }) {
   const columns = [
     {
       id: "select",
+      header: () => <span class="visually-hidden">Select Model</span>,
       cell: ({ row }) => (
         <div className="px-1">
           <IndeterminateCheckbox
@@ -20,6 +21,7 @@ export default function ModelTable({ data, handleRowSelect }) {
               checked: row.getIsSelected(),
               disabled: !row.getCanSelect(),
               indeterminate: row.getIsSomeSelected(),
+              label: `Select ${row.index}`,
               onChange: () => {
                 row.toggleSelected();
                 handleRowSelect(row.index);
@@ -65,14 +67,14 @@ export default function ModelTable({ data, handleRowSelect }) {
     initialState: { rowSelection: { 0: true } },
   });
 
-  function IndeterminateCheckbox({ indeterminate, className = "", ...rest }) {
+  function IndeterminateCheckbox({ indeterminate, className = "", label = "", ...rest }) {
     const ref = useRef(null);
     useEffect(() => {
       if (typeof indeterminate === "boolean") {
         ref.current.indeterminate = !rest.checked && indeterminate;
       }
     }, [ref, indeterminate]);
-    return <input type="radio" ref={ref} className={className + " cursor-pointer"} {...rest} />;
+    return <input type="radio" ref={ref} className={className + " cursor-pointer"} aria-label={label} {...rest} />;
   }
 
   return (
