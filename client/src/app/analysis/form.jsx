@@ -220,7 +220,7 @@ export default function AnalysisForm({ id }) {
       new File([JSON.stringify(seerData)], params.files.seerStatFile, { type: "application/json" })
     );
     // await uploadFiles(`/api/upload/${id}`, { ...formData, seerDataFile });
-    await uploadFiles(`/api/upload/${id}`, { seerStatFile });
+    await uploadFiles(`api/upload/${id}`, { seerStatFile });
     submitForm.mutate({ id, params });
     reset(params);
     setState({ params });
