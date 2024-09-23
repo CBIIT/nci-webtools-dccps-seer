@@ -3,10 +3,10 @@ import { Container, Tab, Tabs } from "react-bootstrap";
 import { useEffect } from "react";
 import { useQuery, useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
 import ModelTable from "./model-table";
-import SurvivalVsYear from "./tabs/surv-year";
+import SurvivalVsYear from "./tab-surv/surv-year";
 import CohortSelect from "./cohort-select";
-import { useStore } from "./store";
-import { fetchStatus, fetchResults } from "./queries";
+import { useStore } from "../store";
+import { fetchStatus, fetchResults } from "../queries";
 
 export default function AnalysisMain({ id }) {
   const queryClient = useQueryClient();

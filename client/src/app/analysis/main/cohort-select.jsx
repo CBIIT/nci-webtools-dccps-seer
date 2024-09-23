@@ -2,7 +2,7 @@
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import { useStore } from "./store";
+import { useStore } from "../store";
 
 export default function CohortSelect({ params }) {
   const setState = useStore((state) => state.setState);
