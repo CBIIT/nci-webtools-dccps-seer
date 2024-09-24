@@ -13,7 +13,7 @@ export default function ModelTable({ data, handleRowSelect }) {
   const columns = [
     {
       id: "select",
-      header: () => <span class="visually-hidden">Select Model</span>,
+      header: () => <span className="visually-hidden">Select Model</span>,
       cell: ({ row }) => (
         <div className="px-1">
           <IndeterminateCheckbox

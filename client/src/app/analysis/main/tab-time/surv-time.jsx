@@ -1,0 +1,69 @@
+"use client";
+import { useMemo } from "react";
+import { Container, Row, Col, Form } from "react-bootstrap";
+import { useForm } from "react-hook-form";
+import SelectHookForm from "@/components/selectHookForm";
+import SurvTimePlot from "./surv-time-plot";
+import SurvTimeTable from "./surv-time-table";
+
+export default function SurvivalVsTime({ data, seerData, params }) {
+  const statistic = seerData?.config["Session Options"]["Statistic"];
+  const observedHeader = params?.observed;
+  const predictedHeader = "pred_cum";
+  const yearDic = seerData.seerStatDictionary
+    .filter((e) => e.name == params.year)[0]
+    .factors.reduce((acc, e) => ({ ...acc, [e.value]: +e.label }), {});
+  const { control, register, watch } = useForm({
+    defaultValues: { years: [0] },
+  });
+  const years = watch("years");
+  const memoData = useMemo(() => data.filter((e) => years.includes(e[params.year]), [data, years]));
+
+  return (
+    <Container fluid>
+      <Row>
+        <Col className="p-3 border rounded">
+          <Row>
+            <Col sm="auto">
+              <SelectHookForm
+                name="years"
+                label="Year of Diagnosis"
+                options={[...new Set(data.map((e) => yearDic[e[params.year]]))].map((e) => ({
+                  label: e,
+                  value: +Object.keys(yearDic).find((key) => yearDic[key] === e),
+                }))}
+                control={control}
+                isMulti
+              />
+            </Col>
+          </Row>
+        </Col>
+      </Row>
+      <Row>
+        <Col>
+          <SurvTimePlot
+            data={memoData}
+            seerData={seerData}
+            params={params}
+            title={`${statistic} by Diagnosis Year for Selected Diagnosis Year`}
+            xTitle={"Interval"}
+            yTitle={`${statistic} (%)`}
+            observedHeader={observedHeader}
+            predictedHeader={predictedHeader}
+          />
+        </Col>
+      </Row>
+      <Row>
+        <Col>
+          <SurvTimeTable
+            data={memoData}
+            seerData={seerData}
+            params={params}
+            observedHeader={observedHeader}
+            predictedHeader={predictedHeader}
+          />
+        </Col>
+      </Row>
+    </Container>
+  );
+}

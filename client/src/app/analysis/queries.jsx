@@ -9,7 +9,6 @@ export async function fetchResults(id, cohortIndex) {
 }
 
 export async function fetchSession(id) {
-  console.log("fetching session", id);
   const params = (await axios.get(`api/data/input/${id}/params.json`)).data;
   const seerData = (await axios.get(`api/data/input/${id}/seerStatData.json`)).data;
   return { params, seerData };

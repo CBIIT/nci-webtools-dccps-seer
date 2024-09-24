@@ -131,7 +131,7 @@ const predictedHoverTemplate = (name, statistic, precision) =>
   [
     `<b>${name} ${statistic}</b>`,
     `<br>•\tYear at Diagnosis: %{x}`,
-    `<br>•\tObserved Survival: %{y:.${precision}%}<extra></extra>`,
+    `<br>•\tPredicted Survival: %{y:.${precision}%}<extra></extra>`,
   ].join("");
 
 function makeLineHoverTemplate(name, statistic = jpsurvData.additional.statistic, precision = $("#precision").val()) {

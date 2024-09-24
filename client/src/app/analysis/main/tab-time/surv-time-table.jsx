@@ -2,15 +2,7 @@
 import Table from "@/components/table";
 import { createColumnHelper } from "@tanstack/react-table";
 
-export default function SurvYearTable({
-  data,
-  seerData,
-  params,
-  observedHeader,
-  observedSeHeader,
-  predictedHeader,
-  predictedSeHeader,
-}) {
+export default function SurvTimeTable({ data, seerData, params, observedHeader, predictedHeader }) {
   const yearStart = +seerData.seerStatDictionary.filter((e) => e.name === params.year)[0]["factors"][0].label;
   const columnHelper = createColumnHelper();
   const columns = [
@@ -23,19 +15,12 @@ export default function SurvYearTable({
       cell: (info) => info.getValue(),
     }),
     columnHelper.accessor(observedHeader, {
-      header: () => "Relative Survival Cumulative (%)",
+      header: () => "Cumulative Relative Survival (%)",
       cell: (info) => info.renderValue(),
     }),
-    columnHelper.accessor(observedSeHeader, {
-      header: () => "Relative Survival Cumulative Std. Err. (%)",
-      cell: (info) => info.renderValue(),
-    }),
+
     columnHelper.accessor(predictedHeader, {
-      header: "Predicted Cumulative Survival (%)",
-      cell: (info) => info.renderValue(),
-    }),
-    columnHelper.accessor(predictedSeHeader, {
-      header: "Predicted Cumulative Survival Std. Err. (%)",
+      header: "Predicted Cumulative Relative Survival (%)",
       cell: (info) => info.renderValue(),
     }),
   ];

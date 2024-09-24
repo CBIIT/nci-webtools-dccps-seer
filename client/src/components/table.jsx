@@ -1,9 +1,15 @@
-import Table from "react-bootstrap/Table";
-import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import BsTable from "react-bootstrap/Table";
+import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 
-export function ResultsTable({ data, columns }) {
+export default function Table({ data, columns }) {
+  const table = useReactTable({
+    data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  });
+
   return (
-    <Table striped bordered>
+    <BsTable striped bordered>
       <thead>
         {table.getHeaderGroups().map((headerGroup) => (
           <tr key={headerGroup.id}>
@@ -24,6 +30,6 @@ export function ResultsTable({ data, columns }) {
           </tr>
         ))}
       </tbody>
-    </Table>
+    </BsTable>
   );
 }

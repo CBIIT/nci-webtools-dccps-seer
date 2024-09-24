@@ -1,3 +1,4 @@
+
 "use client";
 import dynamic from "next/dynamic";
 import { Container, Row, Col } from "react-bootstrap";
@@ -6,7 +7,7 @@ const Plot = dynamic(() => import("react-plotly.js"), {
   ssr: false,
 });
 
-export default function Plotly({ data, layout, config, className }) {
+export default function TimePlot({ data, layout, config, className }) {
   return (
     <Container fluid style={{ minHeight: layout.height || 500 }} className={className}>
       <Row>

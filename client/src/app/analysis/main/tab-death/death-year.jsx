@@ -3,20 +3,28 @@ import { useMemo } from "react";
 import { Container, Row, Col, Form } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import SelectHookForm from "@/components/selectHookForm";
-import SurvYearPlot from "./surv-year-plot";
-import SurvYearTable from "./surv-year-table";
+import DeathYearPlot from "./death-year-plot";
+import DeathYearTable from "./death-year-table";
 
-export default function SurvivalVsYear({ data, seerData, params }) {
+export default function DeathVsYear({ data, seerData, params }) {
   const { control, register, watch } = useForm({
     defaultValues: { intervals: [5], trendBetween: false, useRange: false, trendRange: [] },
   });
   const intervals = watch("intervals");
-  const statistic = seerData?.config["Session Options"]["Statistic"];
-  const memoData = useMemo(() => data.filter((e) => intervals.includes(e.Interval)), [data, intervals]);
-  const observedHeader = params?.observed;
-  const observedSeHeader = observedHeader?.includes("Relative") ? "Relative_SE_Cum" : "CauseSpecific_SE_Cum";
-  const predictedHeader = "pred_cum";
-  const predictedSeHeader = "pred_cum_se";
+  const observedHeader = params?.observed.includes("Relative")
+    ? "Relative_Survival_Interval"
+    : "CauseSpecific_Survival_Interval";
+  const observedSeHeader = observedHeader?.includes("Relative") ? "Relative_SE_Interval" : "CauseSpecific_SE_Interval";
+  const predictedHeader = "pred_int";
+  const predictedSeHeader = "pred_int_se";
+  const memoData = useMemo(() => {
+    const filterInts = data.filter((e) => intervals.includes(e.Interval));
+    return filterInts.map((e) => ({
+      ...e,
+      [observedHeader]: e[observedHeader] ? 1 - e[observedHeader] : e[observedHeader],
+      [predictedHeader]: e[predictedHeader] ? 1 - e[predictedHeader] : e[predictedHeader],
+    }));
+  }, [data, intervals]);
 
   function handleCheck(e) {
     const { name, value, checked } = e.target;
@@ -58,13 +66,13 @@ export default function SurvivalVsYear({ data, seerData, params }) {
       </Row>
       <Row>
         <Col>
-          <SurvYearPlot
+          <DeathYearPlot
             data={memoData}
             seerData={seerData}
             params={params}
-            title={`${statistic} by Diagnosis Year`}
+            title={"Annual Probability of Dying of Cancer by Diagnosis Year"}
             xTitle={"Year of Diagnosis"}
-            yTitle={`${statistic} (%)`}
+            yTitle={`Annual Probability of Cancer Death (%)`}
             observedHeader={observedHeader}
             predictedHeader={predictedHeader}
           />
@@ -72,7 +80,7 @@ export default function SurvivalVsYear({ data, seerData, params }) {
       </Row>
       <Row>
         <Col>
-          <SurvYearTable
+          <DeathYearTable
             data={memoData}
             seerData={seerData}
             params={params}

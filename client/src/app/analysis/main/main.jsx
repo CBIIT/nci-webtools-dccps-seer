@@ -4,6 +4,8 @@ import { useEffect } from "react";
 import { useQuery, useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
 import ModelTable from "./model-table";
 import SurvivalVsYear from "./tab-surv/surv-year";
+import DeathVsYear from "./tab-death/death-year";
+import SurvivalVsTime from "./tab-time/surv-time";
 import CohortSelect from "./cohort-select";
 import { useStore } from "../store";
 import { fetchStatus, fetchResults } from "../queries";
@@ -49,10 +51,10 @@ export default function AnalysisMain({ id }) {
               <SurvivalVsYear data={results[modelIndex].fullpredicted} seerData={seerData} params={params} />
             </Tab>
             <Tab eventKey="death" title="Death vs. Year at Diagnosis">
-              Tab content for Profile
+              <DeathVsYear data={results[modelIndex].fullpredicted} seerData={seerData} params={params} />
             </Tab>
             <Tab eventKey="time" title="Survival vs. Time Since Diagnosis">
-              Tab content for Contact
+              <SurvivalVsTime data={results[modelIndex].fullpredicted} seerData={seerData} params={params} />
             </Tab>
             <Tab eventKey="estimates" title="Model Estimates">
               Tab content for Contact

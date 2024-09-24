@@ -107,7 +107,7 @@ export default function AnalysisForm({ id }) {
             seerStatData: data,
             config,
           };
-          console.log("seer", seer);
+
           setModelOptions(seer);
           setState({ seerData: seer });
         } else {
@@ -214,7 +214,6 @@ export default function AnalysisForm({ id }) {
         seerStatFile: "seerStatData.json",
       },
     };
-    console.log("params", params);
 
     const seerStatFile = asFileList(
       new File([JSON.stringify(seerData)], params.files.seerStatFile, { type: "application/json" })
