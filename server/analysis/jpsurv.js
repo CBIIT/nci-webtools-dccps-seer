@@ -13,6 +13,7 @@ export async function jpsurv(params, logger, env) {
 
   await writeJson(statusFilePath, { id, status: "IN_PROGRESS" });
 
+  const start = new Date();
   try {
     const data = await r.async("analysis/jpsurv.R", "calculateJoinpoint", { inputFolder, outputFolder });
     console.log("worker done");
@@ -50,6 +51,8 @@ export async function jpsurv(params, logger, env) {
         }
       );
     }
+  } finally {
+    logger.info(`Duration: ${(new Date() - start) / 1000} seconds`);
   }
   return false;
 }
