@@ -26,17 +26,22 @@ calculateJoinpoint <- function(inputFolder, outputFolder) {
     subsets <- cohortSubsets
     # save(data, subset, file = "~/Desktop/data.RData")
 
-    for (i in 1:length(subsets)) {
-        results <- joinpoint(
+    for (cohortComboIndex in 1:length(subsets)) {
+        model <- joinpoint(
             data = data,
-            subset = subsets[[i]],
+            subset = subsets[[cohortComboIndex]],
             year = params$year,
             observedrelsurv = params$observed,
             model.form = ~NULL,
             maxnum.jp = params$maxJp
         )
-        # save(results, file = sprintf("~/Desktop/%s.RData", i))
-        write_json(results$FitList, path = file.path(outputFolder, sprintf("%s.json", i)), pretty = TRUE, auto_unbox = TRUE)
+        save(model, file = file.path(outputFolder, sprintf("%s.RData", cohortComboIndex)))
+
+        # for (fitIndex in 1:length(model$FitList)) {
+        #     model$FitList[[fitIndex]]$trends <- aapc.multiints(model$FitList[[fitIndex]], type = "AbsChgSur", int.select = unique(model$Interval))
+        # }
+        write_json(as.data.frame(model$coefficients), path = file.path(outputFolder, sprintf("%s-coefficients.json", cohortComboIndex)), auto_unbox = FALSE)
+        write_json(model$FitList, path = file.path(outputFolder, sprintf("%s.json", cohortComboIndex)), auto_unbox = TRUE)
     }
 }
 
@@ -75,4 +80,8 @@ toProportion <- function(data) {
         }
     }
     data
+}
+
+getTrends <- function() {
+
 }

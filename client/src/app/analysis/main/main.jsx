@@ -9,6 +9,7 @@ import SurvivalVsTime from "./tab-time/surv-time";
 import CohortSelect from "./cohort-select";
 import { useStore } from "../store";
 import { fetchStatus, fetchResults } from "../queries";
+import ModelEstimates from "./tab-model-estimates/model-estimates";
 
 export default function AnalysisMain({ id }) {
   const queryClient = useQueryClient();
@@ -25,7 +26,6 @@ export default function AnalysisMain({ id }) {
   const { data: results } = useQuery({
     queryKey: ["results", id, cohortIndex],
     queryFn: () => fetchResults(id, cohortIndex),
-
     enabled: jobStatus === "COMPLETED",
   });
 
@@ -57,7 +57,7 @@ export default function AnalysisMain({ id }) {
               <SurvivalVsTime data={results[modelIndex].fullpredicted} seerData={seerData} params={params} />
             </Tab>
             <Tab eventKey="estimates" title="Model Estimates">
-              Tab content for Contact
+              <ModelEstimates id={id} cohortIndex={cohortIndex} />
             </Tab>
           </Tabs>
         </>

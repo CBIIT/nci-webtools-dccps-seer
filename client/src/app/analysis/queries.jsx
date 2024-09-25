@@ -4,8 +4,8 @@ export async function fetchStatus(id) {
   return (await axios.get(`api/data/output/${id}/status.json`)).data.status;
 }
 
-export async function fetchResults(id, cohortIndex) {
-  return (await axios.get(`api/data/output/${id}/${cohortIndex}.json`)).data;
+export async function fetchResults(id, file) {
+  return (await axios.get(`api/data/output/${id}/${file}.json`)).data;
 }
 
 export async function fetchSession(id) {
