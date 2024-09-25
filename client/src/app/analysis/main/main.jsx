@@ -22,18 +22,14 @@ export default function AnalysisMain({ id }) {
     queryKey: ["status", id],
     queryFn: () => fetchStatus(id),
     enabled: !!id,
+    refetchInterval: (data) =>
+      data?.state?.data === "SUBMITTED" || data?.state?.data === "IN_PROGRESS" ? 5 * 1000 : false,
   });
   const { data: results } = useQuery({
     queryKey: ["results", id, cohortIndex],
     queryFn: () => fetchResults(id, cohortIndex),
     enabled: jobStatus === "COMPLETED",
   });
-
-  useEffect(() => {
-    if (jobStatus === "SUBMITTED" || jobStatus === "IN_PROGRESS") {
-      setTimeout(() => queryClient.invalidateQueries({ queryKey: ["status"] }), 1000 * 5);
-    }
-  }, [jobStatus]);
 
   function setModelIndex(index) {
     setState({ main: { cohortIndex, modelIndex: index } });
