@@ -54,6 +54,7 @@ export async function runFargateWorker(id, env = process.env) {
       },
     },
     taskDefinition: WORKER_TASK_NAME,
+    propagateTags: "TASK_DEFINITION",
     overrides: {
       containerOverrides: [
         {
