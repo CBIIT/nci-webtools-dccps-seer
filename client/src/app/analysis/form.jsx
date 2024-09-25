@@ -315,9 +315,9 @@ export default function AnalysisForm({ id }) {
               </Col>
             </Row>
 
-            <Form.Group className="mb-4" controlId="followUpYears">
+            <Form.Group className="mb-4" controlId="interval">
               <Form.Label className="required">Max No. of Years from Diagnosis (follow-up) to include</Form.Label>
-              <Form.Select required {...register("followUpYears", { required: true })}>
+              <Form.Select required {...register("interval", { required: true })}>
                 {modelOptions.intervals.map(({ label, value }) => (
                   <option key={value} value={value}>
                     {`<= ${value}`}
