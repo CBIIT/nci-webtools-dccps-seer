@@ -291,7 +291,7 @@ function loadConditionalResults(model) {
       ).map((e, i) => Math.sqrt(e) * observed[i]);
 
       const traceGroup = `Interval ${start} - ${end}`;
-      const projectedIndex = observed.findIndex(Number.isNaN);
+      const projectedIndex = observed.findIndex(isNaN);
       const projectedTraces = makeDashTrace(
         'yearPlot',
         traceGroup,
@@ -418,13 +418,6 @@ function loadConditionalResults(model) {
         //   .map((e) => e * 100);
         const traceGroup = `${year} (Int. ${start} - ${end})`;
 
-        const predictedTraces = makeLineTrace(
-          divId,
-          traceGroup,
-          index,
-          intervals,
-          predicted.map((e) => e / 100)
-        );
         const observedTraces = makeMarkerTrace(
           divId,
           traceGroup,
@@ -432,7 +425,36 @@ function loadConditionalResults(model) {
           intervals,
           observed.map((e) => e / 100)
         );
-        const legendTrace = makeLegendTrace(traceGroup, index);
+
+        const predictedTraces =
+          observed.findIndex(isNaN) == -1
+            ? makeLineTrace(
+                divId,
+                traceGroup,
+                index,
+                intervals,
+                predicted.map((e) => e / 100)
+              )
+            : makeDashTrace(
+                divId,
+                traceGroup,
+                index,
+                intervals,
+                predicted.map((e) => e / 100)
+              );
+
+        const observedLegendTrace = {
+          ...makeLegendTrace(traceGroup, index, 'markers'),
+          name: traceGroup + ' Observed',
+        };
+        const predictedLegendTrace =
+          observed.findIndex(isNaN) == -1
+            ? { ...makeLegendTrace(traceGroup, index, 'lines'), name: traceGroup + ' Predicted' }
+            : {
+                ...makeLegendTrace(traceGroup, index, 'lines'),
+                name: traceGroup + ' Projected',
+                line: { ...observedLegendTrace.line, dash: 'dash' },
+              };
 
         return {
           controlIndex,
@@ -445,7 +467,7 @@ function loadConditionalResults(model) {
           observed,
           predictedTraces,
           observedTraces,
-          legendTrace,
+          legendTraces: [observedLegendTrace, predictedLegendTrace],
         };
       });
     });
@@ -474,7 +496,7 @@ function loadConditionalResults(model) {
       const layout = makeLayout(divId, [minInterval, maxInterval], xTitle, yTitle, statistic, modelInfo);
       const startingIntervalTrace = makeDashTrace(divId, '', '', [start, start], [0, 1]);
       const traces = plotData
-        .map((e) => [e.predictedTraces, e.observedTraces, e.legendTrace, startingIntervalTrace])
+        .map((e) => [e.predictedTraces, e.observedTraces, ...e.legendTraces, startingIntervalTrace])
         .flat();
       const newPlot = `${divId}-${controlIndex}`;
       $('#timePlots').append(`<div id="${newPlot}" class="mx-auto mt-1 d-block"></div>`);
