@@ -7,8 +7,10 @@ import SurvYearPlot from "./surv-year-plot";
 import SurvYearTable from "./surv-year-table";
 
 export default function SurvivalVsYear({ data, seerData, params }) {
-  const { control, register, watch } = useForm({
-    defaultValues: { intervals: [5], trendBetween: false, useRange: false, trendRange: [] },
+  const intervalOptions = [...new Set(data.map((e) => e.Interval))];
+  const defaultInterval = intervalOptions.includes(5) ? 5 : Math.max(...intervalOptions);
+  const { control, register, watch, setValue } = useForm({
+    defaultValues: { intervals: [defaultInterval], trendBetween: false, useRange: false, trendRange: [] },
   });
   const intervals = watch("intervals");
   const statistic = seerData?.config["Session Options"]["Statistic"];
