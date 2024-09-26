@@ -15,7 +15,7 @@ const colors = [
 
 export function makeLineTrace(divId, name = '', index, xArray, yArray) {
   return {
-    name,
+    // name,
     x: xArray,
     y: yArray,
     showlegend: false,
@@ -35,7 +35,7 @@ export function makeLineTrace(divId, name = '', index, xArray, yArray) {
 
 export function makeDashTrace(divId, name = '', index = '', xArray, yArray) {
   return {
-    name,
+    // name,
     x: xArray,
     y: yArray,
     showlegend: false,
@@ -47,7 +47,7 @@ export function makeDashTrace(divId, name = '', index = '', xArray, yArray) {
       font: { size: fontSize, color: 'black' },
     },
     mode: 'lines',
-    line: { dash: 'dash', color: index ? colors[index % 10] : 'black' },
+    line: { dash: 'dash', color: colors[index % 10] },
     type: 'scatter',
     legendgroup: name,
   };
@@ -55,7 +55,7 @@ export function makeDashTrace(divId, name = '', index = '', xArray, yArray) {
 
 export function makeMarkerTrace(divId, name = '', index, xArray, yArray) {
   return {
-    name,
+    // name,
     x: xArray,
     y: yArray,
     showlegend: false,
@@ -247,7 +247,7 @@ export function processPlotData(divID, x, yMark, yLine, dimension, trends) {
         name:
           divID != 'timePlot'
             ? divID == 'yearPlot'
-              ? `${interval}-year`
+              ? `${interval}-year Predicted`
               : `Interval ${interval - 1}-${interval}`
             : interval,
         legendgroup: interval,

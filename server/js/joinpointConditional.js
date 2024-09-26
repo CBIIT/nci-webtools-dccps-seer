@@ -294,7 +294,7 @@ function loadConditionalResults(model) {
       const projectedIndex = observed.findIndex(Number.isNaN);
       const projectedTraces = makeDashTrace(
         'yearPlot',
-        traceGroup + ' Projected',
+        traceGroup,
         index,
         years.slice(projectedIndex),
         predicted.slice(projectedIndex).map((e) => e / 100)
@@ -313,7 +313,7 @@ function loadConditionalResults(model) {
         years,
         observed.map((e) => e / 100)
       );
-      const legendTrace = makeLegendTrace(traceGroup, index, 'lines');
+      const legendTrace = { ...makeLegendTrace(traceGroup, index, 'lines'), name: traceGroup + ' Predicted' };
       const projectedLegendTrace = {
         ...makeLegendTrace(traceGroup, index, 'lines'),
         name: traceGroup + ' Projected',
