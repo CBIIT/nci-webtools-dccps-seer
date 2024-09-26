@@ -9,10 +9,11 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { v4 as uuidv4 } from "uuid";
-import { useStore, defaultForm } from "./store";
+import { useStore, defaultForm, defaultAdvOptions } from "./store";
 import { parseSeerStatDictionary, parseSeerStatFiles } from "@/services/file/file.service";
 import { uploadFiles, asFileList } from "@/components/file-input";
 import { fetchSession, submit } from "./queries";
+import { Accordion } from "react-bootstrap";
 
 const FileInput = dynamic(() => import("@/components/file-input"), {
   ssr: false,
@@ -361,6 +362,36 @@ export default function AnalysisForm({ id }) {
                 ))}
               </Form.Select>
             </Form.Group>
+
+            <Accordion className="mb-3">
+              <Accordion.Item eventKey="0">
+                <Accordion.Header>Advanced Options</Accordion.Header>
+                <Accordion.Body>
+                  <Form.Group controlId="delLastIntvl">
+                    <Form.Check {...register("delLastIntvl")} type="switch" label="Delete Last Interval" />
+                  </Form.Group>
+                  <Form.Group controlId="numbetwn">
+                    <Form.Label>Minimum Number of Years between Joinpoints (Excluding Joinpoints):</Form.Label>
+                    <input {...register("numbetwn")} type="number" min="2"></input>
+                  </Form.Group>
+                  <Form.Group controlId="numfromstart">
+                    <Form.Label>Minimum Number of Years before First Joinpoint (Excluding Joinpoint):</Form.Label>
+                    <input {...register("numfromstart")} type="number" min="2"></input>
+                  </Form.Group>
+                  <Form.Group controlId="numtoend">
+                    <Form.Label>Minimum Number of Years after Last Joinpoint (Excluding Joinpoint):</Form.Label>
+                    <input {...register("numtoend")} type="number" min="2"></input>
+                  </Form.Group>
+                  <Form.Group controlId="projectedYears">
+                    <Form.Label>Number of Calendar Years of Projected Survival:</Form.Label>
+                    <input {...register("projectedYears")} type="number" min="0"></input>
+                  </Form.Group>
+                  <Button className="mt-3" onClick={() => reset({ ...watch(), ...defaultAdvOptions })}>
+                    Reset Advanced Options
+                  </Button>
+                </Accordion.Body>
+              </Accordion.Item>
+            </Accordion>
           </fieldset>
 
           <fieldset className="fieldset border rounded my-4 pt-4 px-3">

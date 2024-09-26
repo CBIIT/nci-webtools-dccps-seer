@@ -1,5 +1,13 @@
 import { create } from "zustand";
 
+export const defaultAdvOptions = {
+  delLastIntvl: false,
+  numbetwn: 2,
+  numfromstart: 3,
+  numtoend: 5,
+  projectedYears: 5,
+};
+
 export const defaultForm = {
   id: "",
   inputType: "seer",
@@ -14,6 +22,7 @@ export const defaultForm = {
   sendNotification: false,
   jobName: "",
   email: "",
+  ...defaultAdvOptions,
 };
 
 export const defaultState = {

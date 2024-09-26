@@ -33,7 +33,10 @@ calculateJoinpoint <- function(inputFolder, outputFolder) {
             year = params$year,
             observedrelsurv = params$observed,
             model.form = ~NULL,
-            maxnum.jp = params$maxJp
+            maxnum.jp = params$maxJp,
+            delLastIntvl = params$delLastIntvl,
+            proj.year.num = params$projectedYears,
+            op = list("numbetwn" = params$numbetwn, "numfromstart" = params$numfromstart, "numtoend" = params$numtoend)
         )
         save(model, file = file.path(outputFolder, sprintf("%s.RData", cohortComboIndex)))
 
