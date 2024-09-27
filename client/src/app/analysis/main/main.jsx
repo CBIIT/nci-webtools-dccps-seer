@@ -53,7 +53,7 @@ export default function AnalysisMain({ id }) {
               <SurvivalVsTime data={results[modelIndex].fullpredicted} seerData={seerData} params={params} />
             </Tab>
             <Tab eventKey="estimates" title="Model Estimates">
-              <ModelEstimates id={id} cohortIndex={cohortIndex} />
+              <ModelEstimates id={id} cohortIndex={cohortIndex} modelIndex={modelIndex} />
             </Tab>
           </Tabs>
         </>

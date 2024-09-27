@@ -43,7 +43,11 @@ calculateJoinpoint <- function(inputFolder, outputFolder) {
         # for (fitIndex in 1:length(model$FitList)) {
         #     model$FitList[[fitIndex]]$trends <- aapc.multiints(model$FitList[[fitIndex]], type = "AbsChgSur", int.select = unique(model$Interval))
         # }
-        write_json(as.data.frame(model$coefficients), path = file.path(outputFolder, sprintf("%s-coefficients.json", cohortComboIndex)), auto_unbox = FALSE)
+        coef <- c()
+        for (fit in model$FitList) {
+            coef[[length(coef) + 1]] <- as.data.frame(fit$coefficients)
+        }
+        write_json(coef, path = file.path(outputFolder, sprintf("%s-coefficients.json", cohortComboIndex)), auto_unbox = TRUE)
         write_json(model$FitList, path = file.path(outputFolder, sprintf("%s.json", cohortComboIndex)), auto_unbox = TRUE)
     }
 }
