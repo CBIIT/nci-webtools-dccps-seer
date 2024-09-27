@@ -889,10 +889,10 @@
 
               <div id="graph-time-tab" class="tab-pane fade">
                 <div class="border rounded mb-1">
-                  <div class="row">
+                  <div class="row" id="timeRecalc">
                     <div class="col-md-3 m-3">
                       <div class="form-group">
-                        <label for="year-of-diagnosis" class="mx-1 mr-3"> Year of Diagnosis </label>
+                        <label for="year-of-diagnosis" class="mx-1 mr-3">Year of Diagnosis</label>
                         <select id="year-of-diagnosis" class="mx-1" multiple="multiple">
                           <option selected>1975</option>
                         </select>
@@ -900,6 +900,19 @@
                     </div>
                     <div class="col m-3">
                       <button class="btn btn-primary btn-sm recalculate" type="button">Recalculate</button>
+                    </div>
+                  </div>
+                  <div class="row" id="timeConditionalRecalc">
+                    <div class="col-md-3 m-3">
+                      <div class="form-group">
+                        <label for="conditional-yod" class="mx-1 mr-3">Conditional Year of Diagnosis</label>
+                        <select id="conditional-yod" class="mx-1" multiple="multiple">
+                          <option selected>1975</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col m-3">
+                      <button class="btn btn-primary btn-sm" id="conditionalRecalc" type="button">Recalculate</button>
                     </div>
                   </div>
                 </div>
