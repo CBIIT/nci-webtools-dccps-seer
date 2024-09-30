@@ -348,14 +348,19 @@ getAllData <- function(filePath, jpsurvDataString, first_calc = FALSE, valid_com
   # get year column var name
   yearVar <- getCorrectFormat(jpsurvData$calculate$static$yearOfDiagnosisVarName)
   # create datasets for download
-  fullDownload <- downloadDataWrapper(jpsurvDataString, filePath, com, runs, yearVar, jpInd, "full")
-  deathGraphData <- downloadDataWrapper(jpsurvDataString, filePath, com, runs, yearVar, jpInd, "death")
+  # fullDownload <- downloadDataWrapper(jpsurvDataString, filePath, com, runs, yearVar, jpInd, "full")
+  fullDownload <- downloadData2(jpsurvData, seerdata, fit, com, runs, yearVar, jpInd, "full")
+  # deathGraphData <- downloadDataWrapper(jpsurvDataString, filePath, com, runs, yearVar, jpInd, "death")
+  deathGraphData <- downloadData2(jpsurvData, seerdata, fit, com, runs, yearVar, jpInd, "death")
   survGraphData <- downloadData2(jpsurvData, seerdata, fit, com, runs, yearVar, jpInd, "year")
   timeGraphData <- downloadData2(jpsurvData, seerdata, fit, com, runs, yearVar, jpInd, "time")
   # create graphs
-  deathGraph <- getGraphWrapper(filePath, jpsurvDataString, first_calc, com, NULL, interval, deathGraphData, "death", statistic)
-  yearGraph <- getGraphWrapper(filePath, jpsurvDataString, first_calc, com, NULL, interval, survGraphData, "year", statistic)
-  timeGraph <- getGraphWrapper(filePath, jpsurvDataString, first_calc, com, runs, interval, timeGraphData, "time", statistic)
+  # deathGraph <- getGraphWrapper(filePath, jpsurvDataString, first_calc, com, NULL, interval, deathGraphData, "death", statistic)
+  deathGraph <- getGraph2(jpsurvData, seerdata, fit, first_calc, com, NULL, interval, deathGraphData, "death", statistic)
+  # yearGraph <- getGraphWrapper(filePath, jpsurvDataString, first_calc, com, NULL, interval, survGraphData, "year", statistic)
+  yearGraph <- getGraph2(jpsurvData, seerdata, fit, first_calc, com, NULL, interval, survGraphData, "year", statistic)
+  # timeGraph <- getGraphWrapper(filePath, jpsurvDataString, first_calc, com, runs, interval, timeGraphData, "time", statistic)
+  timeGraph <- getGraph2(jpsurvData, seerdata, fit, first_calc, com, runs, interval, timeGraphData, "time", statistic)
   # get jp locations
   jpLocation <- getAllJP(filePath, jpsurvDataString, com)
 
@@ -1276,16 +1281,15 @@ getGraph2 <- function(state, seerdata, fit, first_calc, com, runs, interval, gra
     trend <- state$additional$deathTrend
     data <- NULL
     # check if annotation is possible
-    if (!is.null(trend) && trend == 1) {
-      data <- Plot.dying.year.annotate(graphData, fit, nJP, yearVar, obsintvar, predintvar, interval, annotation = 0, trend = 1)
-    } else {
+
+    if (is.null(trend) || trend == 0) {
       graphData <- (scaleTo(graphData))
       results <- list("deathTable" = graphData)
       return(results)
-    }
-    if (length(data) == 2) {
+    } else {
       # Trend + plot
-      trendTable <- data[[1]]
+      #   data <- Plot.dying.year.annotate(graphData, fit, nJP, yearVar, obsintvar, predintvar, interval, annotation = 0, trend = 1)
+      trendTable <- aapc.multiints(fit$FitList[[nJP + 1]], type = "RelChgHaz", int.select = as.numeric(unique(graphData[, interval])))
       graphData <- (scaleTo(graphData))
       results <- list("deathTable" = graphData, "deathTrend" = trendTable)
       return(results)
@@ -1306,17 +1310,18 @@ getGraph2 <- function(state, seerdata, fit, first_calc, com, runs, interval, gra
       return(results)
     }
 
+    fit <- fit$FitList[[nJP + 1]]
     if (is.null(absRange)) {
       # between joinpoint only
-      trends <- list("ACS.jp" = aapc.multiints(fit$FitList[[nJP + 1]], type = "AbsChgSur", int.select = as.numeric(unique(graphData[, interval]))))
+      trends <- list("ACS.jp" = aapc.multiints(fit, type = "AbsChgSur", int.select = as.numeric(unique(graphData[, interval]))))
     } else {
       # check if both trends
       if (is.null(trend) || trend == 0) {
         # between calendar only
-        trends <- list("ACS.user" = aapc.multiints(fit$FitList[[nJP + 1]], type = "AbsChgSur", int.select = intervals, ACS.range = absRange, ACS.out = "user"))
+        trends <- list("ACS.user" = aapc.multiints(fit, type = "AbsChgSur", int.select = intervals, ACS.range = absRange, ACS.out = "user"))
       } else {
-        #both
-        trends <- aapc.multiints(fit$FitList[[nJP + 1]], type = "AbsChgSur", int.select = intervals, ACS.range = absRange, ACS.out = "both")
+        # both
+        trends <- aapc.multiints(fit, type = "AbsChgSur", int.select = intervals, ACS.range = absRange, ACS.out = "both")
       }
     }
 
