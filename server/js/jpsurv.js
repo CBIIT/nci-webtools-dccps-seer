@@ -2376,19 +2376,17 @@ function clearIntervalYears() {
 
 // only allow intervals within range of cohort combo
 function setIntervalsDynamic() {
-  const { Interval } = jpsurvData.results?.timeData;
+  const { fitInfo, cutPoint, fullDownload } = jpsurvData.results;
   const relaxProp = jpsurvData.calculate.form.relaxProp;
+  const minInt = Math.min(...fullDownload.Interval.filter(Number.isFinite));
+  const maxInt = Math.max(...fullDownload.Interval.filter(Number.isFinite));
   if (relaxProp) {
-    const { fitInfo, cutPoint, fullDownload } = jpsurvData.results;
     const [min, max] = jpsurvData.merged
-      ? [
-          Math.min(...fullDownload.Interval.filter(Number.isFinite)),
-          Math.max(...fullDownload.Interval.filter(Number.isFinite)),
-        ]
+      ? [minInt, maxInt]
       : (jpsurvData.viewConditional ? fitInfo['Intervals.2'] : fitInfo['Intervals.1'])[cutPoint].split(' - ');
     setIntervalYears(min, max);
-  } else if (Interval?.length) {
-    setIntervalYears(Math.min(...Interval), Math.max(...Interval));
+  } else {
+    setIntervalYears(minInt, maxInt);
   }
 }
 
