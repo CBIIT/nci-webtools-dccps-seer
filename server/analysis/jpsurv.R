@@ -40,9 +40,10 @@ calculateJoinpoint <- function(inputFolder, outputFolder) {
         )
         save(model, file = file.path(outputFolder, sprintf("%s.RData", cohortComboIndex)))
 
-        # for (fitIndex in 1:length(model$FitList)) {
-        #     model$FitList[[fitIndex]]$trends <- aapc.multiints(model$FitList[[fitIndex]], type = "AbsChgSur", int.select = unique(model$Interval))
-        # }
+        for (fitIndex in 1:length(model$FitList)) {
+            model$FitList[[fitIndex]]$survTrend <- aapc.multiints(model$FitList[[fitIndex]], type = "AbsChgSur", int.select = unique(model$Interval))
+            model$FitList[[fitIndex]]$deathTrend <- aapc.multiints(model$FitList[[fitIndex]], type = "RelChgHaz", int.select = unique(model$Interval))
+        }
         coef <- c()
         for (fit in model$FitList) {
             coef[[length(coef) + 1]] <- as.data.frame(fit$coefficients)
@@ -87,8 +88,4 @@ toProportion <- function(data) {
         }
     }
     data
-}
-
-getTrends <- function() {
-
 }

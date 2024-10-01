@@ -5,14 +5,16 @@ import { useForm } from "react-hook-form";
 import SelectHookForm from "@/components/selectHookForm";
 import DeathYearPlot from "./death-year-plot";
 import DeathYearTable from "./death-year-table";
+import TrendTable from "./death-trend-table";
 
 export default function DeathVsYear({ data, seerData, params }) {
-  const intervalOptions = [...new Set(data.map((e) => e.Interval))];
+  const intervalOptions = [...new Set(data.fullpredicted.map((e) => e.Interval))];
   const defaultInterval = intervalOptions.includes(5) ? 5 : Math.max(...intervalOptions);
   const { control, register, watch, setValue } = useForm({
     defaultValues: { intervals: [defaultInterval], trendBetween: false, useRange: false, trendRange: [] },
   });
   const intervals = watch("intervals");
+  const trendBetween = watch("trendBetween");
   const observedHeader = params?.observed.includes("Relative")
     ? "Relative_Survival_Interval"
     : "CauseSpecific_Survival_Interval";
@@ -20,28 +22,28 @@ export default function DeathVsYear({ data, seerData, params }) {
   const predictedHeader = "pred_int";
   const predictedSeHeader = "pred_int_se";
   const memoData = useMemo(() => {
-    const filterInts = data.filter((e) => intervals.includes(e.Interval));
+    const filterInts = data.fullpredicted.filter((e) => intervals.includes(e.Interval));
     return filterInts.map((e) => ({
       ...e,
       [observedHeader]: e[observedHeader] ? 1 - e[observedHeader] : e[observedHeader],
       [predictedHeader]: e[predictedHeader] ? 1 - e[predictedHeader] : e[predictedHeader],
     }));
   }, [data, intervals]);
-
-  function handleCheck(e) {
-    const { name, value, checked } = e.target;
-  }
+  const trendData = useMemo(
+    () => data.deathTrend.reduce((acc, ar) => [...acc, ...ar], []).filter((e) => intervals.includes(e.interval)),
+    [data, intervals]
+  );
 
   return (
     <Container fluid>
       <Row>
-        <Col className="p-3 border rounded">
+        <Col className="p-3 border rounded mb-3">
           <Row>
             <Col sm="auto">
               <SelectHookForm
                 name="intervals"
                 label="Select years since diagnosis (follow-up) for survival plot and/or trend measures"
-                options={[...new Set(data.map((e) => e.Interval))].map((e) => ({ label: e, value: e }))}
+                options={intervalOptions.map((e) => ({ label: e, value: e }))}
                 control={control}
                 isMulti
               />
@@ -59,12 +61,14 @@ export default function DeathVsYear({ data, seerData, params }) {
                   label="Between Joinpoints"
                   aria-label="Between Joinpoints"
                   type="checkbox"
-                  onChange={(e) => handleCheck(e)}
                 />
               </Form.Group>
             </Col>
           </Row>
         </Col>
+      </Row>
+      <Row>
+        <Col>{trendBetween && <TrendTable data={trendData} seerData={seerData} params={params} />}</Col>
       </Row>
       <Row>
         <Col>
