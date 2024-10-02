@@ -299,7 +299,7 @@ export default function AnalysisForm({ id }) {
               <Col s="auto">
                 <Form.Select {...register("yearStart", { required: true })} required aria-label="Year Start">
                   {modelOptions.yearRangeOptions.map((e) => (
-                    <option key={"start" + e.value} value={e.value}>
+                    <option key={"start" + e.value} value={+e.value}>
                       {e.label}
                     </option>
                   ))}
@@ -308,7 +308,7 @@ export default function AnalysisForm({ id }) {
               <Col s="auto">
                 <Form.Select {...register("yearEnd", { required: true })} required aria-label="Year End">
                   {modelOptions.yearRangeOptions.map((e) => (
-                    <option key={"end" + e.value} value={e.value}>
+                    <option key={"end" + e.value} value={+e.value}>
                       {e.label}
                     </option>
                   ))}
@@ -320,7 +320,7 @@ export default function AnalysisForm({ id }) {
               <Form.Label className="required">Max No. of Years from Diagnosis (follow-up) to include</Form.Label>
               <Form.Select required {...register("interval", { required: true })}>
                 {modelOptions.intervals.map(({ label, value }) => (
-                  <option key={value} value={value}>
+                  <option key={value} value={+value}>
                     {`<= ${value}`}
                   </option>
                 ))}
@@ -356,7 +356,7 @@ export default function AnalysisForm({ id }) {
               <Form.Label className="required">Maximum Joinpoints</Form.Label>
               <Form.Select required {...register("maxJp", { required: true })}>
                 {[...Array(6).keys()].map((n) => (
-                  <option key={n} value={n}>
+                  <option key={n} value={+n}>
                     {n}
                   </option>
                 ))}
@@ -372,19 +372,19 @@ export default function AnalysisForm({ id }) {
                   </Form.Group>
                   <Form.Group controlId="numbetwn">
                     <Form.Label>Minimum Number of Years between Joinpoints (Excluding Joinpoints):</Form.Label>
-                    <input {...register("numbetwn")} type="number" min="2"></input>
+                    <Form.Control {...register("numbetwn")} type="number" min="2"></Form.Control>
                   </Form.Group>
                   <Form.Group controlId="numfromstart">
                     <Form.Label>Minimum Number of Years before First Joinpoint (Excluding Joinpoint):</Form.Label>
-                    <input {...register("numfromstart")} type="number" min="2"></input>
+                    <Form.Control {...register("numfromstart")} type="number" min="2"></Form.Control>
                   </Form.Group>
                   <Form.Group controlId="numtoend">
                     <Form.Label>Minimum Number of Years after Last Joinpoint (Excluding Joinpoint):</Form.Label>
-                    <input {...register("numtoend")} type="number" min="2"></input>
+                    <Form.Control {...register("numtoend")} type="number" min="2"></Form.Control>
                   </Form.Group>
                   <Form.Group controlId="projectedYears">
                     <Form.Label>Number of Calendar Years of Projected Survival:</Form.Label>
-                    <input {...register("projectedYears")} type="number" min="0"></input>
+                    <Form.Control {...register("projectedYears")} type="number" min="0"></Form.Control>
                   </Form.Group>
                   <Button className="mt-3" onClick={() => reset({ ...watch(), ...defaultAdvOptions })}>
                     Reset Advanced Options
