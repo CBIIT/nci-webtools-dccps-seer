@@ -240,7 +240,7 @@ export default function AnalysisForm({ id }) {
       <fieldset className="fieldset border rounded my-4 pt-4 px-3">
         <legend className="legend fw-bold bg-light">Data</legend>
         <Form.Group className="mb-4" controlId="inputType">
-          <Form.Label className="required">Input Type</Form.Label>
+          <Form.Label className="required fw-bold">Input Type</Form.Label>
           <Form.Select
             required
             {...register("inputType", {
@@ -254,7 +254,7 @@ export default function AnalysisForm({ id }) {
         </Form.Group>
 
         <Form.Group className="mb-3" controlId="inputFile">
-          <Form.Label className="required">Files</Form.Label>
+          <Form.Label className="required fw-bold">Files</Form.Label>
           <FileInput
             control={control}
             rules={{ required: true }}
@@ -284,7 +284,7 @@ export default function AnalysisForm({ id }) {
           <fieldset className="fieldset border rounded my-4 pt-4 px-3">
             <legend className="legend fw-bold bg-light">Cohort and Model Specifications</legend>
             <Form.Group className="mb-4" controlId="year">
-              <Form.Label className="required">Year of Diagnosis</Form.Label>
+              <Form.Label className="required fw-bold">Year of Diagnosis</Form.Label>
               <Form.Select required {...register("year", { required: true })}>
                 {modelOptions.yearOptions.map((e) => (
                   <option key={e.name} value={e.name}>
@@ -294,7 +294,7 @@ export default function AnalysisForm({ id }) {
               </Form.Select>
             </Form.Group>
 
-            <Form.Label className="required">Year of Diagnosis Range</Form.Label>
+            <Form.Label className="required fw-bold">Year of Diagnosis Range</Form.Label>
             <Row className="mb-4">
               <Col s="auto">
                 <Form.Select {...register("yearStart", { required: true })} required aria-label="Year Start">
@@ -317,7 +317,7 @@ export default function AnalysisForm({ id }) {
             </Row>
 
             <Form.Group className="mb-4" controlId="interval">
-              <Form.Label className="required">Max No. of Years from Diagnosis (follow-up) to include</Form.Label>
+              <Form.Label className="required fw-bold">Interval</Form.Label>
               <Form.Select required {...register("interval", { required: true })}>
                 {modelOptions.intervals.map(({ label, value }) => (
                   <option key={value} value={+value}>
@@ -325,12 +325,13 @@ export default function AnalysisForm({ id }) {
                   </option>
                 ))}
               </Form.Select>
+              <small>Max No. of Years from Diagnosis (follow-up) to include</small>
             </Form.Group>
 
             {fields.length ? (
               fields.map(({ label, options }, fIndex) => (
                 <Form.Group key={label} controlId={label} className="mb-4">
-                  <Form.Label>{label}</Form.Label>
+                  <Form.Label className="fw-bold">{label}</Form.Label>
                   {options.map((e, oIndex) => {
                     const checkLabel = e.label.replace(/"/gi, "").trim();
                     return (
@@ -353,7 +354,7 @@ export default function AnalysisForm({ id }) {
             )}
 
             <Form.Group className="mb-4" controlId="maxJp">
-              <Form.Label className="required">Maximum Joinpoints</Form.Label>
+              <Form.Label className="required fw-bold">Maximum Joinpoints</Form.Label>
               <Form.Select required {...register("maxJp", { required: true })}>
                 {[...Array(6).keys()].map((n) => (
                   <option key={n} value={+n}>
@@ -368,25 +369,36 @@ export default function AnalysisForm({ id }) {
                 <Accordion.Header>Advanced Options</Accordion.Header>
                 <Accordion.Body>
                   <Form.Group controlId="delLastIntvl">
-                    <Form.Check {...register("delLastIntvl")} type="switch" label="Delete Last Interval" />
+                    <Form.Check
+                      {...register("delLastIntvl")}
+                      type="switch"
+                      label="Delete Last Interval"
+                      className="fw-bold"
+                    />
                   </Form.Group>
-                  <Form.Group controlId="numbetwn">
-                    <Form.Label>Minimum Number of Years between Joinpoints (Excluding Joinpoints):</Form.Label>
-                    <Form.Control {...register("numbetwn")} type="number" min="2"></Form.Control>
+                  <Form.Group controlId="numbetwn" className="my-3">
+                    <Form.Label className="fw-bold">
+                      Minimum Number of Years between Joinpoints (Excluding Joinpoints)
+                    </Form.Label>
+                    <Form.Control {...register("numbetwn")} type="number" min="2" />
                   </Form.Group>
-                  <Form.Group controlId="numfromstart">
-                    <Form.Label>Minimum Number of Years before First Joinpoint (Excluding Joinpoint):</Form.Label>
+                  <Form.Group controlId="numfromstart" className="my-3">
+                    <Form.Label className="fw-bold">
+                      Minimum Number of Years before First Joinpoint (Excluding Joinpoint)
+                    </Form.Label>
                     <Form.Control {...register("numfromstart")} type="number" min="2"></Form.Control>
                   </Form.Group>
-                  <Form.Group controlId="numtoend">
-                    <Form.Label>Minimum Number of Years after Last Joinpoint (Excluding Joinpoint):</Form.Label>
+                  <Form.Group controlId="numtoend" className="my-3">
+                    <Form.Label className="fw-bold">
+                      Minimum Number of Years after Last Joinpoint (Excluding Joinpoint)
+                    </Form.Label>
                     <Form.Control {...register("numtoend")} type="number" min="2"></Form.Control>
                   </Form.Group>
-                  <Form.Group controlId="projectedYears">
-                    <Form.Label>Number of Calendar Years of Projected Survival:</Form.Label>
+                  <Form.Group controlId="projectedYears" className="my-3">
+                    <Form.Label className="fw-bold">Number of Calendar Years of Projected Survival</Form.Label>
                     <Form.Control {...register("projectedYears")} type="number" min="0"></Form.Control>
                   </Form.Group>
-                  <Button className="mt-3" onClick={() => reset({ ...watch(), ...defaultAdvOptions })}>
+                  <Button variant="link" className="mt-3" onClick={() => reset({ ...watch(), ...defaultAdvOptions })}>
                     Reset Advanced Options
                   </Button>
                 </Accordion.Body>
