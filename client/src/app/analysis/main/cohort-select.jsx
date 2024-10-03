@@ -19,8 +19,10 @@ export default function CohortSelect({ params }) {
         </Form.Label>
         <Col sm="auto">
           <Form.Select value={cohortIndex} onChange={handleCohortChange}>
-            {params.cohortCombos.map((e, i) => (
-              <option key={i} value={i + 1}>{e.join(" + ")}</option>
+            {params.cohortCombos.map((cohortIndices, comboIndex) => (
+              <option key={comboIndex} value={comboIndex + 1}>
+                {cohortIndices.map((c, i) => params.cohorts[i].options[c].label.replace(/"/gi, "").trim()).join(" + ")}
+              </option>
             ))}
           </Form.Select>
         </Col>
