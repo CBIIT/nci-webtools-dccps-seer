@@ -1,6 +1,7 @@
 import path from "path";
 import { mkdirs, readJson, writeJson } from "./utils.js";
 import { getWorker } from "./workers.js";
+import { calendarTrends } from "../jpsurv/jpsurv.js";
 
 const { WORKER_TYPE } = process.env;
 
@@ -20,4 +21,8 @@ export async function submit(params, env = process.env) {
 
   worker(id).catch(console.error);
   return status;
+}
+
+export async function getCalendarTrends(params, logger, env = process.env) {
+  return await calendarTrends(params, logger, env);
 }

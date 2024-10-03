@@ -43,7 +43,13 @@ export default function AnalysisMain({ id }) {
           <ModelTable data={results} handleRowSelect={setModelIndex} />
           <Tabs defaultActiveKey="survival" className="my-3">
             <Tab eventKey="survival" title="Survival vs. Year at Diagnosis">
-              <SurvivalVsYear data={results[modelIndex]} seerData={seerData} params={params} />
+              <SurvivalVsYear
+                data={results[modelIndex]}
+                seerData={seerData}
+                params={params}
+                cohortIndex={cohortIndex}
+                modelIndex={modelIndex}
+              />
             </Tab>
             <Tab eventKey="death" title="Death vs. Year at Diagnosis">
               <DeathVsYear data={results[modelIndex]} seerData={seerData} params={params} />

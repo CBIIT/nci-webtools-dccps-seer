@@ -1,7 +1,7 @@
 import path from "path";
 import { isMainModule, readJson } from "./services/utils.js";
 import { createLogger } from "./services/logger.js";
-import { jpsurv } from "./analysis/jpsurv.js";
+import { jpsurv } from "./jpsurv/jpsurv.js";
 
 if (isMainModule(import.meta)) {
   try {

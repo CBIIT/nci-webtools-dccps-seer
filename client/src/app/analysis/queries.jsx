@@ -17,3 +17,7 @@ export async function fetchSession(id) {
 export async function submit(id, params) {
   return await axios.post(`api/submit/${id}`, params);
 }
+
+export async function calculateCalendarTrends(id, params) {
+  return await axios.post(`api/calendarTrends/${id}`, params);
+}

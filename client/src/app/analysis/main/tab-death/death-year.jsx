@@ -11,10 +11,10 @@ export default function DeathVsYear({ data, seerData, params }) {
   const intervalOptions = [...new Set(data.fullpredicted.map((e) => e.Interval))];
   const defaultInterval = intervalOptions.includes(5) ? 5 : Math.max(...intervalOptions);
   const { control, register, watch, setValue } = useForm({
-    defaultValues: { intervals: [defaultInterval], trendBetween: false, useRange: false, trendRange: [] },
+    defaultValues: { intervals: [defaultInterval], trendJp: false, useRange: false, trendRange: [] },
   });
   const intervals = watch("intervals");
-  const trendBetween = watch("trendBetween");
+  const trendJp = watch("trendJp");
   const observedHeader = params?.observed.includes("Relative")
     ? "Relative_Survival_Interval"
     : "CauseSpecific_Survival_Interval";
@@ -38,26 +38,31 @@ export default function DeathVsYear({ data, seerData, params }) {
     <Container fluid>
       <Row>
         <Col className="p-3 border rounded mb-3">
-          <Row>
+          <Row className="mb-3">
             <Col sm="auto">
               <SelectHookForm
                 name="intervals"
-                label="Select years since diagnosis (follow-up) for survival plot and/or trend measures"
+                label="Year of Diagnosis"
                 options={intervalOptions.map((e) => ({ label: e, value: e }))}
                 control={control}
                 isMulti
               />
+              <Form.Text className="text-muted">
+                <i>Select years since diagnosis (follow-up) for survival plot and/or trend measures</i>
+              </Form.Text>
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <b>Include Trend Measures</b>
             </Col>
           </Row>
           <Row>
             <Col>
               <Form.Group>
-                <Form.Label>
-                  <b>Include Trend Measures</b>
-                </Form.Label>
                 <Form.Check
-                  {...register("trendBetween")}
-                  id="trendBetween"
+                  {...register("trendJp")}
+                  id="trendJp"
                   label="Between Joinpoints"
                   aria-label="Between Joinpoints"
                   type="checkbox"
@@ -68,7 +73,7 @@ export default function DeathVsYear({ data, seerData, params }) {
         </Col>
       </Row>
       <Row>
-        <Col>{trendBetween && <TrendTable data={trendData} seerData={seerData} params={params} />}</Col>
+        <Col>{trendJp && <TrendTable data={trendData} seerData={seerData} params={params} />}</Col>
       </Row>
       <Row>
         <Col>

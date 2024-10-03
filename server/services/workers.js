@@ -2,7 +2,7 @@ import path from "path";
 import ECS, { ECSClient, RunTaskCommand } from "@aws-sdk/client-ecs";
 import { readJson } from "./utils.js";
 import { createLogger } from "./logger.js";
-import { jpsurv } from "../analysis/jpsurv.js";
+import { jpsurv } from "../jpsurv/jpsurv.js";
 
 export function getWorkerCommand(id) {
   return ["node", ["--env-file=.env", "worker.js", id]];

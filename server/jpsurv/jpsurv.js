@@ -15,7 +15,7 @@ export async function jpsurv(params, logger, env) {
 
   const start = new Date();
   try {
-    const data = await r.async("analysis/jpsurv.R", "calculateJoinpoint", { inputFolder, outputFolder });
+    const data = await r.async("jpsurv/jpsurv.R", "calculateJoinpoint", { inputFolder, outputFolder });
     console.log("worker done");
     await writeJson(statusFilePath, { ...prevStatus, status: "COMPLETED", done: new Date() });
     if (params.sendNotification) {
@@ -55,4 +55,11 @@ export async function jpsurv(params, logger, env) {
     logger.info(`Duration: ${(new Date() - start) / 1000} seconds`);
   }
   return false;
+}
+
+export async function calendarTrends(params, logger, env) {
+  const id = params.id;
+  const outputFolder = path.resolve(env.OUTPUT_FOLDER, id);
+
+  return await r.async("jpsurv/jpsurv.R", "calendarTrends", { params, outputFolder });
 }

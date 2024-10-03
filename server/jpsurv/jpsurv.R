@@ -41,8 +41,10 @@ calculateJoinpoint <- function(inputFolder, outputFolder) {
         save(model, file = file.path(outputFolder, sprintf("%s.RData", cohortComboIndex)))
 
         for (fitIndex in 1:length(model$FitList)) {
-            model$FitList[[fitIndex]]$survTrend <- aapc.multiints(model$FitList[[fitIndex]], type = "AbsChgSur", int.select = unique(model$Interval))
-            model$FitList[[fitIndex]]$deathTrend <- aapc.multiints(model$FitList[[fitIndex]], type = "RelChgHaz", int.select = unique(model$Interval))
+            fit <- model$FitList[[fitIndex]]
+            fit$survTrend <- aapc.multiints(fit, type = "AbsChgSur", int.select = unique(model$Interval))
+            fit$deathTrend <- aapc.multiints(fit, type = "RelChgHaz", int.select = unique(model$Interval))
+            model$FitList[[fitIndex]] <- fit
         }
         coef <- c()
         for (fit in model$FitList) {
@@ -88,4 +90,18 @@ toProportion <- function(data) {
         }
     }
     data
+}
+
+calendarTrends <- function(params, outputFolder) {
+    library(JPSurv)
+    # load previous calculated model
+    load(file.path(outputFolder, paste0(params$cohortIndex, ".RData")))
+    trends <- c()
+    for (fitIndex in 1:length(model$FitList)) {
+        fit <- model$FitList[[fitIndex]]
+        range=unlist(params$yearRange)
+        save(range, file='~/Desktop/test.RData')
+        trends[[fitIndex]] <- aapc.multiints(fit, type = "AbsChgSur", int.select = unique(fit$predicted$Interval), ACS.range = unlist(params$yearRange), ACS.out = "user")
+    }
+    trends
 }
