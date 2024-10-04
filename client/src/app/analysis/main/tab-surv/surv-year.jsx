@@ -9,7 +9,7 @@ import SurvYearPlot from "./surv-year-plot";
 import SurvYearTable from "./surv-year-table";
 import TrendTable from "./surv-trend-table";
 
-export default function SurvivalVsYear({ data, seerData, params, cohortIndex, modelIndex }) {
+export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fitIndex }) {
   const queryClient = useQueryClient();
   const isFetching = queryClient.isFetching();
   const intervalOptions = [...new Set(data.fullpredicted.map((e) => e.Interval))];
@@ -186,7 +186,7 @@ export default function SurvivalVsYear({ data, seerData, params, cohortIndex, mo
           {calendarTrend && (
             <div className="mt-3">
               <h5>Trend Measures for User Selected Years</h5>
-              <TrendTable data={calTrendData[modelIndex]} seerData={seerData} params={params} />
+              <TrendTable data={calTrendData[fitIndex]} seerData={seerData} params={params} />
             </div>
           )}
         </Col>

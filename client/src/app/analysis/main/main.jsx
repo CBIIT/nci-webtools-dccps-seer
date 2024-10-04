@@ -15,7 +15,7 @@ export default function AnalysisMain({ id }) {
   const setState = useStore((state) => state.setState);
   const seerData = useStore((state) => state.seerData);
   const params = useStore((state) => state.params);
-  const { cohortIndex, modelIndex } = useStore((state) => state.main);
+  const { cohortIndex, fitIndex } = useStore((state) => state.main);
 
   const { data: jobStatus } = useQuery({
     queryKey: ["status", id],
@@ -30,8 +30,8 @@ export default function AnalysisMain({ id }) {
     enabled: jobStatus === "COMPLETED",
   });
 
-  function setModelIndex(index) {
-    setState({ main: { cohortIndex, modelIndex: index } });
+  function setFitIndex(index) {
+    setState({ main: { cohortIndex, fitIndex: index } });
   }
 
   return (
@@ -40,25 +40,25 @@ export default function AnalysisMain({ id }) {
       {results && seerData && Object.keys(seerData).length > 0 && Object.keys(params).length > 0 && (
         <>
           <CohortSelect params={params} />
-          <ModelTable data={results} handleRowSelect={setModelIndex} />
+          <ModelTable data={results} handleRowSelect={setFitIndex} />
           <Tabs defaultActiveKey="survival" className="my-3">
             <Tab eventKey="survival" title="Survival vs. Year at Diagnosis">
               <SurvivalVsYear
-                data={results[modelIndex]}
+                data={results[fitIndex]}
                 seerData={seerData}
                 params={params}
                 cohortIndex={cohortIndex}
-                modelIndex={modelIndex}
+                fitIndex={fitIndex}
               />
             </Tab>
             <Tab eventKey="death" title="Death vs. Year at Diagnosis">
-              <DeathVsYear data={results[modelIndex]} seerData={seerData} params={params} />
+              <DeathVsYear data={results[fitIndex]} seerData={seerData} params={params} />
             </Tab>
             <Tab eventKey="time" title="Survival vs. Time Since Diagnosis">
-              <SurvivalVsTime data={results[modelIndex].fullpredicted} seerData={seerData} params={params} />
+              <SurvivalVsTime data={results[fitIndex].fullpredicted} seerData={seerData} params={params} />
             </Tab>
             <Tab eventKey="estimates" title="Model Estimates">
-              <ModelEstimates id={id} cohortIndex={cohortIndex} modelIndex={modelIndex} />
+              <ModelEstimates id={id} cohortIndex={cohortIndex} fitIndex={fitIndex} />
             </Tab>
           </Tabs>
         </>

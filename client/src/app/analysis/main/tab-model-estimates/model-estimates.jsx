@@ -6,13 +6,13 @@ import { createColumnHelper } from "@tanstack/react-table";
 import Table from "@/components/table";
 import { fetchResults } from "../../queries";
 
-export default function ModelEstimates({ id, cohortIndex, modelIndex }) {
+export default function ModelEstimates({ id, cohortIndex, fitIndex }) {
   const file = `${cohortIndex}-coefficients`;
   const { data } = useQuery({
     queryKey: ["results", id, file],
     queryFn: () => fetchResults(id, file),
   });
-  const memoData = useMemo(() => (data ? data[modelIndex] : []), [data, modelIndex]);
+  const memoData = useMemo(() => (data ? data[fitIndex] : []), [data, fitIndex]);
   const columnHelper = createColumnHelper();
   const columns = [
     columnHelper.accessor("_row", {
