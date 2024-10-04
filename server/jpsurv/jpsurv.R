@@ -23,36 +23,46 @@ calculateJoinpoint <- function(inputFolder, outputFolder) {
         cohortStr <- paste(cohortVars, cohortRow, sep = " == ", collapse = " & ")
         sprintf("%s & %s", cohortStr, yearStr)
     })
-    subsets <- cohortSubsets
-    # save(data, subset, file = "~/Desktop/data.RData")
 
-    for (cohortComboIndex in 1:length(subsets)) {
-        model <- joinpoint(
-            data = data,
-            subset = subsets[[cohortComboIndex]],
-            year = params$year,
-            observedrelsurv = params$observed,
-            model.form = ~NULL,
-            maxnum.jp = params$maxJp,
-            delLastIntvl = params$delLastIntvl,
-            proj.year.num = params$projectedYears,
-            op = list("numbetwn" = params$numbetwn, "numfromstart" = params$numfromstart, "numtoend" = params$numtoend)
+    manifest <- lapply(seq_along(cohortSubsets), function(cohortComboIndex) {
+        tryCatch(
+            {
+                model <- joinpoint(
+                    data = data,
+                    subset = cohortSubsets[[cohortComboIndex]],
+                    year = params$year,
+                    observedrelsurv = params$observed,
+                    model.form = ~NULL,
+                    maxnum.jp = params$maxJp,
+                    delLastIntvl = params$delLastIntvl,
+                    proj.year.num = params$projectedYears,
+                    op = list("numbetwn" = params$numbetwn, "numfromstart" = params$numfromstart, "numtoend" = params$numtoend)
+                )
+                save(model, file = file.path(outputFolder, sprintf("%s.RData", cohortComboIndex)))
+
+                for (fitIndex in 1:length(model$FitList)) {
+                    fit <- model$FitList[[fitIndex]]
+                    fit$survTrend <- aapc.multiints(fit, type = "AbsChgSur", int.select = unique(model$Interval))
+                    fit$deathTrend <- aapc.multiints(fit, type = "RelChgHaz", int.select = unique(model$Interval))
+                    model$FitList[[fitIndex]] <- fit
+                }
+                coef <- c()
+                for (fit in model$FitList) {
+                    coef[[length(coef) + 1]] <- as.data.frame(fit$coefficients)
+                }
+                coefficientsFilename <- sprintf("%s-coefficients.json", cohortComboIndex)
+                modelFilename <- sprintf("%s.json", cohortComboIndex)
+                write_json(coef, path = file.path(outputFolder, coefficientsFilename), auto_unbox = TRUE)
+                write_json(model$FitList, path = file.path(outputFolder, modelFilename), auto_unbox = TRUE)
+
+                list("coefficients" = coefficientsFilename, "model" = modelFilename, "r_index" = cohortComboIndex, "subset" = cohortSubsets[[cohortComboIndex]])
+            },
+            error = function(e) {
+                e$message
+            }
         )
-        save(model, file = file.path(outputFolder, sprintf("%s.RData", cohortComboIndex)))
-
-        for (fitIndex in 1:length(model$FitList)) {
-            fit <- model$FitList[[fitIndex]]
-            fit$survTrend <- aapc.multiints(fit, type = "AbsChgSur", int.select = unique(model$Interval))
-            fit$deathTrend <- aapc.multiints(fit, type = "RelChgHaz", int.select = unique(model$Interval))
-            model$FitList[[fitIndex]] <- fit
-        }
-        coef <- c()
-        for (fit in model$FitList) {
-            coef[[length(coef) + 1]] <- as.data.frame(fit$coefficients)
-        }
-        write_json(coef, path = file.path(outputFolder, sprintf("%s-coefficients.json", cohortComboIndex)), auto_unbox = TRUE)
-        write_json(model$FitList, path = file.path(outputFolder, sprintf("%s.json", cohortComboIndex)), auto_unbox = TRUE)
-    }
+    })
+    write_json(manifest, path = file.path(outputFolder, "manifest.json"), auto_unbox = TRUE)
 }
 
 #
@@ -99,8 +109,7 @@ calendarTrends <- function(params, outputFolder) {
     trends <- c()
     for (fitIndex in 1:length(model$FitList)) {
         fit <- model$FitList[[fitIndex]]
-        range=unlist(params$yearRange)
-        save(range, file='~/Desktop/test.RData')
+        range <- unlist(params$yearRange)
         trends[[fitIndex]] <- aapc.multiints(fit, type = "AbsChgSur", int.select = unique(fit$predicted$Interval), ACS.range = unlist(params$yearRange), ACS.out = "user")
     }
     trends

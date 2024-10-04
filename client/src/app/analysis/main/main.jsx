@@ -24,10 +24,15 @@ export default function AnalysisMain({ id }) {
     refetchInterval: (data) =>
       data?.state?.data === "SUBMITTED" || data?.state?.data === "IN_PROGRESS" ? 5 * 1000 : false,
   });
+  const { data: manifest } = useQuery({
+    queryKey: ["manifest", id],
+    queryFn: () => fetchResults(id, "manifest"),
+    enabled: jobStatus === "COMPLETED",
+  });
   const { data: results } = useQuery({
     queryKey: ["results", id, cohortIndex],
     queryFn: () => fetchResults(id, cohortIndex),
-    enabled: jobStatus === "COMPLETED",
+    enabled: jobStatus === "COMPLETED" && !!cohortIndex,
   });
 
   function setFitIndex(index) {
@@ -37,9 +42,9 @@ export default function AnalysisMain({ id }) {
   return (
     <Container>
       <code>{JSON.stringify(jobStatus)}</code>
+      {params.id && manifest && <CohortSelect params={params} manifest={manifest} />}
       {results && seerData && Object.keys(seerData).length > 0 && Object.keys(params).length > 0 && (
         <>
-          <CohortSelect params={params} />
           <ModelTable data={results} handleRowSelect={setFitIndex} />
           <Tabs defaultActiveKey="survival" className="my-3">
             <Tab eventKey="survival" title="Survival vs. Year at Diagnosis">
