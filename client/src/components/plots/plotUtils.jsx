@@ -116,7 +116,7 @@ export function makeLayout(range, title, xTitle, yTitle) {
       autorange: false,
     },
     height: 700,
-    width: 900,
+    width: 1000,
   };
 }
 
