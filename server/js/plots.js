@@ -117,7 +117,7 @@ export function makeLayout(divId, range, xTitle, yTitle, statistic, modelInfo) {
       autorange: false,
     },
     height: 700,
-    width: 900,
+    width: 1000,
   };
 }
 
@@ -248,8 +248,8 @@ export function processPlotData(divID, x, yMark, yLine, dimension, trends) {
           divID != 'timePlot'
             ? divID == 'yearPlot'
               ? `${interval}-year Predicted`
-              : `Interval ${interval - 1}-${interval}`
-            : interval,
+              : `Interval ${interval - 1}-${interval} Predicted`
+            : `${interval} Predicted`,
         legendgroup: interval,
       };
 
