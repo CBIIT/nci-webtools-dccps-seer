@@ -364,7 +364,13 @@ function loadConditionalResults(model) {
     const layout = makeLayout(divId, [Math.min(...years), Math.max(...years)], xTitle, yTitle, statistic, modelInfo);
     const traces = dataPerInterval.map((e) => e.traces).flat();
 
-    drawPlot(divId, traces, layout);
+    drawPlot(divId, traces, {
+      ...layout,
+      title: `<b>Conditional ${statistic} (Given Alive at ${intervalRanges
+        .map((e) => e[0])
+        .sort()
+        .join(', ')} Years) by Diagnosis Year</b><br>${modelInfo}`,
+    });
 
     //Add the Year Table
     const obsIntSur = statistic.replace('Cum', 'Interval') + ' (%)';
@@ -481,7 +487,7 @@ function generateTimePlotData(selectedYears, allYears, data, yearCol, start, end
     //     [1]
     //   )
     //   .map((e) => e * 100);
-    const traceGroup = `${year} (Int. ${start} - ${end})`;
+    const traceGroup = year;
 
     const observedTraces = makeMarkerTrace(
       divId,
@@ -561,7 +567,7 @@ function renderTimePlot(dataPerInterval, intervalRanges, divId) {
     const { controlIndex, start } = plotData[0];
     const layout = {
       ...makeLayout(divId, [minInterval, maxInterval], xTitle, yTitle, statistic, modelInfo),
-      title: `<b>Conditional ${statistic} (Given Alive at ${minInterval} years) by Year Since Diagnosis for Selected Diagnosis Year</b>${
+      title: `<b>Conditional ${statistic} (Given Alive at ${start} Years) by Year Since Diagnosis for Selected Diagnosis Year</b>${
         modelInfo ? '<br>' + modelInfo : ''
       }`,
     };
