@@ -31,6 +31,8 @@ window.jpsurvData = {
   stage2completed: 0,
   mapping: {},
   recalculateConditional: {},
+  viewConditional: false,
+  merged: false,
 };
 window.maxJP = 2;
 window.first_modal = true;
@@ -2076,7 +2078,7 @@ function setupParameters() {
       jpsurvData.calculate.form.conditional = true;
       // disable relax proportionality
       $('#toggleRelaxProp').prop('disabled', true);
-      $('#toggleRelaxProp').prop('checked', false).change();
+      $('#toggleRelaxProp').prop('checked', false).trigger('change');
     } else {
       $('#conditionalForm').attr('class', 'form d-none');
       jpsurvData.calculate.form.conditional = false;
@@ -2091,7 +2093,7 @@ function setupParameters() {
       jpsurvData.calculate.form.relaxProp = true;
       // disable conditional survival
       $('#toggleConditionalJp').prop('disabled', true);
-      $('#toggleConditionalJp').prop('checked', false).change();
+      $('#toggleConditionalJp').prop('checked', false).trigger('change');
     } else {
       $('#relaxPropForm').addClass('d-none');
       $('#maxCutPoint').prop('disabled', true);
@@ -2529,7 +2531,7 @@ function jpsurvRest2(action, callback) {
     });
 }
 
-function displayCommFail(id, jqXHR, textStatus) {
+export function displayCommFail(id, jqXHR, textStatus) {
   console.warn('jqXHR', jqXHR);
   var message;
   // ERROR

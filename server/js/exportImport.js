@@ -11,6 +11,7 @@ import {
   setRun,
   setAbsChangeDefault,
   buildTimeYod,
+  displayCommFail,
 } from './jpsurv.js';
 
 $(document).ready(function () {
@@ -97,6 +98,7 @@ export function exportBackEnd(event) {
   data.email = jpsurvData.queue.email;
   data.intervals = jpsurvData.additional.intervals.toString();
   data.diagnosisYear = jpsurvData.results.yod;
+  data.calculateForm = JSON.stringify(jpsurvData.calculate.form);
 
   // save selected model and cohort
   data.headerJP = jpsurvData.additional.headerJoinPoints;
@@ -176,12 +178,13 @@ async function updatePageAfterRefresh(e) {
     getIntervals();
     parse_diagnosis_years();
     setData();
+    load_ajax_with_success_callback(createFormValuesFilename(), setCalculationForm);
     const resultsFiles = await (await fetch(`jpsurvRest/list-results?tokenId=${jpsurvData.tokenId}`)).json();
-    const resultsUrl = `jpsurvRest/results?file=${resultsFiles[0]}&tokenId=${jpsurvData.tokenId}`
+    const resultsUrl = `jpsurvRest/results?file=${resultsFiles[0]}&tokenId=${jpsurvData.tokenId}`;
     load_ajax_with_success_callback(resultsUrl, loadResults);
     load_ajax_with_success_callback(createFormValuesFilename(), retrieveCohortComboResults);
     updateCohortDropdown();
-    updateCutPointOptions();
+    if (jpsurvData.calculate.form.relaxProp) updateCutPointOptions();
     setRun();
     setAbsChangeDefault();
     buildTimeYod();
@@ -291,6 +294,18 @@ function loadUserInput(data) {
     $('#interval-years').val(intervals);
     $('#interval-years-death').val(intervals);
     $('#year-of-diagnosis').val(data.diagnosisYear);
+
+    const form = JSON.parse(data.calculateForm);
+    if (form.conditional) {
+      $('#condIntStart').val(form.condIntStart).trigger('change');
+      $('#condIntEnd').val(form.condIntEnd).trigger('change');
+      $('#toggleConditionalJp').prop('checked', true).trigger('change');
+    }
+    if (form.relaxProp) {
+      $('#maxCutPoint').val(form.maxCutPoint).trigger('change');
+      $('#toggleRelaxProp').prop('checked', true).trigger('change');
+    }
+    $('#conditionalRecalcVis').toggleClass('d-none', form.conditional || form.relaxProp);
   }
 
   /*
@@ -362,20 +377,14 @@ function setEventHandlerForImports() {
   }
 }
 
-/* Copied from https://stackoverflow.com/questions/8532406/create-a-random-token-in-javascript-based-on-user-details */
-function generateToken(n) {
-  var chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  var token = '';
-  for (var i = 0; i < n; i++) {
-    token += chars[Math.floor(Math.random() * chars.length)];
-  }
-  return token;
-}
-
 // Returns a String that can be attached to a URL
 //
 // Input : An object literal
 // Output ; The query string including the "?" to start the section
 function generateQueryParameterStr(data) {
   return '?' + $.param(data);
+}
+
+function setCalculationForm(data) {
+  jpsurvData.calculate.form = JSON.parse(data.calculateForm);
 }
