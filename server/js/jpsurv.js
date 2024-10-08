@@ -181,7 +181,6 @@ function checkUnselectedCohorts() {
 }
 
 function useQueue() {
-  return false;
   return parseInt($('#max_join_point_select').val()) > maxJP || check_multiple() == true || checkUnselected() == true;
 }
 

@@ -485,7 +485,7 @@ export async function drawLineChart(divID, x, yMark, yLine, dimension, trends, m
 export function addAnnotation(plot) {
   const xData = plot.data[0].x;
   const xMean = xData.reduce((a, b) => a + b) / xData.length;
-  const yData = plot.data[0].y;
+  const yData = plot.data[0].y.filter(Boolean);
   const yMean = yData.reduce((a, b) => a + b) / yData.length;
   const index = plot.layout.annotations ? plot.layout.annotations.length : 0;
   Plotly.relayout(plot, `annotations[${index}]`, {
