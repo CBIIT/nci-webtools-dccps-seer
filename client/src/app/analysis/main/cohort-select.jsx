@@ -36,7 +36,7 @@ export default function CohortSelect({ params, manifest }) {
           Cohort
         </Form.Label>
         <Col sm="auto">
-          <Form.Select value={cohortIndex} onChange={handleCohortChange}>
+          <Form.Select value={cohortIndex || ""} onChange={handleCohortChange}>
             {cohortComboIndexes.map((r_index, i) => (
               <option key={i} value={r_index}>
                 {params.cohortCombos[r_index - 1]
