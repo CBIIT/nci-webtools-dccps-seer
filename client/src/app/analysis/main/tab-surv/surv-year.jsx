@@ -183,7 +183,7 @@ export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fi
       </Row>
       <Row>
         <Col>
-          {calendarTrend && (
+          {calendarTrend && calTrendData.length > 0 && (
             <div className="mt-3">
               <h5>Trend Measures for User Selected Years</h5>
               <TrendTable data={calTrendData[fitIndex]} seerData={seerData} params={params} />
