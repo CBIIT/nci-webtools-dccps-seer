@@ -27,6 +27,7 @@ calculateJoinpoint <- function(inputFolder, outputFolder) {
     manifest <- lapply(seq_along(cohortSubsets), function(cohortComboIndex) {
         tryCatch(
             {
+                # calculate unconditional model
                 model <- joinpoint(
                     data = data,
                     subset = cohortSubsets[[cohortComboIndex]],
@@ -40,22 +41,26 @@ calculateJoinpoint <- function(inputFolder, outputFolder) {
                 )
                 save(model, file = file.path(outputFolder, sprintf("%s.RData", cohortComboIndex)))
 
+                # calculate trend measures
                 for (fitIndex in 1:length(model$FitList)) {
                     fit <- model$FitList[[fitIndex]]
                     fit$survTrend <- aapc.multiints(fit, type = "AbsChgSur", int.select = unique(model$Interval))
                     fit$deathTrend <- aapc.multiints(fit, type = "RelChgHaz", int.select = unique(model$Interval))
                     model$FitList[[fitIndex]] <- fit
                 }
+                # save model coefficients to a separate file to preserve data structure
                 coef <- c()
                 for (fit in model$FitList) {
                     coef[[length(coef) + 1]] <- as.data.frame(fit$coefficients)
                 }
+
+                # save results to file
                 coefficientsFilename <- sprintf("%s-coefficients.json", cohortComboIndex)
                 modelFilename <- sprintf("%s.json", cohortComboIndex)
                 write_json(coef, path = file.path(outputFolder, coefficientsFilename), auto_unbox = TRUE)
                 write_json(model$FitList, path = file.path(outputFolder, modelFilename), auto_unbox = TRUE)
 
-                list("coefficients" = coefficientsFilename, "model" = modelFilename, "r_index" = cohortComboIndex, "subset" = cohortSubsets[[cohortComboIndex]])
+                list("coefficients" = coefficientsFilename, "model" = modelFilename, "r_index" = cohortComboIndex, "cohort" = cohortSubsets[[cohortComboIndex]])
             },
             error = function(e) {
                 e$message
@@ -65,7 +70,7 @@ calculateJoinpoint <- function(inputFolder, outputFolder) {
     write_json(manifest, path = file.path(outputFolder, "manifest.json"), auto_unbox = TRUE)
 }
 
-#
+# scale data from whole numbers to proportional percentage value
 toProportion <- function(data) {
     columns <- c(
         "Observed_Survival_Cum",
@@ -102,6 +107,7 @@ toProportion <- function(data) {
     data
 }
 
+# get surv-year trends for specific calendar years
 calendarTrends <- function(params, outputFolder) {
     library(JPSurv)
     # load previous calculated model
@@ -113,4 +119,12 @@ calendarTrends <- function(params, outputFolder) {
         trends[[fitIndex]] <- aapc.multiints(fit, type = "AbsChgSur", int.select = unique(fit$predicted$Interval), ACS.range = unlist(params$yearRange), ACS.out = "user")
     }
     trends
+}
+
+#
+joinpointConditional <- function(params, outputFolder) {
+    library(JPSurv)
+    # load previous calculated model
+    load(file.path(outputFolder, paste0(params$cohortIndex, ".RData")))
+    joinpoint.conditional(model, params$conditionalIntervals$start, params$conditionalIntervals$end, params$fitIndex)
 }

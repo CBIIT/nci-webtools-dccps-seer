@@ -7,7 +7,7 @@ import multer from "multer";
 import path from "path";
 import DiskStorage from "./storage.js";
 import { logRequests, logErrors, logFiles, handleValidationErrors } from "./middleware.js";
-import { getCalendarTrends, submit } from "./analysis.js";
+import { getCalendarTrends, recalculateConditional, submit } from "./analysis.js";
 
 export function createApi(env) {
   // define middleware
@@ -41,6 +41,10 @@ export function createApi(env) {
 
   router.post("/calendarTrends/:id", validate, handleValidationErrors, async (req, res) => {
     res.json(await getCalendarTrends({ ...req.body, id: req.params.id }, req.app.locals.logger));
+  });
+
+  router.post("/recalculateConditional/:id", validate, handleValidationErrors, async (req, res) => {
+    res.json(await recalculateConditional({ ...req.body, id: req.params.id }, req.app.locals.logger));
   });
 
   router.use(logErrors());

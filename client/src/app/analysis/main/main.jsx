@@ -10,12 +10,15 @@ import CohortSelect from "./cohort-select";
 import { useStore } from "../store";
 import { fetchStatus, fetchResults } from "../queries";
 import ModelEstimates from "./tab-model-estimates/model-estimates";
+import ConditionalForm from "./conditional-form";
 
 export default function AnalysisMain({ id }) {
   const setState = useStore((state) => state.setState);
   const seerData = useStore((state) => state.seerData);
   const params = useStore((state) => state.params);
   const { cohortIndex, fitIndex } = useStore((state) => state.main);
+  const useConditional = useStore((state) => state.useConditional);
+  const conditional = useStore((state) => state.conditional);
 
   const { data: jobStatus } = useQuery({
     queryKey: ["status", id],
@@ -46,6 +49,13 @@ export default function AnalysisMain({ id }) {
       {results && seerData && Object.keys(seerData).length > 0 && Object.keys(params).length > 0 && (
         <>
           <ModelTable data={results} handleRowSelect={setFitIndex} />
+          <ConditionalForm
+            data={results[fitIndex]}
+            seerData={seerData}
+            params={params}
+            cohortIndex={cohortIndex}
+            fitIndex={fitIndex}
+          />
           <Tabs defaultActiveKey="survival" className="my-3">
             <Tab eventKey="survival" title="Survival vs. Year at Diagnosis">
               <SurvivalVsYear
@@ -54,13 +64,24 @@ export default function AnalysisMain({ id }) {
                 params={params}
                 cohortIndex={cohortIndex}
                 fitIndex={fitIndex}
+                conditional={useConditional ? conditional : null}
               />
             </Tab>
-            <Tab eventKey="death" title="Death vs. Year at Diagnosis">
-              <DeathVsYear data={results[fitIndex]} seerData={seerData} params={params} />
+            <Tab eventKey="death" title="Death vs. Year at Diagnosis" disabled={useConditional}>
+              <DeathVsYear
+                data={results[fitIndex]}
+                seerData={seerData}
+                params={params}
+                conditional={useConditional ? conditional : null}
+              />
             </Tab>
             <Tab eventKey="time" title="Survival vs. Time Since Diagnosis">
-              <SurvivalVsTime data={results[fitIndex].fullpredicted} seerData={seerData} params={params} />
+              <SurvivalVsTime
+                data={results[fitIndex].fullpredicted}
+                seerData={seerData}
+                params={params}
+                conditional={useConditional ? conditional : null}
+              />
             </Tab>
             <Tab eventKey="estimates" title="Model Estimates">
               <ModelEstimates id={id} cohortIndex={cohortIndex} fitIndex={fitIndex} />

@@ -32,6 +32,8 @@ export const defaultState = {
   seerData: {},
   modelOptions: {},
   openSidebar: true,
+  useConditional: false,
+  conditional: null,
 };
 
 export const useStore = create((set) => ({

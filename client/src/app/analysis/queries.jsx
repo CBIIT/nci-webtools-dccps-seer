@@ -21,3 +21,8 @@ export async function submit(id, params) {
 export async function calculateCalendarTrends(id, params) {
   return await axios.post(`api/calendarTrends/${id}`, params);
 }
+
+export async function recalculateConditional(id,params) {
+  return await axios.post(`api/recalculateConditional/${id}`, params);
+
+}

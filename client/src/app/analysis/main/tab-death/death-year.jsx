@@ -1,5 +1,5 @@
 "use client";
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { Container, Row, Col, Form } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import SelectHookForm from "@/components/selectHookForm";
@@ -7,8 +7,8 @@ import DeathYearPlot from "./death-year-plot";
 import DeathYearTable from "./death-year-table";
 import TrendTable from "./death-trend-table";
 
-export default function DeathVsYear({ data, seerData, params }) {
-  const intervalOptions = [...new Set(data.fullpredicted.map((e) => e.Interval))];
+export default function DeathVsYear({ data, seerData, params, conditional }) {
+  const intervalOptions = [...new Set((conditional || data.fullpredicted).map((e) => e.Interval))];
   const defaultInterval = intervalOptions.includes(5) ? 5 : Math.max(...intervalOptions);
   const { control, register, watch, setValue } = useForm({
     defaultValues: { intervals: [defaultInterval], trendJp: false, useRange: false, trendRange: [] },
@@ -22,17 +22,26 @@ export default function DeathVsYear({ data, seerData, params }) {
   const predictedHeader = "pred_int";
   const predictedSeHeader = "pred_int_se";
   const memoData = useMemo(() => {
-    const filterInts = data.fullpredicted.filter((e) => intervals.includes(e.Interval));
+    const filterInts = (conditional || data.fullpredicted).filter((e) => intervals.includes(e.Interval));
     return filterInts.map((e) => ({
       ...e,
       [observedHeader]: e[observedHeader] ? 1 - e[observedHeader] : e[observedHeader],
       [predictedHeader]: e[predictedHeader] ? 1 - e[predictedHeader] : e[predictedHeader],
     }));
-  }, [data, intervals]);
+  }, [data, conditional, intervals]);
   const trendData = useMemo(
     () => data.deathTrend.reduce((acc, ar) => [...acc, ...ar], []).filter((e) => intervals.includes(e.interval)),
     [data, intervals]
   );
+
+  // disable trends for conditional recalculation
+  useEffect(() => {
+    if (trendJp && !!conditional) setValue("trendJp", false);
+  }, [conditional, trendJp]);
+  // auto select interval on conditional recalculation switch
+  useEffect(() => {
+    if (!intervalOptions.includes(intervals)) setValue("intervals", [...intervals, defaultInterval]);
+  }, [conditional, defaultInterval]);
 
   return (
     <Container fluid>
@@ -81,7 +90,7 @@ export default function DeathVsYear({ data, seerData, params }) {
             data={memoData}
             seerData={seerData}
             params={params}
-            title={"Annual Probability of Dying of Cancer by Diagnosis Year"}
+            title={`${conditional ? "Conditional " : ""}` + "Annual Probability of Dying of Cancer by Diagnosis Year"}
             xTitle={"Year of Diagnosis"}
             yTitle={`Annual Probability of Cancer Death (%)`}
             observedHeader={observedHeader}

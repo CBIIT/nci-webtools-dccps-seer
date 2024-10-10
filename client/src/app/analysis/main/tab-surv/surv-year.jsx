@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Container, Row, Col, Form, Button, Spinner } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -8,34 +8,39 @@ import SelectHookForm from "@/components/selectHookForm";
 import SurvYearPlot from "./surv-year-plot";
 import SurvYearTable from "./surv-year-table";
 import TrendTable from "./surv-trend-table";
-
-export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fitIndex }) {
+export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fitIndex, conditional }) {
   const queryClient = useQueryClient();
   const isFetching = queryClient.isFetching();
-  const intervalOptions = [...new Set(data.fullpredicted.map((e) => e.Interval))];
+  const intervalOptions = [...new Set((conditional || data.fullpredicted).map((e) => e.Interval))];
   const defaultInterval = intervalOptions.includes(5) ? 5 : Math.max(...intervalOptions);
+
   const {
     control,
     register,
     watch,
+    setValue,
     handleSubmit,
     formState: { errors },
   } = useForm({
     defaultValues: {
       intervals: [defaultInterval],
-      survTrend: false,
+      trendJp: false,
       calendarTrend: false,
       trendStart: "",
       trendEnd: "",
     },
   });
+
   const intervals = watch("intervals");
   const trendJp = watch("trendJp");
   const calendarTrend = watch("calendarTrend");
   const statistic = seerData?.config["Session Options"]["Statistic"];
   const yearStart = +seerData.seerStatDictionary.filter((e) => e.name === params.year)[0]["factors"][0].label;
   const yearOptions = [...new Set(data.predicted.map((e) => e[params.year]))];
-  const memoData = useMemo(() => data.fullpredicted.filter((e) => intervals.includes(e.Interval)), [data, intervals]);
+  const memoData = useMemo(
+    () => (conditional || data.fullpredicted).filter((e) => intervals.includes(e.Interval)),
+    [data, conditional, intervals]
+  );
   const trendData = useMemo(
     () => data.survTrend.reduce((acc, ar) => [...acc, ...ar], []).filter((e) => intervals.includes(e.interval)),
     [data, intervals]
@@ -45,6 +50,16 @@ export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fi
   const observedSeHeader = observedHeader?.includes("Relative") ? "Relative_SE_Cum" : "CauseSpecific_SE_Cum";
   const predictedHeader = "pred_cum";
   const predictedSeHeader = "pred_cum_se";
+
+  // disable trends for conditional recalculation
+  useEffect(() => {
+    if (trendJp && !!conditional) setValue("trendJp", false);
+    if (calendarTrend && !!conditional) setValue("calendarTrend", false);
+  }, [conditional, trendJp, calendarTrend]);
+  // auto select interval on conditional recalculation switch
+  useEffect(() => {
+    if (!intervalOptions.includes(intervals)) setValue("intervals", [...intervals, defaultInterval]);
+  }, [conditional, defaultInterval]);
 
   async function getCalendarTrend(form) {
     try {
@@ -92,10 +107,11 @@ export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fi
                 <Form.Group>
                   <Form.Check
                     {...register("trendJp")}
-                    id="survTrend"
+                    id="trendJp"
                     label="Between Joinpoints"
                     aria-label="Between Joinpoints"
                     type="checkbox"
+                    disabled={conditional}
                   />
                 </Form.Group>
               </Col>
@@ -109,6 +125,7 @@ export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fi
                     label="Between Calendar Years of Diagnosis"
                     aria-label="Between Calendar Years of Diagnosis"
                     type="checkbox"
+                    disabled={conditional}
                   />
                 </Form.Group>
               </Col>
@@ -197,7 +214,7 @@ export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fi
             data={memoData}
             seerData={seerData}
             params={params}
-            title={`${statistic} by Diagnosis Year`}
+            title={`${conditional ? "Conditional " : ""}${statistic} by Diagnosis Year`}
             xTitle={"Year of Diagnosis"}
             yTitle={`${statistic} (%)`}
             observedHeader={observedHeader}

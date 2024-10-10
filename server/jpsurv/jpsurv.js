@@ -63,3 +63,10 @@ export async function calendarTrends(params, logger, env) {
 
   return await r.async("jpsurv/jpsurv.R", "calendarTrends", { params, outputFolder });
 }
+
+export async function joinpointConditional(params,logger,env) {
+  const id = params.id;
+  const outputFolder = path.resolve(env.OUTPUT_FOLDER, id);
+
+  return await r.async("jpsurv/jpsurv.R", "joinpointConditional", { params, outputFolder });
+}

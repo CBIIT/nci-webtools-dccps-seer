@@ -6,7 +6,7 @@ import SelectHookForm from "@/components/selectHookForm";
 import SurvTimePlot from "./surv-time-plot";
 import SurvTimeTable from "./surv-time-table";
 
-export default function SurvivalVsTime({ data, seerData, params }) {
+export default function SurvivalVsTime({ data, seerData, params, conditional }) {
   const statistic = seerData?.config["Session Options"]["Statistic"];
   const observedHeader = params?.observed;
   const predictedHeader = "pred_cum";
@@ -17,7 +17,13 @@ export default function SurvivalVsTime({ data, seerData, params }) {
     defaultValues: { years: [0] },
   });
   const years = watch("years");
-  const memoData = useMemo(() => data.filter((e) => years.includes(e[params.year]), [data, years]));
+  const memoData = useMemo(() =>
+    (conditional || data).filter((e) => years.includes(e[params.year]), [data, conditional, years])
+  );
+  const yearOptions = [...new Set((conditional || data).map((e) => yearDic[e[params.year]]))].map((e) => ({
+    label: e,
+    value: +Object.keys(yearDic).find((key) => yearDic[key] === e),
+  }));
 
   return (
     <Container fluid>
@@ -25,16 +31,7 @@ export default function SurvivalVsTime({ data, seerData, params }) {
         <Col className="p-3 border rounded">
           <Row>
             <Col sm="auto">
-              <SelectHookForm
-                name="years"
-                label="Year of Diagnosis"
-                options={[...new Set(data.map((e) => yearDic[e[params.year]]))].map((e) => ({
-                  label: e,
-                  value: +Object.keys(yearDic).find((key) => yearDic[key] === e),
-                }))}
-                control={control}
-                isMulti
-              />
+              <SelectHookForm name="years" label="Year of Diagnosis" options={yearOptions} control={control} isMulti />
             </Col>
           </Row>
         </Col>
@@ -45,7 +42,7 @@ export default function SurvivalVsTime({ data, seerData, params }) {
             data={memoData}
             seerData={seerData}
             params={params}
-            title={`${statistic} by Diagnosis Year for Selected Diagnosis Year`}
+            title={`${conditional ? "Conditional " : ""}${statistic} by Diagnosis Year for Selected Diagnosis Year`}
             xTitle={"Interval"}
             yTitle={`${statistic} (%)`}
             observedHeader={observedHeader}
