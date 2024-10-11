@@ -37,7 +37,7 @@ export default function ModelTable({ data, handleRowSelect }) {
     }),
     columnHelper.accessor("index", {
       id: "jp",
-      header: () => "Number of Joinpoints",
+      header: () => "Joinpoints",
       cell: (info) => info.getValue(),
     }),
     columnHelper.accessor("bic", {
