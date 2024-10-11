@@ -42,6 +42,13 @@ export default function AnalysisMain({ id }) {
     setState({ main: { cohortIndex, fitIndex: index } });
   }
 
+  // periodically dispatch resize event to trigger plotly redraw
+  // useEffect(() => {
+  //   setInterval(() => {
+  //     dispatchEvent(new Event("resize"));
+  //   }, 1000);
+  // }, []);
+
   return (
     <Container>
       <code>{JSON.stringify(jobStatus)}</code>

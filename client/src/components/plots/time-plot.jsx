@@ -1,4 +1,3 @@
-
 "use client";
 import dynamic from "next/dynamic";
 import { Container, Row, Col } from "react-bootstrap";
