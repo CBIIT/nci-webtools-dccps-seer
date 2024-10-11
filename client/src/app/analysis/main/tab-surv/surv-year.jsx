@@ -134,6 +134,7 @@ export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fi
                   <Form.Label>From</Form.Label>
                   <Form.Select
                     {...register("trendStart", {
+                      valueAsNumber: true,
                       required: calendarTrend ? "Required" : false,
                       validate: (value, form) =>
                         value < form.trendEnd || `Must be less than ${+form.trendEnd + yearStart}`,
@@ -154,6 +155,7 @@ export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fi
                   <Form.Label>To</Form.Label>
                   <Form.Select
                     {...register("trendEnd", {
+                      valueAsNumber: true,
                       required: calendarTrend ? "Required" : false,
                       validate: (value, form) =>
                         value > form.trendStart || `Must be greater than ${+form.trendStart + yearStart}`,
