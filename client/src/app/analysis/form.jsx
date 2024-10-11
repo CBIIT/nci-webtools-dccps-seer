@@ -23,7 +23,6 @@ export default function AnalysisForm({ id }) {
   const queryClient = useQueryClient();
   const router = useRouter();
   const pathname = usePathname();
-  // const { setState, resetStore, seerData, modelOptions } = useStore((state) => state);
   const setState = useStore((state) => state.setState);
   const resetStore = useStore((state) => state.resetStore);
   const seerData = useStore((state) => state.seerData);
