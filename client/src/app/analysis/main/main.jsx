@@ -45,7 +45,7 @@ export default function AnalysisMain({ id }) {
   return (
     <Container>
       <code>{JSON.stringify(jobStatus)}</code>
-      {params.id && manifest && <CohortSelect params={params} manifest={manifest} />}
+      {params.id && manifest && <CohortSelect className="mb-3" params={params} manifest={manifest} />}
       {results && seerData && Object.keys(seerData).length > 0 && Object.keys(params).length > 0 && (
         <>
           <ModelTable data={results} handleRowSelect={setFitIndex} />

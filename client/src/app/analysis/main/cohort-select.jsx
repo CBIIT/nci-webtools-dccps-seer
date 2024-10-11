@@ -6,7 +6,7 @@ import Col from "react-bootstrap/Col";
 import Alert from "react-bootstrap/Alert";
 import { useStore } from "../store";
 
-export default function CohortSelect({ params, manifest }) {
+export default function CohortSelect({ params, manifest, className }) {
   const setState = useStore((state) => state.setState);
   const { cohortIndex, ...rest } = useStore((state) => state.main);
   const errors = manifest.filter((e) => typeof e === "string");
@@ -21,7 +21,7 @@ export default function CohortSelect({ params, manifest }) {
   }
 
   return (
-    <Form>
+    <Form className={className}>
       {errors.length > 0 && (
         <Alert variant="warning" dismissible>
           <ul>
