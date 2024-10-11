@@ -27,18 +27,44 @@ calculateJoinpoint <- function(inputFolder, outputFolder) {
     manifest <- lapply(seq_along(cohortSubsets), function(cohortComboIndex) {
         tryCatch(
             {
-                # calculate unconditional model
-                model <- joinpoint(
-                    data = data,
-                    subset = cohortSubsets[[cohortComboIndex]],
-                    year = params$year,
-                    observedrelsurv = params$observed,
-                    model.form = ~NULL,
-                    maxnum.jp = params$maxJp,
-                    delLastIntvl = params$delLastIntvl,
-                    proj.year.num = params$projectedYears,
-                    op = list("numbetwn" = params$numbetwn, "numfromstart" = params$numfromstart, "numtoend" = params$numtoend)
-                )
+                model <- NULL
+                if (params$useCondModel) {
+                    model <- joinpoint.cond(
+                        data = data,
+                        subset = cohortSubsets[[cohortComboIndex]],
+                        start.interval = params$conditionalStart,
+                        end.interval = params$conditionalEnd,
+                        year = params$year,
+                        model.form = ~NULL,
+                        delLastIntvl = params$delLastIntvl,
+                        maxnum.jp = params$maxJp,
+                        proj.year.num = params$projectedYears,
+                        op = list("numbetwn" = params$numbetwn, "numfromstart" = params$numfromstart, "numtoend" = params$numtoend)
+                    )
+                } else if (params$useRelaxModel) {
+                    model <- joinpoint.relaxProp(
+                        data = data,
+                        subset = cohortSubsets[[cohortComboIndex]],
+                        max.cutpoint = params$cutpoint,
+                        year = params$year, model.form = ~NULL,
+                        delLastIntvl = params$delLastIntvl,
+                        maxnum.jp = params$maxJp,
+                        proj.year.num = params$projectedYears,
+                        op = list("numbetwn" = params$numbetwn, "numfromstart" = params$numfromstart, "numtoend" = params$numtoend)
+                    )
+                } else { # calculate unconditional model
+                    model <- joinpoint(
+                        data = data,
+                        subset = cohortSubsets[[cohortComboIndex]],
+                        year = params$year,
+                        observedrelsurv = params$observed,
+                        model.form = ~NULL,
+                        maxnum.jp = params$maxJp,
+                        delLastIntvl = params$delLastIntvl,
+                        proj.year.num = params$projectedYears,
+                        op = list("numbetwn" = params$numbetwn, "numfromstart" = params$numfromstart, "numtoend" = params$numtoend)
+                    )
+                }
                 save(model, file = file.path(outputFolder, sprintf("%s.RData", cohortComboIndex)))
 
                 # calculate trend measures

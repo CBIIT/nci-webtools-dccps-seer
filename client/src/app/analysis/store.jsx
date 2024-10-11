@@ -22,6 +22,8 @@ export const defaultForm = {
   sendNotification: false,
   jobName: "",
   email: "",
+  useCondModel: false,
+  useRelaxModel: false,
   ...defaultAdvOptions,
 };
 

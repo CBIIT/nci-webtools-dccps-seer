@@ -47,6 +47,8 @@ export default function AnalysisForm({ id }) {
   const inputType = watch("inputType");
   const inputFile = watch("inputFile");
   const sendNotification = watch("sendNotification");
+  const useCondModel = watch("useCondModel");
+  const useRelaxModel = watch("useRelaxModel");
 
   const submitForm = useMutation({
     mutationFn: ({ id, params }) => submit(id, params),
@@ -83,10 +85,8 @@ export default function AnalysisForm({ id }) {
   }
 
   function handleCohort(e, key) {
-    const { checked, value } = e.target;
-    const currentVal = getValues(key) || false;
+    const { checked } = e.target;
     setValue(key, checked);
-    // setValue(key, !currentVal);
   }
 
   async function handleLoadData() {
@@ -129,7 +129,7 @@ export default function AnalysisForm({ id }) {
     // const intervals = [...Array(+config["Session Options"]["NumberOfIntervals"]).keys()].map((i) => i + 1);
     // by default, use 25 years of follow-up (less if there are fewer years of follow-up in the data)
     const interval = Math.min(25, getMaxFollowUpYears(config));
-
+    const allIntervals = intervals.map((e) => e.value);
     // get cohort variables, located between year of diagnosis and interval variables
     const varNames = seerStatDictionary.map((e) => e.label);
     const yearIndex = varNames.indexOf(yearOptions[0].label);
@@ -144,6 +144,8 @@ export default function AnalysisForm({ id }) {
     setValue("yearStart", yearRangeOptions[0]?.value);
     setValue("yearEnd", yearRangeOptions?.at(-1).value);
     setValue("interval", interval);
+    setValue("conditionalEnd", intervals.at(-1).value);
+    setValue("cutpoint", allIntervals.includes(5) ? 5 : Math.max(allIntervals));
 
     setState({ modelOptions: { yearOptions, yearRangeOptions, intervals, cohortVariables } });
   }
@@ -295,7 +297,7 @@ export default function AnalysisForm({ id }) {
 
             <Form.Label className="required fw-bold">Year of Diagnosis Range</Form.Label>
             <Row className="mb-4">
-              <Col s="auto">
+              <Col sm="auto">
                 <Form.Select {...register("yearStart", { required: true })} required aria-label="Year Start">
                   {modelOptions.yearRangeOptions.map((e) => (
                     <option key={"start" + e.value} value={+e.value}>
@@ -304,7 +306,7 @@ export default function AnalysisForm({ id }) {
                   ))}
                 </Form.Select>
               </Col>
-              <Col s="auto">
+              <Col sm="auto">
                 <Form.Select {...register("yearEnd", { required: true })} required aria-label="Year End">
                   {modelOptions.yearRangeOptions.map((e) => (
                     <option key={"end" + e.value} value={+e.value}>
@@ -317,9 +319,9 @@ export default function AnalysisForm({ id }) {
 
             <Form.Group className="mb-4" controlId="interval">
               <Form.Label className="required fw-bold">Interval</Form.Label>
-              <Form.Select required {...register("interval", { required: true })}>
+              <Form.Select required {...register("interval", { required: true, valueAsNumber: true })}>
                 {modelOptions.intervals.map(({ label, value }) => (
-                  <option key={value} value={+value}>
+                  <option key={value} value={value}>
                     {`<= ${value}`}
                   </option>
                 ))}
@@ -354,7 +356,7 @@ export default function AnalysisForm({ id }) {
 
             <Form.Group className="mb-4" controlId="maxJp">
               <Form.Label className="required fw-bold">Maximum Joinpoints</Form.Label>
-              <Form.Select required {...register("maxJp", { required: true })}>
+              <Form.Select required {...register("maxJp", { required: true, valueAsNumber: true })}>
                 {[...Array(6).keys()].map((n) => (
                   <option key={n} value={+n}>
                     {n}
@@ -362,6 +364,103 @@ export default function AnalysisForm({ id }) {
                 ))}
               </Form.Select>
             </Form.Group>
+
+            <div className="mb-4">
+              <Form.Group>
+                <Form.Check
+                  {...register(`useCondModel`)}
+                  id="useCondModel"
+                  label={<b>Conditional Survival Model Using Truncated Data</b>}
+                  aria-label="calculate conditional model"
+                  type="checkbox"
+                  disabled={useRelaxModel}
+                />
+              </Form.Group>
+              {useCondModel && (
+                <div>
+                  <Form.Label>Interval Range</Form.Label>
+                  <Row>
+                    <Col sm="auto">
+                      <Form.Group className="d-flex align-items-center">
+                        <Form.Select
+                          {...register(`conditionalStart`, {
+                            valueAsNumber: true,
+                            required: useCondModel ? "Required" : false,
+                            validate: (value, form) =>
+                              value < form.conditionalEnd || `Must be less than ${form.conditionalEnd}`,
+                          })}
+                          isInvalid={errors?.conditionalStart}
+                          aria-label="Interval start">
+                          {modelOptions.intervals.map(({ value }) => (
+                            <option key={value} value={value}>
+                              {value}
+                            </option>
+                          ))}
+                        </Form.Select>
+                        <Form.Control.Feedback type="invalid">
+                          {errors?.conditionalStart && errors?.conditionalStart?.message}
+                        </Form.Control.Feedback>
+                      </Form.Group>
+                    </Col>
+                    <Col sm="auto">
+                      <Form.Group className="d-flex align-items-center">
+                        <Form.Select
+                          {...register(`conditionalEnd`, {
+                            valueAsNumber: true,
+                            required: useCondModel ? "Required" : false,
+                            validate: (value, form) =>
+                              value > form.conditionalStart || `Must be greater than ${form.conditionalStart}`,
+                          })}
+                          isInvalid={errors?.conditionalEnd}
+                          aria-label="Interval End">
+                          {modelOptions.intervals.map(({ value }) => (
+                            <option key={value} value={value}>
+                              {value}
+                            </option>
+                          ))}
+                        </Form.Select>
+                        <Form.Control.Feedback type="invalid">
+                          {errors?.conditionalEnd && errors?.conditionalEnd?.message}
+                        </Form.Control.Feedback>
+                      </Form.Group>
+                    </Col>
+                  </Row>
+                </div>
+              )}
+            </div>
+            <div className="mb-4">
+              <Form.Group>
+                <Form.Check
+                  {...register(`useRelaxModel`)}
+                  id="useRelaxModel"
+                  label={<b>Relax Proportionality</b>}
+                  aria-label="calculate relax proportionality model"
+                  type="checkbox"
+                  disabled={useCondModel}
+                />
+              </Form.Group>
+              {useRelaxModel && (
+                <Form.Group>
+                  <Form.Label>Cut Point</Form.Label>
+                  <Form.Select
+                    {...register(`cutpoint`, {
+                      valueAsNumber: true,
+                      required: useRelaxModel ? "Required" : false,
+                    })}
+                    aria-label="cut point">
+                    {modelOptions.intervals.slice(0, -1).map(({ value }) => (
+                      <option key={value} value={value}>
+                        {value}
+                      </option>
+                    ))}
+                  </Form.Select>
+                  <Form.Text>
+                    The cut-point is the time after diagnosis that splits data into two groups. Cluster 1 includes years
+                    1 to the cut-point. Separate JPSurv models are applied to each cluster.
+                  </Form.Text>
+                </Form.Group>
+              )}
+            </div>
 
             <Accordion className="mb-3">
               <Accordion.Item eventKey="0">
