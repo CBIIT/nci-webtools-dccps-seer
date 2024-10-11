@@ -25,8 +25,8 @@ export default function CohortSelect({ params, manifest, className }) {
       {errors.length > 0 && (
         <Alert variant="warning" dismissible>
           <ul>
-            {errors.map((e) => (
-              <li>{e}</li>
+            {errors.map((e, i) => (
+              <li key={i}>{e}</li>
             ))}
           </ul>
         </Alert>
