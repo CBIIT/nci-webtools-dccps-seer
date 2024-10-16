@@ -37,7 +37,7 @@ export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fi
   const trendJp = watch("trendJp");
   const calendarTrend = watch("calendarTrend");
   const statistic = seerData?.config["Session Options"]["Statistic"];
-  const yearStart = +seerData.seerStatDictionary.filter((e) => e.name === params.year)[0]["factors"][0].label;
+  const { firstYear } = params;
   const yearOptions = [...new Set(data.predicted.map((e) => e[params.year]))];
   const memoData = useMemo(
     () => (conditional || data.fullpredicted).filter((e) => intervals.includes(e.Interval)),
@@ -143,13 +143,13 @@ export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fi
                       valueAsNumber: true,
                       required: calendarTrend ? "Required" : false,
                       validate: (value, form) =>
-                        value < form.trendEnd || `Must be less than ${+form.trendEnd + yearStart}`,
+                        value < form.trendEnd || `Must be less than ${+form.trendEnd + firstYear}`,
                     })}
                     disabled={!calendarTrend}
                     isInvalid={errors?.trendStart}>
                     {yearOptions.map((year) => (
                       <option key={year} value={+year}>
-                        {year + yearStart}
+                        {year + firstYear}
                       </option>
                     ))}
                   </Form.Select>
@@ -164,13 +164,13 @@ export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fi
                       valueAsNumber: true,
                       required: calendarTrend ? "Required" : false,
                       validate: (value, form) =>
-                        value > form.trendStart || `Must be greater than ${+form.trendStart + yearStart}`,
+                        value > form.trendStart || `Must be greater than ${+form.trendStart + firstYear}`,
                     })}
                     disabled={!calendarTrend}
                     isInvalid={errors?.trendEnd}>
                     {yearOptions.map((year) => (
                       <option key={year} value={+year}>
-                        {year + yearStart}
+                        {year + firstYear}
                       </option>
                     ))}
                   </Form.Select>
@@ -197,7 +197,7 @@ export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fi
           {trendJp && (
             <div>
               <h5>Average Absolute Change in Survival</h5>
-              <TrendTable data={trendData} seerData={seerData} params={params} />
+              <TrendTable data={trendData} params={params} />
               <small>
                 Numbers represent the difference in cumulative survival rate (as the percent surviving) from one year at
                 diagnosis to the previous.
@@ -211,7 +211,7 @@ export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fi
           {calendarTrend && calTrendData.length > 0 && (
             <div className="mt-3">
               <h5>Trend Measures for User Selected Years</h5>
-              <TrendTable data={calTrendData[fitIndex]} seerData={seerData} params={params} />
+              <TrendTable data={calTrendData[fitIndex]} params={params} />
             </div>
           )}
         </Col>
@@ -220,7 +220,6 @@ export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fi
         <Col>
           <SurvYearPlot
             data={memoData}
-            seerData={seerData}
             params={params}
             title={`${conditional ? "Conditional " : ""}${statistic} by Diagnosis Year`}
             xTitle={"Year of Diagnosis"}
@@ -234,7 +233,6 @@ export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fi
         <Col>
           <SurvYearTable
             data={memoData}
-            seerData={seerData}
             params={params}
             observedHeader={observedHeader}
             observedSeHeader={observedSeHeader}

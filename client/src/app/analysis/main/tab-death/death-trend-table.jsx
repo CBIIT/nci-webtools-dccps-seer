@@ -2,8 +2,8 @@
 import Table from "@/components/table";
 import { createColumnHelper } from "@tanstack/react-table";
 
-export default function TrendTable({ data, seerData, params }) {
-  const yearStart = +seerData.seerStatDictionary.filter((e) => e.name === params.year)[0]["factors"][0].label;
+export default function TrendTable({ data, params }) {
+  const firstYear = params;
   const columnHelper = createColumnHelper();
   const columns = [
     columnHelper.accessor("interval", {
@@ -13,12 +13,12 @@ export default function TrendTable({ data, seerData, params }) {
     columnHelper.accessor((row) => row["start.year"], {
       id: "startYear",
       header: () => "Start Year",
-      cell: (d) => d.getValue() + yearStart,
+      cell: (d) => d.getValue() + firstYear,
     }),
     columnHelper.accessor((row) => row["end.year"], {
       id: "endYear",
       header: () => "End Year",
-      cell: (d) => d.getValue() + yearStart,
+      cell: (d) => d.getValue() + firstYear,
     }),
     columnHelper.accessor("estimate", {
       header: () => "Estimate pp",

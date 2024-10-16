@@ -11,8 +11,7 @@ export default function DeathYearTable({
   predictedHeader,
   predictedSeHeader,
 }) {
-  const yearStart = +seerData.seerStatDictionary.filter((e) => e.name === params.year)[0]["factors"][0].label;
-
+  const { yearStart } = params;
   const columnHelper = createColumnHelper();
   const columns = [
     columnHelper.accessor(params.year, {

@@ -4,7 +4,6 @@ import { createColumnHelper } from "@tanstack/react-table";
 
 export default function SurvYearTable({
   data,
-  seerData,
   params,
   observedHeader,
   observedSeHeader,
@@ -12,14 +11,13 @@ export default function SurvYearTable({
   predictedSeHeader,
   isRecalcCond = false,
 }) {
-  const yearStart = +seerData.seerStatDictionary.filter((e) => e.name === params.year)[0]["factors"][0].label;
-  const statistic = seerData?.config["Session Options"]["Statistic"];
+  const { statistic, firstYear } = params;
 
   const columnHelper = createColumnHelper();
   const columns = [
     columnHelper.accessor(params.year, {
       header: () => "Year of Diagnosis",
-      cell: (info) => info.getValue() + yearStart,
+      cell: (info) => info.getValue() + firstYear,
     }),
     columnHelper.accessor("Interval", {
       header: () => "Interval",

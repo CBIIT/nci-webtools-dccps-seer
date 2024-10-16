@@ -200,6 +200,7 @@ export default function AnalysisForm({ id }) {
     const { cohorts, cohortVars, cohortCombos } = processCohorts(formData);
     const statistic = seerData.config["Session Options"]["Statistic"];
     const rates = seerData.config["Session Options"]["RatesDisplayedAs"];
+    const firstYear = +seerData.seerStatDictionary.filter((e) => e.name === formData.year)[0]["factors"][0].label;
 
     const params = {
       ...formData,
@@ -209,6 +210,8 @@ export default function AnalysisForm({ id }) {
       cohortCombos,
       observed: statistic === "Relative Survival" ? "Relative_Survival_Cum" : "CauseSpecific_Survival_Cum",
       rates,
+      firstYear,
+      statistic,
       files: {
         dictionaryFile: seerData?.dictionaryFile,
         dataFile: seerData.dataFile,

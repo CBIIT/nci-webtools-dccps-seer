@@ -11,7 +11,6 @@ import Plot from "@/components/plots/survival-plot";
 
 export default function SurvYearPlot({
   data,
-  seerData,
   params,
   title,
   xTitle,
@@ -21,9 +20,7 @@ export default function SurvYearPlot({
   className = "",
   precision = 2,
 }) {
-  const statistic = seerData?.config["Session Options"]["Statistic"];
-  const yearStart = +seerData.seerStatDictionary.filter((e) => e.name === params.year)[0]["factors"][0].label;
-  const yearEnd = +seerData.seerStatDictionary.filter((e) => e.name === params.year)[0]["factors"].at(-1).label;
+  const { statistic, firstYear, yearStart, yearEnd } = params;
   const groupByInterval = groupBy(data, "Interval");
 
   const traces = Object.entries(groupByInterval)
@@ -35,7 +32,7 @@ export default function SurvYearPlot({
         observedTraceName,
         interval,
         index,
-        data.map((e) => e[params.year] + yearStart),
+        data.map((e) => e[params.year] + firstYear),
         data.map((e) => e[observedHeader]),
         statistic,
         precision
@@ -49,7 +46,7 @@ export default function SurvYearPlot({
         predictedTraceName,
         interval,
         index,
-        predictedData.map((e) => e[params.year] + yearStart),
+        predictedData.map((e) => e[params.year] + firstYear),
         predictedData.map((e) => e[predictedHeader]),
         statistic,
         precision
@@ -58,7 +55,7 @@ export default function SurvYearPlot({
         projectedTraceName,
         interval,
         index,
-        projectedData.map((e) => e[params.year] + yearStart),
+        projectedData.map((e) => e[params.year] + firstYear),
         projectedData.map((e) => e[predictedHeader]),
         statistic,
         precision

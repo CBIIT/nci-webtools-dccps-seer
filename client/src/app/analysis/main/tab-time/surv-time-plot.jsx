@@ -5,7 +5,6 @@ import Plot from "@/components/plots/time-plot";
 
 export default function SurvTimePlot({
   data,
-  seerData,
   params,
   title,
   xTitle,
@@ -15,16 +14,15 @@ export default function SurvTimePlot({
   className = "",
   precision = 2,
 }) {
-  const statistic = seerData?.config["Session Options"]["Statistic"];
+  const { statistic, firstYear } = params;
   const intervalStart = Math.min(data.map((e) => e.Interval));
   const intervalEnd = Math.max(data.map((e) => e.Interval));
-  const yearStart = +seerData.seerStatDictionary.filter((e) => e.name === params.year)[0]["factors"][0].label;
   const groupByYear = groupBy(data, params.year);
 
   const traces = Object.entries(groupByYear)
     .map(([interval, data], index) => {
-      const observedTraceName = `${+interval + yearStart} Observed`;
-      const predictedTraceName = `${+interval + yearStart} Predicted`;
+      const observedTraceName = `${+interval + firstYear} Observed`;
+      const predictedTraceName = `${+interval + firstYear} Predicted`;
 
       const observedTraces = makeMarkerTrace(
         observedTraceName,

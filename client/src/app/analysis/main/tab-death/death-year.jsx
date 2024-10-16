@@ -82,13 +82,12 @@ export default function DeathVsYear({ data, seerData, params, conditional }) {
         </Col>
       </Row>
       <Row>
-        <Col>{trendJp && <TrendTable data={trendData} seerData={seerData} params={params} />}</Col>
+        <Col>{trendJp && <TrendTable data={trendData} params={params} />}</Col>
       </Row>
       <Row>
         <Col>
           <DeathYearPlot
             data={memoData}
-            seerData={seerData}
             params={params}
             title={`${conditional ? "Conditional " : ""}` + "Annual Probability of Dying of Cancer by Diagnosis Year"}
             xTitle={"Year of Diagnosis"}
@@ -102,7 +101,6 @@ export default function DeathVsYear({ data, seerData, params, conditional }) {
         <Col>
           <DeathYearTable
             data={memoData}
-            seerData={seerData}
             params={params}
             observedHeader={observedHeader}
             observedSeHeader={observedSeHeader}

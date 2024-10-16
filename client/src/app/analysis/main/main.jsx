@@ -55,11 +55,10 @@ export default function AnalysisMain({ id }) {
       {params.id && manifest && <CohortSelect className="mb-3" params={params} manifest={manifest} />}
       {results && seerData && Object.keys(seerData).length > 0 && Object.keys(params).length > 0 && (
         <>
-          <ModelTable data={results} handleRowSelect={setFitIndex} />
+          <ModelTable data={results} params={params} handleRowSelect={setFitIndex} />
           {!params.useCondModel && !params.useRelaxModel && (
             <ConditionalRecalcForm
               data={results[fitIndex]}
-              seerData={seerData}
               params={params}
               cohortIndex={cohortIndex}
               fitIndex={fitIndex}

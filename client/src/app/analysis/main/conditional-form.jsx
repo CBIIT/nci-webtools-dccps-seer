@@ -6,7 +6,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { recalculateConditional } from "../queries";
 import { useStore } from "../store";
 
-export default function ConditionalForm({ data, seerData, params, cohortIndex, fitIndex }) {
+export default function ConditionalForm({ data, params, cohortIndex, fitIndex }) {
+  const { firstYear } = params;
   const queryClient = useQueryClient();
   const isFetching = queryClient.isFetching();
   const intervalOptions = [...new Set(data.fullpredicted.map((e) => e.Interval))];
@@ -86,7 +87,7 @@ export default function ConditionalForm({ data, seerData, params, cohortIndex, f
                               required: conditional ? "Required" : false,
                               validate: (value, form) =>
                                 value < form.conditionalIntervals[i].end ||
-                                `Must be less than ${+form.conditionalIntervals[i].end + yearStart}`,
+                                `Must be less than ${+form.conditionalIntervals[i].end + firstYear}`,
                             })}
                             disabled={!conditional || isFetching}
                             isInvalid={errors?.conditionalIntervals && errors?.conditionalIntervals[i]?.start}>
@@ -110,7 +111,7 @@ export default function ConditionalForm({ data, seerData, params, cohortIndex, f
                               required: conditional ? "Required" : false,
                               validate: (value, form) =>
                                 value > form.conditionalIntervals[i].start ||
-                                `Must be greater than ${+form.conditionalIntervals[i].start + yearStart}`,
+                                `Must be greater than ${+form.conditionalIntervals[i].start + firstYear}`,
                             })}
                             disabled={!conditional || isFetching}
                             isInvalid={errors?.conditionalIntervals && errors?.conditionalIntervals[i]?.end?.message}>

@@ -4,18 +4,17 @@ import { createColumnHelper } from "@tanstack/react-table";
 
 export default function SurvTimeTable({
   data,
-  seerData,
   params,
   observedHeader,
   predictedHeader,
   isRecalcCond = false,
 }) {
-  const yearStart = +seerData.seerStatDictionary.filter((e) => e.name === params.year)[0]["factors"][0].label;
+  const { firstYear } = params;
   const columnHelper = createColumnHelper();
   const columns = [
     columnHelper.accessor(params.year, {
       header: () => "Year of Diagnosis",
-      cell: (info) => info.getValue() + yearStart,
+      cell: (info) => info.getValue() + firstYear,
     }),
     columnHelper.accessor("Interval", {
       header: () => "Interval",
