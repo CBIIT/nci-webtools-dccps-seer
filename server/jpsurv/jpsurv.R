@@ -74,6 +74,13 @@ calculateJoinpoint <- function(inputFolder, outputFolder) {
                     fit$deathTrend <- aapc.multiints(fit, type = "RelChgHaz", int.select = unique(model$Interval))
                     model$FitList[[fitIndex]] <- fit
                 }
+                # convert values to conditional
+                if (params$useCondModel || params$useRelaxModel) {
+                    for (fitIndex in 1:length(model$FitList)) {
+                        data <- model$FitList[[fitIndex]]$fullpredicted
+                        model$FitList[[fitIndex]]$fullpredicted <- getConditionalValues(data, params$year, params$useRelaxModel)
+                    }
+                }
                 # save model coefficients to a separate file to preserve data structure
                 coef <- c()
                 for (fit in model$FitList) {
@@ -89,6 +96,7 @@ calculateJoinpoint <- function(inputFolder, outputFolder) {
                 list("coefficients" = coefficientsFilename, "model" = modelFilename, "r_index" = cohortComboIndex, "cohort" = cohortSubsets[[cohortComboIndex]])
             },
             error = function(e) {
+                save(e, file = file.path(outputFolder, sprintf("error-%s.RData", cohortComboIndex)))
                 e$message
             }
         )
