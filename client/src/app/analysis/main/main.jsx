@@ -66,7 +66,7 @@ export default function AnalysisMain({ id }) {
             />
           )}
           <Tabs defaultActiveKey="survival" className="my-3">
-            <Tab eventKey="survival" title="Survival vs. Year at Diagnosis">
+            <Tab eventKey="survival" title={`${useConditional ? "Conditional " : ""}Survival vs. Year at Diagnosis`}>
               <SurvivalVsYear
                 data={results[fitIndex]}
                 seerData={seerData}
@@ -84,7 +84,7 @@ export default function AnalysisMain({ id }) {
                 conditional={useConditional ? conditional : null}
               />
             </Tab>
-            <Tab eventKey="time" title="Survival vs. Time Since Diagnosis">
+            <Tab eventKey="time" title={`${useConditional ? "Conditional " : ""}Survival vs. Time Since Diagnosis`}>
               <SurvivalVsTime
                 data={results[fitIndex].fullpredicted}
                 seerData={seerData}

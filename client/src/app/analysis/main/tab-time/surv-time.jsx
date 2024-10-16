@@ -32,7 +32,13 @@ export default function SurvivalVsTime({ data, seerData, params, conditional }) 
         <Col className="p-3 border rounded">
           <Row>
             <Col sm="auto">
-              <SelectHookForm name="years" label="Year of Diagnosis" options={yearOptions} control={control} isMulti />
+              <SelectHookForm
+                name="years"
+                label={`${isRecalcCond ? "Conditional " : ""}Year of Diagnosis`}
+                options={yearOptions}
+                control={control}
+                isMulti
+              />
             </Col>
           </Row>
         </Col>
@@ -44,8 +50,8 @@ export default function SurvivalVsTime({ data, seerData, params, conditional }) 
             seerData={seerData}
             params={params}
             title={`${conditional ? "Conditional " : ""}${statistic} by Diagnosis Year for Selected Diagnosis Year`}
-            xTitle={"Interval"}
-            yTitle={`${statistic} (%)`}
+            xTitle={`${isRecalcCond ? "Conditional " : ""}Interval`}
+            yTitle={`${isRecalcCond ? "Conditional " : ""}${statistic}`}
             observedHeader={observedHeader}
             predictedHeader={predictedHeader}
           />

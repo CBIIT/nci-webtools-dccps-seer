@@ -224,7 +224,7 @@ export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fi
             params={params}
             title={`${conditional ? "Conditional " : ""}${statistic} by Diagnosis Year`}
             xTitle={"Year of Diagnosis"}
-            yTitle={`${statistic} (%)`}
+            yTitle={`${isRecalcCond ? "Conditional " : ""}${statistic}`}
             observedHeader={observedHeader}
             predictedHeader={predictedHeader}
           />
