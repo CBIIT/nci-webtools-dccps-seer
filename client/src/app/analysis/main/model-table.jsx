@@ -3,9 +3,24 @@ import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from "
 import { useMemo, useRef, useEffect } from "react";
 import { Table } from "react-bootstrap";
 
-export default function ModelTable({ data, handleRowSelect }) {
+export default function ModelTable({ data, params, handleRowSelect }) {
+  const { firstYear } = params;
+  console.log(data);
   const models = useMemo(
-    () => data.map((m, i) => ({ index: i, aic: m.aic, bic: m.bic, ll: m.ll, converged: m.converged ? "Yes" : "No" })),
+    () =>
+      data.map((m, i) => ({
+        index: i,
+        jp: m.jp ? m.jp.length : 0,
+        location: m?.jp
+          ? Array.isArray(m.jp)
+            ? m.jp.map((e) => +e + firstYear).join(", ")
+            : m.jp + firstYear
+          : "None",
+        aic: m.aic,
+        bic: m.bic,
+        ll: m.ll,
+        converged: m.converged ? "Yes" : "No",
+      })),
     [data]
   );
 
@@ -36,8 +51,12 @@ export default function ModelTable({ data, handleRowSelect }) {
       cell: (info) => info.getValue() + 1,
     }),
     columnHelper.accessor("index", {
-      id: "jp",
+      id: "index",
       header: () => "Joinpoints",
+      cell: (info) => info.getValue(),
+    }),
+    columnHelper.accessor("location", {
+      header: () => "Location",
       cell: (info) => info.getValue(),
     }),
     columnHelper.accessor("bic", {
