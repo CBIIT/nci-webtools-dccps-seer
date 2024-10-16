@@ -70,8 +70,8 @@ calculateJoinpoint <- function(inputFolder, outputFolder) {
                 # calculate trend measures
                 for (fitIndex in 1:length(model$FitList)) {
                     fit <- model$FitList[[fitIndex]]
-                    fit$survTrend <- aapc.multiints(fit, type = "AbsChgSur", int.select = unique(model$Interval))
-                    fit$deathTrend <- aapc.multiints(fit, type = "RelChgHaz", int.select = unique(model$Interval))
+                    fit$survTrend <- aapc.multiints(fit, type = "AbsChgSur", int.select = unique(fit$predicted$Interval))
+                    fit$deathTrend <- aapc.multiints(fit, type = "RelChgHaz", int.select = unique(fit$predicted$Interval))
                     model$FitList[[fitIndex]] <- fit
                 }
                 # convert values to conditional
