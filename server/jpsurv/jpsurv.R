@@ -152,5 +152,42 @@ joinpointConditional <- function(params, outputFolder) {
     library(JPSurv)
     # load previous calculated model
     load(file.path(outputFolder, paste0(params$cohortIndex, ".RData")))
-    joinpoint.conditional(model, params$conditionalIntervals$start, params$conditionalIntervals$end, params$fitIndex)
+    conditionalModel <- joinpoint.conditional(model, params$conditionalIntervals$start, params$conditionalIntervals$end, params$fitIndex)
+
+    # Transform observed cumulative data to be conditional
+    year <- colnames(conditionalModel)[[1]]
+    observed <- NULL
+    observed_se <- NULL
+    n_year <- length(unique(conditionalModel[[1]]))
+    year_uniq <- sort(unique(conditionalModel[[1]]))
+    for (i in 1:n_year) {
+        dat.i <- conditionalModel[conditionalModel[[year]] == year_uniq[i], ]
+        cond_surv.i <- cumprod(dat.i$Relative_Survival_Interval)
+        observed <- c(observed, cond_surv.i)
+
+        dat.i$risk <- dat.i$Alive_at_Start - 0.5 * dat.i$Lost_to_Followup
+        observed_se <- c(observed_se, cumprod(dat.i$Relative_Survival_Interval) * sqrt(cumsum(dat.i$Died / (dat.i$risk * (dat.i$risk - dat.i$Died)))))
+    }
+    conditionalModel$observed <- observed
+    conditionalModel$observed_se <- observed_se
+    conditionalModel
+}
+
+getConditionalValues <- function(data, yearCol, conditionalPredicted = FALSE) {
+    n_year <- length(unique(data[[yearCol]]))
+    year_uniq <- sort(unique(data[[yearCol]]))
+    rel_surv_cum <- NULL
+    pred_rel_surv_cum <- NULL
+
+    for (i in 1:n_year) {
+        dat.i <- data[data[[yearCol]] == year_uniq[i], ]
+        cum_surv.i <- cumprod(dat.i$Relative_Survival_Interval)
+        pred_cum_surv.i <- cumprod(dat.i$Predicted_Survival_Int)
+        rel_surv_cum <- c(rel_surv_cum, cum_surv.i)
+        pred_rel_surv_cum <- c(pred_rel_surv_cum, pred_cum_surv.i)
+    }
+
+    data$Relative_Survival_Cum <- rel_surv_cum
+    if (conditionalPredicted) data$Predicted_Survival_Cum <- pred_rel_surv_cum
+    data
 }
