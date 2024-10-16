@@ -7,8 +7,9 @@ import SurvTimePlot from "./surv-time-plot";
 import SurvTimeTable from "./surv-time-table";
 
 export default function SurvivalVsTime({ data, seerData, params, conditional }) {
+  const isRecalcCond = !!conditional;
   const statistic = seerData?.config["Session Options"]["Statistic"];
-  const observedHeader = params?.observed;
+  const observedHeader = isRecalcCond ? "observed" : params?.observed;
   const predictedHeader = "pred_cum";
   const yearDic = seerData.seerStatDictionary
     .filter((e) => e.name == params.year)[0]
@@ -58,6 +59,7 @@ export default function SurvivalVsTime({ data, seerData, params, conditional }) 
             params={params}
             observedHeader={observedHeader}
             predictedHeader={predictedHeader}
+            isRecalcCond={isRecalcCond}
           />
         </Col>
       </Row>

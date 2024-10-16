@@ -10,8 +10,11 @@ export default function SurvYearTable({
   observedSeHeader,
   predictedHeader,
   predictedSeHeader,
+  isRecalcCond = false,
 }) {
   const yearStart = +seerData.seerStatDictionary.filter((e) => e.name === params.year)[0]["factors"][0].label;
+  const statistic = seerData?.config["Session Options"]["Statistic"];
+
   const columnHelper = createColumnHelper();
   const columns = [
     columnHelper.accessor(params.year, {
@@ -23,19 +26,20 @@ export default function SurvYearTable({
       cell: (info) => info.getValue(),
     }),
     columnHelper.accessor(observedHeader, {
-      header: () => "Relative Survival Cumulative (%)",
+      header: () => (isRecalcCond ? `Conditional ${statistic} (%)` : "Relative Survival Cumulative (%)"),
       cell: (info) => info.renderValue(),
     }),
     columnHelper.accessor(observedSeHeader, {
-      header: () => "Relative Survival Cumulative Std. Err. (%)",
+      header: () =>
+        isRecalcCond ? `Conditional ${statistic} Std. Err. (%)` : "Relative Survival Cumulative Std. Err. (%)",
       cell: (info) => info.renderValue(),
     }),
     columnHelper.accessor(predictedHeader, {
-      header: "Predicted Cumulative Survival (%)",
+      header: `Predicted ${isRecalcCond ? "Conditional" : ""} Cumulative Survival (%)`,
       cell: (info) => info.renderValue(),
     }),
     columnHelper.accessor(predictedSeHeader, {
-      header: "Predicted Cumulative Survival Std. Err. (%)",
+      header: `Predicted ${isRecalcCond ? "Conditional" : ""} Cumulative Survival Std. Err. (%)`,
       cell: (info) => info.renderValue(),
     }),
   ];

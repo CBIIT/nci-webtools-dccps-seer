@@ -8,9 +8,11 @@ import SelectHookForm from "@/components/selectHookForm";
 import SurvYearPlot from "./surv-year-plot";
 import SurvYearTable from "./surv-year-table";
 import TrendTable from "./surv-trend-table";
+
 export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fitIndex, conditional }) {
   const queryClient = useQueryClient();
   const isFetching = queryClient.isFetching();
+  const isRecalcCond = !!conditional;
   const intervalOptions = [...new Set((conditional || data.fullpredicted).map((e) => e.Interval))];
   const defaultInterval = intervalOptions.includes(5) ? 5 : Math.max(...intervalOptions);
 
@@ -46,8 +48,12 @@ export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fi
     [data, intervals]
   );
   const [calTrendData, setCalTrendData] = useState([]);
-  const observedHeader = params?.observed;
-  const observedSeHeader = observedHeader?.includes("Relative") ? "Relative_SE_Cum" : "CauseSpecific_SE_Cum";
+  const observedHeader = isRecalcCond ? "observed" : params?.observed;
+  const observedSeHeader = isRecalcCond
+    ? "observed_se"
+    : params?.observed?.includes("Relative")
+    ? "Relative_SE_Cum"
+    : "CauseSpecific_SE_Cum";
   const predictedHeader = "pred_cum";
   const predictedSeHeader = "pred_cum_se";
 
@@ -234,6 +240,7 @@ export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fi
             observedSeHeader={observedSeHeader}
             predictedHeader={predictedHeader}
             predictedSeHeader={predictedSeHeader}
+            isRecalcCond={isRecalcCond}
           />
         </Col>
       </Row>

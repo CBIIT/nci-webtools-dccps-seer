@@ -1,11 +1,6 @@
 "use client";
 import { groupBy } from "lodash";
-import {
-  makeLineTrace,
-  makeMarkerTrace,
-  makeLegendTrace,
-  makeLayout,
-} from "../../../../components/plots/plotUtils";
+import { makeLineTrace, makeMarkerTrace, makeLegendTrace, makeLayout } from "../../../../components/plots/plotUtils";
 import Plot from "@/components/plots/time-plot";
 
 export default function SurvTimePlot({
@@ -23,12 +18,13 @@ export default function SurvTimePlot({
   const statistic = seerData?.config["Session Options"]["Statistic"];
   const intervalStart = Math.min(data.map((e) => e.Interval));
   const intervalEnd = Math.max(data.map((e) => e.Interval));
+  const yearStart = +seerData.seerStatDictionary.filter((e) => e.name === params.year)[0]["factors"][0].label;
   const groupByYear = groupBy(data, params.year);
 
   const traces = Object.entries(groupByYear)
     .map(([interval, data], index) => {
-      const observedTraceName = `${interval}-year Observed`;
-      const predictedTraceName = `${interval}-year Predicted`;
+      const observedTraceName = `${+interval + yearStart} Observed`;
+      const predictedTraceName = `${+interval + yearStart} Predicted`;
 
       const observedTraces = makeMarkerTrace(
         observedTraceName,
