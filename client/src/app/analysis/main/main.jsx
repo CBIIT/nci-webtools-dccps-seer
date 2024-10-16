@@ -43,11 +43,11 @@ export default function AnalysisMain({ id }) {
   }
 
   // periodically dispatch resize event to trigger plotly redraw
-  // useEffect(() => {
-  //   setInterval(() => {
-  //     dispatchEvent(new Event("resize"));
-  //   }, 1000);
-  // }, []);
+  useEffect(() => {
+    setInterval(() => {
+      if (window) dispatchEvent(new Event("resize"));
+    }, 1000);
+  }, []);
 
   return (
     <Container>
