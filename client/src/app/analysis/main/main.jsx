@@ -10,7 +10,7 @@ import CohortSelect from "./cohort-select";
 import { useStore } from "../store";
 import { fetchStatus, fetchResults } from "../queries";
 import ModelEstimates from "./tab-model-estimates/model-estimates";
-import ConditionalForm from "./conditional-form";
+import ConditionalRecalcForm from "./conditional-form";
 
 export default function AnalysisMain({ id }) {
   const setState = useStore((state) => state.setState);
@@ -56,13 +56,15 @@ export default function AnalysisMain({ id }) {
       {results && seerData && Object.keys(seerData).length > 0 && Object.keys(params).length > 0 && (
         <>
           <ModelTable data={results} handleRowSelect={setFitIndex} />
-          <ConditionalForm
-            data={results[fitIndex]}
-            seerData={seerData}
-            params={params}
-            cohortIndex={cohortIndex}
-            fitIndex={fitIndex}
-          />
+          {!params.useCondModel && !params.useRelaxModel && (
+            <ConditionalRecalcForm
+              data={results[fitIndex]}
+              seerData={seerData}
+              params={params}
+              cohortIndex={cohortIndex}
+              fitIndex={fitIndex}
+            />
+          )}
           <Tabs defaultActiveKey="survival" className="my-3">
             <Tab eventKey="survival" title="Survival vs. Year at Diagnosis">
               <SurvivalVsYear
