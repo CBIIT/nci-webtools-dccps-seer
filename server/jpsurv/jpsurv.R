@@ -93,7 +93,13 @@ calculateJoinpoint <- function(inputFolder, outputFolder) {
                 write_json(coef, path = file.path(outputFolder, coefficientsFilename), auto_unbox = TRUE)
                 write_json(model$FitList, path = file.path(outputFolder, modelFilename), auto_unbox = TRUE)
 
-                list("coefficients" = coefficientsFilename, "model" = modelFilename, "r_index" = cohortComboIndex, "cohort" = cohortSubsets[[cohortComboIndex]])
+                list(
+                    "coefficients" = coefficientsFilename,
+                    "model" = modelFilename,
+                    "r_index" = cohortComboIndex,
+                    "cohort" = cohortSubsets[[cohortComboIndex]],
+                    "final_model_index" = length(model$jp)
+                )
             },
             error = function(e) {
                 save(e, file = file.path(outputFolder, sprintf("error-%s.RData", cohortComboIndex)))

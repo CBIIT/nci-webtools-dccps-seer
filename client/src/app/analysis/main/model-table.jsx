@@ -3,8 +3,9 @@ import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from "
 import { useMemo, useRef, useEffect } from "react";
 import { Table } from "react-bootstrap";
 
-export default function ModelTable({ data, params, handleRowSelect }) {
+export default function ModelTable({ data, params, manifest, cohortIndex, handleRowSelect }) {
   const { firstYear } = params;
+  const { final_model_index } = manifest[cohortIndex - 1];
   const models = useMemo(
     () =>
       data.map((m, i) => ({
@@ -47,7 +48,7 @@ export default function ModelTable({ data, params, handleRowSelect }) {
     },
     columnHelper.accessor("index", {
       header: () => "Model",
-      cell: (info) => info.getValue() + 1,
+      cell: (info) => `${info.getValue() + 1}${info.getValue() === final_model_index ? " (final selected model)" : ""}`,
     }),
     columnHelper.accessor("index", {
       id: "index",
@@ -82,7 +83,7 @@ export default function ModelTable({ data, params, handleRowSelect }) {
     getCoreRowModel: getCoreRowModel(),
     enableRowSelection: true,
     enableMultiRowSelection: false,
-    initialState: { rowSelection: { 0: true } },
+    initialState: { rowSelection: { [0]: true } },
   });
 
   function IndeterminateCheckbox({ indeterminate, className = "", label = "", ...rest }) {
@@ -98,10 +99,10 @@ export default function ModelTable({ data, params, handleRowSelect }) {
   return (
     <Table striped bordered>
       <thead>
-        {table.getHeaderGroups().map((headerGroup) => (
-          <tr key={headerGroup.id}>
-            {headerGroup.headers.map((header) => (
-              <th key={header.id}>
+        {table.getHeaderGroups().map((headerGroup, hgIndex) => (
+          <tr key={hgIndex + headerGroup.id}>
+            {headerGroup.headers.map((header, hIndex) => (
+              <th key={hgIndex + hIndex + header.id}>
                 {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
               </th>
             ))}
@@ -109,10 +110,12 @@ export default function ModelTable({ data, params, handleRowSelect }) {
         ))}
       </thead>
       <tbody>
-        {table.getRowModel().rows.map((row) => (
-          <tr key={row.id}>
-            {row.getVisibleCells().map((cell) => (
-              <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+        {table.getRowModel().rows.map((row, rIndex) => (
+          <tr key={rIndex + row.id}>
+            {row.getVisibleCells().map((cell, cIndex) => (
+              <td key={rIndex + cIndex + "td" + cell.id}>
+                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+              </td>
             ))}
           </tr>
         ))}

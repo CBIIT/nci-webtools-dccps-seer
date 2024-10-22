@@ -53,9 +53,16 @@ export default function AnalysisMain({ id }) {
     <Container>
       <code>{JSON.stringify(jobStatus)}</code>
       {params.id && manifest && <CohortSelect className="mb-3" params={params} manifest={manifest} />}
-      {results && seerData && Object.keys(seerData).length > 0 && Object.keys(params).length > 0 && (
+      {results && seerData && seerData && params && manifest && (
+        // {results && seerData && Object.keys(seerData).length > 0 && Object.keys(params).length > 0 && manifest && (
         <>
-          <ModelTable data={results} params={params} handleRowSelect={setFitIndex} />
+          <ModelTable
+            data={results}
+            params={params}
+            manifest={manifest}
+            cohortIndex={cohortIndex}
+            handleRowSelect={setFitIndex}
+          />
           {!params.useCondModel && !params.useRelaxModel && (
             <ConditionalRecalcForm
               data={results[fitIndex]}
