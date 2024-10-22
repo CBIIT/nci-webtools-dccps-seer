@@ -5,7 +5,6 @@ import { Table } from "react-bootstrap";
 
 export default function ModelTable({ data, params, handleRowSelect }) {
   const { firstYear } = params;
-  console.log(data);
   const models = useMemo(
     () =>
       data.map((m, i) => ({
