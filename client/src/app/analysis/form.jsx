@@ -241,8 +241,8 @@ export default function AnalysisForm({ id }) {
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)} onReset={onReset}>
-      <fieldset className="fieldset border rounded my-4 pt-4 px-3">
-        <legend className="legend fw-bold bg-light">Data</legend>
+      <fieldset className="fieldset shadow-sm border rounded my-4 pt-4 px-3">
+        <legend className="legend fw-bold">Data</legend>
         <Form.Group className="mb-4" controlId="inputType">
           <Form.Label className="required fw-bold">Input Type</Form.Label>
           <Form.Select
@@ -285,8 +285,10 @@ export default function AnalysisForm({ id }) {
 
       {Object.keys(seerData).length > 0 && (
         <>
-          <fieldset className="fieldset border rounded my-4 pt-4 px-3">
-            <legend className="legend fw-bold bg-light">Cohort and Model Specifications</legend>
+          <fieldset className="fieldset shadow-sm border rounded my-4 pt-4 px-3">
+            <legend className="legend fw-bold">
+              Cohort and Model Specifications
+            </legend>
             <Form.Group className="mb-4" controlId="year">
               <Form.Label className="required fw-bold">Year of Diagnosis</Form.Label>
               <Form.Select required {...register("year", { required: true })}>
@@ -507,8 +509,8 @@ export default function AnalysisForm({ id }) {
             </Accordion>
           </fieldset>
 
-          <fieldset className="fieldset border rounded my-4 pt-4 px-3">
-            <legend className="legend fw-bold bg-light">Notifications</legend>
+          <fieldset className="fieldset shadow-sm border rounded my-4 pt-4 px-3">
+            <legend className="legend fw-bold">Notifications</legend>
             <Form.Group className="mb-3">
               <Form.Check
                 type="checkbox"
