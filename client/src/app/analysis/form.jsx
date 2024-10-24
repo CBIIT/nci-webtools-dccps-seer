@@ -286,9 +286,7 @@ export default function AnalysisForm({ id }) {
       {Object.keys(seerData).length > 0 && (
         <>
           <fieldset className="fieldset shadow-sm border rounded my-4 pt-4 px-3">
-            <legend className="legend fw-bold">
-              Cohort and Model Specifications
-            </legend>
+            <legend className="legend fw-bold">Cohort and Model Specifications</legend>
             <Form.Group className="mb-4" controlId="year">
               <Form.Label className="required fw-bold">Year of Diagnosis</Form.Label>
               <Form.Select required {...register("year", { required: true })}>
@@ -483,23 +481,32 @@ export default function AnalysisForm({ id }) {
                     <Form.Label className="fw-bold">
                       Minimum Number of Years between Joinpoints (Excluding Joinpoints)
                     </Form.Label>
-                    <Form.Control {...register("numbetwn")} type="number" min="2" />
+                    <Form.Control {...register("numbetwn", { valueAsNumber: true })} type="number" min="2" />
                   </Form.Group>
                   <Form.Group controlId="numfromstart" className="my-3">
                     <Form.Label className="fw-bold">
                       Minimum Number of Years before First Joinpoint (Excluding Joinpoint)
                     </Form.Label>
-                    <Form.Control {...register("numfromstart")} type="number" min="2"></Form.Control>
+                    <Form.Control
+                      {...register("numfromstart", { valueAsNumber: true })}
+                      type="number"
+                      min="2"></Form.Control>
                   </Form.Group>
                   <Form.Group controlId="numtoend" className="my-3">
                     <Form.Label className="fw-bold">
                       Minimum Number of Years after Last Joinpoint (Excluding Joinpoint)
                     </Form.Label>
-                    <Form.Control {...register("numtoend")} type="number" min="2"></Form.Control>
+                    <Form.Control
+                      {...register("numtoend", { valueAsNumber: true })}
+                      type="number"
+                      min="2"></Form.Control>
                   </Form.Group>
                   <Form.Group controlId="projectedYears" className="my-3">
                     <Form.Label className="fw-bold">Number of Calendar Years of Projected Survival</Form.Label>
-                    <Form.Control {...register("projectedYears")} type="number" min="0"></Form.Control>
+                    <Form.Control
+                      {...register("projectedYears", { valueAsNumber: true })}
+                      type="number"
+                      min="0"></Form.Control>
                   </Form.Group>
                   <Button variant="link" className="mt-3" onClick={() => reset({ ...watch(), ...defaultAdvOptions })}>
                     Reset Advanced Options
