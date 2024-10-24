@@ -16,9 +16,14 @@ export default function AnalysisMain({ id }) {
   const setState = useStore((state) => state.setState);
   const seerData = useStore((state) => state.seerData);
   const params = useStore((state) => state.params);
-  const { cohortIndex, fitIndex } = useStore((state) => state.main);
+  const main = useStore((state) => state.main);
+  const { cohortIndex, cutpointIndex, fitIndex, cluster } = main;
   const useConditional = useStore((state) => state.useConditional);
   const conditional = useStore((state) => state.conditional);
+  const useRelaxModel = params.useRelaxModel;
+  const resultsFile = `${cluster === "cond" ? "cond-" : ""}${
+    useRelaxModel ? `${cohortIndex}-${cutpointIndex}` : cohortIndex
+  }`;
 
   const { data: jobStatus } = useQuery({
     queryKey: ["status", id],
@@ -33,13 +38,13 @@ export default function AnalysisMain({ id }) {
     enabled: jobStatus === "COMPLETED",
   });
   const { data: results } = useQuery({
-    queryKey: ["results", id, cohortIndex],
-    queryFn: () => fetchResults(id, cohortIndex),
+    queryKey: ["results", id, cohortIndex, cutpointIndex, cluster],
+    queryFn: () => fetchResults(id, resultsFile),
     enabled: jobStatus === "COMPLETED" && !!cohortIndex,
   });
 
   function setFitIndex(index) {
-    setState({ main: { cohortIndex, fitIndex: index } });
+    setState({ main: { ...main, fitIndex: index } });
   }
 
   // periodically dispatch resize event to trigger plotly redraw
@@ -99,7 +104,13 @@ export default function AnalysisMain({ id }) {
               />
             </Tab>
             <Tab eventKey="estimates" title="Model Estimates">
-              <ModelEstimates id={id} cohortIndex={cohortIndex} fitIndex={fitIndex} />
+              <ModelEstimates
+                id={id}
+                cohortIndex={cohortIndex}
+                cutpointIndex={cutpointIndex}
+                fitIndex={fitIndex}
+                cluster={cluster}
+              />
             </Tab>
           </Tabs>
         </>

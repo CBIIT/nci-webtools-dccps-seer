@@ -5,10 +5,6 @@ calculateJoinpoint <- function(inputFolder, outputFolder) {
     library(dplyr)
     params <- read_json(file.path(inputFolder, "params.json"))
 
-    # read data
-    # dataFile <- file.path(inputFolder, params$files$dataFile)
-    # data2 <- read.table(dataFile, header = FALSE, fill = TRUE, na.strings = ".")
-    # names(data2) <- params$files$headers
     data <- read_json(file.path(inputFolder, params$files$seerStatFile), simplifyDataFrame = T)
     data <- subset(data$seerStatData, Interval <= params$interval)
     if (params$rates == "Percents") {
@@ -67,39 +63,110 @@ calculateJoinpoint <- function(inputFolder, outputFolder) {
                 }
                 save(model, file = file.path(outputFolder, sprintf("%s.RData", cohortComboIndex)))
 
-                # calculate trend measures
-                for (fitIndex in 1:length(model$FitList)) {
-                    fit <- model$FitList[[fitIndex]]
-                    fit$survTrend <- aapc.multiints(fit, type = "AbsChgSur", int.select = unique(fit$predicted$Interval))
-                    fit$deathTrend <- aapc.multiints(fit, type = "RelChgHaz", int.select = unique(fit$predicted$Interval))
-                    model$FitList[[fitIndex]] <- fit
-                }
-                # convert values to conditional
-                if (params$useCondModel || params$useRelaxModel) {
-                    for (fitIndex in 1:length(model$FitList)) {
-                        data <- model$FitList[[fitIndex]]$fullpredicted
-                        model$FitList[[fitIndex]]$fullpredicted <- getConditionalValues(data, params$year, params$useRelaxModel)
+                if (params$useRelaxModel) {
+                    fitInfo <- model$fit.info
+                    optimalCutpointIndex <- which(fitInfo[["BestFit(Min BIC)"]] == "*")
+
+                    lapply(seq_along(model$all.results), function(cpIndex) {
+                        uncond <- model$all.results[[cpIndex]]$fit.uncond
+                        cond <- model$all.results[[cpIndex]]$fit.cond
+                        # filenames
+                        coefFile <- sprintf("%s-%s-coefficients.json", cohortComboIndex, cpIndex)
+                        condCoefFile <- sprintf("cond-%s-%s-coefficients.json", cohortComboIndex, cpIndex)
+                        modelFile <- sprintf("%s-%s.json", cohortComboIndex, cpIndex)
+                        condModelFile <- sprintf("cond-%s-%s.json", cohortComboIndex, cpIndex)
+
+
+                        # merge input and fit data
+                        for (fitIndex in seq_along(uncond$FitList)) {
+                            uncond$FitList[[fitIndex]]$fullpredicted <- download.data(input = data, fit = uncond, nJP = fitIndex - 1, yearvar = params$year, downloadtype = "full")
+                        }
+                        if (!is.null(cond)) {
+                            cond$FitList[[fitIndex]]$fullpredicted <- download.data(input = data, fit = cond, nJP = params$maxJp, yearvar = params$year, downloadtype = "full")
+                        }
+
+                        # calculate trend measures
+                        uncond$FitList <- calculateTrendMeasures(uncond$FitList)
+                        if (!is.null(cond)) {
+                            cond$FitList <- calculateTrendMeasures(cond$FitList)
+                        }
+
+                        # save model coefficients to a separate file to preserve data structure
+                        coef <- getModelCoefficients(uncond)
+                        write_json(coef, path = file.path(outputFolder, coefFile), auto_unbox = TRUE)
+                        if (!is.null(cond)) {
+                            coef <- getModelCoefficients(cond)
+                            write_json(coef, path = file.path(outputFolder, condCoefFile), auto_unbox = TRUE)
+                        }
+
+
+                        # convert values to conditional
+                        for (fitIndex in seq_along(uncond$FitList)) {
+                            uncond$FitList[[fitIndex]]$fullpredicted <- getConditionalValues(uncond$FitList[[fitIndex]]$fullpredicted, params$year, TRUE)
+                        }
+                        if (!is.null(cond)) {
+                            for (fitIndex in seq_along(cond$FitList)) {
+                                cond$FitList[[fitIndex]]$fullpredicted <- getConditionalValues(cond$FitList[[fitIndex]]$fullpredicted, params$year, TRUE)
+                            }
+                        }
+
+
+                        # save results to file
+                        write_json(uncond$FitList, path = file.path(outputFolder, modelFile), auto_unbox = TRUE)
+                        if (!is.null(cond)) {
+                            write_json(cond$FitList, path = file.path(outputFolder, condModelFile), auto_unbox = TRUE)
+                        }
+
+                        list(
+                            "coefficients" = coefFile,
+                            "cond_coefficients" = if (!is.null(cond)) condCoefFile else NULL,
+                            "model" = modelFile,
+                            "cond_model" = if (!is.null(cond)) condModelFile else NULL,
+                            "cohort_index" = cohortComboIndex,
+                            "cutpoint_index" = cpIndex,
+                            "optimal_cutpoint" = optimalCutpointIndex == cpIndex,
+                            "cohort" = cohortSubsets[[cohortComboIndex]],
+                            "final_model_index" = length(uncond$jp),
+                            "cond_final_model_index" = if (!is.null(cond)) length(cond$jp) else NULL
+                        )
+                    })
+                } else {
+                    # filenames
+                    coefFile <- sprintf("%s-coefficients.json", cohortComboIndex)
+                    modelFile <- sprintf("%s.json", cohortComboIndex)
+
+                    # merge input and fit data
+                    for (fitIndex in seq_along(model$FitList)) {
+                        fit <- model$FitList[[fitIndex]]
+                        model$FitList[[fitIndex]]$fullpredicted <- download.data(input = data, fit = model, nJP = fitIndex - 1, yearvar = params$year, downloadtype = "full")
                     }
-                }
-                # save model coefficients to a separate file to preserve data structure
-                coef <- c()
-                for (fit in model$FitList) {
-                    coef[[length(coef) + 1]] <- as.data.frame(fit$coefficients)
-                }
 
-                # save results to file
-                coefficientsFilename <- sprintf("%s-coefficients.json", cohortComboIndex)
-                modelFilename <- sprintf("%s.json", cohortComboIndex)
-                write_json(coef, path = file.path(outputFolder, coefficientsFilename), auto_unbox = TRUE)
-                write_json(model$FitList, path = file.path(outputFolder, modelFilename), auto_unbox = TRUE)
+                    # calculate trend measures
+                    model$FitList <- calculateTrendMeasures(model$FitList)
 
-                list(
-                    "coefficients" = coefficientsFilename,
-                    "model" = modelFilename,
-                    "r_index" = cohortComboIndex,
-                    "cohort" = cohortSubsets[[cohortComboIndex]],
-                    "final_model_index" = length(model$jp)
-                )
+                    # save model coefficients to a separate file to preserve data structure
+                    coef <- getModelCoefficients(model)
+                    write_json(coef, path = file.path(outputFolder, coefFile), auto_unbox = TRUE)
+
+                    # convert values to conditional
+                    if (params$useCondModel || params$useRelaxModel) {
+                        for (fitIndex in 1:length(model$FitList)) {
+                            data <- model$FitList[[fitIndex]]$fullpredicted
+                            model$FitList[[fitIndex]]$fullpredicted <- getConditionalValues(data, params$year, params$useRelaxModel)
+                        }
+                    }
+
+                    # save results to file
+                    write_json(model$FitList, path = file.path(outputFolder, modelFile), auto_unbox = TRUE)
+
+                    list(
+                        "coefficients" = coefFile,
+                        "model" = modelFile,
+                        "cohort_index" = cohortComboIndex,
+                        "cohort" = cohortSubsets[[cohortComboIndex]],
+                        "final_model_index" = length(model$jp)
+                    )
+                }
             },
             error = function(e) {
                 save(e, file = file.path(outputFolder, sprintf("error-%s.RData", cohortComboIndex)))
@@ -107,6 +174,8 @@ calculateJoinpoint <- function(inputFolder, outputFolder) {
             }
         )
     })
+    if (params$useRelaxModel) manifest <- flatten_list(manifest)
+    save(manifest, file = file.path(outputFolder, "manifest.RData"))
     write_json(manifest, path = file.path(outputFolder, "manifest.json"), auto_unbox = TRUE)
 }
 
@@ -204,4 +273,29 @@ getConditionalValues <- function(data, yearCol, conditionalPredicted = FALSE) {
     data$Relative_Survival_Cum <- rel_surv_cum
     if (conditionalPredicted) data$Predicted_Survival_Cum <- pred_rel_surv_cum
     data
+}
+
+calculateTrendMeasures <- function(FitList) {
+    for (fitIndex in 1:length(FitList)) {
+        fit <- FitList[[fitIndex]]
+        fit$survTrend <- aapc.multiints(fit, type = "AbsChgSur", int.select = unique(fit$predicted$Interval))
+        fit$deathTrend <- aapc.multiints(fit, type = "RelChgHaz", int.select = unique(fit$predicted$Interval))
+        FitList[[fitIndex]] <- fit
+    }
+    FitList
+}
+
+getModelCoefficients <- function(model) {
+    coef <- c()
+    for (fit in model$FitList) {
+        coef[[length(coef) + 1]] <- as.data.frame(fit$coefficients)
+    }
+    coef
+}
+
+flatten_list <- function(x) {
+    if (!is.list(x)) {
+        return(list(x))
+    }
+    do.call(c, x)
 }

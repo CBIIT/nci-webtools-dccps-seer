@@ -54,8 +54,8 @@ export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fi
     : params?.observed?.includes("Relative")
     ? "Relative_SE_Cum"
     : "CauseSpecific_SE_Cum";
-  const predictedHeader = "pred_cum";
-  const predictedSeHeader = "pred_cum_se";
+  const predictedHeader = "Predicted_Survival_Cum";
+  const predictedSeHeader = "Predicted_Survival_Cum_SE";
 
   // disable trends for conditional recalculation
   useEffect(() => {

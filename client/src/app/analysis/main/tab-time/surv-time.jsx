@@ -10,7 +10,7 @@ export default function SurvivalVsTime({ data, seerData, params, conditional }) 
   const isRecalcCond = !!conditional;
   const { statistic } = params;
   const observedHeader = isRecalcCond ? "observed" : params?.observed;
-  const predictedHeader = "pred_cum";
+  const predictedHeader = "Predicted_Survival_Cum";
   const yearDic = seerData.seerStatDictionary
     .filter((e) => e.name == params.year)[0]
     .factors.reduce((acc, e) => ({ ...acc, [e.value]: +e.label }), {});

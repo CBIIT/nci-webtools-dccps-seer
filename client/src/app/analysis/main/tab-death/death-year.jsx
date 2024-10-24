@@ -19,8 +19,8 @@ export default function DeathVsYear({ data, seerData, params, conditional }) {
     ? "Relative_Survival_Interval"
     : "CauseSpecific_Survival_Interval";
   const observedSeHeader = observedHeader?.includes("Relative") ? "Relative_SE_Interval" : "CauseSpecific_SE_Interval";
-  const predictedHeader = "pred_int";
-  const predictedSeHeader = "pred_int_se";
+  const predictedHeader = "Predicted_Survival_Int";
+  const predictedSeHeader = "Predicted_Survival_Int_SE";
   const memoData = useMemo(() => {
     const filterInts = (conditional || data.fullpredicted).filter((e) => intervals.includes(e.Interval));
     return filterInts.map((e) => ({
