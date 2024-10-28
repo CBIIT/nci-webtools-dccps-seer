@@ -1,5 +1,5 @@
 "use client";
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { ErrorBoundary } from "next/dist/client/components/error-boundary";
 import Alert from "react-bootstrap/Alert";
 import Loading from "./loading";
@@ -12,8 +12,15 @@ import { SidebarContainer, SidebarPanel, MainPanel } from "@/components/sidebar-
 import { useStore } from "./store";
 
 export default function Analysis({ searchParams }) {
-  const { openSidebar, toggleSidebar } = useStore((state) => state);
+  const openSidebar = useStore((state) => state.openSidebar);
+  const toggleSidebar = useStore((state) => state.toggleSidebar);
+  const resetMain = useStore((state) => state.resetMain);
   const { id } = searchParams;
+
+  // reset main state when id changes
+  useEffect(() => {
+    resetMain();
+  }, [id]);
 
   return (
     <Container className="py-4">

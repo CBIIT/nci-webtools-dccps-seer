@@ -13,12 +13,14 @@ export default function CohortSelect({ params, manifest, className }) {
   const errors = manifest.filter((e) => typeof e === "string");
   const cohorts = manifest.filter((e) => typeof e !== "string");
   const cohortIndexes = [...new Set(cohorts.map((e) => e.cohort_index))];
-  const cutpoints = cohorts.filter((e) => e.cohort_index === cohortIndex || e.cohort_index === 1);
+  const cutpoints = cohorts.filter((e) =>
+    cohortIndex ? e.cohort_index == cohortIndex : e.cohort_index == cohortIndexes[0]
+  );
 
   // select initial cohort
   useEffect(() => {
     if (params.useRelaxModel) {
-      if (!cohortIndex && !cutpointIndex && cohortIndexes.length && cutpoints.length)
+      if (!cohortIndex && !cutpointIndex && cohortIndexes.length && cutpoints.length) {
         setState({
           main: {
             ...main,
@@ -27,7 +29,10 @@ export default function CohortSelect({ params, manifest, className }) {
             cluster: "uncond",
           },
         });
-    } else if (!cohortIndex && cohortIndexes.length) setState({ main: { ...main, cohortIndex: cohortIndexes[0] } });
+      }
+    } else if (!cohortIndex && cohortIndexes.length) {
+      setState({ main: { ...main, cohortIndex: cohortIndexes[0] } });
+    }
   }, [cohortIndexes, cutpoints, cohortIndex, cutpointIndex]);
 
   function handleCohortChange(e) {

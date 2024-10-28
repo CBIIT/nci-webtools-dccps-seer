@@ -43,4 +43,5 @@ export const useStore = create((set) => ({
   toggleSidebar: () => set((state) => ({ openSidebar: !state.openSidebar })),
   setState: (update) => set((state) => ({ ...state, ...update })),
   resetStore: () => set(() => defaultState),
+  resetMain: () => set((state) => ({ ...state, main: defaultState.main })),
 }));

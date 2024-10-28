@@ -261,10 +261,9 @@ export default function AnalysisForm({ id }) {
           <Form.Label className="required fw-bold">Files</Form.Label>
           <FileInput
             control={control}
-            rules={{ required: true }}
+            rules={{ required: inputType === "seer" && !Object.keys(seerData).length }}
             name="inputFile"
             multiple
-            required
             accept=".dic,.csv,.zip,.txt"
           />
           <Form.Text className="text-danger">{errors?.referenceDataFiles?.message}</Form.Text>
@@ -574,7 +573,7 @@ export default function AnalysisForm({ id }) {
         <Button type="reset" variant="outline-danger" className="me-1">
           Reset
         </Button>
-        <Button type="submit" variant="primary" disabled={!inputFile.length}>
+        <Button type="submit" variant="primary" disabled={!Object.keys(seerData).length}>
           Submit
         </Button>
       </div>
