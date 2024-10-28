@@ -79,10 +79,24 @@ calculateJoinpoint <- function(inputFolder, outputFolder) {
 
                         # merge input and fit data
                         for (fitIndex in seq_along(uncond$FitList)) {
-                            uncond$FitList[[fitIndex]]$fullpredicted <- download.data(input = data, fit = uncond, nJP = fitIndex - 1, yearvar = params$year, downloadtype = "full")
+                            uncond$FitList[[fitIndex]]$fullpredicted <- download.data(
+                                input = data,
+                                fit = uncond,
+                                nJP = fitIndex - 1,
+                                yearvar = params$year,
+                                downloadtype = "full",
+                                subset = cohortSubsets[[cohortComboIndex]]
+                            )
                         }
                         if (!is.null(cond)) {
-                            cond$FitList[[fitIndex]]$fullpredicted <- download.data(input = data, fit = cond, nJP = params$maxJp, yearvar = params$year, downloadtype = "full")
+                            cond$FitList[[fitIndex]]$fullpredicted <- download.data(
+                                input = data,
+                                fit = cond,
+                                nJP = params$maxJp,
+                                yearvar = params$year,
+                                downloadtype = "full",
+                                subset = cohortSubsets[[cohortComboIndex]]
+                            )
                         }
 
                         # calculate trend measures
@@ -138,7 +152,14 @@ calculateJoinpoint <- function(inputFolder, outputFolder) {
                     # merge input and fit data
                     for (fitIndex in seq_along(model$FitList)) {
                         fit <- model$FitList[[fitIndex]]
-                        model$FitList[[fitIndex]]$fullpredicted <- download.data(input = data, fit = model, nJP = fitIndex - 1, yearvar = params$year, downloadtype = "full")
+                        model$FitList[[fitIndex]]$fullpredicted <- download.data(
+                            input = data,
+                            fit = model,
+                            nJP = fitIndex - 1,
+                            yearvar = params$year,
+                            downloadtype = "full",
+                            subset = cohortSubsets[[cohortComboIndex]]
+                        )
                     }
 
                     # calculate trend measures
