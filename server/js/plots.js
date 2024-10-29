@@ -400,15 +400,7 @@ export function processPlotData(divID, x, yMark, yLine, dimension, trends) {
     }
   }
 
-  [
-    markerTrace,
-    lineTrace,
-    projectedTrace,
-    lineTrendLabel,
-    legend,
-    observedLegend,
-    divID !== 'timePlot' ? projectedLegend : false,
-  ]
+  [markerTrace, lineTrace, projectedTrace, lineTrendLabel, legend, observedLegend, projectedLegend]
     .filter(Boolean)
     .forEach((traceGroup) => {
       Object.keys(traceGroup).forEach((trace) => {
