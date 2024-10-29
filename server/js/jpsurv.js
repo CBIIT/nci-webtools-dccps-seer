@@ -2335,9 +2335,13 @@ function clearAbsChg() {
 }
 
 function setAbsRange(range) {
+  const conditional = jpsurvData.calculate.form.conditional;
+  const condStart = jpsurvData.calculate.form.condIntStart - 1;
+  const end = conditional ? range[1] - condStart : range[1]
   $('#absChgFrom').empty();
   $('#absChgTo').empty();
-  for (var year = range[0]; year <= range[1]; year++) {
+  for (var year = range[0]; year <= end; year++) {
+    // for (var year = range[0]; year <= range[1]; year++) {
     $('#absChgFrom').append(`<OPTION value=${year}>${year}</OPTION>`);
     $('#absChgTo').append(`<OPTION value=${year}>${year}</OPTION>`);
   }
