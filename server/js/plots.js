@@ -302,15 +302,16 @@ export function processPlotData(divID, x, yMark, yLine, dimension, trends) {
     markerTrace[dimension[i]].hovertemplate.push(markerTemplate);
 
     const dim = dimension[i];
-    if (divID == 'timePlot' || i < yMark.findIndex((e, i) => dim == dimension[i] && e == 'NA')) {
-      lineTrace[dimension[i]].x.push(x);
-      lineTrace[dimension[i]].y.push(yLine[i] / 100);
-      lineTrace[dimension[i]].hovertemplate.push(lineTemplate);
-    } else {
+    const projectedIndex = yMark.findIndex((e, i) => dim == dimension[i] && e == 'NA');
+    if (projectedIndex !== -1 && i >= projectedIndex) {
       const dim = projectedTrace[dimension[i]];
       dim.x.push(x);
       dim.y.push(yLine[i] / 100);
       dim.hovertemplate.push(lineTemplate);
+    } else {
+      lineTrace[dimension[i]].x.push(x);
+      lineTrace[dimension[i]].y.push(yLine[i] / 100);
+      lineTrace[dimension[i]].hovertemplate.push(lineTemplate);
     }
 
     lineTrendLabel[dimension[i]].x.push(x + 0.5);
