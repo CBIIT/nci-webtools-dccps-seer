@@ -170,6 +170,7 @@ export function processPlotData(divID, x, yMark, yLine, dimension, trends) {
   const uniqueDimensions = Array.from(new Set(dimension));
 
   const statistic = jpsurvData.additional.statistic;
+  const conditional = jpsurvData.calculate.form.conditional;
 
   uniqueDimensions.forEach(function (interval, i) {
     if (!legend[interval]) {
@@ -244,12 +245,7 @@ export function processPlotData(divID, x, yMark, yLine, dimension, trends) {
         mode: 'lines',
         type: 'scatter',
         line: { color: colors[i % 10] },
-        name:
-          divID != 'timePlot'
-            ? divID == 'yearPlot'
-              ? `${interval}-year Predicted`
-              : `Interval ${interval - 1}-${interval} Predicted`
-            : `${interval} Predicted`,
+        name: traceName(divID, interval, conditional) + ' Predicted',
         legendgroup: interval,
       };
 
@@ -260,12 +256,7 @@ export function processPlotData(divID, x, yMark, yLine, dimension, trends) {
         mode: 'markers',
         type: 'scatter',
         line: { color: colors[i % 10] },
-        name:
-          divID != 'timePlot'
-            ? divID == 'yearPlot'
-              ? `${interval}-year Observed`
-              : `Interval ${interval - 1}-${interval} Observed`
-            : interval + ' Observed',
+        name: traceName(divID, interval, conditional) + ' Observed',
         legendgroup: interval,
       };
 
@@ -276,12 +267,7 @@ export function processPlotData(divID, x, yMark, yLine, dimension, trends) {
         mode: 'lines',
         type: 'scatter',
         line: { dash: 'dash', color: colors[i % 10] },
-        name:
-          divID != 'timePlot'
-            ? divID == 'yearPlot'
-              ? `${interval}-year Projected`
-              : `Interval ${interval - 1}-${interval} Projected`
-            : interval + ' Projected',
+        name: traceName(divID, interval, conditional) + ' Projected',
         legendgroup: interval,
       };
     }
@@ -517,4 +503,14 @@ export function updatePlotData(divID, x, yMark, yLine, dimension, trends) {
     Plotly.deleteTraces(divID, i);
     Plotly.addTraces(divID, trace, i);
   });
+}
+
+function traceName(plotId, interval, conditional) {
+  if (plotId == 'yearPlot') {
+    return `${interval}-year`;
+  } else if (plotId == 'deathPlot') {
+    return conditional ? `Interval ${interval - 1}-${interval}` : `${interval}-year`;
+  } else if (plotId == 'timePlot') {
+    return `${interval}`;
+  }
 }
