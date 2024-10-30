@@ -10,7 +10,7 @@ import Col from "react-bootstrap/Col";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { v4 as uuidv4 } from "uuid";
 import { useStore, defaultForm, defaultAdvOptions } from "./store";
-import { parseSeerStatDictionary, parseSeerStatFiles } from "@/services/file/file.service";
+import { parseSeerStatDictionary, parseSeerStatFiles, parseCsvFile2 } from "@/services/file/file.service";
 import { uploadFiles, asFileList } from "@/components/file-input";
 import { fetchSession, submit } from "./queries";
 import { Accordion } from "react-bootstrap";
@@ -24,6 +24,7 @@ export default function AnalysisForm({ id }) {
   const router = useRouter();
   const pathname = usePathname();
   const setState = useStore((state) => state.setState);
+  const setUserCsv = useStore((state) => state.setUserCsv);
   const resetStore = useStore((state) => state.resetStore);
   const seerData = useStore((state) => state.seerData);
   const modelOptions = useStore((state) => state.modelOptions);
@@ -69,8 +70,11 @@ export default function AnalysisForm({ id }) {
     }
   }, [getValues, session]);
   useEffect(() => {
-    if (inputFile && !Object.keys(seerData).length) handleLoadData();
+    if (inputFile && !Object.keys(seerData).length) handleLoadData(inputType, inputFile);
   }, [inputType, inputFile, seerData, handleLoadData]);
+  useEffect(() => {
+    if (Object.keys(seerData).length && !Object.keys(modelOptions).length) setModelOptions(seerData);
+  }, [seerData, modelOptions]);
 
   function handleChange(event) {
     const { name, value, checked } = event.target;
@@ -89,32 +93,38 @@ export default function AnalysisForm({ id }) {
     setValue(key, checked);
   }
 
-  async function handleLoadData() {
-    if (inputType == "seer" && inputFile) {
+  async function handleLoadData(inputType, inputFile) {
+    if (inputFile) {
       const files = Array.from(inputFile);
       const dictionaryFile = files.find((file) => /.dic$/i.test(file.name));
       const dataFile = files.find((file) => /.txt$/i.test(file.name));
 
-      try {
-        if (dictionaryFile && dataFile) {
-          // parse SEER*Stat files to extract dictionary headers and data
-          const { headers, config } = await parseSeerStatDictionary(dictionaryFile);
-          const { data } = await parseSeerStatFiles(dictionaryFile, dataFile);
-          const seer = {
-            dictionaryFile: dictionaryFile.name,
-            dataFile: dataFile.name,
-            seerStatDictionary: headers,
-            seerStatData: data,
-            config,
-          };
+      if (inputType == "seer") {
+        try {
+          if (dictionaryFile && dataFile) {
+            // parse SEER*Stat files to extract dictionary headers and data
+            const { headers, config } = await parseSeerStatDictionary(dictionaryFile);
+            const { data } = await parseSeerStatFiles(dictionaryFile, dataFile);
+            const seer = {
+              dictionaryFile: dictionaryFile.name,
+              dataFile: dataFile.name,
+              seerStatDictionary: headers,
+              seerStatData: data,
+              config,
+            };
 
-          setModelOptions(seer);
-          setState({ seerData: seer });
-        } else {
-          throw new Error("Invalid SEER*STAT files selected.");
+            setModelOptions(seer);
+            setState({ seerData: seer });
+          } else {
+            throw new Error("Invalid SEER*STAT files selected.");
+          }
+        } catch (e) {
+          console.log(e);
         }
-      } catch (e) {
-        console.log(e);
+      }
+      if (inputType == "csv") {
+        const data = await parseCsvFile2(dataFile);
+        setUserCsv({ userData: dataFile, parsed: data, openConfigDataModal: true });
       }
     }
   }
@@ -128,7 +138,8 @@ export default function AnalysisForm({ id }) {
     const intervals = seerStatDictionary.filter(({ name }) => name === "Interval")[0]["factors"];
     // const intervals = [...Array(+config["Session Options"]["NumberOfIntervals"]).keys()].map((i) => i + 1);
     // by default, use 25 years of follow-up (less if there are fewer years of follow-up in the data)
-    const interval = Math.min(25, getMaxFollowUpYears(config));
+    const interval = Math.max(...intervals.map((e) => e.value));
+    // const interval = Math.min(25, getMaxFollowUpYears(config));
     const allIntervals = intervals.map((e) => e.value);
     // get cohort variables, located between year of diagnosis and interval variables
     const varNames = seerStatDictionary.map((e) => e.label);
@@ -251,20 +262,28 @@ export default function AnalysisForm({ id }) {
               required: true,
               onChange: handleChange,
             })}>
-            <option value="seer">Dictionary/Data Files</option>
+            <option value="seer">SEER*Stat Dictionary/Data Files</option>
             <option value="csv">CSV File</option>
             <option value="zip">Workspace</option>
           </Form.Select>
         </Form.Group>
 
         <Form.Group className="mb-3" controlId="inputFile">
-          <Form.Label className="required fw-bold">Files</Form.Label>
+          <Form.Label className="required fw-bold">
+            {inputType === "seer"
+              ? "SEER*Stat Dictionary/Data Files (.dic/.txt)"
+              : inputType === "csv"
+              ? "Data (.txt/.csv/.tsv)"
+              : "Workspace (.zip)"}
+          </Form.Label>
           <FileInput
             control={control}
-            rules={{ required: inputType === "seer" && !Object.keys(seerData).length }}
+            rules={{
+              required: !Object.keys(seerData).length,
+            }}
             name="inputFile"
-            multiple
-            accept=".dic,.csv,.zip,.txt"
+            multiple={inputType === "seer"}
+            accept=".dic,.csv,.tsv,.zip,.txt"
           />
           <Form.Text className="text-danger">{errors?.referenceDataFiles?.message}</Form.Text>
         </Form.Group>
@@ -276,13 +295,18 @@ export default function AnalysisForm({ id }) {
           </div>
         )}
         <div className="text-end mb-3">
-          <Button variant="primary" onClick={() => handleLoadData()} disabled={false}>
+          {inputType === "csv" && (
+            <Button variant="link" onClick={() => setUserCsv({ openConfigDataModal: true })}>
+              Configure CSV
+            </Button>
+          )}
+          <Button variant="primary" onClick={() => handleLoadData(inputType, inputFile)} disabled={false}>
             Load
           </Button>
         </div>
       </fieldset>
 
-      {Object.keys(seerData).length > 0 && (
+      {Object.keys(modelOptions).length > 0 && (
         <>
           <fieldset className="fieldset shadow-sm border rounded my-4 pt-4 px-3">
             <legend className="legend fw-bold">Cohort and Model Specifications</legend>

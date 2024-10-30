@@ -33,6 +33,13 @@ export const defaultState = {
   results: {},
   seerData: {},
   modelOptions: {},
+  userCsv: {
+    openConfigDataModal: false,
+    userData: null,
+    parsed: [],
+    userHeaders: [],
+    form: { hasHeaders: false, dataType: "Relative Survival", rates: "percents" },
+  },
   openSidebar: true,
   useConditional: false,
   conditional: null,
@@ -42,6 +49,7 @@ export const useStore = create((set) => ({
   ...defaultState,
   toggleSidebar: () => set((state) => ({ openSidebar: !state.openSidebar })),
   setState: (update) => set((state) => ({ ...state, ...update })),
+  setUserCsv: (update) => set((state) => ({ userCsv: { ...state.userCsv, ...update } })),
   resetStore: () => set(() => defaultState),
   resetMain: () => set((state) => ({ ...state, main: defaultState.main })),
 }));

@@ -139,6 +139,32 @@ export async function parseCsvFile(csvFile, options) {
 }
 
 /**
+ * Parses a CSV file as a data frame
+ * @param csvFile
+ * @param options
+ * @returns
+ */
+export async function parseCsvFile2(csvFile, options) {
+  const fileContents = await readFile(csvFile);
+  const distinct = {};
+  const data = parseCsv(fileContents, {
+    transformRecord: (record) => {
+      for (const key in record) {
+        if (!distinct[key]) distinct[key] = new Set();
+        const value = record[key];
+        distinct[key].add(value);
+      }
+      return record;
+    },
+    ...options,
+    delimiter: options?.delimiter || determineDelimiter(fileContents),
+    headers: options?.headers || false,
+  });
+
+  return data;
+}
+
+/**
  * Parses a SEER*Stat dictionary/data file pair as a data frame
  * @param seerStatDictionaryFile
  * @param seerStatDataFile
@@ -192,4 +218,22 @@ export function downloadExcel(sheets, filename) {
   }
 
   writeFileXLSX(workbook, filename);
+}
+
+/**
+ * Determines the delimiter of a CSV file
+ * @param fileContents
+ * @returns {string} The detected delimiter
+ */
+function determineDelimiter(fileContents) {
+  const lines = fileContents.split("\n").slice(0, 5); // Read the first 5 lines
+
+  const delimiters = [",", "\t"];
+  const delimiterCounts = delimiters.map((delimiter) => ({
+    delimiter,
+    count: lines.reduce((acc, line) => acc + (line.split(delimiter).length - 1), 0),
+  }));
+
+  delimiterCounts.sort((a, b) => b.count - a.count);
+  return delimiterCounts[0].delimiter;
 }

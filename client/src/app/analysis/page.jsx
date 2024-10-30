@@ -9,6 +9,7 @@ import Col from "react-bootstrap/Col";
 import AnalysisForm from "./form";
 import AnalysisMain from "./main/main";
 import { SidebarContainer, SidebarPanel, MainPanel } from "@/components/sidebar-container";
+import ConfigureData from "./configure-data";
 import { useStore } from "./store";
 
 export default function Analysis({ searchParams }) {
@@ -50,6 +51,7 @@ export default function Analysis({ searchParams }) {
           </MainPanel>
         </SidebarContainer>
       </Row>
+      <ConfigureData />
     </Container>
   );
 }
