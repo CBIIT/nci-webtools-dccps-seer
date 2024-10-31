@@ -8,6 +8,7 @@ import path from "path";
 import DiskStorage from "./storage.js";
 import { logRequests, logErrors, logFiles, handleValidationErrors } from "./middleware.js";
 import { getCalendarTrends, recalculateConditional, submit } from "./analysis.js";
+import { exportWorkspace, importWorkspace } from "./workspace.js";
 
 export function createApi(env) {
   // define middleware
@@ -45,6 +46,17 @@ export function createApi(env) {
 
   router.post("/recalculateConditional/:id", validate, handleValidationErrors, async (req, res) => {
     res.json(await recalculateConditional({ ...req.body, id: req.params.id }, req.app.locals.logger));
+  });
+
+  router.get("/export/:id", validate, handleValidationErrors, async (req, res) => {
+    const zipStream = await exportWorkspace(req.params.id, env);
+    res.setHeader("Content-Type", "application/zip");
+    res.setHeader("Content-Disposition", `attachment; filename=${req.params.id}.zip`);
+    zipStream.pipe(res);
+  });
+
+  router.post("/import/:id", validate, handleValidationErrors, upload.single("files"), async (req, res) => {
+    res.json(await importWorkspace(req.params.id, req.file.originalname, env));
   });
 
   router.use(logErrors());

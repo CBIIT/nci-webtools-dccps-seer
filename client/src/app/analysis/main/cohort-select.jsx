@@ -4,11 +4,13 @@ import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Alert from "react-bootstrap/Alert";
+import Button from "react-bootstrap/Button";
 import { useStore } from "../store";
 
 export default function CohortSelect({ params, manifest, className }) {
   const setState = useStore((state) => state.setState);
   const main = useStore((state) => state.main);
+  const id = useStore((state) => state.params.id);
   const { cohortIndex, cutpointIndex, cluster } = main;
   const errors = manifest.filter((e) => typeof e === "string");
   const cohorts = manifest.filter((e) => typeof e !== "string");
@@ -48,6 +50,22 @@ export default function CohortSelect({ params, manifest, className }) {
   const handleClusterChange = (e) => {
     setState({ main: { ...main, cluster: e.target.value } });
   };
+
+  async function handleDownload() {
+    const response = await fetch(`api/export/${id}`);
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `jpsurv-${id}.zip`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+  }
 
   return (
     <Form className={className}>
@@ -89,6 +107,11 @@ export default function CohortSelect({ params, manifest, className }) {
             </Form.Group>
           </Col>
         )}
+        <Col className="ms-auto" sm="auto">
+          <Button variant="link" onClick={handleDownload}>
+            Save Workspace
+          </Button>
+        </Col>
       </Row>
       {params.useRelaxModel && (
         <Row className="mt-3">

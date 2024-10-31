@@ -12,7 +12,7 @@ import { v4 as uuidv4 } from "uuid";
 import { useStore, defaultForm, defaultAdvOptions } from "./store";
 import { parseSeerStatDictionary, parseSeerStatFiles } from "@/services/file/file.service";
 import { uploadFiles, asFileList } from "@/components/file-input";
-import { fetchSession, submit } from "./queries";
+import { fetchSession, submit, importWorkspace } from "./queries";
 import { Accordion } from "react-bootstrap";
 
 const FileInput = dynamic(() => import("@/components/file-input"), {
@@ -53,6 +53,9 @@ export default function AnalysisForm({ id }) {
 
   const submitForm = useMutation({
     mutationFn: ({ id, params }) => submit(id, params),
+  });
+  const importMutation = useMutation({
+    mutationFn: ({ id, fileList }) => importWorkspace(id, fileList),
   });
   const { data: session } = useQuery({
     queryKey: ["session", id],
@@ -207,6 +210,14 @@ export default function AnalysisForm({ id }) {
   }
 
   async function onSubmit(formData) {
+    if (inputType === "seer" || inputType === "csv") {
+      await submitCalculation(formData);
+    } else if (inputType === "zip" && inputFile.length) {
+      await loadWorkspace(formData);
+    }
+  }
+
+  async function submitCalculation(formData) {
     const id = uuidv4();
     const { cohorts, cohortVars, cohortCombos } = processCohorts(formData);
     const statistic = seerData.config["Session Options"]["Statistic"];
@@ -240,6 +251,13 @@ export default function AnalysisForm({ id }) {
     reset(params);
     setState({ params });
     router.push(`${pathname}?id=${id}`, { shallow: true });
+  }
+
+  async function loadWorkspace() {
+    const id = uuidv4();
+    const workspace = asFileList(inputFile[0]);
+    const { data: workspaceId } = await importMutation.mutateAsync({ id, fileList: workspace });
+    router.push(`${pathname}?id=${workspaceId}`, { shallow: true });
   }
 
   function onReset(event) {
@@ -283,7 +301,7 @@ export default function AnalysisForm({ id }) {
             }}
             name="inputFile"
             multiple={inputType === "seer"}
-            accept=".dic,.csv,.tsv,.zip,.txt"
+            accept={".dic,.csv,.tsv,.zip,.txt"}
           />
           <Form.Text className="text-danger">{errors?.referenceDataFiles?.message}</Form.Text>
         </Form.Group>
@@ -300,9 +318,9 @@ export default function AnalysisForm({ id }) {
               Configure CSV
             </Button>
           )}
-          <Button variant="primary" onClick={() => handleLoadData(inputType, inputFile)} disabled={false}>
+          {/* <Button variant="primary" onClick={() => handleLoadData(inputType, inputFile)} disabled={false}>
             Load
-          </Button>
+          </Button> */}
         </div>
       </fieldset>
 
@@ -597,7 +615,10 @@ export default function AnalysisForm({ id }) {
         <Button type="reset" variant="outline-danger" className="me-1">
           Reset
         </Button>
-        <Button type="submit" variant="primary" disabled={!Object.keys(seerData).length}>
+        <Button
+          type="submit"
+          variant="primary"
+          disabled={inputType === "zip" ? !inputFile.length : !Object.keys(seerData).length}>
           Submit
         </Button>
       </div>

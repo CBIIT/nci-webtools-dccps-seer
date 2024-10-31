@@ -22,7 +22,12 @@ export async function calculateCalendarTrends(id, params) {
   return await axios.post(`api/calendarTrends/${id}`, params);
 }
 
-export async function recalculateConditional(id,params) {
+export async function recalculateConditional(id, params) {
   return await axios.post(`api/recalculateConditional/${id}`, params);
+}
 
+export async function importWorkspace(id, [file]) {
+  const formData = new FormData();
+  formData.append("files", file, file.name);
+  return await axios.post(`api/import/${id}`, formData);
 }
