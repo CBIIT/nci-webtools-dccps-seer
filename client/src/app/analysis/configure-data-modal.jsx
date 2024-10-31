@@ -7,7 +7,7 @@ import { useStore, defaultState } from "./store";
 import { parseCsvFile2 } from "@/services/file/file.service";
 import { renameKeys } from "@/services/utils";
 
-export default function ConfigureData() {
+export default function ConfigureDataModal() {
   const setState = useStore((state) => state.setState);
   const setUserCsv = useStore((state) => state.setUserCsv);
   const openConfigDataModal = useStore((state) => state.userCsv.openConfigDataModal);
