@@ -10,7 +10,7 @@ import Col from "react-bootstrap/Col";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { v4 as uuidv4 } from "uuid";
 import { useStore, defaultForm, defaultAdvOptions } from "./store";
-import { parseSeerStatDictionary, parseSeerStatFiles, parseCsvFile2 } from "@/services/file/file.service";
+import { parseSeerStatDictionary, parseSeerStatFiles } from "@/services/file/file.service";
 import { uploadFiles, asFileList } from "@/components/file-input";
 import { fetchSession, submit } from "./queries";
 import { Accordion } from "react-bootstrap";
@@ -97,7 +97,7 @@ export default function AnalysisForm({ id }) {
     if (inputFile) {
       const files = Array.from(inputFile);
       const dictionaryFile = files.find((file) => /.dic$/i.test(file.name));
-      const dataFile = files.find((file) => /.txt$/i.test(file.name));
+      const dataFile = files.find((file) => /(.txt|.csv|.tsv)$/i.test(file.name));
 
       if (inputType == "seer") {
         try {
@@ -105,11 +105,18 @@ export default function AnalysisForm({ id }) {
             // parse SEER*Stat files to extract dictionary headers and data
             const { headers, config } = await parseSeerStatDictionary(dictionaryFile);
             const { data } = await parseSeerStatFiles(dictionaryFile, dataFile);
+            // get cohort variables, located between year of diagnosis and interval variables
+            const varNames = headers.map((e) => e.label);
+            const yearIndex = varNames.findIndex((e) => /year/gi.test(e));
+            const intervalIndex = varNames.indexOf("Interval");
+            const cohortVariables = intervalIndex - yearIndex > 1 ? headers.slice(yearIndex + 1, intervalIndex) : [];
+
             const seer = {
               dictionaryFile: dictionaryFile.name,
               dataFile: dataFile.name,
               seerStatDictionary: headers,
               seerStatData: data,
+              cohortVariables,
               config,
             };
 
@@ -121,16 +128,14 @@ export default function AnalysisForm({ id }) {
         } catch (e) {
           console.log(e);
         }
-      }
-      if (inputType == "csv") {
-        const data = await parseCsvFile2(dataFile);
-        setUserCsv({ userData: dataFile, parsed: data, openConfigDataModal: true });
+      } else if (inputType == "csv") {
+        setUserCsv({ userData: dataFile, openConfigDataModal: true });
       }
     }
   }
 
   function setModelOptions(seerData) {
-    const { seerStatDictionary, config } = seerData;
+    const { seerStatDictionary, cohortVariables } = seerData;
     const yearOptions = seerStatDictionary
       .filter(({ label }) => /year/gi.test(label))
       .map((e) => ({ label: e.label, name: e.name }));
@@ -141,11 +146,6 @@ export default function AnalysisForm({ id }) {
     const interval = Math.max(...intervals.map((e) => e.value));
     // const interval = Math.min(25, getMaxFollowUpYears(config));
     const allIntervals = intervals.map((e) => e.value);
-    // get cohort variables, located between year of diagnosis and interval variables
-    const varNames = seerStatDictionary.map((e) => e.label);
-    const yearIndex = varNames.indexOf(yearOptions[0].label);
-    const intervalIndex = varNames.indexOf("Interval");
-    const cohortVariables = seerStatDictionary.slice(yearIndex + 1, intervalIndex);
 
     // add dynamic fields for cohort variables
     cohortVariables.forEach(({ label, name, factors }) => append({ label, name, options: factors }));
@@ -158,7 +158,7 @@ export default function AnalysisForm({ id }) {
     setValue("conditionalEnd", intervals.at(-1).value);
     setValue("cutpoint", allIntervals.includes(5) ? 5 : Math.max(allIntervals));
 
-    setState({ modelOptions: { yearOptions, yearRangeOptions, intervals, cohortVariables } });
+    setState({ modelOptions: { yearOptions, yearRangeOptions, intervals } });
   }
 
   /**

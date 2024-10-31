@@ -36,8 +36,9 @@ export const defaultState = {
   userCsv: {
     openConfigDataModal: false,
     userData: null,
-    parsed: [],
-    userHeaders: [],
+    parsedNoHead: [],
+    parsedHead: { headers: [], data: [] },
+    mapHeaders: [],
     form: { hasHeaders: false, dataType: "Relative Survival", rates: "percents" },
   },
   openSidebar: true,

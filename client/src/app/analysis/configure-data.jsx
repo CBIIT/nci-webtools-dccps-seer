@@ -1,15 +1,19 @@
-import { useMemo } from "react";
-import { Modal, Button, Form, Container } from "react-bootstrap";
+import { useMemo, useEffect } from "react";
+import { Modal, Button, Form, Container, Row, Col } from "react-bootstrap";
 import Table from "react-bootstrap/Table";
 import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { useForm } from "react-hook-form";
 import { useStore, defaultState } from "./store";
+import { parseCsvFile2 } from "@/services/file/file.service";
+import { renameKeys } from "@/services/utils";
 
 export default function ConfigureData() {
   const setState = useStore((state) => state.setState);
   const setUserCsv = useStore((state) => state.setUserCsv);
   const openConfigDataModal = useStore((state) => state.userCsv.openConfigDataModal);
-  const parsed = useStore((state) => state.userCsv.parsed);
+  const userData = useStore((state) => state.userCsv.userData);
+  const parsedNoHead = useStore((state) => state.userCsv.parsedNoHead);
+  const parsedHead = useStore((state) => state.userCsv.parsedHead);
   const form = useStore((state) => state.userCsv.form);
   const setConfigDataModal = (e) => setUserCsv({ openConfigDataModal: e });
   const handleClose = () => setConfigDataModal(false);
@@ -22,6 +26,7 @@ export default function ConfigureData() {
     watch,
     formState: { errors },
   } = useForm({ defaultValues: form });
+  const hasHeaders = watch("hasHeaders");
   const dataType = watch("dataType");
 
   const headerOptions = [
@@ -32,37 +37,69 @@ export default function ConfigureData() {
     { label: "Number Dead", value: "Died" },
     { label: "Number Lost", value: "Lost_to_Followup" },
     { label: "Expected Survival Interval", value: "Expected_Survival_Interval" },
-    { label: `${dataType} Cum`, value: `${dataType.replace(" ", "_")}_Cum` },
     { label: `${dataType} Int`, value: `${dataType.replace(" ", "_")}_Interval` },
-    { label: `${dataType} Cum SE`, value: `${dataType.split(" ")[0]}_SE_Cum` },
+    { label: `${dataType} Cum`, value: `${dataType.replace(" ", "_")}_Cum` },
     { label: `${dataType} Int SE`, value: `${dataType.split(" ")[0]}_SE_Interval` },
+    { label: `${dataType} Cum SE`, value: `${dataType.split(" ")[0]}_SE_Cum` },
   ];
 
-  async function onSubmit(data) {
-    const { userHeaders, ...rest } = data;
-    const newHeaders = userHeaders.map((header, index) => header || `col${index}`);
-    const reduceData = parsed.map((row) => ({
-      ...row.reduce((acc, cell, index) => {
-        let key = newHeaders[index];
-        if (acc[key] !== undefined) {
-          key = `${key}_${index}`;
-        }
-        return { ...acc, [key]: cell };
-      }, {}),
-    }));
-    const headers = newHeaders.map((col) => ({
-      name: col,
-      label: col,
-      factors: headerOptions
-        .slice(0, 3)
-        .map((e) => e.value)
-        .includes(col)
-        ? [...new Set(reduceData.map((row) => row[col]))].map((value) => ({ value, label: String(value) }))
-        : [],
-    }));
-    const config = { "Session Options": { Statistic: data.dataType, RatesDisplayedAs: data.rates } };
+  useEffect(() => {
+    if (userData && hasHeaders) {
+      parseCsvFile2(userData, { headers: true }).then((data) => setUserCsv({ parsedHead: data }));
+    } else if (userData && !hasHeaders) {
+      parseCsvFile2(userData).then((data) => setUserCsv({ parsedNoHead: data }));
+    }
+  }, [hasHeaders, userData]);
 
-    setState({ seerData: { seerStatDictionary: headers, seerStatData: reduceData, config } });
+  async function onSubmit(data) {
+    const { mapHeaders, ...rest } = data;
+    if (hasHeaders) {
+      const newHeaders = mapHeaders.reduce((acc, header, index) => {
+        acc[parsedHead.headers[index]] =
+          header === "cohort" ? `cohort_${parsedHead.headers[index]}` : header || parsedHead.headers[index];
+        return acc;
+      }, {});
+      const seerStatData = parsedHead.data.map((row) => renameKeys(row, newHeaders));
+      const headers = Object.values(newHeaders).map((col) => ({
+        name: col,
+        label: col,
+        factors: headerOptions
+          .slice(0, 3)
+          .map((e) => e.value)
+          .some((e) => new RegExp(`^${e}`).test(col))
+          ? [...new Set(seerStatData.map((row) => row[col]))].map((value) => ({ value, label: String(value) }))
+          : [],
+      }));
+      const config = { "Session Options": { Statistic: data.dataType, RatesDisplayedAs: data.rates } };
+      const cohortVariables = headers.filter((e) => /^cohort/.test(e.name));
+
+      setState({ seerData: { seerStatDictionary: headers, seerStatData, cohortVariables, config } });
+    } else {
+      const newHeaders = mapHeaders.map((header, index) => header || `col${index}`);
+      const reduceData = parsedNoHead.map((row) => ({
+        ...row.reduce((acc, cell, index) => {
+          let key = newHeaders[index];
+          if (acc[key] !== undefined) {
+            key = `${key}_${index}`;
+          }
+          return { ...acc, [key]: cell };
+        }, {}),
+      }));
+      const headers = newHeaders.map((col) => ({
+        name: col,
+        label: col,
+        factors: headerOptions
+          .slice(0, 3)
+          .map((e) => e.value)
+          .includes(col)
+          ? [...new Set(reduceData.map((row) => row[col]))].map((value) => ({ value, label: String(value) }))
+          : [],
+      }));
+      const config = { "Session Options": { Statistic: data.dataType, RatesDisplayedAs: data.rates } };
+      const cohortVariables = headers.filter((e) => e.name.includes("cohort"));
+
+      setState({ seerData: { seerStatDictionary: headers, seerStatData: reduceData, cohortVariables, config } });
+    }
     handleClose();
   }
 
@@ -70,30 +107,39 @@ export default function ConfigureData() {
     reset({ ...defaultState.userCsv.form, openConfigDataModal: true });
   }
 
-  const tableData = useMemo(
-    () =>
-      parsed.length
-        ? parsed.slice(0, 10).map((row) =>
+  const tableData = useMemo(() => {
+    if (hasHeaders) {
+      return parsedHead.data.slice(0, 10);
+    } else {
+      return parsedNoHead.length
+        ? parsedNoHead.slice(0, 10).map((row) =>
             row.reduce((acc, cell, index) => {
               acc[`col${index}`] = cell;
               return acc;
             }, {})
           )
-        : [],
-    [parsed]
-  );
-  const columns = useMemo(
-    () =>
-      tableData.length
+        : [];
+    }
+  }, [parsedNoHead, parsedHead.data]);
+  const columns = useMemo(() => {
+    if (hasHeaders) {
+      return parsedHead.headers.map((col) =>
+        columnHelper.accessor(col, {
+          header: col,
+          cell: (info) => info.getValue(),
+        })
+      );
+    } else {
+      return tableData.length
         ? Object.keys(tableData[0]).map((col) =>
             columnHelper.accessor(col, {
               header: col,
               cell: (info) => info.getValue(),
             })
           )
-        : [],
-    [tableData]
-  );
+        : [];
+    }
+  }, [tableData, parsedHead.headers]);
 
   const table = useReactTable({
     data: tableData,
@@ -108,10 +154,11 @@ export default function ConfigureData() {
       </Modal.Header>
       <Form onSubmit={handleSubmit(onSubmit)} onReset={onReset}>
         <Modal.Body className="bg-light">
-          <Container fluid="sm">
-            {/* <Form.Group controlId="hasHeaders">
+          <Container className="w-50" fluid="sm">
+            <Form.Group controlId="hasHeaders">
               <Form.Check {...register("hasHeaders")} type="checkbox" label="Data File Contains Headers" />
-            </Form.Group> */}
+              <Form.Text>Check this option is your file contains column headers in the first row</Form.Text>
+            </Form.Group>
             <Form.Group controlId="dataType">
               <Form.Label className="fw-bold">Data Type</Form.Label>
               <Form.Select {...register("dataType")}>
@@ -133,7 +180,7 @@ export default function ConfigureData() {
                 <tr>
                   {columns.map((col, index) => (
                     <th key={index}>
-                      <Form.Select {...register("userHeaders." + index)}>
+                      <Form.Select {...register("mapHeaders." + index)}>
                         <option></option>
                         {headerOptions.map((e, i) => (
                           <option key={i} value={e.value}>
