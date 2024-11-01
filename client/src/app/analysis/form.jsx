@@ -112,7 +112,13 @@ export default function AnalysisForm({ id }) {
             const varNames = headers.map((e) => e.label);
             const yearIndex = varNames.findIndex((e) => /year/gi.test(e));
             const intervalIndex = varNames.indexOf("Interval");
-            const cohortVariables = intervalIndex - yearIndex > 1 ? headers.slice(yearIndex + 1, intervalIndex) : [];
+            const cohortVariables =
+              intervalIndex - yearIndex > 1
+                ? headers.slice(yearIndex + 1, intervalIndex).map((e) => ({
+                    ...e,
+                    factors: e.factors.map((f) => ({ ...f, label: f.label.replace(/"/gi, "").trim() })),
+                  }))
+                : [];
 
             const seer = {
               dictionaryFile: dictionaryFile.name,
@@ -378,16 +384,15 @@ export default function AnalysisForm({ id }) {
                 <Form.Group key={label} controlId={label} className="mb-4">
                   <Form.Label className="fw-bold">{label}</Form.Label>
                   {options.map((e, oIndex) => {
-                    const checkLabel = e.label.replace(/"/gi, "").trim();
                     return (
                       <Form.Check
                         {...register(`cohorts.${fIndex}.options.${oIndex}.checked`)}
                         onChange={(e) => handleCohort(e, `cohorts.${fIndex}.options.${oIndex}.checked`)}
-                        label={checkLabel}
+                        label={e.label}
                         value={e.name}
-                        name={checkLabel}
-                        id={checkLabel}
-                        key={checkLabel}
+                        name={e.label}
+                        id={e.label}
+                        key={e.label}
                         type="checkbox"
                       />
                     );

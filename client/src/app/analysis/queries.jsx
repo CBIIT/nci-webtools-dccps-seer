@@ -31,3 +31,12 @@ export async function importWorkspace(id, [file]) {
   formData.append("files", file, file.name);
   return await axios.post(`api/import/${id}`, formData);
 }
+
+export async function fetchAll(id, manifest) {
+  const valid = manifest.filter((e) => e?.model);
+  const models = valid.map((e) => e.model.split(".").slice(0, -1).join("."));
+  const coefficients = valid.map((e) => e.coefficients.split(".").slice(0, -1).join("."));
+  const modelData = await Promise.all(models.map((file) => fetchResults(id, file)));
+  const coefData = await Promise.all(coefficients.map((file) => fetchResults(id, file)));
+  return { modelData, coefData };
+}

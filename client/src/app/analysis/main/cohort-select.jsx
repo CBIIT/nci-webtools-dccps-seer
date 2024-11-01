@@ -7,7 +7,7 @@ import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import { useStore } from "../store";
 
-export default function CohortSelect({ params, manifest, className }) {
+export default function CohortSelect({ params, manifest, className, handleSaveResults }) {
   const setState = useStore((state) => state.setState);
   const main = useStore((state) => state.main);
   const id = useStore((state) => state.params.id);
@@ -51,7 +51,7 @@ export default function CohortSelect({ params, manifest, className }) {
     setState({ main: { ...main, cluster: e.target.value } });
   };
 
-  async function handleDownload() {
+  async function handleSaveWorkspace() {
     const response = await fetch(`api/export/${id}`);
     if (!response.ok) {
       throw new Error("Network response was not ok");
@@ -85,9 +85,7 @@ export default function CohortSelect({ params, manifest, className }) {
             <Form.Select value={cohortIndex || ""} onChange={handleCohortChange}>
               {cohortIndexes.map((cohort_index, i) => (
                 <option key={i} value={cohort_index}>
-                  {params.cohortCombos[cohort_index - 1]
-                    ?.map((c, i) => params.cohorts[i].options[c].label.replace(/"/gi, "").trim())
-                    .join(" + ")}
+                  {params.cohortCombos[cohort_index - 1]?.map((c, i) => params.cohorts[i].options[c].label).join(" + ")}
                 </option>
               ))}
             </Form.Select>
@@ -108,7 +106,12 @@ export default function CohortSelect({ params, manifest, className }) {
           </Col>
         )}
         <Col className="ms-auto" sm="auto">
-          <Button variant="link" onClick={handleDownload}>
+          <Button variant="link" onClick={handleSaveResults}>
+            Download Full Dataset
+          </Button>
+        </Col>
+        <Col sm="auto">
+          <Button variant="link" onClick={handleSaveWorkspace}>
             Save Workspace
           </Button>
         </Col>

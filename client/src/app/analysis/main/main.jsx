@@ -8,9 +8,10 @@ import DeathVsYear from "./tab-death/death-year";
 import SurvivalVsTime from "./tab-time/surv-time";
 import CohortSelect from "./cohort-select";
 import { useStore } from "../store";
-import { fetchStatus, fetchResults } from "../queries";
+import { fetchStatus, fetchResults, fetchAll } from "../queries";
 import ModelEstimates from "./tab-model-estimates/model-estimates";
 import ConditionalRecalcForm from "./conditional-form";
+import { downloadAll } from "@/services/xlsx";
 
 export default function AnalysisMain({ id }) {
   const setState = useStore((state) => state.setState);
@@ -24,6 +25,9 @@ export default function AnalysisMain({ id }) {
   const resultsFile = `${cluster === "cond" ? "cond-" : ""}${
     useRelaxModel ? `${cohortIndex}-${cutpointIndex}` : cohortIndex
   }`;
+  const modelEstimatesFile = `${cluster === "cond" ? "cond-" : ""}${cohortIndex}-${
+    cutpointIndex ? `${cutpointIndex}-` : ""
+  }coefficients`;
 
   const { data: jobStatus } = useQuery({
     queryKey: ["status", id],
@@ -42,6 +46,11 @@ export default function AnalysisMain({ id }) {
     queryFn: () => fetchResults(id, resultsFile),
     enabled: jobStatus === "COMPLETED" && !!cohortIndex,
   });
+  const { data: modelEstimates } = useQuery({
+    queryKey: ["results", id, modelEstimatesFile],
+    queryFn: () => fetchResults(id, modelEstimatesFile),
+    enabled: jobStatus === "COMPLETED" && !!cohortIndex,
+  });
 
   function setFitIndex(index) {
     setState({ main: { ...main, fitIndex: index } });
@@ -54,12 +63,31 @@ export default function AnalysisMain({ id }) {
     }, 1000);
   }, []);
 
+  async function handleSaveResults() {
+    const { modelData, coefData } = await fetchAll(id, manifest);
+
+    downloadAll(
+      modelData,
+      coefData,
+      seerData,
+      params,
+      `jpsurv_${params.files.dataFile.split(".").slice(0, -1).join(".")}`
+    );
+  }
+
   return (
     <Container>
       <code>{JSON.stringify(jobStatus)}</code>
-      {params.id && manifest && <CohortSelect className="mb-3" params={params} manifest={manifest} />}
+      {params.id && manifest && (
+        <CohortSelect
+          className="mb-3"
+          params={params}
+          manifest={manifest}
+          data={results}
+          handleSaveResults={handleSaveResults}
+        />
+      )}
       {results && seerData && seerData && params && manifest && (
-        // {results && seerData && Object.keys(seerData).length > 0 && Object.keys(params).length > 0 && manifest && (
         <>
           <ModelTable
             data={results}
@@ -104,28 +132,11 @@ export default function AnalysisMain({ id }) {
               />
             </Tab>
             <Tab eventKey="estimates" title="Model Estimates">
-              <ModelEstimates
-                id={id}
-                cohortIndex={cohortIndex}
-                cutpointIndex={cutpointIndex}
-                fitIndex={fitIndex}
-                cluster={cluster}
-              />
+              <ModelEstimates data={modelEstimates} fitIndex={fitIndex} />
             </Tab>
           </Tabs>
         </>
       )}
-
-      {/* <code>{JSON.stringify(results?.aic)}</code> */}
-      {/* {error && <Alert variant="danger">Results expired</Alert>}
-      <banner />
-      <div className={displayTab === "instructions" ? "d-block" : "d-none"}>
-        <Instructions formLimits={formLimits} />
-      </div>
-      <div className={displayTab === "status" ? "d-block" : "d-none"}>
-        <Status />
-      </div>
-      {status && status === "COMPLETED" && <></>} */}
     </Container>
   );
 }

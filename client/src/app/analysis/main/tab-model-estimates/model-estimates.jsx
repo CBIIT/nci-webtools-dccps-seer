@@ -6,14 +6,7 @@ import { createColumnHelper } from "@tanstack/react-table";
 import Table from "@/components/table";
 import { fetchResults } from "../../queries";
 
-export default function ModelEstimates({ id, cohortIndex, cutpointIndex, fitIndex, cluster }) {
-  const file = `${cluster === "cond" ? "cond-" : ""}${cohortIndex}-${
-    cutpointIndex ? `${cutpointIndex}-` : ""
-  }coefficients`;
-  const { data } = useQuery({
-    queryKey: ["results", id, file],
-    queryFn: () => fetchResults(id, file),
-  });
+export default function ModelEstimates({ data, fitIndex }) {
   const memoData = useMemo(() => (data ? data[fitIndex] : []), [data, fitIndex]);
   const columnHelper = createColumnHelper();
   const columns = [
