@@ -1,6 +1,7 @@
 import Zip from "adm-zip";
 import path from "path";
 import { readFile, readdir } from "fs/promises";
+import { PassThrough } from "stream";
 
 export async function exportWorkspace(id, env = process.env) {
   const inputFolder = path.resolve(env.INPUT_FOLDER, id);
@@ -24,7 +25,10 @@ export async function exportWorkspace(id, env = process.env) {
     zip.addFile(`output/${file}`, fileData);
   }
 
-  return zip.toBuffer();
+  const zipBuffer = zip.toBuffer();
+  const stream = new PassThrough();
+  stream.end(zipBuffer);
+  return stream;
 }
 
 export async function importWorkspace(id, zipFile, env = process.env) {
