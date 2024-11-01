@@ -230,6 +230,32 @@ export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fi
           />
         </Col>
       </Row>
+      <Row className="justify-content-between align-items-center">
+        <Col sm="auto">Rows: {memoData.length}</Col>
+        <Col sm="auto">
+          <Button
+            variant="link"
+            onClick={() =>
+              downloadTable(
+                memoData,
+                [
+                  ...params.cohortVars,
+                  params.year,
+                  "Interval",
+                  observedHeader,
+                  observedSeHeader,
+                  predictedHeader,
+                  predictedSeHeader,
+                ],
+                seerData,
+                params,
+                `survByYear - Model ${fitIndex} - ${cohortIndex}`
+              )
+            }>
+            Download Dataset
+          </Button>
+        </Col>
+      </Row>
       <Row>
         <Col>
           <SurvYearTable

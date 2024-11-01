@@ -1,30 +1,25 @@
 "use client";
 import { useMemo } from "react";
-import { Container, Row, Col, Form } from "react-bootstrap";
+import { Container, Row, Col, Button } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import SelectHookForm from "@/components/selectHookForm";
 import SurvTimePlot from "./surv-time-plot";
 import SurvTimeTable from "./surv-time-table";
+import { downloadTable } from "@/services/xlsx";
 
-export default function SurvivalVsTime({ data, seerData, params, conditional }) {
+export default function SurvivalVsTime({ data, seerData, params, cohortIndex, fitIndex, conditional }) {
   const isRecalcCond = !!conditional;
   const { statistic } = params;
   const observedHeader = isRecalcCond ? "observed" : params?.observed;
   const predictedHeader = "Predicted_Survival_Cum";
-  const yearDic = seerData.seerStatDictionary
-    .filter((e) => e.name == params.year)[0]
-    .factors.reduce((acc, e) => ({ ...acc, [e.value]: +e.label }), {});
+  const yearOptions = [...new Set((conditional || data).map((e) => e[params.year]))];
   const { control, register, watch } = useForm({
-    defaultValues: { years: [0] },
+    defaultValues: { years: [yearOptions[0]] },
   });
   const years = watch("years");
   const memoData = useMemo(() =>
     (conditional || data).filter((e) => years.includes(e[params.year]), [data, conditional, years])
   );
-  const yearOptions = [...new Set((conditional || data).map((e) => yearDic[e[params.year]]))].map((e) => ({
-    label: e,
-    value: +Object.keys(yearDic).find((key) => yearDic[key] === e),
-  }));
 
   return (
     <Container fluid>
@@ -35,7 +30,10 @@ export default function SurvivalVsTime({ data, seerData, params, conditional }) 
               <SelectHookForm
                 name="years"
                 label={`${isRecalcCond ? "Conditional " : ""}Year of Diagnosis`}
-                options={yearOptions}
+                options={yearOptions.map((e) => ({
+                  label: e,
+                  value: e,
+                }))}
                 control={control}
                 isMulti
               />
@@ -54,6 +52,24 @@ export default function SurvivalVsTime({ data, seerData, params, conditional }) 
             observedHeader={observedHeader}
             predictedHeader={predictedHeader}
           />
+        </Col>
+      </Row>
+      <Row className="justify-content-between align-items-center">
+        <Col sm="auto">Rows: {memoData.length}</Col>
+        <Col sm="auto">
+          <Button
+            variant="link"
+            onClick={() =>
+              downloadTable(
+                memoData,
+                [...params.cohortVars, params.year, "Interval", observedHeader, predictedHeader],
+                seerData,
+                params,
+                `survByTime - Model ${fitIndex} - ${cohortIndex}`
+              )
+            }>
+            Download Dataset
+          </Button>
         </Col>
       </Row>
       <Row>

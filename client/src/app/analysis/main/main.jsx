@@ -120,6 +120,8 @@ export default function AnalysisMain({ id }) {
                 data={results[fitIndex]}
                 seerData={seerData}
                 params={params}
+                cohortIndex={cohortIndex}
+                fitIndex={fitIndex}
                 conditional={useConditional ? conditional : null}
               />
             </Tab>
@@ -128,11 +130,13 @@ export default function AnalysisMain({ id }) {
                 data={results[fitIndex].fullpredicted}
                 seerData={seerData}
                 params={params}
+                cohortIndex={cohortIndex}
+                fitIndex={fitIndex}
                 conditional={useConditional ? conditional : null}
               />
             </Tab>
             <Tab eventKey="estimates" title="Model Estimates">
-              <ModelEstimates data={modelEstimates} fitIndex={fitIndex} />
+              <ModelEstimates data={modelEstimates} params={params} cohortIndex={cohortIndex} fitIndex={fitIndex} />
             </Tab>
           </Tabs>
         </>

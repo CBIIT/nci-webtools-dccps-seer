@@ -1,13 +1,14 @@
 "use client";
 import { useMemo, useEffect } from "react";
-import { Container, Row, Col, Form } from "react-bootstrap";
+import { Container, Row, Col, Form, Button } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import SelectHookForm from "@/components/selectHookForm";
 import DeathYearPlot from "./death-year-plot";
 import DeathYearTable from "./death-year-table";
 import TrendTable from "./death-trend-table";
+import { downloadTable } from "@/services/xlsx";
 
-export default function DeathVsYear({ data, seerData, params, conditional }) {
+export default function DeathVsYear({ data, seerData, params, cohortIndex, fitIndex, conditional }) {
   const intervalOptions = [...new Set((conditional || data.fullpredicted).map((e) => e.Interval))];
   const defaultInterval = intervalOptions.includes(5) ? 5 : Math.max(...intervalOptions);
   const { control, register, watch, setValue } = useForm({
@@ -95,6 +96,32 @@ export default function DeathVsYear({ data, seerData, params, conditional }) {
             observedHeader={observedHeader}
             predictedHeader={predictedHeader}
           />
+        </Col>
+      </Row>
+      <Row className="justify-content-between align-items-center">
+        <Col sm="auto">Rows: {memoData.length}</Col>
+        <Col sm="auto">
+          <Button
+            variant="link"
+            onClick={() =>
+              downloadTable(
+                memoData,
+                [
+                  ...params.cohortVars,
+                  params.year,
+                  "Interval",
+                  observedHeader,
+                  observedSeHeader,
+                  predictedHeader,
+                  predictedSeHeader,
+                ],
+                seerData,
+                params,
+                `deathByYear - Model ${fitIndex} - ${cohortIndex}`
+              )
+            }>
+            Download Dataset
+          </Button>
         </Col>
       </Row>
       <Row>

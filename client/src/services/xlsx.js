@@ -19,17 +19,18 @@ export function downloadAll(modelData, coefData, seerData, params, filename) {
   writeFile(wb, `${filename}.xlsx`);
 }
 
-export function downloadTable(data, seerData, params, filename) {
+export function downloadTable(data, headers, seerData, params, filename) {
   const wb = utils.book_new();
-  const dataWs = utils.json_to_sheet(data);
+  const table = data.map((row) =>
+    headers.reduce((acc, key) => {
+      if (row.hasOwnProperty(key)) {
+        acc[key] = row[key];
+      }
+      return acc;
+    }, {})
+  );
+  const dataWs = utils.json_to_sheet(table);
   utils.book_append_sheet(wb, dataWs, "Data");
-
-  coefData.forEach((modelEstimates, cohortIndex) => {
-    modelEstimates.forEach((me, modelIndex) => {
-      const modelEstWs = modelEstimatesSheet(me, modelData[cohortIndex][modelIndex], modelIndex, params);
-      utils.book_append_sheet(wb, modelEstWs, `Model Estimates ${cohortIndex}-${modelIndex}`);
-    });
-  });
 
   const settingsWs = settingsSheet(params);
   utils.book_append_sheet(wb, settingsWs, "Settings");
