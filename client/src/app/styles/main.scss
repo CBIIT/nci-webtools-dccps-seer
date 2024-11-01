@@ -9,6 +9,12 @@ body {
 .jpsurv-logo {
   height: 65px;
 }
+
+video {
+  display: block;
+  max-width: 1200px;
+}
+
 @media (max-width: 767px) {
   .jpsurv-logo {
     height: auto;
