@@ -12,6 +12,7 @@ import { fetchStatus, fetchResults, fetchAll } from "../queries";
 import ModelEstimates from "./tab-model-estimates/model-estimates";
 import ConditionalRecalcForm from "./conditional-form";
 import { downloadAll } from "@/services/xlsx";
+import Instructions from "./instructions";
 
 export default function AnalysisMain({ id }) {
   const setState = useStore((state) => state.setState);
@@ -87,7 +88,7 @@ export default function AnalysisMain({ id }) {
           handleSaveResults={handleSaveResults}
         />
       )}
-      {results && seerData && seerData && params && manifest && (
+      {results && seerData && seerData && params && manifest ? (
         <>
           <ModelTable
             data={results}
@@ -140,6 +141,8 @@ export default function AnalysisMain({ id }) {
             </Tab>
           </Tabs>
         </>
+      ) : (
+        <Instructions />
       )}
     </Container>
   );
