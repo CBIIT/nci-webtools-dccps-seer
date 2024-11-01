@@ -3,10 +3,25 @@ import { replaceVariables } from "./seer-variables";
 
 export function downloadAll(modelData, coefData, seerData, params, filename) {
   const wb = utils.book_new();
-
   const combinedData = modelData.flat().reduce((acc, fit) => [...acc, ...fit.fullpredicted], []);
-  const labeledData = replaceVariables(combinedData, seerData, params);
-  const dataWs = utils.json_to_sheet(labeledData);
+  const dataWs = utils.json_to_sheet(combinedData);
+  utils.book_append_sheet(wb, dataWs, "Data");
+
+  coefData.forEach((modelEstimates, cohortIndex) => {
+    modelEstimates.forEach((me, modelIndex) => {
+      const modelEstWs = modelEstimatesSheet(me, modelData[cohortIndex][modelIndex], modelIndex, params);
+      utils.book_append_sheet(wb, modelEstWs, `Model Estimates ${cohortIndex}-${modelIndex}`);
+    });
+  });
+
+  const settingsWs = settingsSheet(params);
+  utils.book_append_sheet(wb, settingsWs, "Settings");
+  writeFile(wb, `${filename}.xlsx`);
+}
+
+export function downloadTable(data, seerData, params, filename) {
+  const wb = utils.book_new();
+  const dataWs = utils.json_to_sheet(data);
   utils.book_append_sheet(wb, dataWs, "Data");
 
   coefData.forEach((modelEstimates, cohortIndex) => {

@@ -8,6 +8,7 @@ import SelectHookForm from "@/components/selectHookForm";
 import SurvYearPlot from "./surv-year-plot";
 import SurvYearTable from "./surv-year-table";
 import TrendTable from "./surv-trend-table";
+import { downloadTable } from "@/services/xlsx";
 
 export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fitIndex, conditional }) {
   const queryClient = useQueryClient();

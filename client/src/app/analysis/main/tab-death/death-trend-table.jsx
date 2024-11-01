@@ -3,7 +3,7 @@ import Table from "@/components/table";
 import { createColumnHelper } from "@tanstack/react-table";
 
 export default function TrendTable({ data, params }) {
-  const firstYear = params;
+  const { firstYear } = params;
   const columnHelper = createColumnHelper();
   const columns = [
     columnHelper.accessor("interval", {

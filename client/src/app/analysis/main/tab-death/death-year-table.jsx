@@ -11,12 +11,17 @@ export default function DeathYearTable({
   predictedHeader,
   predictedSeHeader,
 }) {
-  const { yearStart } = params;
   const columnHelper = createColumnHelper();
   const columns = [
+    ...params.cohorts.map((cohort) =>
+      columnHelper.accessor(cohort.name, {
+        header: () => cohort.label,
+        cell: (info) => info.getValue(),
+      })
+    ),
     columnHelper.accessor(params.year, {
       header: () => "Year of Diagnosis",
-      cell: (info) => info.getValue() + yearStart,
+      cell: (info) => info.getValue(),
     }),
     columnHelper.accessor("Interval", {
       header: () => "Interval",

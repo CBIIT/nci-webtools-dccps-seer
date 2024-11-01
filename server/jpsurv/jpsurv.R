@@ -124,10 +124,13 @@ calculateJoinpoint <- function(inputFolder, outputFolder) {
                             }
                         }
 
+                        # relabel cohorts
+                        uncond$FitList <- relabelData(uncond$FitList, params)
 
                         # save results to file
                         write_json(uncond$FitList, path = file.path(outputFolder, modelFile), auto_unbox = TRUE)
                         if (!is.null(cond)) {
+                            cond$FitList <- relabelData(cond$FitList, params)
                             write_json(cond$FitList, path = file.path(outputFolder, condModelFile), auto_unbox = TRUE)
                         }
 
@@ -176,6 +179,9 @@ calculateJoinpoint <- function(inputFolder, outputFolder) {
                             model$FitList[[fitIndex]]$fullpredicted <- getConditionalValues(data, params$year, params$useRelaxModel)
                         }
                     }
+
+                    # relabel cohorts
+                    model$FitList <- relabelData(model$FitList, params)
 
                     # save results to file
                     write_json(model$FitList, path = file.path(outputFolder, modelFile), auto_unbox = TRUE)
@@ -319,4 +325,20 @@ flatten_list <- function(x) {
         return(list(x))
     }
     do.call(c, x)
+}
+
+# apply cohort and year labels to data
+relabelData <- function(FitList, params) {
+    lapply(FitList, function(fit) {
+        data <- fit$fullpredicted
+        for (cohort in params$cohorts) {
+            data[[cohort$name]] <- sapply(data[[cohort$name]], function(value) {
+                label <- Filter(function(e) e$value == value, cohort$options)
+                if (length(label) > 0) label[[1]]$label else value
+            })
+        }
+        data[[params$year]] <- data[[params$year]] + params$firstYear
+        fit$fullpredicted <- data
+        fit
+    })
 }
