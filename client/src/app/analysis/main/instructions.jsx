@@ -57,7 +57,7 @@ export default function Instructions() {
           </p>
 
           <p>
-            1. Mariotto AB, Zhang F, Buckman DW, et al. Characterizing Trends in Cancer Patients' Survival Using the
+            1. Mariotto AB, Zhang F, Buckman DW, et al. Characterizing Trends in Cancer Patients&apos; Survival Using the
             JPSurv Software. Mariotto et al. Cancer Epidemiol Biomarkers Prev. 30 (11): 2001–2009.
             <a href="https://doi.org/10.1158/1055-9965.EPI-21-0423" target="_blank">
               https://doi.org/10.1158/1055-9965.EPI-21-0423
