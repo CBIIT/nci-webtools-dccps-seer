@@ -256,7 +256,7 @@ export function processPlotData(divID, x, yMark, yLine, dimension, trends) {
       legend[interval] = {
         x: [null],
         y: [null],
-        showlegend: true,
+        showlegend: false,
         mode: 'lines',
         type: 'scatter',
         line: { color: colors[i % 10] },
@@ -267,7 +267,7 @@ export function processPlotData(divID, x, yMark, yLine, dimension, trends) {
       observedLegend[interval] = {
         x: [null],
         y: [null],
-        showlegend: true,
+        showlegend: false,
         mode: 'markers',
         type: 'scatter',
         line: { color: colors[i % 10] },
@@ -278,7 +278,7 @@ export function processPlotData(divID, x, yMark, yLine, dimension, trends) {
       projectedLegend[interval] = {
         x: [null],
         y: [null],
-        showlegend: true,
+        showlegend: false,
         mode: 'lines',
         type: 'scatter',
         line: { dash: 'dash', color: colors[i % 10] },
@@ -315,6 +315,10 @@ export function processPlotData(divID, x, yMark, yLine, dimension, trends) {
     markerTrace[dimension[i]].x.push(x);
     markerTrace[dimension[i]].y.push(yMark[i] / 100);
     markerTrace[dimension[i]].hovertemplate.push(markerTemplate);
+    if (yMark[i] != 'NA') {
+      // enable observed legend
+      observedLegend[dimension[i]].showlegend = true;
+    }
 
     const dim = dimension[i];
     const projectedIndex = yMark.findIndex((e, i) => dim == dimension[i] && e == 'NA');
@@ -324,12 +328,18 @@ export function processPlotData(divID, x, yMark, yLine, dimension, trends) {
       dim.x.push(x);
       dim.y.push(yLine[i] / 100);
       dim.hovertemplate.push(lineTemplate);
+
+      // enable projected legend
+      projectedLegend[dimension[i]].showlegend = true;
     }
     // predicted trace
     if (projectedIndex == -1 || i < projectedIndex) {
       lineTrace[dimension[i]].x.push(x);
       lineTrace[dimension[i]].y.push(yLine[i] / 100);
       lineTrace[dimension[i]].hovertemplate.push(lineTemplate);
+
+      // enable predicted legend
+      legend[dimension[i]].showlegend = true;
     }
 
     lineTrendLabel[dimension[i]].x.push(x + 0.5);
