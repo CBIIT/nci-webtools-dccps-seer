@@ -39,7 +39,7 @@ export function makeDashTrace(divId, name = '', index = '', xArray, yArray) {
     x: xArray,
     y: yArray,
     showlegend: false,
-    hovertemplate: makeLineHoverTemplate(divId, name),
+    hovertemplate: makeDashHoverTemplate(divId, name),
     hoverlabel: {
       align: 'left',
       bgcolor: '#FFF',
@@ -134,6 +134,21 @@ function makeLineHoverTemplate(
           ? `<br>•    Predicted Survival: %{y:.${precision}%}<extra></extra>`
           : `<br>•    Predicted Death: %{y:.${precision}%}<extra></extra>`)
     : `<b>${name}</b>` + `<br>•    Interval: %{x}` + `<br>•    Predicted Survival: %{y:.${precision}%}<extra></extra>`;
+}
+
+function makeDashHoverTemplate(
+  divId,
+  name,
+  statistic = jpsurvData.additional.statistic,
+  precision = $('#precision').val()
+) {
+  return divId != 'timePlot'
+    ? `<b>${name} ${statistic}</b>` +
+        `<br>•    Year at Diagnosis: %{x}` +
+        (divId == 'yearPlot'
+          ? `<br>•    Projected Survival: %{y:.${precision}%}<extra></extra>`
+          : `<br>•    Projected Death: %{y:.${precision}%}<extra></extra>`)
+    : `<b>${name}</b>` + `<br>•    Interval: %{x}` + `<br>•    Projected Survival: %{y:.${precision}%}<extra></extra>`;
 }
 
 function makeMarkerHoverTemplate(
@@ -303,12 +318,15 @@ export function processPlotData(divID, x, yMark, yLine, dimension, trends) {
 
     const dim = dimension[i];
     const projectedIndex = yMark.findIndex((e, i) => dim == dimension[i] && e == 'NA');
-    if (projectedIndex !== -1 && i >= projectedIndex) {
+    // projected trace
+    if (projectedIndex !== -1 && i >= projectedIndex - 1) {
       const dim = projectedTrace[dimension[i]];
       dim.x.push(x);
       dim.y.push(yLine[i] / 100);
       dim.hovertemplate.push(lineTemplate);
-    } else {
+    }
+    // predicted trace
+    if (projectedIndex == -1 || i < projectedIndex) {
       lineTrace[dimension[i]].x.push(x);
       lineTrace[dimension[i]].y.push(yLine[i] / 100);
       lineTrace[dimension[i]].hovertemplate.push(lineTemplate);
