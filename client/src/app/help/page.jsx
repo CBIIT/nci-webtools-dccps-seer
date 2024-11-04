@@ -5,8 +5,8 @@ export default function Help() {
   return (
     <Container className="py-3">
       <article className="shadow p-4 rounded">
-        <div class="py-3">
-          <h2 class="text-primary">Background</h2>
+        <div className="py-3">
+          <h2 className="text-primary">Background</h2>
           <p>
             JPSurv software was developed to analyze trends in survival with respect to the year of diagnosis [1].
             Survival data includes two time scales that must be taken into consideration: the calendar year of diagnosis
@@ -28,7 +28,7 @@ export default function Help() {
           </p>
           <br />
 
-          <h2 class="text-primary">Objective</h2>
+          <h2 className="text-primary">Objective</h2>
           <p>
             The goal is to estimate relative survival trends from 1975 for patients (any sex, any stage) diagnosed with
             Non-Hodgkin Lymphoma (NHL) or Chronic Myeloid Leukemias (CML). Note that we usually don’t select the last
@@ -37,7 +37,7 @@ export default function Help() {
           </p>
           <br />
 
-          <h2 class="text-primary">
+          <h2 className="text-primary">
             Step 1: Extract the data from SEER<super>*</super>Stat
           </h2>
           <p>
@@ -49,12 +49,12 @@ export default function Help() {
           </p>
           <br />
 
-          <h5 class="text-primary">
+          <h5 className="text-primary">
             <i>Opening the survival session, selecting the database, and selecting the cases</i>
           </h5>
           <video preload="metadata" controls>
             <source src="https://cbiit.github.io/nci-webtools-dccps-seer/help-1.mp4" type="video/mp4" />
-            Sorry, your browser doesn't support embedded videos.
+            Sorry, your browser does not support embedded videos.
           </video>
           <ol>
             <li>Open the survival session</li>
@@ -81,12 +81,12 @@ export default function Help() {
           </ol>
           <br />
 
-          <h5 class="text-primary">
+          <h5 className="text-primary">
             <i>Defining the intervals for calculations</i>
           </h5>
           <video preload="metadata" controls>
             <source src="https://cbiit.github.io/nci-webtools-dccps-seer/help-2.mp4" type="video/mp4" />
-            Sorry, your browser doesn't support embedded videos.
+            Sorry, your browser does not support embedded videos.
           </video>
           <ol start="5">
             <li>
@@ -104,12 +104,12 @@ export default function Help() {
           </ol>
           <br />
 
-          <h5 class="text-primary">
+          <h5 className="text-primary">
             <i>Defining the intervals for calculations using the CANSURV/JPSurv Output format</i>
           </h5>
           <video preload="metadata" controls>
             <source src="https://cbiit.github.io/nci-webtools-dccps-seer/help-3.mp4" type="video/mp4" />
-            Sorry, your browser doesn't support embedded videos.
+            Sorry, your browser does not support embedded videos.
           </video>
           <ul>
             <li style={{ listStyleType: "none" }}>
@@ -124,12 +124,12 @@ export default function Help() {
           </ul>
           <br />
 
-          <h5 class="text-primary">
+          <h5 className="text-primary">
             <i>Creating the year of diagnosis and cancer site variables for stratification</i>
           </h5>
           <video preload="metadata" controls>
             <source src="https://cbiit.github.io/nci-webtools-dccps-seer/help-4.mp4" type="video/mp4" />
-            Sorry, your browser doesn't support embedded videos.
+            Sorry, your browser does not support embedded videos.
           </video>
           <ol start="6">
             <li>
@@ -156,12 +156,12 @@ export default function Help() {
           </ol>
           <br />
 
-          <h5 class="text-primary">
+          <h5 className="text-primary">
             <i>Saving and Exporting</i>
           </h5>
           <video preload="metadata" controls>
             <source src="https://cbiit.github.io/nci-webtools-dccps-seer/help-5.mp4" type="video/mp4" />
-            Sorry, your browser doesn't support embedded videos.
+            Sorry, your browser does not support embedded videos.
           </video>
           <ol start="8">
             <li>
@@ -173,13 +173,15 @@ export default function Help() {
           </ol>
           <br />
 
-          <h2 class="text-primary">Step 2: Reading the data into JPSurv, specifying parameters, and running JPSurv</h2>
-          <h5 class="text-primary">
+          <h2 className="text-primary">
+            Step 2: Reading the data into JPSurv, specifying parameters, and running JPSurv
+          </h2>
+          <h5 className="text-primary">
             <i>Importing data using Dic/Data files</i>
           </h5>
           <video preload="metadata" controls>
             <source src="https://cbiit.github.io/nci-webtools-dccps-seer/help-6.mp4" type="video/mp4" />
-            Sorry, your browser doesn't support embedded videos.
+            Sorry, your browser does not support embedded videos.
           </video>
           <p>
             Data sets generated in SEER*Stat must include year at diagnosis as a covariate. To reflect trends in
@@ -202,12 +204,12 @@ export default function Help() {
           </ol>
           <br />
 
-          <h5 class="text-primary">
+          <h5 className="text-primary">
             <i>Importing data using CSV files</i>
           </h5>
           <video preload="metadata" controls>
             <source src="https://cbiit.github.io/nci-webtools-dccps-seer/help-7.mp4" type="video/mp4" />
-            Sorry, your browser doesn't support embedded videos.
+            Sorry, your browser does not support embedded videos.
           </video>
           <p>
             JPSurv can also read data from delimited text files with common delimiters (comma, semicolon, or tab). Users
@@ -244,12 +246,12 @@ export default function Help() {
           </ol>
           <br />
 
-          <h5 class="text-primary">
+          <h5 className="text-primary">
             <i>Importing data using JPSurv workspace</i>
           </h5>
           <video preload="metadata" controls>
             <source src="https://cbiit.github.io/nci-webtools-dccps-seer/help-8.mp4" type="video/mp4" />
-            Sorry, your browser doesn't support embedded videos.
+            Sorry, your browser does not support embedded videos.
           </video>
           <ol>
             <li>
@@ -262,13 +264,13 @@ export default function Help() {
           </ol>
           <br />
 
-          <h2 class="text-primary">Fit a model with 1 Joinpoint to NHL data</h2>
-          <h5 class="text-primary">
+          <h2 className="text-primary">Fit a model with 1 Joinpoint to NHL data</h2>
+          <h5 className="text-primary">
             <i>Fitting a simple joinpoint survival model to NHL data</i>
           </h5>
           <video preload="metadata" controls>
             <source src="https://cbiit.github.io/nci-webtools-dccps-seer/help-9.mp4" type="video/mp4" />
-            Sorry, your browser doesn't support embedded videos.
+            Sorry, your browser does not support embedded videos.
           </video>
           <ol>
             <li id="isPasted">Import NHL data using the appropriate option (Dic/Dat, CSV, or Workspace)</li>
@@ -288,13 +290,13 @@ export default function Help() {
           </ol>
           <br />
 
-          <h2 class="text-primary">Fit models with max no. of Joinpoint = 4 to NHL and CML</h2>
-          <h5 class="text-primary">
+          <h2 className="text-primary">Fit models with max no. of Joinpoint = 4 to NHL and CML</h2>
+          <h5 className="text-primary">
             <i>Fitting complex joinpoint survival models to NHL and CML data</i>
           </h5>
           <video preload="metadata" controls>
             <source src="https://cbiit.github.io/nci-webtools-dccps-seer/help-10.mp4" type="video/mp4" />
-            Sorry, your browser doesn't support embedded videos.
+            Sorry, your browser does not support embedded videos.
           </video>
           <ol>
             <li>
@@ -336,7 +338,7 @@ export default function Help() {
           </ul>
           <br />
 
-          <h2 class="text-primary">Explore the results:</h2>
+          <h2 className="text-primary">Explore the results:</h2>
           <p>
             Users can export the cohort, model specification, and results, either to an Excel spreadsheet or a workspace
             file. Results can be exported to Excel via the &ldquo;Download Full Dataset&rdquo; option or to a workspace
@@ -397,17 +399,17 @@ export default function Help() {
           </p>
           <br />
 
-          <h5 class="text-primary">
+          <h5 className="text-primary">
             <i>Explore the joinpoint survival model results</i>
           </h5>
           <video preload="metadata" controls>
             <source src="https://cbiit.github.io/nci-webtools-dccps-seer/help-11a.mp4" type="video/mp4" />
-            Sorry, your browser doesn't support embedded videos.
+            Sorry, your browser does not support embedded videos.
           </video>
           <br />
           <video preload="metadata" controls>
             <source src="https://cbiit.github.io/nci-webtools-dccps-seer/help-11b.mp4" type="video/mp4" />
-            Sorry, your browser doesn't support embedded videos.
+            Sorry, your browser does not support embedded videos.
           </video>
           <ol>
             <li>
@@ -445,7 +447,7 @@ export default function Help() {
           </ol>
           <br />
 
-          <h2 class="text-primary">Save the data and results</h2>
+          <h2 className="text-primary">Save the data and results</h2>
           <p>
             You can save all the results and the data by selecting either &ldquo;Export Workspace&rdquo; or
             &ldquo;Download Full Dataset.&rdquo; You can retrieve the results by selecting and opening the workspace via
@@ -453,7 +455,7 @@ export default function Help() {
           </p>
           <br />
 
-          <h2 class="text-primary">References</h2>
+          <h2 className="text-primary">References</h2>
 
           <ol>
             <li>
