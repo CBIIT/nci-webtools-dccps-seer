@@ -16,8 +16,12 @@ calculateJoinpoint <- function(inputFolder, outputFolder) {
     cohortVars <- params$cohortVars
     cohortMatrix <- do.call(rbind, params$cohortCombos)
     cohortSubsets <- apply(cohortMatrix, 1, function(cohortRow) {
-        cohortStr <- paste(cohortVars, cohortRow, sep = " == ", collapse = " & ")
-        sprintf("%s & %s", cohortStr, yearStr)
+        if (length(cohortRow) > 0) {
+            cohortStr <- paste(cohortVars, cohortRow, sep = " == ", collapse = " & ")
+            sprintf("%s & %s", cohortStr, yearStr)
+        } else {
+            yearStr
+        }
     })
 
     manifest <- lapply(seq_along(cohortSubsets), function(cohortComboIndex) {
