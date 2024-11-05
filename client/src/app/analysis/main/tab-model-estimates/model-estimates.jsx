@@ -23,7 +23,7 @@ export default function ModelEstimates({ data, params, cohortIndex, fitIndex }) 
       cell: (info) => info.renderValue(),
     }),
   ];
-  console.log(memoData);
+
   return (
     <Container fluid>
       <Row className="justify-content-end">

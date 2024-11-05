@@ -249,11 +249,22 @@ calendarTrends <- function(params, outputFolder) {
     library(JPSurv)
     # load previous calculated model
     load(file.path(outputFolder, paste0(params$cohortIndex, ".RData")))
-    trends <- c()
-    for (fitIndex in 1:length(model$FitList)) {
-        fit <- model$FitList[[fitIndex]]
-        range <- unlist(params$yearRange)
-        trends[[fitIndex]] <- aapc.multiints(fit, type = "AbsChgSur", int.select = unique(fit$predicted$Interval), ACS.range = unlist(params$yearRange), ACS.out = "user")
+    trends <- list()
+    if (params$useRelaxModel) {
+        for (cutpoint in 1:length(model$all.results)) {
+            uncond <- model$all.results[[cutpoint]]$fit.uncond
+            cond <- model$all.results[[cutpoint]]$fit.cond
+            trends$uncond[[cutpoint]] <- aapc.multiints(uncond, type = "AbsChgSur", int.select = unique(uncond$predicted$Interval), ACS.range = unlist(params$yearRange), ACS.out = "user")
+            if (!is.null(cond)) {
+                trends$cond[[cutpoint]] <- aapc.multiints(cond, type = "AbsChgSur", int.select = unique(cond$predicted$Interval), ACS.range = unlist(params$yearRange), ACS.out = "user")
+            }
+        }
+    } else {
+        for (fitIndex in 1:length(model$FitList)) {
+            fit <- model$FitList[[fitIndex]]
+            range <- unlist(params$yearRange)
+            trends[[fitIndex]] <- aapc.multiints(fit, type = "AbsChgSur", int.select = unique(fit$predicted$Interval), ACS.range = unlist(params$yearRange), ACS.out = "user")
+        }
     }
     trends
 }

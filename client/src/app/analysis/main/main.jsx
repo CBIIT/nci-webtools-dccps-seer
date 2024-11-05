@@ -123,6 +123,7 @@ export default function AnalysisMain({ id }) {
                 cohortIndex={cohortIndex}
                 fitIndex={fitIndex}
                 conditional={useConditional ? conditional : null}
+                cluster={cluster}
               />
             </Tab>
             <Tab eventKey="death" title="Death vs. Year at Diagnosis" disabled={useConditional}>

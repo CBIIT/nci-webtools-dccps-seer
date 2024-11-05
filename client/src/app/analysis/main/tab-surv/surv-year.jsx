@@ -10,7 +10,7 @@ import SurvYearTable from "./surv-year-table";
 import TrendTable from "./surv-trend-table";
 import { downloadTable } from "@/services/xlsx";
 
-export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fitIndex, conditional }) {
+export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fitIndex, conditional, cluster }) {
   const queryClient = useQueryClient();
   const isFetching = queryClient.isFetching();
   const isRecalcCond = !!conditional;
@@ -73,15 +73,15 @@ export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fi
       const { data } = await queryClient.fetchQuery({
         queryKey: ["calendarTrend", cohortIndex, form.trendStart, form.trendEnd],
         queryFn: async () =>
-          calculateCalendarTrends(params.id, { yearRange: [+form.trendStart, +form.trendEnd], cohortIndex }),
+          calculateCalendarTrends(params.id, {
+            yearRange: [+form.trendStart, +form.trendEnd],
+            cohortIndex,
+            useRelaxModel: params.useRelaxModel,
+          }),
       });
-      const reduceData = data.map((e) =>
-        e.reduce((acc, ar) => [...acc, ...ar], []).filter((e) => intervals.includes(e.interval))
-      );
-      setCalTrendData(reduceData);
+      setCalTrendData(data);
     } catch (e) {
       console.log(e);
-    } finally {
     }
   }
 
@@ -209,10 +209,21 @@ export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fi
       </Row>
       <Row>
         <Col>
-          {calendarTrend && calTrendData.length > 0 && (
+          {calendarTrend && Object.keys(calTrendData).length > 0 && (
             <div className="mt-3">
               <h5>Trend Measures for User Selected Years</h5>
-              <TrendTable data={calTrendData[fitIndex]} params={params} />
+              <TrendTable
+                data={
+                  params.useRelaxModel
+                    ? calTrendData[cluster][fitIndex]
+                        .reduce((acc, ar) => [...acc, ...ar], [])
+                        .filter((e) => intervals.includes(e.interval))
+                    : calTrendData[fitIndex]
+                        .reduce((acc, ar) => [...acc, ...ar], [])
+                        .filter((e) => intervals.includes(e.interval))
+                }
+                params={params}
+              />
             </div>
           )}
         </Col>
