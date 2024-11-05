@@ -12,13 +12,13 @@ const colors = [
 ];
 const fontSize = 14;
 
-export function makeLineTrace(name = "", group, index, xArray, yArray, statistic, precision = 2) {
+export function makeLineTrace(name = "", group, index, xArray, yArray, statistic) {
   return {
     name,
     x: xArray,
     y: yArray,
     showlegend: false,
-    hovertemplate: predictedHoverTemplate(name, statistic, precision),
+    hovertemplate: predictedHoverTemplate(name, statistic),
     hoverlabel: {
       align: "left",
       bgcolor: "#FFF",
@@ -32,13 +32,13 @@ export function makeLineTrace(name = "", group, index, xArray, yArray, statistic
   };
 }
 
-export function makeDashTrace(name = "", group, index, xArray, yArray, statistic, precision = 2) {
+export function makeDashTrace(name = "", group, index, xArray, yArray, statistic) {
   return {
     name,
     x: xArray,
     y: yArray,
     showlegend: false,
-    hovertemplate: predictedHoverTemplate(name, statistic, precision),
+    hovertemplate: projectedHoverTemplate(name, statistic),
     hoverlabel: {
       align: "left",
       bgcolor: "#FFF",
@@ -52,13 +52,13 @@ export function makeDashTrace(name = "", group, index, xArray, yArray, statistic
   };
 }
 
-export function makeMarkerTrace(name = "", group, index, xArray, yArray, statistic, precision = 2) {
+export function makeMarkerTrace(name = "", group, index, xArray, yArray, statistic) {
   return {
     name,
     x: xArray,
     y: yArray,
     showlegend: false,
-    hovertemplate: observationHoverTemplate(name, statistic, precision),
+    hovertemplate: observationHoverTemplate(name, statistic),
     hoverlabel: {
       align: "left",
       bgcolor: "#FFF",
@@ -109,10 +109,11 @@ export function makeLayout(range, title, xTitle, yTitle) {
     yaxis: {
       title: `<b>${yTitle}</b>`,
       showline: true,
-      tickformat: "1%",
+      // tickformat: ".2f",
+      ticksuffix: "%",
       tickmode: "auto",
       nticks: 11,
-      range: [0, 1.05],
+      range: [0, 100],
       autorange: false,
     },
     height: 700,
@@ -121,36 +122,23 @@ export function makeLayout(range, title, xTitle, yTitle) {
   };
 }
 
-const observationHoverTemplate = (name, statistic, precision) =>
+const observationHoverTemplate = (name, statistic) =>
   [
     `<b>${name} ${statistic}</b>`,
-    `<br>•\tYear at Diagnosis: %{x}`,
-    `<br>•\tObserved Survival: %{y:.${precision}%}<extra></extra>`,
+    `<br>•    Year at Diagnosis: %{x}`,
+    `<br>•    Observed Survival: %{y}<extra></extra>`,
   ].join("");
 
-const predictedHoverTemplate = (name, statistic, precision) =>
+const predictedHoverTemplate = (name, statistic) =>
   [
     `<b>${name} ${statistic}</b>`,
-    `<br>•\tYear at Diagnosis: %{x}`,
-    `<br>•\tPredicted Survival: %{y:.${precision}%}<extra></extra>`,
+    `<br>•    Year at Diagnosis: %{x}`,
+    `<br>•    Predicted Survival: %{y}<extra></extra>`,
   ].join("");
 
-function makeLineHoverTemplate(name, statistic = jpsurvData.additional.statistic, precision = $("#precision").val()) {
-  return divId != "timePlot"
-    ? `<b>${name} ${statistic}</b>` +
-        `<br>•    Year at Diagnosis: %{x}` +
-        (divId == "yearPlot"
-          ? `<br>•    Predicted Survival: %{y:.${precision}%}<extra></extra>`
-          : `<br>•    Predicted Death: %{y:.${precision}%}<extra></extra>`)
-    : `<b>${name}</b>` + `<br>•    Interval: %{x}` + `<br>•    Predicted Survival: %{y:.${precision}%}<extra></extra>`;
-}
-
-function makeMarkerHoverTemplate(name, statistic = jpsurvData.additional.statistic, precision = $("#precision").val()) {
-  return divId != "timePlot"
-    ? `<b>${name} ${statistic}</b>` +
-        `<br>•    Year at Diagnosis: %{x}` +
-        (divId == "yearPlot"
-          ? `<br>•    Observed Survival: %{y:.${precision}%}<extra></extra>`
-          : `<br>•    Observed Death: %{y:.${precision}%}<extra></extra>`)
-    : `<b>${name}</b>` + `<br>•    Interval: %{x}` + `<br>•    Observed Survival: %{y:.${precision}%}<extra></extra>`;
-}
+const projectedHoverTemplate = (name, statistic) =>
+  [
+    `<b>${name} ${statistic}</b>`,
+    `<br>•    Year at Diagnosis: %{x}`,
+    `<br>•    Projected Survival: %{y}<extra></extra>`,
+  ].join("");

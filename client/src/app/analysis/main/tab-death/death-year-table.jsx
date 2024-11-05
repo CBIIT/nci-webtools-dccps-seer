@@ -29,19 +29,19 @@ export default function DeathYearTable({
     }),
     columnHelper.accessor(observedHeader, {
       header: () => "Observed Prob. of Death Interval (%)",
-      cell: (info) => info.renderValue(),
+      cell: (info) => info.getValue() || "NA",
     }),
     columnHelper.accessor(observedSeHeader, {
       header: () => "Observed Prob. of Death Interval Std. Err. (%)",
-      cell: (info) => info.renderValue(),
+      cell: (info) => info.getValue() || "NA",
     }),
     columnHelper.accessor(predictedHeader, {
       header: "Predictive Prob. of Death Interval (%)",
-      cell: (info) => info.renderValue(),
+      cell: (info) => info.getValue() || "NA",
     }),
     columnHelper.accessor(predictedSeHeader, {
       header: "Predictive Prob. of Death Interval Std. Err. (%)",
-      cell: (info) => info.renderValue(),
+      cell: (info) => info.getValue() || "NA",
     }),
   ];
 

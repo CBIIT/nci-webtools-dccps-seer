@@ -11,7 +11,7 @@ export default function CohortSelect({ params, manifest, className, handleSaveRe
   const setState = useStore((state) => state.setState);
   const main = useStore((state) => state.main);
   const id = useStore((state) => state.params.id);
-  const { cohortIndex, cutpointIndex, cluster } = main;
+  const { cohortIndex, cutpointIndex, cluster, precision } = main;
   const errors = manifest.filter((e) => typeof e === "string");
   const cohorts = manifest.filter((e) => typeof e !== "string");
   const cohortIndexes = [...new Set(cohorts.map((e) => e.cohort_index))];
@@ -39,6 +39,10 @@ export default function CohortSelect({ params, manifest, className, handleSaveRe
 
   function handleCohortChange(e) {
     setState({ main: { ...main, cohortIndex: e.target.value } });
+  }
+
+  function handlePrecisionChange(e) {
+    setState({ main: { ...main, precision: +e.target.value } });
   }
 
   function handleCutpointChange(e) {
@@ -105,6 +109,18 @@ export default function CohortSelect({ params, manifest, className, handleSaveRe
             </Form.Group>
           </Col>
         )}
+        <Col sm="auto">
+          <Form.Group>
+            <Form.Label>Decimal Precision</Form.Label>
+            <Form.Select value={precision} onChange={handlePrecisionChange}>
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((e, i) => (
+                <option key={i} value={e}>
+                  {e}
+                </option>
+              ))}
+            </Form.Select>
+          </Form.Group>
+        </Col>
         <Col className="ms-auto" sm="auto">
           <Button variant="link" onClick={handleSaveResults}>
             Download Full Dataset

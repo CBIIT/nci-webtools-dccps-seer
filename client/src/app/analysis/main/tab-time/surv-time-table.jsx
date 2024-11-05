@@ -21,12 +21,12 @@ export default function SurvTimeTable({ data, params, observedHeader, predictedH
     }),
     columnHelper.accessor(observedHeader, {
       header: () => `${isRecalcCond ? "Conditional" : ""} Cumulative Relative Survival (%)`,
-      cell: (info) => info.renderValue(),
+      cell: (info) => info.getValue() || "NA",
     }),
 
     columnHelper.accessor(predictedHeader, {
       header: `Predicted ${isRecalcCond ? "Conditional" : ""} Cumulative Relative Survival (%)`,
-      cell: (info) => info.renderValue(),
+      cell: (info) => info.getValue() || "NA",
     }),
   ];
 

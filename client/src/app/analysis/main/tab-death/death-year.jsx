@@ -8,7 +8,7 @@ import DeathYearTable from "./death-year-table";
 import TrendTable from "./death-trend-table";
 import { downloadTable } from "@/services/xlsx";
 
-export default function DeathVsYear({ data, seerData, params, cohortIndex, fitIndex, conditional }) {
+export default function DeathVsYear({ data, seerData, params, cohortIndex, fitIndex, conditional, precision }) {
   const intervalOptions = [...new Set((conditional || data.fullpredicted).map((e) => e.Interval))];
   const defaultInterval = intervalOptions.includes(5) ? 5 : Math.max(...intervalOptions);
   const { control, register, watch, setValue } = useForm({
@@ -26,8 +26,8 @@ export default function DeathVsYear({ data, seerData, params, cohortIndex, fitIn
     const filterInts = (conditional || data.fullpredicted).filter((e) => intervals.includes(e.Interval));
     return filterInts.map((e) => ({
       ...e,
-      [observedHeader]: e[observedHeader] ? 1 - e[observedHeader] : e[observedHeader],
-      [predictedHeader]: e[predictedHeader] ? 1 - e[predictedHeader] : e[predictedHeader],
+      [observedHeader]: e[observedHeader] ? (100 - e[observedHeader]).toFixed(precision) : e[observedHeader],
+      [predictedHeader]: e[predictedHeader] ? (100 - e[predictedHeader]).toFixed(precision) : e[predictedHeader],
     }));
   }, [data, conditional, intervals]);
   const trendData = useMemo(

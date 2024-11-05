@@ -1,5 +1,4 @@
 import { utils, writeFile } from "xlsx";
-import { replaceVariables } from "./seer-variables";
 
 export function downloadAll(modelData, coefData, seerData, params, filename) {
   const wb = utils.book_new();

@@ -18,9 +18,8 @@ export default function SurvYearPlot({
   observedHeader,
   predictedHeader,
   className = "",
-  precision = 2,
 }) {
-  const { statistic, firstYear, yearStart, yearEnd } = params;
+  const { statistic, yearStart, yearEnd } = params;
   const groupByInterval = groupBy(data, "Interval");
 
   const traces = Object.entries(groupByInterval)
@@ -32,10 +31,9 @@ export default function SurvYearPlot({
         observedTraceName,
         interval,
         index,
-        data.map((e) => e[params.year] + firstYear),
+        data.map((e) => e[params.year]),
         data.map((e) => e[observedHeader]),
-        statistic,
-        precision
+        statistic
       );
 
       const projectedStart = data.map((e) => +e[observedHeader]).findIndex(Number.isNaN);
@@ -46,19 +44,17 @@ export default function SurvYearPlot({
         predictedTraceName,
         interval,
         index,
-        predictedData.map((e) => e[params.year] + firstYear),
+        predictedData.map((e) => e[params.year]),
         predictedData.map((e) => e[predictedHeader]),
-        statistic,
-        precision
+        statistic
       );
       const projectedTraces = makeDashTrace(
         projectedTraceName,
         interval,
         index,
-        projectedData.map((e) => e[params.year] + firstYear),
+        projectedData.map((e) => e[params.year]),
         projectedData.map((e) => e[predictedHeader]),
-        statistic,
-        precision
+        statistic
       );
 
       const observedLegendTrace = makeLegendTrace(observedTraceName, interval, index, "markers");
@@ -78,5 +74,5 @@ export default function SurvYearPlot({
 
   const layout = makeLayout([yearStart, yearEnd], title, xTitle, yTitle);
 
-  return <Plot data={traces} layout={layout} />;
+  return <Plot data={traces} layout={layout} className={className} />;
 }

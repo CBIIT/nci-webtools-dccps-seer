@@ -1,6 +1,6 @@
 "use client";
 import { Container, Tab, Tabs } from "react-bootstrap";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import ModelTable from "./model-table";
 import SurvivalVsYear from "./tab-surv/surv-year";
@@ -13,13 +13,14 @@ import ModelEstimates from "./tab-model-estimates/model-estimates";
 import ConditionalRecalcForm from "./conditional-form";
 import { downloadAll } from "@/services/xlsx";
 import Instructions from "./instructions";
+import { scaleData, changePrecision } from "@/services/seer-results-transform";
 
 export default function AnalysisMain({ id }) {
   const setState = useStore((state) => state.setState);
   const seerData = useStore((state) => state.seerData);
   const params = useStore((state) => state.params);
   const main = useStore((state) => state.main);
-  const { cohortIndex, cutpointIndex, fitIndex, cluster } = main;
+  const { cohortIndex, cutpointIndex, fitIndex, cluster, precision } = main;
   const useConditional = useStore((state) => state.useConditional);
   const conditional = useStore((state) => state.conditional);
   const useRelaxModel = params.useRelaxModel;
@@ -53,6 +54,14 @@ export default function AnalysisMain({ id }) {
     enabled: jobStatus === "COMPLETED" && !!cohortIndex,
   });
 
+  const memoResults = useMemo(
+    () =>
+      results
+        ? results.map((e) => ({ ...e, fullpredicted: changePrecision(scaleData(e.fullpredicted, 100), precision) }))
+        : [],
+    [results]
+  );
+
   function setFitIndex(index) {
     setState({ main: { ...main, fitIndex: index } });
   }
@@ -84,14 +93,14 @@ export default function AnalysisMain({ id }) {
           className="mb-3"
           params={params}
           manifest={manifest}
-          data={results}
+          data={memoResults}
           handleSaveResults={handleSaveResults}
         />
       )}
       {results && seerData && seerData && params && manifest ? (
         <>
           <ModelTable
-            data={results}
+            data={memoResults}
             params={params}
             manifest={manifest}
             cohortIndex={cohortIndex}
@@ -99,7 +108,7 @@ export default function AnalysisMain({ id }) {
           />
           {!params.useCondModel && !params.useRelaxModel && (
             <ConditionalRecalcForm
-              data={results[fitIndex]}
+              data={memoResults[fitIndex]}
               params={params}
               cohortIndex={cohortIndex}
               fitIndex={fitIndex}
@@ -108,7 +117,7 @@ export default function AnalysisMain({ id }) {
           <Tabs defaultActiveKey="survival" className="my-3">
             <Tab eventKey="survival" title={`${useConditional ? "Conditional " : ""}Survival vs. Year at Diagnosis`}>
               <SurvivalVsYear
-                data={results[fitIndex]}
+                data={memoResults[fitIndex]}
                 seerData={seerData}
                 params={params}
                 cohortIndex={cohortIndex}
@@ -118,17 +127,18 @@ export default function AnalysisMain({ id }) {
             </Tab>
             <Tab eventKey="death" title="Death vs. Year at Diagnosis" disabled={useConditional}>
               <DeathVsYear
-                data={results[fitIndex]}
+                data={memoResults[fitIndex]}
                 seerData={seerData}
                 params={params}
                 cohortIndex={cohortIndex}
                 fitIndex={fitIndex}
                 conditional={useConditional ? conditional : null}
+                precision={precision}
               />
             </Tab>
             <Tab eventKey="time" title={`${useConditional ? "Conditional " : ""}Survival vs. Time Since Diagnosis`}>
               <SurvivalVsTime
-                data={results[fitIndex].fullpredicted}
+                data={memoResults[fitIndex].fullpredicted}
                 seerData={seerData}
                 params={params}
                 cohortIndex={cohortIndex}

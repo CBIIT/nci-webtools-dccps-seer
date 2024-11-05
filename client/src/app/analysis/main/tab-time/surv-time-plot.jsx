@@ -12,7 +12,6 @@ export default function SurvTimePlot({
   observedHeader,
   predictedHeader,
   className = "",
-  precision = 2,
 }) {
   const { statistic, firstYear } = params;
   const intervalStart = Math.min(data.map((e) => e.Interval));
@@ -30,8 +29,7 @@ export default function SurvTimePlot({
         index,
         data.map((e) => e.Interval),
         data.map((e) => e[observedHeader]),
-        statistic,
-        precision
+        statistic
       );
 
       const predictedTraces = makeLineTrace(
@@ -40,18 +38,17 @@ export default function SurvTimePlot({
         index,
         data.map((e) => e.Interval),
         data.map((e) => e[predictedHeader]),
-        statistic,
-        precision
+        statistic
       );
 
       const observedLegendTrace = makeLegendTrace(observedTraceName, interval, index, "markers");
       const predictedLegendTrace = makeLegendTrace(predictedTraceName, interval, index, "lines");
 
-      return [predictedTraces, observedTraces, , observedLegendTrace, predictedLegendTrace];
+      return [predictedTraces, observedTraces, observedLegendTrace, predictedLegendTrace];
     })
     .flat();
 
   const layout = makeLayout([intervalStart, intervalEnd], title, xTitle, yTitle);
 
-  return <Plot data={traces} layout={layout} />;
+  return <Plot data={traces} layout={layout} className={className} />;
 }

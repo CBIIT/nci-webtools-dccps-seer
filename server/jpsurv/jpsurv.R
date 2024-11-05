@@ -233,7 +233,8 @@ toProportion <- function(data) {
         "pred_cum_se",
         "pred_int",
         "pred_int_se",
-        "observed"
+        "observed",
+        "observed_se"
     )
     for (col in columns) {
         if (!is.null(data[[col]])) {
