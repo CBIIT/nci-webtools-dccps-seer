@@ -13,15 +13,15 @@ export default function SurvTimePlot({
   predictedHeader,
   className = "",
 }) {
-  const { statistic, firstYear } = params;
+  const { statistic } = params;
   const intervalStart = Math.min(data.map((e) => e.Interval));
   const intervalEnd = Math.max(data.map((e) => e.Interval));
   const groupByYear = groupBy(data, params.year);
 
   const traces = Object.entries(groupByYear)
     .map(([interval, data], index) => {
-      const observedTraceName = `${+interval + firstYear} Observed`;
-      const predictedTraceName = `${+interval + firstYear} Predicted`;
+      const observedTraceName = `${+interval} Observed`;
+      const predictedTraceName = `${+interval} Predicted`;
 
       const observedTraces = makeMarkerTrace(
         observedTraceName,

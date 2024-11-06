@@ -11,7 +11,7 @@ export default function SurvivalVsTime({ data, seerData, params, cohortIndex, fi
   const isRecalcCond = !!conditional;
   const { statistic } = params;
   const observedHeader = isRecalcCond ? "observed" : params?.observed;
-  const predictedHeader = "Predicted_Survival_Cum";
+  const predictedHeader = isRecalcCond ? "pred_cum" : "Predicted_Survival_Cum";
   const yearOptions = [...new Set((conditional || data).map((e) => e[params.year]))];
   const { control, register, watch } = useForm({
     defaultValues: { years: [yearOptions[0]] },
@@ -20,7 +20,7 @@ export default function SurvivalVsTime({ data, seerData, params, cohortIndex, fi
   const memoData = useMemo(() =>
     (conditional || data).filter((e) => years.includes(e[params.year]), [data, conditional, years])
   );
-
+  console.log(conditional);
   return (
     <Container fluid>
       <Row>

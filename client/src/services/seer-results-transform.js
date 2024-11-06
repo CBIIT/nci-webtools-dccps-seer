@@ -6,7 +6,7 @@
  * @param {Object} params - The parameters for replacement.
  * @returns {Array<Object>} The data array with replaced variables.
  */
-export function replaceVariables(data, seerData, params) {
+export function relabelData(data, seerData, params) {
   const { cohortVariables } = seerData;
   const replacement = data.map((row) => {
     return {

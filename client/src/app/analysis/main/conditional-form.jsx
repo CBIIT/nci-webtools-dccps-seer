@@ -5,6 +5,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { recalculateConditional } from "../queries";
 import { useStore } from "../store";
+import { scaleData, changePrecision, relabelData } from "@/services/seer-results-transform";
 
 export default function ConditionalForm({ data, params, cohortIndex, fitIndex, className }) {
   const { firstYear } = params;
@@ -12,7 +13,9 @@ export default function ConditionalForm({ data, params, cohortIndex, fitIndex, c
   const isFetching = queryClient.isFetching();
   const intervalOptions = [...new Set(data.fullpredicted.map((e) => e.Interval))];
   const setState = useStore((state) => state.setState);
+  const precision = useStore((state) => state.main.precision);
   const useConditional = useStore((state) => state.useConditional);
+  const seerData = useStore((state) => state.seerData);
 
   const {
     control,
@@ -43,10 +46,14 @@ export default function ConditionalForm({ data, params, cohortIndex, fitIndex, c
       const { data } = await queryClient.fetchQuery({
         queryKey: ["conditional", cohortIndex, fitIndex],
         queryFn: async () =>
-          recalculateConditional(params.id, { cohortIndex, fitIndex, conditionalIntervals: form.conditionalIntervals }),
+          recalculateConditional(params.id, {
+            cohortIndex,
+            fitIndex,
+            conditionalIntervals: form.conditionalIntervals,
+          }),
       });
 
-      setState({ conditional: data });
+      setState({ conditional: relabelData(changePrecision(scaleData(data, 100), precision), seerData, params) });
     } catch (e) {
       console.log(e);
     }

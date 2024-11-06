@@ -20,7 +20,9 @@ export default function SurvYearPlot({
   className = "",
 }) {
   const { statistic, yearStart, yearEnd } = params;
-  const groupByInterval = groupBy(data, "Interval");
+  const groupByInterval = groupBy(data, (e) =>
+    e["Start.interval"] ? `${e["Start.interval"]}-${e.Interval}` : e.Interval
+  );
 
   const traces = Object.entries(groupByInterval)
     .map(([interval, data], index) => {
