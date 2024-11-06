@@ -88,7 +88,7 @@ export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fi
   return (
     <Container fluid>
       <Row>
-        <Col className="p-3 border rounded mb-3">
+        <Col className="p-3 border mb-3">
           <Form onSubmit={handleSubmit(getCalendarTrend)}>
             <Row className="mb-3">
               <Col sm="auto">

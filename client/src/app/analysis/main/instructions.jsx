@@ -1,7 +1,7 @@
 import { Row, Col } from "react-bootstrap";
 export default function Instructions() {
   return (
-    <div className="p-3">
+    <div className="shadow border rounded bg-white p-3">
       <Row>
         <Col md="12">
           <p>

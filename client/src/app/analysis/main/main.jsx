@@ -89,68 +89,69 @@ export default function AnalysisMain({ id }) {
     <Container>
       <code>{JSON.stringify(jobStatus)}</code>
       {params.id && manifest && (
-        <CohortSelect
-          className="mb-3"
-          params={params}
-          manifest={manifest}
-          data={memoResults}
-          handleSaveResults={handleSaveResults}
-        />
+        <div className="shadow p-3 border rounded bg-white mb-3">
+          <CohortSelect params={params} manifest={manifest} data={memoResults} handleSaveResults={handleSaveResults} />
+          {cohortIndex && (
+            <ModelTable
+              data={memoResults}
+              params={params}
+              manifest={manifest}
+              cohortIndex={cohortIndex}
+              handleRowSelect={setFitIndex}
+            />
+          )}
+        </div>
       )}
       {results && seerData && seerData && params && manifest ? (
         <>
-          <ModelTable
-            data={memoResults}
-            params={params}
-            manifest={manifest}
-            cohortIndex={cohortIndex}
-            handleRowSelect={setFitIndex}
-          />
           {!params.useCondModel && !params.useRelaxModel && (
             <ConditionalRecalcForm
               data={memoResults[fitIndex]}
               params={params}
               cohortIndex={cohortIndex}
               fitIndex={fitIndex}
+              className="shadow"
             />
           )}
-          <Tabs defaultActiveKey="survival" className="my-3">
-            <Tab eventKey="survival" title={`${useConditional ? "Conditional " : ""}Survival vs. Year at Diagnosis`}>
-              <SurvivalVsYear
-                data={memoResults[fitIndex]}
-                seerData={seerData}
-                params={params}
-                cohortIndex={cohortIndex}
-                fitIndex={fitIndex}
-                conditional={useConditional ? conditional : null}
-                cluster={cluster}
-              />
-            </Tab>
-            <Tab eventKey="death" title="Death vs. Year at Diagnosis" disabled={useConditional}>
-              <DeathVsYear
-                data={memoResults[fitIndex]}
-                seerData={seerData}
-                params={params}
-                cohortIndex={cohortIndex}
-                fitIndex={fitIndex}
-                conditional={useConditional ? conditional : null}
-                precision={precision}
-              />
-            </Tab>
-            <Tab eventKey="time" title={`${useConditional ? "Conditional " : ""}Survival vs. Time Since Diagnosis`}>
-              <SurvivalVsTime
-                data={memoResults[fitIndex].fullpredicted}
-                seerData={seerData}
-                params={params}
-                cohortIndex={cohortIndex}
-                fitIndex={fitIndex}
-                conditional={useConditional ? conditional : null}
-              />
-            </Tab>
-            <Tab eventKey="estimates" title="Model Estimates">
-              <ModelEstimates data={modelEstimates} params={params} cohortIndex={cohortIndex} fitIndex={fitIndex} />
-            </Tab>
-          </Tabs>
+          <div className="shadow border rounded bg-white my-3">
+            <Tabs defaultActiveKey="survival">
+              <Tab eventKey="survival" title={`${useConditional ? "Conditional " : ""}Survival vs. Year at Diagnosis`}>
+                <SurvivalVsYear
+                  data={memoResults[fitIndex]}
+                  seerData={seerData}
+                  params={params}
+                  cohortIndex={cohortIndex}
+                  fitIndex={fitIndex}
+                  conditional={useConditional ? conditional : null}
+                  cluster={cluster}
+                />
+              </Tab>
+              <Tab eventKey="death" title="Death vs. Year at Diagnosis" disabled={useConditional}>
+                <DeathVsYear
+                  data={memoResults[fitIndex]}
+                  seerData={seerData}
+                  params={params}
+                  cohortIndex={cohortIndex}
+                  fitIndex={fitIndex}
+                  conditional={useConditional ? conditional : null}
+                  precision={precision}
+                />
+              </Tab>
+              <Tab eventKey="time" title={`${useConditional ? "Conditional " : ""}Survival vs. Time Since Diagnosis`}>
+                <SurvivalVsTime
+                  data={memoResults[fitIndex].fullpredicted}
+                  seerData={seerData}
+                  params={params}
+                  cohortIndex={cohortIndex}
+                  fitIndex={fitIndex}
+                  conditional={useConditional ? conditional : null}
+                />
+              </Tab>
+              <Tab eventKey="estimates" title="Model Estimates">
+                <ModelEstimates data={modelEstimates} params={params} cohortIndex={cohortIndex} fitIndex={fitIndex} />
+              </Tab>
+            </Tabs>
+          </div>
         </>
       ) : (
         <Instructions />

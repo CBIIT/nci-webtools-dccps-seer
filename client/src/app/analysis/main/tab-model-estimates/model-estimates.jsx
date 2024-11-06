@@ -44,7 +44,7 @@ export default function ModelEstimates({ data, params, cohortIndex, fitIndex }) 
         </Col>
       </Row>
       <Row>
-        <Col className="p-3 border rounded">
+        <Col className="p-3 border">
           {memoData && (
             <div>
               <h5>Coefficients</h5>

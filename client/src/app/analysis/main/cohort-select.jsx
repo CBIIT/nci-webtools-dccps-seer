@@ -72,7 +72,7 @@ export default function CohortSelect({ params, manifest, className, handleSaveRe
   }
 
   return (
-    <Form className={className}>
+    <Form className={"mb-3 " + className}>
       {errors.length > 0 && (
         <Alert variant="warning" dismissible>
           <ul>

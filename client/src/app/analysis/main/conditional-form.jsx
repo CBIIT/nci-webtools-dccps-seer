@@ -6,7 +6,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { recalculateConditional } from "../queries";
 import { useStore } from "../store";
 
-export default function ConditionalForm({ data, params, cohortIndex, fitIndex }) {
+export default function ConditionalForm({ data, params, cohortIndex, fitIndex, className }) {
   const { firstYear } = params;
   const queryClient = useQueryClient();
   const isFetching = queryClient.isFetching();
@@ -53,9 +53,9 @@ export default function ConditionalForm({ data, params, cohortIndex, fitIndex })
   }
 
   return (
-    <Accordion defaultActiveKey={0}>
+    <Accordion defaultActiveKey={0} className={className}>
       <Accordion.Item eventKey="0">
-        <Accordion.Header>Conditional Survival Calculation</Accordion.Header>
+        <Accordion.Header className="text-primary">Conditional Survival Calculation</Accordion.Header>
         <Accordion.Body>
           <Form onSubmit={handleSubmit(conditionalCalculation)}>
             <p className="fw-bold">

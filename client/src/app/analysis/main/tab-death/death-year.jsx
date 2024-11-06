@@ -47,7 +47,7 @@ export default function DeathVsYear({ data, seerData, params, cohortIndex, fitIn
   return (
     <Container fluid>
       <Row>
-        <Col className="p-3 border rounded mb-3">
+        <Col className="p-3 border mb-3">
           <Row className="mb-3">
             <Col sm="auto">
               <SelectHookForm

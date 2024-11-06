@@ -10,6 +10,15 @@ body {
   height: 65px;
 }
 
+.table thead tr th {
+  background-color: #2e7bb2;
+  color: white;
+}
+
+.accordion-button {
+  color: $blue;
+}
+
 video {
   display: block;
   max-width: 1200px;

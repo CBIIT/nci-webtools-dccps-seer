@@ -24,7 +24,7 @@ export default function SurvivalVsTime({ data, seerData, params, cohortIndex, fi
   return (
     <Container fluid>
       <Row>
-        <Col className="p-3 border rounded">
+        <Col className="p-3 border">
           <Row>
             <Col sm="auto">
               <SelectHookForm
