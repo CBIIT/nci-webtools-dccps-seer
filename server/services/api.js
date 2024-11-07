@@ -32,12 +32,12 @@ export function createApi(env) {
   // register routes
   router.get("/ping", async (req, res) => res.json(true));
 
-  router.post("/upload/:id", validate, handleValidationErrors, upload.any(), logFiles(), (req, res) => {
-    res.json({ id: req.params.id });
-  });
+  // router.post("/upload/:id", validate, handleValidationErrors, upload.any(), logFiles(), (req, res) => {
+  //   res.json({ id: req.params.id });
+  // });
 
   router.post("/submit/:id", validate, handleValidationErrors, async (req, res) => {
-    res.json(await submit({ ...req.body, id: req.params.id }));
+    res.json(await submit(req.body.params, req.body.data));
   });
 
   router.post("/calendarTrends/:id", validate, handleValidationErrors, async (req, res) => {

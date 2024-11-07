@@ -52,7 +52,7 @@ export default function AnalysisForm({ id }) {
   const useRelaxModel = watch("useRelaxModel");
 
   const submitForm = useMutation({
-    mutationFn: ({ id, params }) => submit(id, params),
+    mutationFn: ({ params, data }) => submit(params.id, params, data),
   });
   const importMutation = useMutation({
     mutationFn: ({ id, fileList }) => importWorkspace(id, fileList),
@@ -248,12 +248,12 @@ export default function AnalysisForm({ id }) {
       },
     };
 
-    const seerStatFile = asFileList(
-      new File([JSON.stringify(seerData)], params.files.seerStatFile, { type: "application/json" })
-    );
+    // const seerStatFile = asFileList(
+    //   new File([JSON.stringify(seerData)], params.files.seerStatFile, { type: "application/json" })
+    // );
     // await uploadFiles(`/api/upload/${id}`, { ...formData, seerDataFile });
-    await uploadFiles(`api/upload/${id}`, { seerStatFile });
-    submitForm.mutate({ id, params });
+    // await uploadFiles(`api/upload/${id}`, { seerStatFile });
+    submitForm.mutate({ params, data: seerData });
     reset(params);
     setState({ params });
     router.push(`${pathname}?id=${id}`, { shallow: true });
@@ -571,14 +571,11 @@ export default function AnalysisForm({ id }) {
                 name="sendNotification"
                 id="sendNotification"
                 {...register("sendNotification", {
-                  // required: (covariateFile || geneSetFile) !== null,
                   onChange: handleChange,
                 })}
               />
               <div>
-                <Form.Text className="text-danger">
-                  {errors?.sendNotification ? "Required for Gene Set Analysis" : ""}
-                </Form.Text>
+                <Form.Text className="text-danger">{errors?.sendNotification ? "Required" : ""}</Form.Text>
               </div>
               <Form.Text className="text-muted fst-italic">
                 When submitting a long-running job, select this option to receive a notification via email upon
