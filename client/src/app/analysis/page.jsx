@@ -1,5 +1,5 @@
 "use client";
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, use } from "react";
 import { ErrorBoundary } from "next/dist/client/components/error-boundary";
 import Alert from "react-bootstrap/Alert";
 import Loading from "./loading";
@@ -12,7 +12,8 @@ import { SidebarContainer, SidebarPanel, MainPanel } from "@/components/sidebar-
 import ConfigureDataModal from "./configure-data-modal";
 import { useStore } from "./store";
 
-export default function Analysis({ searchParams }) {
+export default function Analysis(props) {
+  const searchParams = use(props.searchParams);
   const openSidebar = useStore((state) => state.openSidebar);
   const toggleSidebar = useStore((state) => state.toggleSidebar);
   const resetMain = useStore((state) => state.resetMain);
