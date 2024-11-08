@@ -300,8 +300,8 @@ function loadConditionalResults(model) {
         'yearPlot',
         traceGroup,
         index,
-        years.slice(projectedIndex),
-        predicted.slice(projectedIndex).map((e) => e / 100)
+        years.slice(projectedIndex - 1),
+        predicted.slice(projectedIndex - 1).map((e) => e / 100)
       );
       const predictedTraces = makeLineTrace(
         'yearPlot',
@@ -497,35 +497,41 @@ function generateTimePlotData(selectedYears, allYears, data, yearCol, start, end
       observed.map((e) => e / 100)
     );
 
-    const predictedTraces =
-      year < allYears.at(-1) - end
-        ? makeLineTrace(
+    const projectedIndex = observed.findIndex(isNaN);
+    const projectedTraces =
+      projectedIndex > -1
+        ? makeDashTrace(
             divId,
             traceGroup,
             index,
-            intervals,
-            predicted.map((e) => e / 100)
+            intervals.slice(projectedIndex - 1),
+            predicted.slice(projectedIndex - 1).map((e) => e / 100)
           )
-        : makeDashTrace(
-            divId,
-            traceGroup,
-            index,
-            intervals,
-            predicted.map((e) => e / 100)
-          );
+        : [];
+    const predictedTraces = makeLineTrace(
+      divId,
+      traceGroup,
+      index,
+      projectedIndex > -1 ? intervals.slice(0, projectedIndex) : intervals,
+      (projectedIndex > -1 ? predicted.slice(0, projectedIndex) : predicted).map((e) => e / 100)
+    );
 
     const observedLegendTrace = {
       ...makeLegendTrace(traceGroup, index, 'markers'),
       name: traceGroup + ' Observed',
+      showlegend: projectedIndex != 0,
     };
-    const predictedLegendTrace =
-      year < allYears.at(-1) - end
-        ? { ...makeLegendTrace(traceGroup, index, 'lines'), name: traceGroup + ' Predicted' }
-        : {
-            ...makeLegendTrace(traceGroup, index, 'lines'),
-            name: traceGroup + ' Projected',
-            line: { ...observedLegendTrace.line, dash: 'dash' },
-          };
+    const predictedLegendTrace = {
+      ...makeLegendTrace(traceGroup, index, 'lines'),
+      name: traceGroup + ' Predicted',
+      showlegend: predicted.slice(0, projectedIndex).filter(Boolean).length > 0,
+    };
+    const projectedLegendTrace = {
+      ...makeLegendTrace(traceGroup, index, 'lines'),
+      name: traceGroup + ' Projected',
+      line: { ...observedLegendTrace.line, dash: 'dash' },
+      showlegend: projectedIndex > -1,
+    };
 
     return {
       controlIndex,
@@ -536,9 +542,8 @@ function generateTimePlotData(selectedYears, allYears, data, yearCol, start, end
       intervals,
       predicted,
       observed,
-      predictedTraces,
-      observedTraces,
-      legendTraces: [observedLegendTrace, predictedLegendTrace],
+      dataTraces: [predictedTraces, observedTraces, projectedTraces],
+      legendTraces: [observedLegendTrace, predictedLegendTrace, projectedLegendTrace],
     };
   });
 }
@@ -572,9 +577,7 @@ function renderTimePlot(dataPerInterval, intervalRanges, divId) {
       }`,
     };
     const startingIntervalTrace = makeDashTrace(divId, '', '', [start, start], [0, 1]);
-    const traces = plotData
-      .map((e) => [e.predictedTraces, e.observedTraces, ...e.legendTraces, startingIntervalTrace])
-      .flat();
+    const traces = plotData.map((e) => [...e.dataTraces, ...e.legendTraces, startingIntervalTrace]).flat();
     const newPlot = `${divId}-${controlIndex}`;
     $('#timePlots').append(`<div id="${newPlot}" class="mx-auto mt-1 d-block"></div>`);
     drawPlot(newPlot, traces, layout);
