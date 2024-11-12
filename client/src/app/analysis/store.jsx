@@ -12,7 +12,6 @@ export const defaultForm = {
   id: "",
   inputType: "seer",
   inputFile: "",
-  seerStatDataFile: "",
   year: "",
   yearStart: "",
   yearEnd: "",
