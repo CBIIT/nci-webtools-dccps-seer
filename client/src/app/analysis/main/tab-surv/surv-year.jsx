@@ -3,7 +3,7 @@ import { useMemo, useState, useEffect } from "react";
 import { Container, Row, Col, Form, Button, Spinner } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { calculateCalendarTrends } from "../../queries";
+import { calculateCalendarTrends } from "@/services/queries";
 import SelectHookForm from "@/components/selectHookForm";
 import SurvYearPlot from "./surv-year-plot";
 import SurvYearTable from "./surv-year-table";

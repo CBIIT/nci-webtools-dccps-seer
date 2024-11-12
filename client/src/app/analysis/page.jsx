@@ -2,7 +2,7 @@
 import { Suspense, useEffect } from "react";
 import { ErrorBoundary } from "next/dist/client/components/error-boundary";
 import Alert from "react-bootstrap/Alert";
-import Loading from "./loading";
+import Loading from "@/components/loading";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";

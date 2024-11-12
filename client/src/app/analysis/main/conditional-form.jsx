@@ -3,7 +3,7 @@
 import { Row, Col, Form, Button, Spinner, Accordion } from "react-bootstrap";
 import { useForm, useFieldArray } from "react-hook-form";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { recalculateConditional } from "../queries";
+import { recalculateConditional } from "@/services/queries";
 import { useStore } from "../store";
 import { scaleData, changePrecision, relabelData } from "@/services/seer-results-transform";
 

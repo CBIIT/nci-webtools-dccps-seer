@@ -12,7 +12,7 @@ import { v4 as uuidv4 } from "uuid";
 import { useStore, defaultForm, defaultAdvOptions } from "./store";
 import { parseSeerStatDictionary, parseSeerStatFiles } from "@/services/file/file.service";
 import { uploadFiles, asFileList } from "@/components/file-input";
-import { fetchSession, submit, importWorkspace } from "./queries";
+import { fetchSession, submit, importWorkspace } from "@/services/queries";
 import { Accordion } from "react-bootstrap";
 
 const FileInput = dynamic(() => import("@/components/file-input"), {

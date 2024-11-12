@@ -6,7 +6,7 @@ import {
   makeDashTrace,
   makeLegendTrace,
   makeLayout,
-} from "../../../../components/plots/plotUtils";
+} from "@/components/plots/plotUtils";
 import Plot from "@/components/plots/survival-plot";
 
 export default function SurvYearPlot({

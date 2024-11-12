@@ -1,6 +1,6 @@
 "use client";
 import { groupBy } from "lodash";
-import { makeLineTrace, makeMarkerTrace, makeLegendTrace, makeLayout } from "../../../../components/plots/plotUtils";
+import { makeLineTrace, makeMarkerTrace, makeLegendTrace, makeLayout } from "@/components/plots/plotUtils";
 import Plot from "@/components/plots/time-plot";
 
 export default function SurvTimePlot({
