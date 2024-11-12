@@ -38,7 +38,7 @@ export default function Help() {
           <br />
 
           <h2 className="text-primary">
-            Step 1: Extract the data from SEER<super>*</super>Stat
+            Step 1: Extract the data from SEER<sup>*</sup>Stat
           </h2>
           <p>
             JPSurv can read in grouped relative or cause-specific survival data generated from SEER*Stat. The minimum
