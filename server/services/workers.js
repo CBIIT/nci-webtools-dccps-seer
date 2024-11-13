@@ -3,6 +3,7 @@ import ECS, { ECSClient, RunTaskCommand } from "@aws-sdk/client-ecs";
 import { readJson } from "./utils.js";
 import { createLogger } from "./logger.js";
 import { jpsurv } from "../jpsurv/jpsurv.js";
+import { cansurv } from "../cansurv/cansurv.js";
 
 export function getWorkerCommand(id) {
   return ["node", ["--env-file=.env", "worker.js", id]];
@@ -29,7 +30,11 @@ export async function runLocalWorker(id, env = process.env) {
   const paramsFilePath = path.resolve(env.INPUT_FOLDER, id, "params.json");
   const params = await readJson(paramsFilePath);
   const logger = createLogger(env.APP_NAME, env.LOG_LEVEL);
-  return await jpsurv(params, logger, env);
+  if (params?.type == "cansurv") {
+    return await cansurv(params, logger, env);
+  } else {
+    return await jpsurv(params, logger, env);
+  }
 }
 
 /**

@@ -2,6 +2,7 @@ import path from "path";
 import { isMainModule, readJson } from "./services/utils.js";
 import { createLogger } from "./services/logger.js";
 import { jpsurv } from "./jpsurv/jpsurv.js";
+import { cansurv } from "./cansurv/cansurv.js";
 
 if (isMainModule(import.meta)) {
   try {
@@ -21,5 +22,9 @@ export async function main(argv = process.argv, env = process.env) {
   const logger = createLogger(`${env.APP_NAME} - ${params.id}`, env.LOG_LEVEL);
   logger.info(params);
 
-  return await jpsurv(params, logger, env);
+  if (params?.type == "cansurv") {
+    return await cansurv(params, logger, env);
+  } else {
+    return await jpsurv(params, logger, env);
+  }
 }
