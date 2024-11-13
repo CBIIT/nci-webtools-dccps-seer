@@ -9,6 +9,7 @@ export default function RootLayout({ children }) {
   const routes = [
     // { title: "Home", path: "/", subRoutes: [] },
     { title: "Analysis", path: "/analysis", subRoutes: [] },
+    { title: "CanSurv", path: "/cansurv", subRoutes: [] },
     { title: "Help", path: "/help", subRoutes: [] },
   ];
   const queryClient = new QueryClient({});
