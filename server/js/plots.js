@@ -323,7 +323,7 @@ export function processPlotData(divID, x, yMark, yLine, dimension, trends) {
     const dim = dimension[i];
     const projectedIndex = yMark.findIndex((e, i) => dim == dimension[i] && e == 'NA');
     // projected trace
-    if (projectedIndex !== -1 && i >= projectedIndex - 1) {
+    if (projectedIndex > -1 && i >= projectedIndex - uniqueDimensions.length) {
       const dim = projectedTrace[dimension[i]];
       dim.x.push(x);
       dim.y.push(yLine[i] / 100);
