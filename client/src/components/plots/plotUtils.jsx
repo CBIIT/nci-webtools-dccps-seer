@@ -72,12 +72,12 @@ export function makeMarkerTrace(name = "", group, index, xArray, yArray, statist
   };
 }
 
-export function makeLegendTrace(name, group, index, mode = "lines+markers", dash = null) {
+export function makeLegendTrace(name, group, index, mode = "lines+markers", dash = null, showlegend = true) {
   return {
     name,
+    showlegend,
     x: [null],
     y: [null],
-    showlegend: true,
     mode: mode,
     type: "scatter",
     line: { color: colors[index % 10], dash: dash },

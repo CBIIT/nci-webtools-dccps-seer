@@ -52,7 +52,7 @@ export default function DeathVsYear({ data, seerData, params, cohortIndex, fitIn
             <Col sm="auto">
               <SelectHookForm
                 name="intervals"
-                label="Year of Diagnosis"
+                label="Years Since Diagnosis"
                 options={intervalOptions.map((e) => ({ label: e, value: e }))}
                 control={control}
                 isMulti

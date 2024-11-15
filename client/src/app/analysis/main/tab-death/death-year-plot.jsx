@@ -27,6 +27,10 @@ export default function SurvYearPlot({
       const observedTraceName = `${interval}-year Observed`;
       const predictedTraceName = `${interval}-year Predicted`;
       const projectedTraceName = `${interval}-year Projected`;
+      const projectedStart = data.map((e) => e[observedHeader]).findIndex((e) => !e);
+      const predictedData = data.slice(0, projectedStart > -1 ? projectedStart : data.length);
+      const projectedData = data.slice(projectedStart > 1 ? projectedStart - 1 : projectedStart);
+
       const observedTraces = makeMarkerTrace(
         observedTraceName,
         interval,
@@ -35,10 +39,6 @@ export default function SurvYearPlot({
         data.map((e) => e[observedHeader]),
         statistic
       );
-
-      const projectedStart = data.map((e) => +e[observedHeader]).findIndex(Number.isNaN);
-      const predictedData = data.slice(0, projectedStart);
-      const projectedData = data.slice(projectedStart);
 
       const predictedTraces = makeLineTrace(
         predictedTraceName,
@@ -59,7 +59,14 @@ export default function SurvYearPlot({
 
       const observedLegendTrace = makeLegendTrace(observedTraceName, interval, index, "markers");
       const predictedLegendTrace = makeLegendTrace(predictedTraceName, interval, index, "lines");
-      const projectedLegendTrace = makeLegendTrace(projectedTraceName, interval, index, "lines", "dash");
+      const projectedLegendTrace = makeLegendTrace(
+        projectedTraceName,
+        interval,
+        index,
+        "lines",
+        "dash",
+        projectedStart > -1
+      );
 
       return [
         predictedTraces,

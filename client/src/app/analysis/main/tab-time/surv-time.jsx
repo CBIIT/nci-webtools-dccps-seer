@@ -51,6 +51,7 @@ export default function SurvivalVsTime({ data, seerData, params, cohortIndex, fi
             yTitle={`${isRecalcCond ? "Conditional " : ""}${statistic}`}
             observedHeader={observedHeader}
             predictedHeader={predictedHeader}
+            isRecalcCond={isRecalcCond}
           />
         </Col>
       </Row>

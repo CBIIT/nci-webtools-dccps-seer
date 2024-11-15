@@ -1,6 +1,12 @@
 "use client";
 import { groupBy } from "lodash";
-import { makeLineTrace, makeMarkerTrace, makeLegendTrace, makeLayout } from "@/components/plots/plotUtils";
+import {
+  makeLineTrace,
+  makeMarkerTrace,
+  makeDashTrace,
+  makeLegendTrace,
+  makeLayout,
+} from "@/components/plots/plotUtils";
 import Plot from "@/components/plots/time-plot";
 
 export default function SurvTimePlot({
@@ -11,17 +17,29 @@ export default function SurvTimePlot({
   yTitle,
   observedHeader,
   predictedHeader,
+  isRecalcCond,
   className = "",
 }) {
   const { statistic } = params;
-  const intervalStart = Math.min(data.map((e) => e.Interval));
-  const intervalEnd = Math.max(data.map((e) => e.Interval));
+  const intervals = data.map((e) => e.Interval);
+  const intervalStart = Math.min(...intervals);
+  const intervalEnd = Math.max(...intervals);
   const groupByYear = groupBy(data, params.year);
 
+  console.log("groupByYear", groupByYear);
   const traces = Object.entries(groupByYear)
     .map(([interval, data], index) => {
       const observedTraceName = `${+interval} Observed`;
       const predictedTraceName = `${+interval} Predicted`;
+      const projectedTraceName = `${+interval} Predicted`;
+
+      if (isRecalcCond) {
+        data = [{ [observedHeader]: 100, [predictedHeader]: 100 }, ...data];
+      }
+      console.log(data);
+      const projectedStart = data.map((e) => e[observedHeader]).findIndex((e) => !e);
+      const predictedData = data.slice(0, projectedStart > -1 ? projectedStart : data.length);
+      const projectedData = data.slice(projectedStart > 1 ? projectedStart - 1 : projectedStart);
 
       const observedTraces = makeMarkerTrace(
         observedTraceName,
@@ -31,20 +49,44 @@ export default function SurvTimePlot({
         data.map((e) => e[observedHeader]),
         statistic
       );
-
       const predictedTraces = makeLineTrace(
         predictedTraceName,
         interval,
         index,
-        data.map((e) => e.Interval),
-        data.map((e) => e[predictedHeader]),
+        predictedData.map((e) => e.Interval),
+        predictedData.map((e) => e[predictedHeader]),
+        statistic
+      );
+      const projectedTraces = makeDashTrace(
+        projectedTraceName,
+        interval,
+        index,
+        projectedData.map((e) => e.Interval),
+        projectedData.map((e) => e[predictedHeader]),
+        statistic
+      );
+      const startingIntervalIndicator = makeDashTrace(
+        "",
+        interval,
+        0,
+        [intervalStart, intervalStart],
+        [0, 100],
         statistic
       );
 
       const observedLegendTrace = makeLegendTrace(observedTraceName, interval, index, "markers");
       const predictedLegendTrace = makeLegendTrace(predictedTraceName, interval, index, "lines");
+      const projectedLegendTrace = makeLegendTrace(projectedTraceName, interval, index, "lines", "dash");
 
-      return [predictedTraces, observedTraces, observedLegendTrace, predictedLegendTrace];
+      return [
+        predictedTraces,
+        observedTraces,
+        projectedTraces,
+        observedLegendTrace,
+        predictedLegendTrace,
+        projectedLegendTrace,
+        // isRecalcCond ? startingIntervalIndicator : [],
+      ];
     })
     .flat();
 
