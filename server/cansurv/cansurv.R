@@ -1,8 +1,11 @@
 library(jsonlite)
-library(dplyr)
 source("cansurv/source.R")
 
 calculateCanSurv <- function(inputFolder, outputFolder) {
+    library(dplyr)
+    library(flexsurv)
+    library(stats4)
+
     params <- read_json(file.path(inputFolder, "params.json"))
     data <- read_json(file.path(inputFolder, params$files$seerStatFile), simplifyDataFrame = T)
     data <- bind_rows(data$seerStatData)
@@ -11,8 +14,11 @@ calculateCanSurv <- function(inputFolder, outputFolder) {
         {
             results <- CanSurv(data,
                 dist = params$dist,
-                cure = params$cure, mu = params$mu, sigma = params$sigma,
-                continuous = params$continuous, by = params$by,
+                cure = unlist(params$cure),
+                mu = unlist(params$mu),
+                sigma = unlist(params$sigma),
+                continuous = unlist(params$continuous),
+                by = unlist(params$by),
                 time = params$time, alive = params$alive, died = params$died,
                 lost = params$lost, exp_cum = params$exp_cum,
                 rel_cum = params$rel_cum,
@@ -23,7 +29,6 @@ calculateCanSurv <- function(inputFolder, outputFolder) {
 
             resultsFile <- "results.json"
             write_json(results, path = file.path(outputFolder, resultsFile), auto_unbox = TRUE)
-            manifest$results <- resultsFile
             resultsFile
         },
         error = function(e) {
