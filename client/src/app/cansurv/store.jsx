@@ -8,8 +8,8 @@ export const defaultForm = {
 
   distribution: "lnorm",
   maxit: 100,
-  reltol: 0.000001,
-  n_restart_conv: 100,
+  reltol: 1.5e-8,
+  n_restart_conv: 10,
   seed: 123,
   est_cure: false,
   cure: [],

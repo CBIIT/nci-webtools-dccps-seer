@@ -311,27 +311,25 @@ export default function AnalysisForm({ id }) {
             <h5>Computation Specifications</h5>
             <Form.Group controlId="maxit" className="my-3">
               <Form.Label className="fw-bold">Maximum Number of Iterations</Form.Label>
-              <Form.Control
-                {...register("maxit", { valueAsNumber: true })}
-                type="number"
-                min="1"
-                max="10000"></Form.Control>
+              <Form.Control {...register("maxit", { valueAsNumber: true })} type="number" min="100" max="1000" />
             </Form.Group>
             <Form.Group controlId="reltol" className="my-3">
               <Form.Label className="fw-bold">Relative Convergence Tolerance</Form.Label>
               <Form.Control
-                {...register("reltol", { valueAsNumber: true })}
-                type="number"
-                min=".000001"
-                max="1"></Form.Control>
+                {...register("reltol", {
+                  valueAsNumber: true,
+                  min: { value: 1e-10, message: "Value must be at least 1e-10" },
+                  max: {
+                    value: 1e-4,
+                    message: "Value must be at most 1e-4",
+                  },
+                })}
+              />
+              <Form.Text className="text-danger">{errors?.reltol?.message}</Form.Text>
             </Form.Group>
             <Form.Group controlId="n_restart_conv" className="my-3">
               <Form.Label className="fw-bold">Number of Restarts</Form.Label>
-              <Form.Control
-                {...register("n_restart_conv", { valueAsNumber: true })}
-                type="number"
-                min="1"
-                max="200"></Form.Control>
+              <Form.Control {...register("n_restart_conv", { valueAsNumber: true })} type="number" min="0" max="100" />
             </Form.Group>
             <Form.Group controlId="seed" className="my-3">
               <Form.Label className="fw-bold">Seed</Form.Label>
