@@ -30,6 +30,12 @@ video {
   }
 }
 
+.legend-wrap {
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
 .navbar-nav .nav-item .nav-link.nav-menu-active,
 .navbar-nav .nav-item .nav-link.nav-menu-active:hover {
   background-color: #df3041;

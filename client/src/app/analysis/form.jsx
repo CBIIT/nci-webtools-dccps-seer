@@ -333,8 +333,8 @@ export default function AnalysisForm({ id }) {
       {Object.keys(modelOptions).length > 0 && (
         <>
           <fieldset className="fieldset shadow-sm border rounded my-4 pt-4 px-3">
-            <legend className="legend fw-bold">Cohort and Model Specifications</legend>
-            <Form.Group className="mb-4" controlId="year">
+            <legend className="legend fw-bold legend-wrap">Cohort and Model Specifications</legend>
+            <Form.Group className="my-3" controlId="year">
               <Form.Label className="required fw-bold">Year of Diagnosis</Form.Label>
               <Form.Select required {...register("year", { required: true })}>
                 {modelOptions.yearOptions.map((e) => (
