@@ -26,7 +26,6 @@ export default function SurvTimePlot({
   const intervalEnd = Math.max(...intervals);
   const groupByYear = groupBy(data, params.year);
 
-  console.log("groupByYear", groupByYear);
   const traces = Object.entries(groupByYear)
     .map(([interval, data], index) => {
       const observedTraceName = `${+interval} Observed`;
@@ -36,7 +35,7 @@ export default function SurvTimePlot({
       if (isRecalcCond) {
         data = [{ [observedHeader]: 100, [predictedHeader]: 100 }, ...data];
       }
-      console.log(data);
+
       const projectedStart = data.map((e) => e[observedHeader]).findIndex((e) => !e);
       const predictedData = data.slice(0, projectedStart > -1 ? projectedStart : data.length);
       const projectedData = data.slice(projectedStart > 1 ? projectedStart - 1 : projectedStart);

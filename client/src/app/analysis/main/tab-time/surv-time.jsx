@@ -20,7 +20,7 @@ export default function SurvivalVsTime({ data, seerData, params, cohortIndex, fi
   const memoData = useMemo(() =>
     (conditional || data).filter((e) => years.includes(e[params.year]), [data, conditional, years])
   );
-  console.log(conditional);
+
   return (
     <Container fluid>
       <Row>
