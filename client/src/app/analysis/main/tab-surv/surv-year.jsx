@@ -1,18 +1,21 @@
 "use client";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useEffect } from "react";
 import { Container, Row, Col, Form, Button, Spinner } from "react-bootstrap";
 import { useForm } from "react-hook-form";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { calculateCalendarTrends } from "@/services/queries";
+import { useQueryClient, useIsFetching } from "@tanstack/react-query";
+import { calculateTrends } from "@/services/queries";
 import SelectHookForm from "@/components/selectHookForm";
 import SurvYearPlot from "./surv-year-plot";
 import SurvYearTable from "./surv-year-table";
 import TrendTable from "./surv-trend-table";
 import { downloadTable } from "@/services/xlsx";
+import { useStore } from "../../store";
 
 export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fitIndex, conditional, cluster }) {
+  const setState = useStore((state) => state.setState);
+  const survTrendQueryKey = useStore((state) => state.survTrendQueryKey);
   const queryClient = useQueryClient();
-  const isFetching = queryClient.isFetching();
+  const isFetching = useIsFetching({ queryKey: ["trend"] });
   const isRecalcCond = !!conditional;
   const intervalOptions = [...new Set((conditional || data.fullpredicted).map((e) => e.Interval))];
   const defaultInterval = intervalOptions.includes(5) ? 5 : Math.max(...intervalOptions);
@@ -27,7 +30,7 @@ export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fi
   } = useForm({
     defaultValues: {
       intervals: [defaultInterval],
-      trendJp: false,
+      jpTrend: false,
       calendarTrend: false,
       trendStart: "",
       trendEnd: "",
@@ -35,8 +38,10 @@ export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fi
   });
 
   const intervals = watch("intervals");
-  const trendJp = watch("trendJp");
+  const jpTrend = watch("jpTrend");
   const calendarTrend = watch("calendarTrend");
+  const trendStart = watch("trendStart");
+  const trendEnd = watch("trendEnd");
   const statistic = seerData?.config["Session Options"]["Statistic"];
   const { firstYear } = params;
   const yearOptions = [...new Set(data.predicted.map((e) => e[params.year]))];
@@ -44,11 +49,31 @@ export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fi
     () => (conditional || data.fullpredicted).filter((e) => intervals.includes(e.Interval)),
     [data, conditional, intervals]
   );
-  const trendData = useMemo(
-    () => data.survTrend.reduce((acc, ar) => [...acc, ...ar], []).filter((e) => intervals.includes(e.interval)),
-    [data, intervals]
+
+  const trendQueryData = queryClient.getQueryData(survTrendQueryKey);
+  const survTrend = useMemo(
+    () =>
+      trendQueryData?.data?.jpTrend
+        ? trendQueryData.data.jpTrend[fitIndex].survTrend
+            .reduce((acc, ar) => [...acc, ...ar], [])
+            .filter((e) => intervals.includes(e.interval))
+        : [],
+    [trendQueryData, jpTrend, intervals, fitIndex]
   );
-  const [calTrendData, setCalTrendData] = useState([]);
+
+  const calTrend = useMemo(
+    () =>
+      trendQueryData?.data?.calendarTrend
+        ? (params.useRelaxModel
+            ? trendQueryData.data.calendarTrend[cluster][fitIndex]
+            : trendQueryData.data.calendarTrend[fitIndex]
+          )
+            .reduce((acc, ar) => [...acc, ...ar], [])
+            .filter((e) => intervals.includes(e.interval))
+        : [],
+    [trendQueryData, calendarTrend, intervals, fitIndex, cluster, params.useRelaxModel]
+  );
+
   const observedHeader = isRecalcCond ? "observed" : params?.observed;
   const observedSeHeader = isRecalcCond
     ? "observed_se"
@@ -60,26 +85,31 @@ export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fi
 
   // disable trends for conditional recalculation
   useEffect(() => {
-    if (trendJp && !!conditional) setValue("trendJp", false);
+    if (jpTrend && !!conditional) setValue("jpTrend", false);
     if (calendarTrend && !!conditional) setValue("calendarTrend", false);
-  }, [conditional, trendJp, calendarTrend]);
+  }, [conditional, jpTrend, calendarTrend]);
   // auto select interval on conditional recalculation switch
   useEffect(() => {
     if (!intervalOptions.includes(intervals)) setValue("intervals", [...intervals, defaultInterval]);
   }, [conditional, defaultInterval]);
+  useEffect(() => {
+    setState({ survTrendQueryKey: ["trend", cohortIndex, trendStart, trendEnd] });
+  }, [setState, jpTrend, calendarTrend, trendStart, trendEnd, cohortIndex]);
 
-  async function getCalendarTrend(form) {
+  async function getTrends(form) {
     try {
-      const { data } = await queryClient.fetchQuery({
-        queryKey: ["calendarTrend", cohortIndex, form.trendStart, form.trendEnd],
+      await queryClient.fetchQuery({
+        queryKey: survTrendQueryKey,
         queryFn: async () =>
-          calculateCalendarTrends(params.id, {
+          calculateTrends(params.id, {
+            jpTrend: form.jpTrend,
+            calendarTrend: form.calendarTrend,
             yearRange: [+form.trendStart, +form.trendEnd],
             cohortIndex,
             useRelaxModel: params.useRelaxModel,
+            type: "surv",
           }),
       });
-      setCalTrendData(data);
     } catch (e) {
       console.log(e);
     }
@@ -89,21 +119,21 @@ export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fi
     <Container fluid>
       <Row>
         <Col className="p-3 border mb-3">
-          <Form onSubmit={handleSubmit(getCalendarTrend)}>
-            <Row className="mb-3">
-              <Col sm="auto">
-                <SelectHookForm
-                  name="intervals"
-                  label="Year of Diagnosis"
-                  options={intervalOptions.map((e) => ({ label: e, value: e }))}
-                  control={control}
-                  isMulti
-                />
-                <Form.Text className="text-muted">
-                  <i>Select years since diagnosis (follow-up) for survival plot and/or trend measures</i>
-                </Form.Text>
-              </Col>
-            </Row>
+          <Row className="mb-3">
+            <Col sm="auto">
+              <SelectHookForm
+                name="intervals"
+                label="Years Since Diagnosis"
+                options={intervalOptions.map((e) => ({ label: e, value: e }))}
+                control={control}
+                isMulti
+              />
+              <Form.Text className="text-muted">
+                <i>Select years since diagnosis (follow-up) for survival plot and/or trend measures</i>
+              </Form.Text>
+            </Col>
+          </Row>
+          <Form className="border rounded m-1 p-3" onSubmit={handleSubmit(getTrends)}>
             <Row>
               <Col>
                 <b>Include Trend Measures</b>
@@ -113,8 +143,8 @@ export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fi
               <Col sm="auto">
                 <Form.Group>
                   <Form.Check
-                    {...register("trendJp")}
-                    id="trendJp"
+                    {...register("jpTrend")}
+                    id="jpTrend"
                     label="Between Joinpoints"
                     aria-label="Between Joinpoints"
                     type="checkbox"
@@ -144,7 +174,7 @@ export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fi
                       valueAsNumber: true,
                       required: calendarTrend ? "Required" : false,
                       validate: (value, form) =>
-                        value < form.trendEnd || `Must be less than ${+form.trendEnd + firstYear}`,
+                        !calendarTrend || value < form.trendEnd || `Must be less than ${+form.trendEnd + firstYear}`,
                     })}
                     disabled={!calendarTrend}
                     isInvalid={errors?.trendStart}>
@@ -165,7 +195,9 @@ export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fi
                       valueAsNumber: true,
                       required: calendarTrend ? "Required" : false,
                       validate: (value, form) =>
-                        value > form.trendStart || `Must be greater than ${+form.trendStart + firstYear}`,
+                        !calendarTrend ||
+                        value > form.trendStart ||
+                        `Must be greater than ${+form.trendStart + firstYear}`,
                     })}
                     disabled={!calendarTrend}
                     isInvalid={errors?.trendEnd}>
@@ -179,7 +211,7 @@ export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fi
                 </Form.Group>
               </Col>
               <Col>
-                <Button type="submit" disabled={!calendarTrend || isFetching}>
+                <Button type="submit" disabled={!(calendarTrend || jpTrend) || isFetching}>
                   {isFetching ? (
                     <>
                       <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> Loading
@@ -195,10 +227,10 @@ export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fi
       </Row>
       <Row>
         <Col>
-          {trendJp && (
+          {jpTrend && survTrend.length > 0 && (
             <div>
               <h5>Average Absolute Change in Survival</h5>
-              <TrendTable data={trendData} params={params} />
+              <TrendTable data={survTrend} params={params} />
               <small>
                 Numbers represent the difference in cumulative survival rate (as the percent surviving) from one year at
                 diagnosis to the previous.
@@ -209,21 +241,10 @@ export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fi
       </Row>
       <Row>
         <Col>
-          {calendarTrend && Object.keys(calTrendData).length > 0 && (
+          {calendarTrend && calTrend.length > 0 && (
             <div className="mt-3">
               <h5>Trend Measures for User Selected Years</h5>
-              <TrendTable
-                data={
-                  params.useRelaxModel
-                    ? calTrendData[cluster][fitIndex]
-                        .reduce((acc, ar) => [...acc, ...ar], [])
-                        .filter((e) => intervals.includes(e.interval))
-                    : calTrendData[fitIndex]
-                        .reduce((acc, ar) => [...acc, ...ar], [])
-                        .filter((e) => intervals.includes(e.interval))
-                }
-                params={params}
-              />
+              <TrendTable data={calTrend} params={params} />
             </div>
           )}
         </Col>

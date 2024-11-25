@@ -1,7 +1,7 @@
 import path from "path";
 import { mkdirs, readJson, writeJson } from "./utils.js";
 import { getWorker } from "./workers.js";
-import { calendarTrends, joinpointConditional } from "../jpsurv/jpsurv.js";
+import { trends, joinpointConditional } from "../jpsurv/jpsurv.js";
 
 const { WORKER_TYPE } = process.env;
 
@@ -25,8 +25,8 @@ export async function submit(params, data, env = process.env) {
   return status;
 }
 
-export async function getCalendarTrends(params, logger, env = process.env) {
-  return await calendarTrends(params, logger, env);
+export async function getTrends(params, logger, env = process.env) {
+  return await trends(params, logger, env);
 }
 
 export async function recalculateConditional(params, logger, env = process.env) {

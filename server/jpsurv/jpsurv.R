@@ -6,12 +6,13 @@ calculateJoinpoint <- function(inputFolder, outputFolder) {
     params <- read_json(file.path(inputFolder, "params.json"))
 
     data <- read_json(file.path(inputFolder, params$files$seerStatFile), simplifyDataFrame = T)
+    # filter data up to selected interval
     data <- subset(data$seerStatData, Interval <= params$interval)
     if (params$rates == "Percents") {
         data <- toProportion(data)
     }
 
-    # subset strings for filtering
+    # subset strings for filtering data
     yearStr <- sprintf("%s >= %s & %s <= %s", params$year, params$yearStart, params$year, params$yearEnd)
     cohortVars <- params$cohortVars
     cohortMatrix <- do.call(rbind, params$cohortCombos)
@@ -103,12 +104,6 @@ calculateJoinpoint <- function(inputFolder, outputFolder) {
                             )
                         }
 
-                        # calculate trend measures
-                        uncond$FitList <- calculateTrendMeasures(uncond$FitList)
-                        if (!is.null(cond)) {
-                            cond$FitList <- calculateTrendMeasures(cond$FitList)
-                        }
-
                         # save model coefficients to a separate file to preserve data structure
                         coef <- getModelCoefficients(uncond)
                         write_json(coef, path = file.path(outputFolder, coefFile), auto_unbox = TRUE)
@@ -168,9 +163,6 @@ calculateJoinpoint <- function(inputFolder, outputFolder) {
                             subset = cohortSubsets[[cohortComboIndex]]
                         )
                     }
-
-                    # calculate trend measures
-                    model$FitList <- calculateTrendMeasures(model$FitList)
 
                     # save model coefficients to a separate file to preserve data structure
                     coef <- getModelCoefficients(model)
@@ -248,32 +240,6 @@ toProportion <- function(data) {
     data
 }
 
-# get surv-year trends for specific calendar years
-calendarTrends <- function(params, outputFolder) {
-    library(JPSurv)
-    # load previous calculated model
-    load(file.path(outputFolder, paste0(params$cohortIndex, ".RData")))
-    trends <- list()
-    if (params$useRelaxModel) {
-        for (cutpoint in 1:length(model$all.results)) {
-            uncond <- model$all.results[[cutpoint]]$fit.uncond
-            cond <- model$all.results[[cutpoint]]$fit.cond
-            trends$uncond[[cutpoint]] <- aapc.multiints(uncond, type = "AbsChgSur", int.select = unique(uncond$predicted$Interval), ACS.range = unlist(params$yearRange), ACS.out = "user")
-            if (!is.null(cond)) {
-                trends$cond[[cutpoint]] <- aapc.multiints(cond, type = "AbsChgSur", int.select = unique(cond$predicted$Interval), ACS.range = unlist(params$yearRange), ACS.out = "user")
-            }
-        }
-    } else {
-        for (fitIndex in 1:length(model$FitList)) {
-            fit <- model$FitList[[fitIndex]]
-            range <- unlist(params$yearRange)
-            trends[[fitIndex]] <- aapc.multiints(fit, type = "AbsChgSur", int.select = unique(fit$predicted$Interval), ACS.range = unlist(params$yearRange), ACS.out = "user")
-        }
-    }
-    trends
-}
-
-#
 joinpointConditional <- function(params, outputFolder) {
     library(JPSurv)
     # load previous calculated model
@@ -299,6 +265,7 @@ joinpointConditional <- function(params, outputFolder) {
     conditionalModel
 }
 
+
 getConditionalValues <- function(data, yearCol, conditionalPredicted = FALSE) {
     n_year <- length(unique(data[[yearCol]]))
     year_uniq <- sort(unique(data[[yearCol]]))
@@ -318,16 +285,7 @@ getConditionalValues <- function(data, yearCol, conditionalPredicted = FALSE) {
     data
 }
 
-calculateTrendMeasures <- function(FitList) {
-    for (fitIndex in 1:length(FitList)) {
-        fit <- FitList[[fitIndex]]
-        fit$survTrend <- aapc.multiints(fit, type = "AbsChgSur", int.select = unique(fit$predicted$Interval))
-        fit$deathTrend <- aapc.multiints(fit, type = "RelChgHaz", int.select = unique(fit$predicted$Interval))
-        FitList[[fitIndex]] <- fit
-    }
-    FitList
-}
-
+# get model coefficients
 getModelCoefficients <- function(model) {
     coef <- c()
     for (fit in model$FitList) {
@@ -357,4 +315,56 @@ relabelData <- function(FitList, params) {
         fit$fullpredicted <- data
         fit
     })
+}
+
+joinpointTrends <- function(params, outputFolder) {
+    library(JPSurv)
+    load(file.path(outputFolder, paste0(params$cohortIndex, ".RData")))
+    trends <- lapply(model$FitList, function(fit) {
+        if (params$type == "surv") {
+            survTrend <- aapc.multiints(fit, type = "AbsChgSur", int.select = unique(fit$predicted$Interval))
+            list("survTrend" = survTrend)
+        } else if (params$type == "death") {
+            deathTrend <- aapc.multiints(fit, type = "RelChgHaz", int.select = unique(fit$predicted$Interval))
+            list("deathTrend" = deathTrend)
+        }
+    })
+    trends
+}
+
+# get surv-year trends for specific calendar years
+calendarTrends <- function(params, outputFolder) {
+    library(JPSurv)
+    # load previous calculated model
+    load(file.path(outputFolder, paste0(params$cohortIndex, ".RData")))
+    trends <- list()
+    if (params$useRelaxModel) {
+        for (cutpoint in 1:length(model$all.results)) {
+            uncond <- model$all.results[[cutpoint]]$fit.uncond
+            cond <- model$all.results[[cutpoint]]$fit.cond
+            trends$uncond[[cutpoint]] <- aapc.multiints(uncond, type = "AbsChgSur", int.select = unique(uncond$predicted$Interval), ACS.range = unlist(params$yearRange), ACS.out = "user")
+            if (!is.null(cond)) {
+                trends$cond[[cutpoint]] <- aapc.multiints(cond, type = "AbsChgSur", int.select = unique(cond$predicted$Interval), ACS.range = unlist(params$yearRange), ACS.out = "user")
+            }
+        }
+    } else {
+        for (fitIndex in 1:length(model$FitList)) {
+            fit <- model$FitList[[fitIndex]]
+            range <- unlist(params$yearRange)
+            trends[[fitIndex]] <- aapc.multiints(fit, type = "AbsChgSur", int.select = unique(fit$predicted$Interval), ACS.range = unlist(params$yearRange), ACS.out = "user")
+        }
+    }
+    trends
+}
+
+# calculate jp, calendar, or both trends
+getTrends <- function(params, outputFolder) {
+    data <- list()
+    if (params$jpTrend) {
+        data$jpTrend <- joinpointTrends(params, outputFolder)
+    }
+    if (!is.null(params$calendarTrend) && params$calendarTrend) {
+        data$calendarTrend <- calendarTrends(params, outputFolder)
+    }
+    data
 }

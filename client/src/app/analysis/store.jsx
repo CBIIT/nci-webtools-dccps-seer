@@ -43,6 +43,8 @@ export const defaultState = {
   openSidebar: true,
   useConditional: false,
   conditional: null,
+  survTrendQueryKey: [],
+  deathTrendQueryKey: [],
 };
 
 export const useStore = create((set) => ({
