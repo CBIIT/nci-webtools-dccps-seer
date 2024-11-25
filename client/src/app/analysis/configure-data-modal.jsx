@@ -109,10 +109,10 @@ export default function ConfigureDataModal() {
 
   const tableData = useMemo(() => {
     if (hasHeaders) {
-      return parsedHead.data.slice(0, 10);
+      return parsedHead.data.slice(0, 8);
     } else {
       return parsedNoHead.length
-        ? parsedNoHead.slice(0, 10).map((row) =>
+        ? parsedNoHead.slice(0, 8).map((row) =>
             row.reduce((acc, cell, index) => {
               acc[`col${index}`] = cell;
               return acc;
@@ -148,13 +148,13 @@ export default function ConfigureDataModal() {
   });
 
   return (
-    <Modal show={openConfigDataModal} onHide={handleClose} fullscreen>
+    <Modal show={openConfigDataModal} onHide={handleClose} size="xl">
       <Modal.Header closeButton>
         <Modal.Title>Data Configuration</Modal.Title>
       </Modal.Header>
       <Form onSubmit={handleSubmit(onSubmit)} onReset={onReset}>
         <Modal.Body className="bg-light">
-          <Container className="w-50" fluid="sm">
+          <Container>
             <Form.Group controlId="hasHeaders">
               <Form.Check {...register("hasHeaders")} type="checkbox" label="Data File Contains Headers" />
               <Form.Text>Check this option is your file contains column headers in the first row</Form.Text>
@@ -173,14 +173,21 @@ export default function ConfigureDataModal() {
                 <option value="proportion">Proportions</option>
               </Form.Select>
             </Form.Group>
+            <div className="mt-3">
+              Please map{" "}
+              <b>
+                <i>all</i>
+              </b>{" "}
+              required parameters to the appropriate columns (see help for details)
+            </div>
           </Container>
           {tableData.length > 0 && (
-            <Table striped bordered className="mt-3">
+            <Table responsive striped bordered className="mt-3">
               <thead>
                 <tr>
                   {columns.map((col, index) => (
                     <th key={index}>
-                      <Form.Select {...register("mapHeaders." + index)}>
+                      <Form.Select {...register("mapHeaders." + index)} style={{ width: "250px" }}>
                         <option></option>
                         {headerOptions.map((e, i) => (
                           <option key={i} value={e.value}>
