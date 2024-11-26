@@ -1,7 +1,9 @@
 import Zip from "adm-zip";
 import path from "path";
 import { readFile, readdir } from "fs/promises";
+import { existsSync } from "fs";
 import { PassThrough } from "stream";
+import { validate } from "uuid";
 
 export async function exportWorkspace(id, env = process.env) {
   const inputFolder = path.resolve(env.INPUT_FOLDER, id);
@@ -36,18 +38,33 @@ export async function importWorkspace(id, zipFile, env = process.env) {
   const zip = new Zip(zipData);
   const zipId = zip.readAsText("id.txt");
 
-  // Extract input files
-  const inputFolder = path.resolve(env.INPUT_FOLDER, zipId);
-  const inputEntries = zip.getEntries().filter((entry) => entry.entryName.startsWith("input/") && !entry.isDirectory);
-  for (const entry of inputEntries) {
-    zip.extractEntryTo(entry.entryName, inputFolder, false, true);
-  }
+  if (validate(zipId)) {
+    // Extract input files{
+    const inputFolder = path.resolve(env.INPUT_FOLDER, zipId);
+    const inputEntries = zip.getEntries().filter((entry) => entry.entryName.startsWith("input/") && !entry.isDirectory);
+    for (const entry of inputEntries) {
+      zip.extractEntryTo(entry.entryName, inputFolder, false, true);
+    }
+    if (
+      !existsSync(path.join(inputFolder, "params.json")) ||
+      !existsSync(path.join(inputFolder, "seerStatData.json"))
+    ) {
+      throw new Error("Corrupted Workspace: Missing parameters");
+    }
 
-  // Extract output files
-  const outputFolder = path.resolve(env.OUTPUT_FOLDER, zipId);
-  const outputEntries = zip.getEntries().filter((entry) => entry.entryName.startsWith("output/") && !entry.isDirectory);
-  for (const entry of outputEntries) {
-    zip.extractEntryTo(entry.entryName, outputFolder, false, true);
+    // Extract output files
+    const outputFolder = path.resolve(env.OUTPUT_FOLDER, zipId);
+    const outputEntries = zip
+      .getEntries()
+      .filter((entry) => entry.entryName.startsWith("output/") && !entry.isDirectory);
+    for (const entry of outputEntries) {
+      zip.extractEntryTo(entry.entryName, outputFolder, false, true);
+    }
+    if (!existsSync(path.join(outputFolder, "manifest.json")) || !existsSync(path.join(outputFolder, "status.json"))) {
+      throw new Error("Corrupted Workspace: Missing data");
+    }
+    return zipId;
+  } else {
+    throw new Error("Invalid Workspace");
   }
-  return zipId;
 }

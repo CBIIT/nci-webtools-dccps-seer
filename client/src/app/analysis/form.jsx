@@ -1,12 +1,13 @@
 "use client";
 import dynamic from "next/dynamic";
 import { useRouter, usePathname } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
+import Alert from "react-bootstrap/Alert";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { v4 as uuidv4 } from "uuid";
 import { useStore, defaultForm, defaultAdvOptions } from "./store";
@@ -28,6 +29,7 @@ export default function AnalysisForm({ id }) {
   const resetStore = useStore((state) => state.resetStore);
   const seerData = useStore((state) => state.seerData);
   const modelOptions = useStore((state) => state.modelOptions);
+  const [error, setError] = useState(null);
 
   const {
     control,
@@ -53,9 +55,17 @@ export default function AnalysisForm({ id }) {
 
   const submitForm = useMutation({
     mutationFn: ({ params, data }) => submit(params.id, params, data),
+    onSettled: (data, error) => {
+      if (error) setError(error.response.data.error);
+      else if (data) setError(null);
+    },
   });
   const importMutation = useMutation({
     mutationFn: ({ id, fileList }) => importWorkspace(id, fileList),
+    onSettled: (data, error) => {
+      if (error) setError(error.response.data.error);
+      else if (data) setError(null);
+    },
   });
   const { data: session } = useQuery({
     queryKey: ["session", id],
@@ -272,6 +282,7 @@ export default function AnalysisForm({ id }) {
     reset(defaultForm);
     resetStore();
     queryClient.invalidateQueries();
+    setError(null);
   }
 
   return (
@@ -613,6 +624,11 @@ export default function AnalysisForm({ id }) {
         </>
       )}
 
+      {error && (
+        <Alert variant="danger" className="mb-4">
+          {error}
+        </Alert>
+      )}
       <div className="text-end">
         <Button type="reset" variant="outline-danger" className="me-1">
           Reset
