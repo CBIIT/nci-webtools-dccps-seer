@@ -10,6 +10,7 @@ export default function DeathYearTable({
   observedSeHeader,
   predictedHeader,
   predictedSeHeader,
+  precision,
 }) {
   const columnHelper = createColumnHelper();
   const columns = [
@@ -29,19 +30,19 @@ export default function DeathYearTable({
     }),
     columnHelper.accessor(observedHeader, {
       header: () => "Observed Prob. of Death Interval (%)",
-      cell: (info) => info.getValue() || "NA",
+      cell: (info) => (info.getValue() ? info.getValue().toFixed(precision) : "NA"),
     }),
     columnHelper.accessor(observedSeHeader, {
       header: () => "Observed Prob. of Death Interval Std. Err. (%)",
-      cell: (info) => info.getValue() || "NA",
+      cell: (info) => (info.getValue() ? info.getValue().toFixed(precision) : "NA"),
     }),
     columnHelper.accessor(predictedHeader, {
       header: "Predictive Prob. of Death Interval (%)",
-      cell: (info) => info.getValue() || "NA",
+      cell: (info) => (info.getValue() ? info.getValue().toFixed(precision) : "NA"),
     }),
     columnHelper.accessor(predictedSeHeader, {
       header: "Predictive Prob. of Death Interval Std. Err. (%)",
-      cell: (info) => info.getValue() || "NA",
+      cell: (info) => (info.getValue() ? info.getValue().toFixed(precision) : "NA"),
     }),
   ];
 

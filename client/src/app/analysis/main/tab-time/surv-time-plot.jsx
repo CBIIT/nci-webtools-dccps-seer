@@ -18,6 +18,7 @@ export default function SurvTimePlot({
   observedHeader,
   predictedHeader,
   isRecalcCond,
+  precision,
   className = "",
 }) {
   const { statistic } = params;
@@ -46,7 +47,8 @@ export default function SurvTimePlot({
         index,
         data.map((e) => e.Interval),
         data.map((e) => e[observedHeader]),
-        statistic
+        statistic,
+        precision
       );
       const predictedTraces = makeLineTrace(
         predictedTraceName,
@@ -54,7 +56,8 @@ export default function SurvTimePlot({
         index,
         predictedData.map((e) => e.Interval),
         predictedData.map((e) => e[predictedHeader]),
-        statistic
+        statistic,
+        precision
       );
       const projectedTraces = makeDashTrace(
         projectedTraceName,
@@ -62,7 +65,8 @@ export default function SurvTimePlot({
         index,
         projectedData.map((e) => e.Interval),
         projectedData.map((e) => e[predictedHeader]),
-        statistic
+        statistic,
+        precision
       );
       const startingIntervalIndicator = makeDashTrace(
         "",

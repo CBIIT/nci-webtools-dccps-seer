@@ -7,7 +7,7 @@ import { useQueryClient, useIsFetching } from "@tanstack/react-query";
 import { calculateTrends } from "@/services/queries";
 import DeathYearPlot from "./death-year-plot";
 import DeathYearTable from "./death-year-table";
-import TrendTable from "./death-trend-table";
+import TrendTable from "../tab-surv/surv-trend-table";
 import { downloadTable } from "@/services/xlsx";
 import { useStore } from "../../store";
 
@@ -34,8 +34,8 @@ export default function DeathVsYear({ data, seerData, params, cohortIndex, fitIn
     const filterInts = (conditional || data.fullpredicted).filter((e) => intervals.includes(e.Interval));
     return filterInts.map((e) => ({
       ...e,
-      [observedHeader]: e[observedHeader] ? (100 - e[observedHeader]).toFixed(precision) : e[observedHeader],
-      [predictedHeader]: e[predictedHeader] ? (100 - e[predictedHeader]).toFixed(precision) : e[predictedHeader],
+      [observedHeader]: e[observedHeader] ? 100 - e[observedHeader] : e[observedHeader],
+      [predictedHeader]: e[predictedHeader] ? 100 - e[predictedHeader] : e[predictedHeader],
     }));
   }, [data, conditional, intervals]);
 
@@ -131,7 +131,9 @@ export default function DeathVsYear({ data, seerData, params, cohortIndex, fitIn
         </Col>
       </Row>
       <Row>
-        <Col>{jpTrend && deathTrend.length > 0 && <TrendTable data={deathTrend} params={params} />}</Col>
+        <Col>
+          {jpTrend && deathTrend.length > 0 && <TrendTable data={deathTrend} params={params} precision={precision} />}
+        </Col>
       </Row>
       <Row>
         <Col>
@@ -143,6 +145,7 @@ export default function DeathVsYear({ data, seerData, params, cohortIndex, fitIn
             yTitle={`Annual Probability of Cancer Death (%)`}
             observedHeader={observedHeader}
             predictedHeader={predictedHeader}
+            precision={precision}
           />
         </Col>
       </Row>
@@ -181,6 +184,7 @@ export default function DeathVsYear({ data, seerData, params, cohortIndex, fitIn
             observedSeHeader={observedSeHeader}
             predictedHeader={predictedHeader}
             predictedSeHeader={predictedSeHeader}
+            precision={precision}
           />
         </Col>
       </Row>

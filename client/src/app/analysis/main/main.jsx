@@ -98,6 +98,7 @@ export default function AnalysisMain({ id }) {
               manifest={manifest}
               cohortIndex={cohortIndex}
               handleRowSelect={setFitIndex}
+              precision={precision}
             />
           )}
         </div>
@@ -124,6 +125,7 @@ export default function AnalysisMain({ id }) {
                   fitIndex={fitIndex}
                   conditional={useConditional ? conditional : null}
                   cluster={cluster}
+                  precision={precision}
                 />
               </Tab>
               <Tab eventKey="death" title="Death vs. Year at Diagnosis" disabled={useConditional}>
@@ -145,10 +147,17 @@ export default function AnalysisMain({ id }) {
                   cohortIndex={cohortIndex}
                   fitIndex={fitIndex}
                   conditional={useConditional ? conditional : null}
+                  precision={precision}
                 />
               </Tab>
               <Tab eventKey="estimates" title="Model Estimates">
-                <ModelEstimates data={modelEstimates} params={params} cohortIndex={cohortIndex} fitIndex={fitIndex} />
+                <ModelEstimates
+                  data={modelEstimates}
+                  params={params}
+                  cohortIndex={cohortIndex}
+                  fitIndex={fitIndex}
+                  precision={precision}
+                />
               </Tab>
             </Tabs>
           </div>

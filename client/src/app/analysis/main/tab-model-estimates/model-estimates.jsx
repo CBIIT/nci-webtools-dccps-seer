@@ -5,8 +5,18 @@ import { createColumnHelper } from "@tanstack/react-table";
 import Table from "@/components/table";
 import { downloadTable } from "@/services/xlsx";
 
-export default function ModelEstimates({ data, params, cohortIndex, fitIndex }) {
-  const memoData = useMemo(() => (data ? data[fitIndex] : []), [data, fitIndex]);
+export default function ModelEstimates({ data, params, cohortIndex, fitIndex, precision }) {
+  const memoData = useMemo(
+    () =>
+      data
+        ? data[fitIndex].map((e) => ({
+            ...e,
+            "Estimates": e.Estimates.toFixed(precision),
+            "Std.Error": e["Std.Error"].toFixed(precision),
+          }))
+        : [],
+    [data, fitIndex, precision]
+  );
   const columnHelper = createColumnHelper();
   const columns = [
     columnHelper.accessor("_row", {

@@ -11,7 +11,16 @@ import TrendTable from "./surv-trend-table";
 import { downloadTable } from "@/services/xlsx";
 import { useStore } from "../../store";
 
-export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fitIndex, conditional, cluster }) {
+export default function SurvivalVsYear({
+  data,
+  seerData,
+  params,
+  cohortIndex,
+  fitIndex,
+  conditional,
+  cluster,
+  precision,
+}) {
   const setState = useStore((state) => state.setState);
   const survTrendQueryKey = useStore((state) => state.survTrendQueryKey);
   const queryClient = useQueryClient();
@@ -230,7 +239,7 @@ export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fi
           {jpTrend && survTrend.length > 0 && (
             <div>
               <h5>Average Absolute Change in Survival</h5>
-              <TrendTable data={survTrend} params={params} />
+              <TrendTable data={survTrend} params={params} precision={precision} />
               <small>
                 Numbers represent the difference in cumulative survival rate (as the percent surviving) from one year at
                 diagnosis to the previous.
@@ -244,7 +253,7 @@ export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fi
           {calendarTrend && calTrend.length > 0 && (
             <div className="mt-3">
               <h5>Trend Measures for User Selected Years</h5>
-              <TrendTable data={calTrend} params={params} />
+              <TrendTable data={calTrend} params={params} precision={precision} />
             </div>
           )}
         </Col>
@@ -259,6 +268,7 @@ export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fi
             yTitle={`${isRecalcCond ? "Conditional " : ""}${statistic}`}
             observedHeader={observedHeader}
             predictedHeader={predictedHeader}
+            precision={precision}
           />
         </Col>
       </Row>
@@ -298,6 +308,7 @@ export default function SurvivalVsYear({ data, seerData, params, cohortIndex, fi
             predictedHeader={predictedHeader}
             predictedSeHeader={predictedSeHeader}
             isRecalcCond={isRecalcCond}
+            precision={precision}
           />
         </Col>
       </Row>

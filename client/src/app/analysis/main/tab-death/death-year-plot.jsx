@@ -17,6 +17,7 @@ export default function SurvYearPlot({
   yTitle,
   observedHeader,
   predictedHeader,
+  precision,
   className = "",
 }) {
   const { statistic, yearStart, yearEnd } = params;
@@ -37,7 +38,8 @@ export default function SurvYearPlot({
         index,
         data.map((e) => e[params.year]),
         data.map((e) => e[observedHeader]),
-        statistic
+        statistic,
+        precision
       );
 
       const predictedTraces = makeLineTrace(
@@ -46,7 +48,8 @@ export default function SurvYearPlot({
         index,
         predictedData.map((e) => e[params.year]),
         predictedData.map((e) => e[predictedHeader]),
-        statistic
+        statistic,
+        precision
       );
       const projectedTraces = makeDashTrace(
         projectedTraceName,
@@ -54,7 +57,8 @@ export default function SurvYearPlot({
         index,
         projectedData.map((e) => e[params.year]),
         projectedData.map((e) => e[predictedHeader]),
-        statistic
+        statistic,
+        precision
       );
 
       const observedLegendTrace = makeLegendTrace(observedTraceName, interval, index, "markers");

@@ -3,7 +3,7 @@ import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from "
 import { useMemo, useRef, useEffect } from "react";
 import { Table } from "react-bootstrap";
 
-export default function ModelTable({ data, params, manifest, cohortIndex, handleRowSelect }) {
+export default function ModelTable({ data, params, manifest, cohortIndex, handleRowSelect, precision }) {
   const { firstYear } = params;
   const { final_model_index } = manifest[cohortIndex - 1];
   const models = useMemo(
@@ -16,12 +16,12 @@ export default function ModelTable({ data, params, manifest, cohortIndex, handle
             ? m.jp.map((e) => +e + firstYear).join(", ")
             : m.jp + firstYear
           : "None",
-        aic: m.aic,
-        bic: m.bic,
-        ll: m.ll,
+        aic: m.aic.toFixed(precision),
+        bic: m.bic.toFixed(precision),
+        ll: m.ll.toFixed(precision),
         converged: m.converged ? "Yes" : "No",
       })),
-    [data]
+    [data, precision]
   );
 
   const columnHelper = createColumnHelper();

@@ -2,7 +2,14 @@
 import Table from "@/components/table";
 import { createColumnHelper } from "@tanstack/react-table";
 
-export default function SurvTimeTable({ data, params, observedHeader, predictedHeader, isRecalcCond = false }) {
+export default function SurvTimeTable({
+  data,
+  params,
+  observedHeader,
+  predictedHeader,
+  isRecalcCond = false,
+  precision,
+}) {
   const columnHelper = createColumnHelper();
   const columns = [
     ...params.cohorts.map((cohort) =>
@@ -21,12 +28,12 @@ export default function SurvTimeTable({ data, params, observedHeader, predictedH
     }),
     columnHelper.accessor(observedHeader, {
       header: () => `${isRecalcCond ? "Conditional" : ""} Cumulative Relative Survival (%)`,
-      cell: (info) => info.getValue() || "NA",
+      cell: (info) => (info.getValue() ? info.getValue().toFixed(precision) : "NA"),
     }),
 
     columnHelper.accessor(predictedHeader, {
       header: `Predicted ${isRecalcCond ? "Conditional" : ""} Cumulative Relative Survival (%)`,
-      cell: (info) => info.getValue() || "NA",
+      cell: (info) => (info.getValue() ? info.getValue().toFixed(precision) : "NA"),
     }),
   ];
 

@@ -7,7 +7,7 @@ import SurvTimePlot from "./surv-time-plot";
 import SurvTimeTable from "./surv-time-table";
 import { downloadTable } from "@/services/xlsx";
 
-export default function SurvivalVsTime({ data, seerData, params, cohortIndex, fitIndex, conditional }) {
+export default function SurvivalVsTime({ data, seerData, params, cohortIndex, fitIndex, conditional, precision }) {
   const isRecalcCond = !!conditional;
   const { statistic } = params;
   const observedHeader = isRecalcCond ? "observed" : params?.observed;
@@ -52,6 +52,7 @@ export default function SurvivalVsTime({ data, seerData, params, cohortIndex, fi
             observedHeader={observedHeader}
             predictedHeader={predictedHeader}
             isRecalcCond={isRecalcCond}
+            precision={precision}
           />
         </Col>
       </Row>
@@ -81,6 +82,7 @@ export default function SurvivalVsTime({ data, seerData, params, cohortIndex, fi
             observedHeader={observedHeader}
             predictedHeader={predictedHeader}
             isRecalcCond={isRecalcCond}
+            precision={precision}
           />
         </Col>
       </Row>

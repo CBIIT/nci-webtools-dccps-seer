@@ -12,13 +12,13 @@ const colors = [
 ];
 const fontSize = 14;
 
-export function makeLineTrace(name = "", group, index, xArray, yArray, statistic) {
+export function makeLineTrace(name = "", group, index, xArray, yArray, statistic, precision = 2) {
   return {
     name,
     x: xArray,
     y: yArray,
     showlegend: false,
-    hovertemplate: predictedHoverTemplate(name, statistic),
+    hovertemplate: predictedHoverTemplate(name, statistic, precision),
     hoverlabel: {
       align: "left",
       bgcolor: "#FFF",
@@ -32,13 +32,13 @@ export function makeLineTrace(name = "", group, index, xArray, yArray, statistic
   };
 }
 
-export function makeDashTrace(name = "", group, index, xArray, yArray, statistic) {
+export function makeDashTrace(name = "", group, index, xArray, yArray, statistic, precision = 2) {
   return {
     name,
     x: xArray,
     y: yArray,
     showlegend: false,
-    hovertemplate: projectedHoverTemplate(name, statistic),
+    hovertemplate: projectedHoverTemplate(name, statistic, precision),
     hoverlabel: {
       align: "left",
       bgcolor: "#FFF",
@@ -52,13 +52,13 @@ export function makeDashTrace(name = "", group, index, xArray, yArray, statistic
   };
 }
 
-export function makeMarkerTrace(name = "", group, index, xArray, yArray, statistic) {
+export function makeMarkerTrace(name = "", group, index, xArray, yArray, statistic, precision = 2) {
   return {
     name,
     x: xArray,
     y: yArray,
     showlegend: false,
-    hovertemplate: observationHoverTemplate(name, statistic),
+    hovertemplate: observationHoverTemplate(name, statistic, precision),
     hoverlabel: {
       align: "left",
       bgcolor: "#FFF",
@@ -122,23 +122,23 @@ export function makeLayout(range, title, xTitle, yTitle) {
   };
 }
 
-const observationHoverTemplate = (name, statistic) =>
+const observationHoverTemplate = (name, statistic, precision) =>
   [
     `<b>${name} ${statistic}</b>`,
     `<br>•    Year at Diagnosis: %{x}`,
-    `<br>•    Observed Survival: %{y}<extra></extra>`,
+    `<br>•    Observed Survival: %{y:.${precision}f}%<extra></extra>`,
   ].join("");
 
-const predictedHoverTemplate = (name, statistic) =>
+const predictedHoverTemplate = (name, statistic, precision) =>
   [
     `<b>${name} ${statistic}</b>`,
     `<br>•    Year at Diagnosis: %{x}`,
-    `<br>•    Predicted Survival: %{y}<extra></extra>`,
+    `<br>•    Predicted Survival: %{y:.${precision}f}%<extra></extra>`,
   ].join("");
 
-const projectedHoverTemplate = (name, statistic) =>
+const projectedHoverTemplate = (name, statistic, precision) =>
   [
     `<b>${name} ${statistic}</b>`,
     `<br>•    Year at Diagnosis: %{x}`,
-    `<br>•    Projected Survival: %{y}<extra></extra>`,
+    `<br>•    Projected Survival: %{y:.${precision}f}%<extra></extra>`,
   ].join("");

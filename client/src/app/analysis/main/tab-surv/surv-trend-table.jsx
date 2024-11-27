@@ -2,7 +2,7 @@
 import Table from "@/components/table";
 import { createColumnHelper } from "@tanstack/react-table";
 
-export default function TrendTable({ data, params }) {
+export default function TrendTable({ data, params, precision }) {
   const { firstYear } = params;
   const columnHelper = createColumnHelper();
   const columns = [
@@ -22,15 +22,15 @@ export default function TrendTable({ data, params }) {
     }),
     columnHelper.accessor("estimate", {
       header: () => "Estimate pp",
-      cell: (d) => d.renderValue(),
+      cell: (info) => (info.getValue() ? info.getValue().toFixed(precision) : "NA"),
     }),
     columnHelper.accessor("lowCI", {
       header: () => "Lower Limit 95% C.I.",
-      cell: (d) => d.renderValue(),
+      cell: (info) => (info.getValue() ? info.getValue()[0].toFixed(precision) : "NA"),
     }),
     columnHelper.accessor("upCI", {
       header: () => "Upper Limit 95% C.I.",
-      cell: (d) => d.renderValue(),
+      cell: (info) => (info.getValue() ? info.getValue()[0].toFixed(precision) : "NA"),
     }),
     {
       id: "significance",

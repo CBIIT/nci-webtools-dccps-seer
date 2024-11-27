@@ -10,6 +10,7 @@ export default function SurvYearTable({
   predictedHeader,
   predictedSeHeader,
   isRecalcCond = false,
+  precision,
 }) {
   const { statistic } = params;
 
@@ -31,20 +32,20 @@ export default function SurvYearTable({
     }),
     columnHelper.accessor(observedHeader, {
       header: () => (isRecalcCond ? `Conditional ${statistic} (%)` : "Relative Survival Cumulative (%)"),
-      cell: (info) => info.getValue() || "NA",
+      cell: (info) => (info.getValue() ? info.getValue().toFixed(precision) : "NA"),
     }),
     columnHelper.accessor(observedSeHeader, {
       header: () =>
         isRecalcCond ? `Conditional ${statistic} Std. Err. (%)` : "Relative Survival Cumulative Std. Err. (%)",
-      cell: (info) => info.getValue() || "NA",
+      cell: (info) => (info.getValue() ? info.getValue().toFixed(precision) : "NA"),
     }),
     columnHelper.accessor(predictedHeader, {
       header: `Predicted ${isRecalcCond ? "Conditional" : ""} Cumulative Survival (%)`,
-      cell: (info) => info.getValue() || "NA",
+      cell: (info) => (info.getValue() ? info.getValue().toFixed(precision) : "NA"),
     }),
     columnHelper.accessor(predictedSeHeader, {
       header: `Predicted ${isRecalcCond ? "Conditional" : ""} Cumulative Survival Std. Err. (%)`,
-      cell: (info) => info.getValue() || "NA",
+      cell: (info) => (info.getValue() ? info.getValue().toFixed(precision) : "NA"),
     }),
   ];
 
