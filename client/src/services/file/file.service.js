@@ -228,7 +228,7 @@ export function downloadExcel(sheets, filename) {
 function determineDelimiter(fileContents) {
   const lines = fileContents.split("\n").slice(0, 5); // Read the first 5 lines
 
-  const delimiters = [",", "\t"];
+  const delimiters = [",", "\t", ";", " "];
   const delimiterCounts = delimiters.map((delimiter) => ({
     delimiter,
     count: lines.reduce((acc, line) => acc + (line.split(delimiter).length - 1), 0),
