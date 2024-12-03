@@ -1,25 +1,20 @@
-version: '3'
 services:
-    backend:
-        build:
-            context: '.'
-            dockerfile: './docker/backend.dockerfile'
-        volumes:
-            - './config:/app/config:ro'
-            - './tmp:/app/tmp'
-            - './logs:/app/logs'
-            - '~/.aws/credentials:/root/.aws/credentials:ro'
-        ports: 
-            - '9002:80'
+  backend:
+    build:
+      context: '.'
+      dockerfile: './docker/backend.dockerfile'
+    volumes:
+      - './config:/app/config:ro'
+      - './tmp:/app/tmp'
+      - './logs:/app/logs'
+    ports:
+      - '9002:80'
 
-    queue_processor:
-        build:
-            context: '.'
-            dockerfile: './docker/queueProcessor.dockerfile'
-        volumes:
-            - './config:/app/config:ro'
-            - './tmp:/app/tmp'
-            - './logs:/app/logs'
-            - '~/.aws/credentials:/root/.aws/credentials:ro'
-
-
+  queue_processor:
+    build:
+      context: '.'
+      dockerfile: './docker/queueProcessor.dockerfile'
+    volumes:
+      - './config:/app/config:ro'
+      - './tmp:/app/tmp'
+      - './logs:/app/logs'

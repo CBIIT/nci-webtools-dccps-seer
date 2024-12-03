@@ -2,6 +2,7 @@ import {
   S3Client,
   GetObjectCommand,
   PutObjectCommand,
+  DeleteObjectCommand,
 } from '@aws-sdk/client-s3';
 import fs from 'fs';
 import path from 'path';
@@ -16,10 +17,17 @@ export async function getFile(key, config) {
   return writeStream(savePath, Body);
 }
 
+export async function deleteFile(key, config) {
+  const s3 = new S3Client({ region: config.sqs.region });
+  const params = {
+    Bucket: config.s3.bucket,
+    Key: key,
+  };
+  return await s3.send(new DeleteObjectCommand(params));
+}
+
 export async function putFile(buffer, key, config) {
-  const s3 = new S3Client({
-    region: config.sqs.region,
-  });
+  const s3 = new S3Client({ region: config.sqs.region });
   const params = {
     Bucket: config.s3.bucket,
     Key: key,

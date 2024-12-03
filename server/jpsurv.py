@@ -5,6 +5,7 @@ import shutil
 import datetime
 
 from os import path, getcwd, rename, chdir, listdir
+from pathlib import Path
 from traceback import format_exc
 from flask import (
     Flask,
@@ -77,7 +78,7 @@ def getInputDir(token):
     input_dir = safe_join(app.config["folders"]["input_dir"], token)
     if not path.exists(input_dir):
         make_dirs(input_dir)
-    return input_dir
+    return str(Path(input_dir).resolve())
 
 
 app.logger.debug("JPSurv is starting...")
@@ -569,9 +570,18 @@ def stage2_calculate():
 
     app.logger.debug("**** Calling getFittedResultsWrapper ****")
     try:
-        r.getFittedResultWrapper(input_dir, jpsurvDataString)
+        # remove previous results
+        for p in Path(input_dir).glob("results-*.json"):
+            p.unlink()
+        for p in Path(input_dir).glob("cohort*.json"):
+            p.unlink()
+        for p in Path(input_dir).glob("*.rds"):
+            p.unlink()
+
+        resultsFile = r.getFittedResultWrapper(input_dir, jpsurvDataString)
+        print(resultsFile)
         status = 200
-        out_json = json.dumps({"status": "OK"})
+        out_json = resultsFile
     except Exception as e:
         app.logger.debug(e)
         status = 400
@@ -582,8 +592,6 @@ def stage2_calculate():
 
 @app.route("/jpsurvRest/stage3_recalculate", methods=["GET"])
 def stage3_recalculate():
-    app.logger.debug("****** Stage 3: PLOT BUTTON ***** ")
-
     jpsurvDataString = unquote(request.args.get("jpsurvData", False))
     app.logger.debug("The jpsurv STRING::::::")
     jpsurvData = json.loads(jpsurvDataString)
@@ -601,18 +609,11 @@ def stage3_recalculate():
     app.logger.debug("RECALC?")
     app.logger.debug(recalc)
 
-    switch = jpsurvData["switch"]
-    app.logger.debug("SWITCH?")
-    app.logger.debug(switch)
+    firstCalc = jpsurvData["firstCalc"]
+    app.logger.debug("firstCalc?")
+    app.logger.debug(firstCalc)
 
-    use_default = False
-    if str(jpsurvData["additional"]["use_default"]) == "true":
-        use_default = True
-
-    app.logger.debug("USE_DEFAULT")
-    app.logger.debug(use_default)
-
-    if switch == True:
+    if firstCalc == True:
         with open(
             input_dir + "/cohort_models-" + jpsurvData["tokenId"] + ".json"
         ) as data_file:
@@ -622,14 +623,22 @@ def stage3_recalculate():
             # app.logger.debug(data[int(cohort_com)-1])
             jpInd = str(data[int(cohort_com) - 1])
 
+    viewConditional = jpsurvData["viewConditional"]
+    merged = jpsurvData["merged"]
+    relaxProp = jpsurvData["calculate"]["form"]["relaxProp"]
+    cutPointIndex = "-%s" % jpsurvData["cutPointIndex"] if relaxProp else ""
+    prefix = "/results-conditional-" if viewConditional == True else "/results-"
+    if merged:
+        prefix = prefix + "merged-"
     fname = (
         input_dir
-        + "/results-"
+        + prefix
         + jpsurvData["tokenId"]
         + "-"
         + cohort_com
         + "-"
         + jpInd
+        + cutPointIndex
         + ".json"
     )
     # app.logger.debug(fname)
@@ -640,13 +649,20 @@ def stage3_recalculate():
         app.logger.debug("**** Calling getAllData ****")
         # Next line execute the R Program
         try:
-            r.getAllData(
-                input_dir,
-                jpsurvDataString,
-                switch,
-                use_default,
-                input_dir + "/cohortCombo-" + jpsurvData["tokenId"] + ".json",
-            )
+            if relaxProp == True:
+                r.relaxPropResults(
+                    input_dir,
+                    jpsurvDataString,
+                    firstCalc,
+                    input_dir + "/cohortCombo-" + jpsurvData["tokenId"] + ".json",
+                )
+            else:
+                r.getAllData(
+                    input_dir,
+                    jpsurvDataString,
+                    firstCalc,
+                    input_dir + "/cohortCombo-" + jpsurvData["tokenId"] + ".json",
+                )
             status = 200
             out_json = json.dumps({"status": "OK"})
         except Exception as e:
@@ -660,6 +676,25 @@ def stage3_recalculate():
     else:
         return app.response_class(
             json.dumps({"status": "OK"}), 200, mimetype="application/json"
+        )
+
+
+@app.route("/jpsurvRest/recalculateConditionalJp", methods=["POST"])
+def recalculateConditionalJp():
+    params = request.json
+    id = params["state"]["tokenId"]
+    app.logger.info(f"[{id}] Recalculate conditional joinpoint")
+    app.logger.debug(getInputDir(id))
+    try:
+        r.source("./JPSurvWrapper.R")
+        data = r.conditionalJoinpoint(json.dumps(params), getInputDir(id))
+
+        return app.response_class(data, 200, mimetype="application/json")
+    except Exception as e:
+        app.logger.error(e)
+        print(e)
+        return app.response_class(
+            json.dumps(str(e)), status=500, mimetype="application/json"
         )
 
 
@@ -785,7 +820,20 @@ def sendResultsFile():
     if path.exists(filePath):
         return send_file(filePath)
     else:
-        return ("", 404)
+        return ("file does not exist", 404)
+
+
+@app.route("/jpsurvRest/list-results", methods=["GET"])
+def listResults():
+    tokenId = request.args.get("tokenId")
+    resultsPath = safe_join(app.config["folders"]["input_dir"], tokenId)
+
+    if not path.isdir(resultsPath):
+        return ([], 404)
+
+    resultsSearch = path.join(resultsPath, "results-*")
+    filepaths = glob(resultsSearch)
+    return jsonify([path.basename(filepath) for filepath in filepaths])
 
 
 @app.route("/api/queueDownload", methods=["POST"])
@@ -888,18 +936,11 @@ def recalculateBatch():
         app.logger.debug("RECALC?")
         app.logger.debug(recalc)
 
-        switch = jpsurvData["switch"]
-        app.logger.debug("SWITCH?")
-        app.logger.debug(switch)
+        firstCalc = jpsurvData["firstCalc"]
+        app.logger.debug("firstCalc?")
+        app.logger.debug(firstCalc)
 
-        use_default = False
-        if str(jpsurvData["additional"]["use_default"]) == "true":
-            use_default = True
-
-        app.logger.debug("USE_DEFAULT")
-        app.logger.debug(use_default)
-
-        if switch == True:
+        if firstCalc == True:
             with open(
                 input_dir + "/cohort_models-" + jpsurvData["tokenId"] + ".json"
             ) as data_file:
@@ -909,14 +950,22 @@ def recalculateBatch():
                 # app.logger.debug(data[int(cohort_com)-1])
                 jpInd = str(data[int(cohort_com) - 1])
 
+        viewConditional = jpsurvData["viewConditional"]
+        merged = jpsurvData["merged"]
+        relaxProp = jpsurvData["calculate"]["form"]["relaxProp"]
+        cutPointIndex = "-%s" % jpsurvData["cutPointIndex"] if relaxProp else ""
+        prefix = "/results-conditional-" if viewConditional == True else "/results-"
+        if merged:
+            prefix = prefix + "merged-"
         fname = (
             input_dir
-            + "/results-"
+            + prefix
             + jpsurvData["tokenId"]
             + "-"
             + cohort_com
             + "-"
             + jpInd
+            + cutPointIndex
             + ".json"
         )
         # app.logger.debug(fname)
@@ -928,13 +977,20 @@ def recalculateBatch():
             app.logger.debug("**** Calling getAllData ****")
             # Next line execute the R Program
             try:
-                file = r.getAllData(
-                    input_dir,
-                    jpsurvDataString,
-                    switch,
-                    use_default,
-                    input_dir + "/cohortCombo-" + jpsurvData["tokenId"] + ".json",
-                )
+                if relaxProp == True:
+                    r.relaxPropResults(
+                        input_dir,
+                        jpsurvDataString,
+                        firstCalc,
+                        input_dir + "/cohortCombo-" + jpsurvData["tokenId"] + ".json",
+                    )
+                else:
+                    r.getAllData(
+                        input_dir,
+                        jpsurvDataString,
+                        firstCalc,
+                        input_dir + "/cohortCombo-" + jpsurvData["tokenId"] + ".json",
+                    )
                 with open(fname, "r") as jsonFile:
                     return json.load(jsonFile)
             except Exception as e:
