@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Row, Col } from "react-bootstrap";
 export default function Instructions() {
   return (
@@ -57,8 +58,8 @@ export default function Instructions() {
           </p>
 
           <p>
-            1. Mariotto AB, Zhang F, Buckman DW, et al. Characterizing Trends in Cancer Patients&apos; Survival Using the
-            JPSurv Software. Mariotto et al. Cancer Epidemiol Biomarkers Prev. 30 (11): 2001–2009.
+            1. Mariotto AB, Zhang F, Buckman DW, et al. Characterizing Trends in Cancer Patients&apos; Survival Using
+            the JPSurv Software. Mariotto et al. Cancer Epidemiol Biomarkers Prev. 30 (11): 2001–2009.
             <a href="https://doi.org/10.1158/1055-9965.EPI-21-0423" target="_blank">
               https://doi.org/10.1158/1055-9965.EPI-21-0423
             </a>
@@ -69,11 +70,9 @@ export default function Instructions() {
             a-Statistics in Society. 2009;172:405-25.
           </p>
 
-          {/* <a href="#" data-toggle="tooltip" title="Help for Joinpoint Model for Relative Survival">
-            <span class="" aria-label="Help" onclick="openHelpWindow('./html/help.html')" href="#">
-              Help for Joinpoint Model for Relative Survival
-            </span>
-          </a> */}
+          <Link aria-label="Help" href="/help" title="Help for Joinpoint Model for Relative Survival">
+            Help for Joinpoint Model for Relative Survival
+          </Link>
         </Col>
       </Row>
     </div>
