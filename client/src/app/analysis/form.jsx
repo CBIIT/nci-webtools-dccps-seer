@@ -10,6 +10,8 @@ import Col from "react-bootstrap/Col";
 import Alert from "react-bootstrap/Alert";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { v4 as uuidv4 } from "uuid";
+import Image from "next/image";
+import jpsurvImage from "/public/images/jpsurv.png";
 import { useStore, defaultForm, defaultAdvOptions } from "./store";
 import { parseSeerStatDictionary, parseSeerStatFiles } from "@/services/file/file.service";
 import { uploadFiles, asFileList } from "@/components/file-input";
@@ -287,10 +289,11 @@ export default function AnalysisForm({ id }) {
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)} onReset={onReset}>
+      <Image src={jpsurvImage} alt="JPSurv (Joint Point Survival Model)" width={120} />
       <fieldset className="fieldset shadow-sm border rounded my-4 pt-4 px-3">
         <legend className="legend fw-bold">Data</legend>
         <Form.Group className="mb-4" controlId="inputType">
-          <Form.Label className="required fw-bold">Input Type</Form.Label>
+          <Form.Label className="required fw-bold">File Format</Form.Label>
           <Form.Select
             required
             {...register("inputType", {
