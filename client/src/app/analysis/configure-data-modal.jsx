@@ -28,6 +28,7 @@ export default function ConfigureDataModal() {
   } = useForm({ defaultValues: form });
   const hasHeaders = watch("hasHeaders");
   const dataType = watch("dataType");
+  const displayLines = watch("displayLines");
 
   const headerOptions = [
     { label: "Cohort", value: "cohort", multiple: true },
@@ -109,10 +110,10 @@ export default function ConfigureDataModal() {
 
   const tableData = useMemo(() => {
     if (hasHeaders) {
-      return parsedHead.data.slice(0, 8);
+      return parsedHead.data.slice(0, displayLines);
     } else {
       return parsedNoHead.length
-        ? parsedNoHead.slice(0, 8).map((row) =>
+        ? parsedNoHead.slice(0, displayLines).map((row) =>
             row.reduce((acc, cell, index) => {
               acc[`col${index}`] = cell;
               return acc;
@@ -150,28 +151,37 @@ export default function ConfigureDataModal() {
   return (
     <Modal show={openConfigDataModal} onHide={handleClose} size="xl">
       <Modal.Header closeButton>
-        <Modal.Title>Data Configuration</Modal.Title>
+        <Modal.Title>CSV Configuration</Modal.Title>
       </Modal.Header>
       <Form onSubmit={handleSubmit(onSubmit)} onReset={onReset}>
         <Modal.Body className="bg-light">
           <Container>
-            <Form.Group controlId="hasHeaders">
+            <Form.Group className="mb-3" controlId="hasHeaders">
               <Form.Check {...register("hasHeaders")} type="checkbox" label="Data File Contains Headers" />
               <Form.Text>Check this option is your file contains column headers in the first row</Form.Text>
             </Form.Group>
-            <Form.Group controlId="dataType">
+            <Form.Group className="mb-3" controlId="dataType">
               <Form.Label className="fw-bold">Data Type</Form.Label>
               <Form.Select {...register("dataType")}>
                 <option value="Relative Survival">Relative Survival</option>
                 <option value="CauseSpecific Survival">Cause-Specific Survival</option>
               </Form.Select>
             </Form.Group>
-            <Form.Group controlId="rates">
+            <Form.Group className="mb-3" controlId="rates">
               <Form.Label className="fw-bold">Rates</Form.Label>
               <Form.Select {...register("rates")}>
                 <option value="percents">Percents</option>
                 <option value="proportion">Proportions</option>
               </Form.Select>
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="displayLines">
+              <Form.Label className="fw-bold">Display Lines</Form.Label>
+              <Form.Select {...register("displayLines")}>
+                {[20, 30, 40, 50, 60].map((e) => (
+                  <option value={e}>{e}</option>
+                ))}
+              </Form.Select>
+              <Form.Text>Number of lines to preview from data</Form.Text>
             </Form.Group>
             <div className="mt-3">
               Please map{" "}
@@ -182,44 +192,48 @@ export default function ConfigureDataModal() {
             </div>
           </Container>
           {tableData.length > 0 && (
-            <Table responsive striped bordered className="mt-3">
-              <thead>
-                <tr>
-                  {columns.map((col, index) => (
-                    <th key={index}>
-                      <Form.Select {...register("mapHeaders." + index)} style={{ width: "250px" }}>
-                        <option></option>
-                        {headerOptions.map((e, i) => (
-                          <option key={i} value={e.value}>
-                            {e.label}
-                          </option>
-                        ))}
-                      </Form.Select>
-                    </th>
-                  ))}
-                </tr>
-                {table.getHeaderGroups().map((headerGroup, hgIndex) => (
-                  <tr key={hgIndex + headerGroup.id}>
-                    {headerGroup.headers.map((header, hIndex) => (
-                      <th key={hgIndex + hIndex + header.id}>
-                        {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+            <div style={{ maxHeight: "400px", overflow: "scroll" }}>
+              <Table striped bordered className="mt-3">
+                <thead>
+                  <tr>
+                    {columns.map((col, index) => (
+                      <th key={index}>
+                        <Form.Select {...register("mapHeaders." + index)} style={{ width: "250px" }}>
+                          <option></option>
+                          {headerOptions.map((e, i) => (
+                            <option key={i} value={e.value}>
+                              {e.label}
+                            </option>
+                          ))}
+                        </Form.Select>
                       </th>
                     ))}
                   </tr>
-                ))}
-              </thead>
-              <tbody>
-                {table.getRowModel().rows.map((row, rIndex) => (
-                  <tr key={rIndex + row.id}>
-                    {row.getVisibleCells().map((cell, cIndex) => (
-                      <td key={rIndex + cIndex + "td" + cell.id}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
+                  {table.getHeaderGroups().map((headerGroup, hgIndex) => (
+                    <tr key={hgIndex + headerGroup.id}>
+                      {headerGroup.headers.map((header, hIndex) => (
+                        <th key={hgIndex + hIndex + header.id}>
+                          {header.isPlaceholder
+                            ? null
+                            : flexRender(header.column.columnDef.header, header.getContext())}
+                        </th>
+                      ))}
+                    </tr>
+                  ))}
+                </thead>
+                <tbody>
+                  {table.getRowModel().rows.map((row, rIndex) => (
+                    <tr key={rIndex + row.id}>
+                      {row.getVisibleCells().map((cell, cIndex) => (
+                        <td key={rIndex + cIndex + "td" + cell.id}>
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </div>
           )}
         </Modal.Body>
         <Modal.Footer className="bg-white">
