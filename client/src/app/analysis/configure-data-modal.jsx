@@ -178,7 +178,9 @@ export default function ConfigureDataModal() {
               <Form.Label className="fw-bold">Display Lines</Form.Label>
               <Form.Select {...register("displayLines")}>
                 {[20, 30, 40, 50, 60].map((e) => (
-                  <option value={e}>{e}</option>
+                  <option key={e} value={e}>
+                    {e}
+                  </option>
                 ))}
               </Form.Select>
               <Form.Text>Number of lines to preview from data</Form.Text>
