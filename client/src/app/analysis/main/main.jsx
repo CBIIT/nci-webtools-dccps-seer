@@ -12,7 +12,8 @@ import { fetchStatus, fetchResults, fetchAll } from "@/services/queries";
 import ModelEstimates from "./tab-model-estimates/model-estimates";
 import ConditionalRecalcForm from "./conditional-form";
 import { downloadAll } from "@/services/xlsx";
-import Instructions from "./instructions";
+import Description from "./description";
+import Status from "./status";
 import { scaleData, changePrecision } from "@/services/seer-results-transform";
 
 export default function AnalysisMain({ id }) {
@@ -35,23 +36,24 @@ export default function AnalysisMain({ id }) {
     queryKey: ["status", id],
     queryFn: () => fetchStatus(id),
     enabled: !!id,
-    refetchInterval: (data) =>
-      data?.state?.data === "SUBMITTED" || data?.state?.data === "IN_PROGRESS" ? 5 * 1000 : false,
+    refetchInterval: (data) => {
+      return data?.state?.data?.status === "SUBMITTED" || data?.state?.data?.status === "IN_PROGRESS"
+        ? 5 * 1000
+        : false;
+    },
   });
   const { data: manifest } = useQuery({
     queryKey: ["manifest", id],
     queryFn: () => fetchResults(id, "manifest"),
-    enabled: jobStatus === "COMPLETED",
+    enabled: jobStatus?.status === "COMPLETED",
   });
-  const { data: results } = useQuery({
+  const { data: results } = useSuspenseQuery({
     queryKey: ["results", id, cohortIndex, cutpointIndex, cluster],
-    queryFn: () => fetchResults(id, resultsFile),
-    enabled: jobStatus === "COMPLETED" && !!cohortIndex,
+    queryFn: () => (jobStatus?.status === "COMPLETED" && !!cohortIndex ? fetchResults(id, resultsFile) : null),
   });
-  const { data: modelEstimates } = useQuery({
+  const { data: modelEstimates } = useSuspenseQuery({
     queryKey: ["results", id, modelEstimatesFile],
-    queryFn: () => fetchResults(id, modelEstimatesFile),
-    enabled: jobStatus === "COMPLETED" && !!cohortIndex,
+    queryFn: () => (jobStatus?.status === "COMPLETED" && !!cohortIndex ? fetchResults(id, modelEstimatesFile) : null),
   });
 
   const memoResults = useMemo(
@@ -87,7 +89,8 @@ export default function AnalysisMain({ id }) {
 
   return (
     <Container>
-      <code>{JSON.stringify(jobStatus)}</code>
+      {!Object.keys(seerData).length > 0 && <Description />}
+      <Status seerData={seerData} status={jobStatus} />
       {params.id && manifest && (
         <div className="shadow p-3 border rounded bg-white mb-3">
           <CohortSelect params={params} manifest={manifest} data={memoResults} handleSaveResults={handleSaveResults} />
@@ -103,7 +106,7 @@ export default function AnalysisMain({ id }) {
           )}
         </div>
       )}
-      {results && seerData && seerData && params && manifest ? (
+      {results && (
         <>
           {!params.useCondModel && !params.useRelaxModel && (
             <ConditionalRecalcForm
@@ -162,8 +165,6 @@ export default function AnalysisMain({ id }) {
             </Tabs>
           </div>
         </>
-      ) : (
-        <Instructions />
       )}
     </Container>
   );

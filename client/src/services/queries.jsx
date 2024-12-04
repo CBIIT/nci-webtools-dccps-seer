@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export async function fetchStatus(id) {
-  return (await axios.get(`api/data/output/${id}/status.json`)).data.status;
+  return (await axios.get(`api/data/output/${id}/status.json`)).data;
 }
 
 export async function fetchResults(id, file) {
