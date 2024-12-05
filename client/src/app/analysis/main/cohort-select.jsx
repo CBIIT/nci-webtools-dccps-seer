@@ -111,7 +111,7 @@ export default function CohortSelect({ params, manifest, className, handleSaveRe
         )}
         <Col sm="auto">
           <Form.Group>
-            <Form.Label>Decimal Precision</Form.Label>
+            <Form.Label>Number of Decimal Places</Form.Label>
             <Form.Select value={precision} onChange={handlePrecisionChange}>
               {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((e, i) => (
                 <option key={i} value={e}>
@@ -121,14 +121,15 @@ export default function CohortSelect({ params, manifest, className, handleSaveRe
             </Form.Select>
           </Form.Group>
         </Col>
-        <Col className="ms-auto" sm="auto">
+        <Col />
+        <Col sm="auto">
           <Button variant="link" onClick={handleSaveResults}>
             Download Full Dataset
           </Button>
         </Col>
         <Col sm="auto">
           <Button variant="link" onClick={handleSaveWorkspace}>
-            Save Workspace
+            Export Workspace
           </Button>
         </Col>
       </Row>

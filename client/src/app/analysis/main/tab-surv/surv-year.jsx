@@ -142,91 +142,95 @@ export default function SurvivalVsYear({
               </Form.Text>
             </Col>
           </Row>
-          <Form className="border rounded m-1 p-3" onSubmit={handleSubmit(getTrends)}>
+          <Form className="border rounded m-1" onSubmit={handleSubmit(getTrends)}>
             <Row>
-              <Col>
-                <b>Include Trend Measures</b>
+              <Col className="border-end" sm="10">
+                <Row>
+                  <Col className="p-3 pb-0">
+                    <b>Include Trend Measures</b>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col sm="auto" className="p-3 pt-0">
+                    <Form.Group>
+                      <Form.Check
+                        {...register("jpTrend")}
+                        id="jpTrend"
+                        label="Between Joinpoints"
+                        aria-label="Between Joinpoints"
+                        type="checkbox"
+                        disabled={conditional}
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col sm="auto" className="p-3 pt-0">
+                    <Form.Group>
+                      <Form.Check
+                        {...register("calendarTrend")}
+                        id="calendarTrend"
+                        label="Between Calendar Years of Diagnosis"
+                        aria-label="Between Calendar Years of Diagnosis"
+                        type="checkbox"
+                        disabled={conditional}
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col sm="auto" className="p-3 pt-0">
+                    <Form.Group className="d-flex">
+                      <Form.Label className="me-2 text-nowrap">From</Form.Label>
+                      <Form.Select
+                        {...register("trendStart", {
+                          valueAsNumber: true,
+                          required: calendarTrend ? "Required" : false,
+                          validate: (value, form) =>
+                            !calendarTrend ||
+                            value < form.trendEnd ||
+                            `Must be less than ${+form.trendEnd + firstYear}`,
+                        })}
+                        disabled={!calendarTrend}
+                        isInvalid={errors?.trendStart}>
+                        {yearOptions.map((year) => (
+                          <option key={year} value={+year}>
+                            {year + firstYear}
+                          </option>
+                        ))}
+                      </Form.Select>
+                      <Form.Control.Feedback type="invalid">{errors?.trendStart?.message}</Form.Control.Feedback>
+                    </Form.Group>
+                  </Col>
+                  <Col sm="auto" className="p-3 pt-0">
+                    <Form.Group className="d-flex">
+                      <Form.Label className="me-2 text-nowrap">To</Form.Label>
+                      <Form.Select
+                        {...register("trendEnd", {
+                          valueAsNumber: true,
+                          required: calendarTrend ? "Required" : false,
+                          validate: (value, form) =>
+                            !calendarTrend ||
+                            value > form.trendStart ||
+                            `Must be greater than ${+form.trendStart + firstYear}`,
+                        })}
+                        disabled={!calendarTrend}
+                        isInvalid={errors?.trendEnd}>
+                        {yearOptions.map((year) => (
+                          <option key={year} value={+year}>
+                            {year + firstYear}
+                          </option>
+                        ))}
+                      </Form.Select>
+                      <Form.Control.Feedback type="invalid">{errors?.trendEnd?.message}</Form.Control.Feedback>
+                    </Form.Group>
+                  </Col>
+                </Row>
               </Col>
-            </Row>
-            <Row>
-              <Col sm="auto">
-                <Form.Group>
-                  <Form.Check
-                    {...register("jpTrend")}
-                    id="jpTrend"
-                    label="Between Joinpoints"
-                    aria-label="Between Joinpoints"
-                    type="checkbox"
-                    disabled={conditional}
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-            <Row>
-              <Col sm="auto">
-                <Form.Group>
-                  <Form.Check
-                    {...register("calendarTrend")}
-                    id="calendarTrend"
-                    label="Between Calendar Years of Diagnosis"
-                    aria-label="Between Calendar Years of Diagnosis"
-                    type="checkbox"
-                    disabled={conditional}
-                  />
-                </Form.Group>
-              </Col>
-              <Col sm="auto">
-                <Form.Group className="mb-4">
-                  <Form.Label>From</Form.Label>
-                  <Form.Select
-                    {...register("trendStart", {
-                      valueAsNumber: true,
-                      required: calendarTrend ? "Required" : false,
-                      validate: (value, form) =>
-                        !calendarTrend || value < form.trendEnd || `Must be less than ${+form.trendEnd + firstYear}`,
-                    })}
-                    disabled={!calendarTrend}
-                    isInvalid={errors?.trendStart}>
-                    {yearOptions.map((year) => (
-                      <option key={year} value={+year}>
-                        {year + firstYear}
-                      </option>
-                    ))}
-                  </Form.Select>
-                  <Form.Control.Feedback type="invalid">{errors?.trendStart?.message}</Form.Control.Feedback>
-                </Form.Group>
-              </Col>
-              <Col sm="auto">
-                <Form.Group className="mb-4">
-                  <Form.Label>To</Form.Label>
-                  <Form.Select
-                    {...register("trendEnd", {
-                      valueAsNumber: true,
-                      required: calendarTrend ? "Required" : false,
-                      validate: (value, form) =>
-                        !calendarTrend ||
-                        value > form.trendStart ||
-                        `Must be greater than ${+form.trendStart + firstYear}`,
-                    })}
-                    disabled={!calendarTrend}
-                    isInvalid={errors?.trendEnd}>
-                    {yearOptions.map((year) => (
-                      <option key={year} value={+year}>
-                        {year + firstYear}
-                      </option>
-                    ))}
-                  </Form.Select>
-                  <Form.Control.Feedback type="invalid">{errors?.trendEnd?.message}</Form.Control.Feedback>
-                </Form.Group>
-              </Col>
-              <Col>
+              <Col sm="2" className="d-flex justify-content-center align-items-center">
                 <Button type="submit" disabled={!(calendarTrend || jpTrend) || isFetching}>
                   {isFetching ? (
                     <>
                       <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> Loading
                     </>
                   ) : (
-                    "Submit"
+                    "Recalculate"
                   )}
                 </Button>
               </Col>
@@ -273,7 +277,7 @@ export default function SurvivalVsYear({
         </Col>
       </Row>
       <Row className="justify-content-between align-items-center">
-        <Col sm="auto">Rows: {memoData.length}</Col>
+        <Col sm="auto">Total Row Count: {memoData.length}</Col>
         <Col sm="auto">
           <Button
             variant="link"
@@ -294,7 +298,7 @@ export default function SurvivalVsYear({
                 `survByYear - Model ${fitIndex} - ${cohortIndex}`
               )
             }>
-            Download Dataset
+            Download Graph Dataset
           </Button>
         </Col>
       </Row>

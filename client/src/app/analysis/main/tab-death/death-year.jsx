@@ -96,15 +96,11 @@ export default function DeathVsYear({ data, seerData, params, cohortIndex, fitIn
               </Form.Text>
             </Col>
           </Row>
-          <Form className="border rounded m-1 p-3" onSubmit={handleSubmit(getTrends)}>
+          <Form className="border rounded m-1" onSubmit={handleSubmit(getTrends)}>
             <Row>
-              <Col>
-                <b>Include Trend Measures</b>
-              </Col>
-            </Row>
-            <Row>
-              <Col sm="auto">
+              <Col sm="10" className="border-end p-3">
                 <Form.Group>
+                  <b>Include Trend Measures</b>
                   <Form.Check
                     {...register("jpTrend")}
                     id="jpTrendDeath"
@@ -115,14 +111,14 @@ export default function DeathVsYear({ data, seerData, params, cohortIndex, fitIn
                   />
                 </Form.Group>
               </Col>
-              <Col sm="auto">
+              <Col sm="2" className="d-flex p-3 justify-content-center align-items-center">
                 <Button type="submit" disabled={!jpTrend || isFetching}>
                   {isFetching ? (
                     <>
                       <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> Loading
                     </>
                   ) : (
-                    "Submit"
+                    "Recalculate"
                   )}
                 </Button>
               </Col>
@@ -150,7 +146,7 @@ export default function DeathVsYear({ data, seerData, params, cohortIndex, fitIn
         </Col>
       </Row>
       <Row className="justify-content-between align-items-center">
-        <Col sm="auto">Rows: {memoData.length}</Col>
+        <Col sm="auto">Total Row Count: {memoData.length}</Col>
         <Col sm="auto">
           <Button
             variant="link"
@@ -171,7 +167,7 @@ export default function DeathVsYear({ data, seerData, params, cohortIndex, fitIn
                 `deathByYear - Model ${fitIndex} - ${cohortIndex}`
               )
             }>
-            Download Dataset
+            Download Graph Dataset
           </Button>
         </Col>
       </Row>

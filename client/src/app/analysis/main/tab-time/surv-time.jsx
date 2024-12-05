@@ -57,7 +57,7 @@ export default function SurvivalVsTime({ data, seerData, params, cohortIndex, fi
         </Col>
       </Row>
       <Row className="justify-content-between align-items-center">
-        <Col sm="auto">Rows: {memoData.length}</Col>
+        <Col sm="auto">Total Row Count: {memoData.length}</Col>
         <Col sm="auto">
           <Button
             variant="link"
@@ -70,7 +70,7 @@ export default function SurvivalVsTime({ data, seerData, params, cohortIndex, fi
                 `survByTime - Model ${fitIndex} - ${cohortIndex}`
               )
             }>
-            Download Dataset
+            Download Graph Dataset
           </Button>
         </Col>
       </Row>

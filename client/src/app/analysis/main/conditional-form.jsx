@@ -86,8 +86,8 @@ export default function ConditionalForm({ data, params, cohortIndex, fitIndex, c
                   {fields.map((field, i) => (
                     <Row key={i} className="mb-3">
                       <Col sm="auto">
-                        <Form.Group className="d-flex align-items-center">
-                          <Form.Label className="me-2">From</Form.Label>
+                        <Form.Group className="d-flex">
+                          <Form.Label className="me-2 text-nowrap">Start Interval</Form.Label>
                           <Form.Select
                             {...register(`conditionalIntervals[${i}].start`, {
                               valueAsNumber: true,
@@ -110,8 +110,8 @@ export default function ConditionalForm({ data, params, cohortIndex, fitIndex, c
                         </Form.Group>
                       </Col>
                       <Col sm="auto">
-                        <Form.Group className="d-flex align-items-center">
-                          <Form.Label className="me-2">To</Form.Label>
+                        <Form.Group className="d-flex">
+                          <Form.Label className="me-2 text-nowrap">End Interval</Form.Label>
                           <Form.Select
                             {...register(`conditionalIntervals[${i}].end`, {
                               valueAsNumber: true,
@@ -178,7 +178,7 @@ export default function ConditionalForm({ data, params, cohortIndex, fitIndex, c
                       <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> Loading
                     </>
                   ) : (
-                    "Submit"
+                    "Recalculate"
                   )}
                 </Button>
               </Col>
