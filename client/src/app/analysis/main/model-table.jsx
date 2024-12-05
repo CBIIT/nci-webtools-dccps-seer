@@ -52,7 +52,7 @@ export default function ModelTable({ data, params, manifest, cohortIndex, handle
     }),
     columnHelper.accessor("index", {
       id: "index",
-      header: () => "Joinpoints",
+      header: () => "Number of Joinpoints",
       cell: (info) => info.getValue(),
     }),
     columnHelper.accessor("location", {
@@ -97,7 +97,7 @@ export default function ModelTable({ data, params, manifest, cohortIndex, handle
   }
 
   return (
-    <Table striped bordered>
+    <Table responsive striped bordered>
       <thead>
         {table.getHeaderGroups().map((headerGroup, hgIndex) => (
           <tr key={hgIndex + headerGroup.id}>
