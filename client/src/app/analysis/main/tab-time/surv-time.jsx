@@ -29,7 +29,7 @@ export default function SurvivalVsTime({ data, seerData, params, cohortIndex, fi
             <Col sm="auto">
               <SelectHookForm
                 name="years"
-                label={`${isRecalcCond ? "Conditional " : ""}Year of Diagnosis`}
+                label={`Year of Diagnosis`}
                 options={yearOptions.map((e) => ({
                   label: e,
                   value: e,
