@@ -74,6 +74,11 @@ export default function AnalysisMain({ id }) {
       if (window) dispatchEvent(new Event("resize"));
     }, 1000);
   }, []);
+  useEffect(() => {
+    if (jobStatus && jobStatus.status === "COMPLETED") {
+      setState({ openSidebar: false });
+    }
+  }, [setState, jobStatus]);
 
   async function handleSaveResults() {
     const { modelData, coefData } = await fetchAll(id, manifest);
@@ -156,6 +161,7 @@ export default function AnalysisMain({ id }) {
               <Tab eventKey="estimates" title="Model Estimates">
                 <ModelEstimates
                   data={modelEstimates}
+                  results={memoResults[fitIndex]}
                   params={params}
                   cohortIndex={cohortIndex}
                   fitIndex={fitIndex}
