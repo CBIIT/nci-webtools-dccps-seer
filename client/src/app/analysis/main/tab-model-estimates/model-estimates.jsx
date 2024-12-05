@@ -5,8 +5,8 @@ import { createColumnHelper } from "@tanstack/react-table";
 import Table from "@/components/table";
 import { downloadTable } from "@/services/xlsx";
 
-export default function ModelEstimates({ data, params, cohortIndex, fitIndex, precision }) {
-  const memoData = useMemo(
+export default function ModelEstimates({ data, results, params, cohortIndex, fitIndex, precision }) {
+  const coefMemo = useMemo(
     () =>
       data
         ? data[fitIndex].map((e) => ({
@@ -18,7 +18,7 @@ export default function ModelEstimates({ data, params, cohortIndex, fitIndex, pr
     [data, fitIndex, precision]
   );
   const columnHelper = createColumnHelper();
-  const columns = [
+  const coefColumns = [
     columnHelper.accessor("_row", {
       header: () => "Parameter",
       cell: (info) => info.renderValue(),
@@ -33,17 +33,39 @@ export default function ModelEstimates({ data, params, cohortIndex, fitIndex, pr
       cell: (info) => info.renderValue(),
     }),
   ];
+  const resultsMemo = useMemo(
+    () =>
+      results
+        ? [
+            { key: "Bayesian Information Criterion (BIC)", value: results.bic.toFixed(precision) },
+            { key: "Akaike Information Criterial (AIC)", value: results.aic },
+            { key: "Log Likelihood", value: results.ll },
+            { key: "Converged", value: results.converged ? "Yes" : "No" },
+          ]
+        : [],
+    [results]
+  );
+  const resultsColumns = [
+    columnHelper.accessor("key", {
+      header: () => "Estimates",
+      cell: (info) => info.renderValue(),
+    }),
+    columnHelper.accessor("value", {
+      header: () => `Joinpoint ${fitIndex}`,
+      cell: (info) => info.renderValue(),
+    }),
+  ];
 
   return (
-    <Container fluid>
+    <Container>
       <Row className="justify-content-end">
         <Col sm="auto">
           <Button
             variant="link"
             onClick={() =>
               downloadTable(
-                memoData,
-                Object.keys(memoData[0]),
+                coefMemo,
+                Object.keys(coefMemo[0]),
                 null,
                 params,
                 `Model Estimates ${fitIndex} - ${cohortIndex}`
@@ -54,11 +76,21 @@ export default function ModelEstimates({ data, params, cohortIndex, fitIndex, pr
         </Col>
       </Row>
       <Row>
-        <Col className="p-3 border">
-          {memoData && (
+        <Col className="p-3">
+          {resultsMemo && (
+            <div>
+              <h5>Estimates of the Joinpoints</h5>
+              <Table data={resultsMemo} columns={resultsColumns} />
+            </div>
+          )}
+        </Col>
+      </Row>
+      <Row>
+        <Col className="p-3">
+          {coefMemo && (
             <div>
               <h5>Coefficients</h5>
-              <Table data={memoData} columns={columns} />
+              <Table data={coefMemo} columns={coefColumns} />
             </div>
           )}
         </Col>
