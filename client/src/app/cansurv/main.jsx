@@ -3,7 +3,8 @@ import { Container, Tab, Tabs } from "react-bootstrap";
 import { useEffect, useMemo } from "react";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useStore } from "./store";
-import { fetchStatus, fetchResults } from "@/services/queries";
+import { fetchStatus, fetchOutput } from "@/services/queries";
+import Status from "./status";
 
 export default function AnalysisMain({ id }) {
   const setState = useStore((state) => state.setState);
@@ -17,24 +18,33 @@ export default function AnalysisMain({ id }) {
     queryFn: () => fetchStatus(id),
     enabled: !!id,
     refetchInterval: (data) =>
-      data?.state?.data === "SUBMITTED" || data?.state?.data === "IN_PROGRESS" ? 5 * 1000 : false,
+      data?.state?.data?.status === "SUBMITTED" || data?.state?.data?.status === "IN_PROGRESS" ? 5 * 1000 : false,
   });
   const { data: manifest } = useQuery({
     queryKey: ["manifest", id],
-    queryFn: () => fetchResults(id, "manifest"),
-    enabled: jobStatus === "COMPLETED",
+    queryFn: () => fetchOutput(id, "manifest.json"),
+    enabled: jobStatus?.status === "COMPLETED",
   });
   const { data: results } = useQuery({
     queryKey: ["results", id],
-    queryFn: () => fetchResults(id, "results"),
-    enabled: jobStatus === "COMPLETED",
+    queryFn: () => fetchOutput(id, manifest),
+    enabled: jobStatus?.status === "COMPLETED" && !!manifest,
   });
+
+  useEffect(() => {
+    if (jobStatus && jobStatus.status === "COMPLETED") {
+      setState({ openSidebar: false });
+    }
+  }, [setState, jobStatus]);
+
+  const memoResults = useMemo(() => (results ? results : manifest), [results, manifest]);
 
   return (
     <Container>
-      <code>{JSON.stringify(jobStatus)}</code>
-      <br />
-      <code>{JSON.stringify(manifest)}</code>
+      <Status seerData={seerData} status={jobStatus} />
+      <div className="p-3 border bg-white">
+        <code>{JSON.stringify(memoResults)}</code>
+      </div>
     </Container>
   );
 }

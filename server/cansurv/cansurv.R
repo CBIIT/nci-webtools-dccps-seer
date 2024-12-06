@@ -1,11 +1,10 @@
 library(jsonlite)
+library(dplyr)
+library(flexsurv)
+library(stats4)
 source("cansurv/source.R")
 
 calculateCanSurv <- function(inputFolder, outputFolder) {
-    library(dplyr)
-    library(flexsurv)
-    library(stats4)
-
     params <- read_json(file.path(inputFolder, "params.json"))
     data <- read_json(file.path(inputFolder, params$files$seerStatFile), simplifyDataFrame = T)
     data <- bind_rows(data$seerStatData)
@@ -26,10 +25,19 @@ calculateCanSurv <- function(inputFolder, outputFolder) {
                 n_restart_conv = params$n_restart_conv, seed = params$seed, maxit = params$maxit,
                 reltol = params$reltol
             )
-
-            resultsFile <- "results.json"
-            write_json(results, path = file.path(outputFolder, resultsFile), auto_unbox = TRUE)
-            resultsFile
+            save(results, file = file.path(outputFolder, "results.RData"))
+            fit <- results$fit.list[[1]]$fit
+            fit_summary <- summary(fit)
+            parseResults <- list(
+                converged = results$fit.list[[1]]$converged,
+                init.estimates = results$fit.list[[1]]$init.estimates,
+                init.loglike = results$fit.list[[1]]$init.loglike,
+                estimates = results$fit.list[[1]]$estimates,
+                loglike = toString(results$fit.list[[1]]$loglike),
+                vcov = results$fit.list[[1]]$vcov
+            )
+            write_json(parseResults, path = file.path(outputFolder, "results.json"), auto_unbox = TRUE)
+            "results.json"
         },
         error = function(e) {
             save(e, file = file.path(outputFolder, "error.RData"))

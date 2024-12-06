@@ -1,5 +1,13 @@
 import axios from "axios";
 
+export async function fetchInput(id, file) {
+  return (await axios.get(`api/data/input/${id}/${file}`)).data;
+}
+
+export async function fetchOutput(id, file) {
+  return (await axios.get(`api/data/output/${id}/${file}`)).data;
+}
+
 export async function fetchStatus(id) {
   return (await axios.get(`api/data/output/${id}/status.json`)).data;
 }
