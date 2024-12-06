@@ -99,7 +99,7 @@ export default function AnalysisForm({ id }) {
               const intervalIndex = varNames.indexOf("Interval");
               const cohortVariables =
                 intervalIndex - yearIndex > 1
-                  ? headers.slice(yearIndex + 1, intervalIndex).map((e) => ({
+                  ? headers.slice(yearIndex, intervalIndex).map((e) => ({
                       ...e,
                       factors: e.factors.map((f) => ({ ...f, label: f.label.replace(/"/gi, "").trim() })),
                     }))
@@ -352,7 +352,9 @@ export default function AnalysisForm({ id }) {
                     type="checkbox"
                   />
                   <Form.Check
-                    {...register(`covariates.${fieldIndex}.type.by`)}
+                    {...register(`covariates.${fieldIndex}.type.by`, {
+                      disabled: watch(`covariates.${fieldIndex}.type.continuous`),
+                    })}
                     onChange={(e) => {
                       handleCheck(e, `covariates.${fieldIndex}.type.by`);
                     }}
@@ -362,7 +364,9 @@ export default function AnalysisForm({ id }) {
                     type="checkbox"
                   />
                   <Form.Check
-                    {...register(`covariates.${fieldIndex}.type.mu`)}
+                    {...register(`covariates.${fieldIndex}.type.mu`, {
+                      disabled: watch(`covariates.${fieldIndex}.type.by`),
+                    })}
                     onChange={(e) => {
                       handleCheck(e, `covariates.${fieldIndex}.type.mu`);
                     }}
@@ -372,7 +376,9 @@ export default function AnalysisForm({ id }) {
                     type="checkbox"
                   />
                   <Form.Check
-                    {...register(`covariates.${fieldIndex}.type.sigma`)}
+                    {...register(`covariates.${fieldIndex}.type.sigma`, {
+                      disabled: watch(`covariates.${fieldIndex}.type.by`),
+                    })}
                     onChange={(e) => {
                       handleCheck(e, `covariates.${fieldIndex}.type.sigma`);
                     }}
@@ -382,7 +388,9 @@ export default function AnalysisForm({ id }) {
                     type="checkbox"
                   />
                   <Form.Check
-                    {...register(`covariates.${fieldIndex}.type.cure`)}
+                    {...register(`covariates.${fieldIndex}.type.cure`, {
+                      disabled: watch(`covariates.${fieldIndex}.type.by`),
+                    })}
                     onChange={(e) => {
                       handleCheck(e, `covariates.${fieldIndex}.type.cure`);
                     }}
