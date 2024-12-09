@@ -2,7 +2,7 @@ import { Spinner, Alert } from "react-bootstrap";
 export default function Status({ seerData, status }) {
   return (
     <>
-      {!status || status?.status !== "COMPLETED" ? (
+      {!Object.keys(seerData).length || !status || status?.status !== "COMPLETED" ? (
         <div className="shadow border rounded bg-white p-3">
           {!status && Object.keys(seerData).length > 0 && (
             <div>Please select Cohort and Model specifications on the left and click on Submit</div>
