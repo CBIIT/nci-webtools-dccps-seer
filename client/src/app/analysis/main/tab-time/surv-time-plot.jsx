@@ -104,11 +104,9 @@ export default function SurvTimePlot({
   const layoutMemo = useMemo(() => ({ ...layout, annotations }), [layout, annotations]);
 
   async function addAnnotation() {
-    const xData = traces[0].x;
-    const xMean = xData.reduce((a, b) => a + b) / xData.length;
-    const yData = traces[0].y.filter(Boolean);
-    const yMean = yData.reduce((a, b) => a + b) / yData.length;
-    const newAnnotation = makeAnnotation(xMean, yMean + 10, annotations.length);
+    const xMean = params.useCondModel ? (params.conditionalStart + params.conditionalEnd) / 2 : params.interval / 2;
+    console.log(xMean);
+    const newAnnotation = makeAnnotation(xMean, 50, annotations.length);
     setAnnotations([...annotations, newAnnotation]);
   }
   async function removeAnnotation(index) {

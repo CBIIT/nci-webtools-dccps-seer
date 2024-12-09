@@ -95,11 +95,8 @@ export default function SurvYearPlot({
   const layoutMemo = useMemo(() => ({ ...layout, annotations }), [layout, annotations]);
 
   async function addAnnotation() {
-    const xData = traces[0].x;
-    const xMean = xData.reduce((a, b) => a + b) / xData.length;
-    const yData = traces[0].y.filter(Boolean);
-    const yMean = yData.reduce((a, b) => a + b) / yData.length;
-    const newAnnotation = makeAnnotation(xMean, yMean + 10, annotations.length);
+    const xMid = params.firstYear + (params.yearStart + params.yearEnd) / 2;
+    const newAnnotation = makeAnnotation(xMid, 50, annotations.length);
     setAnnotations([...annotations, newAnnotation]);
   }
   async function removeAnnotation(index) {
