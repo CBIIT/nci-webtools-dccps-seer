@@ -2,9 +2,10 @@
 import { Container, Tab, Tabs } from "react-bootstrap";
 import { useEffect, useMemo } from "react";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import { useStore } from "./store";
+import { useStore } from "../store";
 import { fetchStatus, fetchOutput } from "@/services/queries";
-import Status from "./status";
+import Status from "../status";
+import Report from "./report";
 
 export default function AnalysisMain({ id }) {
   const setState = useStore((state) => state.setState);
@@ -37,14 +38,23 @@ export default function AnalysisMain({ id }) {
     }
   }, [setState, jobStatus]);
 
-  const memoResults = useMemo(() => (results ? results : manifest), [results, manifest]);
-
   return (
     <Container>
       <Status seerData={seerData} status={jobStatus} />
-      <div className="p-3 border bg-white">
-        <code>{JSON.stringify(memoResults)}</code>
-      </div>
+      {results && (
+        <div className="shadow border rounded bg-white my-3">
+          <Tabs defaultActiveKey="report">
+            <Tab eventKey="report" title="Report">
+              <Report data={results} />
+            </Tab>
+            <Tab eventKey="data" title="Data"></Tab>
+            <Tab eventKey="curves" title="Estimated and Actuarial Survival Curves"></Tab>
+            <Tab eventKey="kYear" title="K-Year Survival Rate"></Tab>
+            <Tab eventKey="dev" title="Deviance Residuals"></Tab>
+            <Tab eventKey="ll" title="LogLikelihood L(c) vs c"></Tab>
+          </Tabs>
+        </div>
+      )}
     </Container>
   );
 }

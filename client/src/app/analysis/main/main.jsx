@@ -36,11 +36,8 @@ export default function AnalysisMain({ id }) {
     queryKey: ["status", id],
     queryFn: () => fetchStatus(id),
     enabled: !!id,
-    refetchInterval: (data) => {
-      return data?.state?.data?.status === "SUBMITTED" || data?.state?.data?.status === "IN_PROGRESS"
-        ? 5 * 1000
-        : false;
-    },
+    refetchInterval: (data) =>
+      data?.state?.data?.status === "SUBMITTED" || data?.state?.data?.status === "IN_PROGRESS" ? 5 * 1000 : false,
   });
   const { data: manifest } = useQuery({
     queryKey: ["manifest", id],
@@ -94,8 +91,7 @@ export default function AnalysisMain({ id }) {
 
   return (
     <Container>
-      {!Object.keys(seerData).length > 0 && <Description />}
-      <Status seerData={seerData} status={jobStatus} />
+      {!Object.keys(seerData).length > 0 ? <Description /> : <Status seerData={seerData} status={jobStatus} />}
       {params.id && manifest && (
         <div className="shadow p-3 border rounded bg-white mb-3">
           <CohortSelect params={params} manifest={manifest} data={memoResults} handleSaveResults={handleSaveResults} />

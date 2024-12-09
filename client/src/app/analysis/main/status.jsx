@@ -7,7 +7,7 @@ export default function Status({ seerData, status }) {
           {!status && Object.keys(seerData).length > 0 && (
             <div>Please select Cohort and Model specifications on the left and click on Submit</div>
           )}
-          {status?.status === "SUBMITTED" && <div>Your job has been submitted</div>}
+          {status?.status === "SUBMITTED" && <div>Your job has been submitted.</div>}
           {status?.status === "IN_PROGRESS" && (
             <div className="text-center">
               <Spinner variant="primary" animation="border" role="status" aria-hidden="true" />{" "}

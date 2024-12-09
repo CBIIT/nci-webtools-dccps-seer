@@ -7,7 +7,7 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Form from "./form";
-import Main from "./main";
+import Main from "./main/main";
 import { SidebarContainer, SidebarPanel, MainPanel } from "@/components/sidebar-container";
 
 import { useStore } from "./store";
