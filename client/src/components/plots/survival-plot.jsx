@@ -6,9 +6,9 @@ const Plot = dynamic(() => import("react-plotly.js"), {
   ssr: false,
 });
 
-export default function SurvivalPlot({ data, layout, config, className }) {
+export default function SurvivalPlot({ data, layout, config, removeAnnotation }) {
   return (
-    <Container fluid style={{ minHeight: layout.height || 500 }} className={className}>
+    <Container fluid style={{ minHeight: layout.height || 500 }}>
       <Row>
         <Col>
           <Plot
@@ -20,6 +20,7 @@ export default function SurvivalPlot({ data, layout, config, className }) {
               displayModeBar: true,
               responsive: true,
               displaylogo: false,
+              editable: true,
               toImageButtonOptions: {
                 format: "svg",
                 // filename: filename || divId,
@@ -28,6 +29,9 @@ export default function SurvivalPlot({ data, layout, config, className }) {
               ...config,
             }}
             useResizeHandler
+            onClickAnnotation={(data) => {
+              if (data.event.button == 2) removeAnnotation(data.index);
+            }}
           />
         </Col>
       </Row>

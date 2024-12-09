@@ -10,9 +10,8 @@ const colors = [
   "#bcbd22", // curry yellow-green
   "#17becf", // blue-teal
 ];
-const fontSize = 14;
 
-export function makeLineTrace(name = "", group, index, xArray, yArray, statistic, precision = 2) {
+export function makeLineTrace(name = "", group, index, xArray, yArray, statistic, precision = 2, fontSize = 14) {
   return {
     name,
     x: xArray,
@@ -32,7 +31,7 @@ export function makeLineTrace(name = "", group, index, xArray, yArray, statistic
   };
 }
 
-export function makeDashTrace(name = "", group, index, xArray, yArray, statistic, precision = 2) {
+export function makeDashTrace(name = "", group, index, xArray, yArray, statistic, precision = 2, fontSize = 14) {
   return {
     name,
     x: xArray,
@@ -52,7 +51,7 @@ export function makeDashTrace(name = "", group, index, xArray, yArray, statistic
   };
 }
 
-export function makeMarkerTrace(name = "", group, index, xArray, yArray, statistic, precision = 2) {
+export function makeMarkerTrace(name = "", group, index, xArray, yArray, statistic, precision = 2, fontSize = 14) {
   return {
     name,
     x: xArray,
@@ -85,7 +84,7 @@ export function makeLegendTrace(name, group, index, mode = "lines+markers", dash
   };
 }
 
-export function makeLayout(range, title, xTitle, yTitle) {
+export function makeLayout(range, title, xTitle, yTitle, fontSize = 14) {
   return {
     title: `<b>${title}</b>`,
     hovermode: "closest",
@@ -119,6 +118,19 @@ export function makeLayout(range, title, xTitle, yTitle) {
     height: 700,
     // width: 1000,
     autosize: true,
+  };
+}
+
+export function makeAnnotation(x, y, index) {
+  return {
+    x,
+    y,
+    xref: "x",
+    yref: "y",
+    text: `Annotation ${index + 1}`,
+    bgcolor: "rgba(255, 255, 255, 0.9)",
+    captureevents: true,
+    showarrow: false,
   };
 }
 
