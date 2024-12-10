@@ -8,13 +8,14 @@ import Button from "react-bootstrap/Button";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Alert from "react-bootstrap/Alert";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import Spinner from "react-bootstrap/Spinner";
+import { useQuery, useMutation, useQueryClient, useIsMutating } from "@tanstack/react-query";
 import { v4 as uuidv4 } from "uuid";
 import Image from "next/image";
 import jpsurvImage from "/public/images/jpsurv.png";
 import { useStore, defaultForm, defaultAdvOptions } from "./store";
 import { parseSeerStatDictionary, parseSeerStatFiles } from "@/services/file/file.service";
-import { uploadFiles, asFileList } from "@/components/file-input";
+import { asFileList } from "@/components/file-input";
 import { fetchSession, submit, importWorkspace } from "@/services/queries";
 import { Accordion } from "react-bootstrap";
 
@@ -32,6 +33,9 @@ export default function AnalysisForm({ id }) {
   const seerData = useStore((state) => state.seerData);
   const modelOptions = useStore((state) => state.modelOptions);
   const [error, setError] = useState(null);
+  const isMutatingSubmit = useIsMutating({ mutationKey: ["submitJp"] });
+  const isMutatingImport = useIsMutating({ mutationKey: ["importJp"] });
+  const isSubmitting = isMutatingSubmit || isMutatingImport;
 
   const {
     control,
@@ -56,6 +60,7 @@ export default function AnalysisForm({ id }) {
   const useRelaxModel = watch("useRelaxModel");
 
   const submitForm = useMutation({
+    mutationKey: "submitJp",
     mutationFn: ({ params, data }) => submit(params.id, params, data),
     onSettled: (data, error) => {
       if (error) setError(error.response.data.error);
@@ -63,6 +68,7 @@ export default function AnalysisForm({ id }) {
     },
   });
   const importMutation = useMutation({
+    mutationKey: "importJp",
     mutationFn: ({ id, fileList }) => importWorkspace(id, fileList),
     onSettled: (data, error) => {
       if (error) setError(error.response.data.error);
@@ -265,7 +271,7 @@ export default function AnalysisForm({ id }) {
     // );
     // await uploadFiles(`/api/upload/${id}`, { ...formData, seerDataFile });
     // await uploadFiles(`api/upload/${id}`, { seerStatFile });
-    submitForm.mutate({ params, data: seerData });
+    await submitForm.mutateAsync({ params, data: seerData });
     reset(params);
     setState({ params });
     router.push(`${pathname}?id=${id}`, { shallow: true });
@@ -639,8 +645,14 @@ export default function AnalysisForm({ id }) {
         <Button
           type="submit"
           variant="primary"
-          disabled={inputType === "zip" ? !inputFile.length : !Object.keys(seerData).length}>
-          Submit
+          disabled={inputType === "zip" ? !inputFile.length : !Object.keys(seerData).length || isSubmitting}>
+          {isSubmitting ? (
+            <>
+              <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> Loading
+            </>
+          ) : (
+            "Submit"
+          )}
         </Button>
       </div>
     </Form>
