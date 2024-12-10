@@ -10,6 +10,7 @@ import DeathYearTable from "./death-year-table";
 import TrendTable from "../tab-surv/surv-trend-table";
 import { downloadTable } from "@/services/xlsx";
 import { useStore } from "../../store";
+import { getCohortLabel } from "../cohort-select";
 
 export default function DeathVsYear({ data, seerData, params, cohortIndex, fitIndex, conditional, precision }) {
   const setState = useStore((state) => state.setState);
@@ -137,6 +138,7 @@ export default function DeathVsYear({ data, seerData, params, cohortIndex, fitIn
             data={memoData}
             params={params}
             title={`${conditional ? "Conditional " : ""}` + "Annual Probability of Dying of Cancer by Diagnosis Year"}
+            subtitle={`Joinpoint ${fitIndex} - ${getCohortLabel(params, cohortIndex)}`}
             xTitle={"Year of Diagnosis"}
             yTitle={`Annual Probability of Cancer Death (%)`}
             observedHeader={observedHeader}

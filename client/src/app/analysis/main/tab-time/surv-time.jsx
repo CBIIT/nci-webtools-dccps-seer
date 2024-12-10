@@ -6,6 +6,7 @@ import SelectHookForm from "@/components/selectHookForm";
 import SurvTimePlot from "./surv-time-plot";
 import SurvTimeTable from "./surv-time-table";
 import { downloadTable } from "@/services/xlsx";
+import { getCohortLabel } from "../cohort-select";
 
 export default function SurvivalVsTime({ data, seerData, params, cohortIndex, fitIndex, conditional, precision }) {
   const isRecalcCond = !!conditional;
@@ -47,6 +48,7 @@ export default function SurvivalVsTime({ data, seerData, params, cohortIndex, fi
             data={memoData}
             params={params}
             title={`${conditional ? "Conditional " : ""}${statistic} by Diagnosis Year for Selected Diagnosis Year`}
+            subtitle={`Joinpoint ${fitIndex} - ${getCohortLabel(params, cohortIndex)}`}
             xTitle={`${isRecalcCond ? "Conditional " : ""}Interval`}
             yTitle={`${isRecalcCond ? "Conditional " : ""}${statistic}`}
             observedHeader={observedHeader}

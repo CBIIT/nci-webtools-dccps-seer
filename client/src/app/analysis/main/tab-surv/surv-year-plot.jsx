@@ -16,6 +16,7 @@ export default function SurvYearPlot({
   data,
   params,
   title,
+  subtitle,
   xTitle,
   yTitle,
   observedHeader,
@@ -91,7 +92,7 @@ export default function SurvYearPlot({
     })
     .flat();
 
-  const layout = makeLayout([yearStart, yearEnd], title, xTitle, yTitle, fontSize);
+  const layout = makeLayout([yearStart, yearEnd], title, subtitle, xTitle, yTitle, fontSize);
   const layoutMemo = useMemo(() => ({ ...layout, annotations }), [layout, annotations]);
 
   async function addAnnotation() {

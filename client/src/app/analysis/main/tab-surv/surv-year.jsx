@@ -10,6 +10,7 @@ import SurvYearTable from "./surv-year-table";
 import TrendTable from "./surv-trend-table";
 import { downloadTable } from "@/services/xlsx";
 import { useStore } from "../../store";
+import { getCohortLabel } from "../cohort-select";
 
 export default function SurvivalVsYear({
   data,
@@ -268,6 +269,7 @@ export default function SurvivalVsYear({
             data={memoData}
             params={params}
             title={`${conditional ? "Conditional " : ""}${statistic} by Diagnosis Year`}
+            subtitle={`Joinpoint ${fitIndex} - ${getCohortLabel(params, cohortIndex)}`}
             xTitle={"Year of Diagnosis"}
             yTitle={`${isRecalcCond ? "Conditional " : ""}${statistic}`}
             observedHeader={observedHeader}

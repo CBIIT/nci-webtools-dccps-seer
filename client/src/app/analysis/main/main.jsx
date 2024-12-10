@@ -6,7 +6,7 @@ import ModelTable from "./model-table";
 import SurvivalVsYear from "./tab-surv/surv-year";
 import DeathVsYear from "./tab-death/death-year";
 import SurvivalVsTime from "./tab-time/surv-time";
-import CohortSelect from "./cohort-select";
+import { CohortSelect } from "./cohort-select";
 import { useStore } from "../store";
 import { fetchStatus, fetchResults, fetchAll } from "@/services/queries";
 import ModelEstimates from "./tab-model-estimates/model-estimates";

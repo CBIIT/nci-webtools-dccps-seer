@@ -16,6 +16,7 @@ export default function SurvTimePlot({
   data,
   params,
   title,
+  subtitle,
   xTitle,
   yTitle,
   observedHeader,
@@ -100,7 +101,7 @@ export default function SurvTimePlot({
     })
     .flat();
 
-  const layout = makeLayout([intervalStart, intervalEnd], title, xTitle, yTitle, fontSize);
+  const layout = makeLayout([intervalStart, intervalEnd], title, subtitle, xTitle, yTitle, fontSize);
   const layoutMemo = useMemo(() => ({ ...layout, annotations }), [layout, annotations]);
 
   async function addAnnotation() {

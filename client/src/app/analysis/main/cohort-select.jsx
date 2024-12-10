@@ -7,7 +7,11 @@ import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import { useStore } from "../store";
 
-export default function CohortSelect({ params, manifest, className, handleSaveResults }) {
+export function getCohortLabel(params, cohort_index) {
+  return params.cohortCombos[cohort_index - 1]?.map((c, i) => params.cohorts[i].options[c].label).join(" + ");
+}
+
+export function CohortSelect({ params, manifest, className, handleSaveResults }) {
   const setState = useStore((state) => state.setState);
   const main = useStore((state) => state.main);
   const id = useStore((state) => state.params.id);
@@ -89,7 +93,7 @@ export default function CohortSelect({ params, manifest, className, handleSaveRe
             <Form.Select value={cohortIndex || ""} onChange={handleCohortChange}>
               {cohortIndexes.map((cohort_index, i) => (
                 <option key={i} value={cohort_index}>
-                  {params.cohortCombos[cohort_index - 1]?.map((c, i) => params.cohorts[i].options[c].label).join(" + ")}
+                  {getCohortLabel(params, cohort_index)}
                 </option>
               ))}
             </Form.Select>
