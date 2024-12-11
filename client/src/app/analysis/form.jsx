@@ -58,6 +58,7 @@ export default function AnalysisForm({ id }) {
   const sendNotification = watch("sendNotification");
   const useCondModel = watch("useCondModel");
   const useRelaxModel = watch("useRelaxModel");
+  const notificationRequired = watch("maxJp") > 2 || isMultiCohort(watch("cohorts"));
 
   const submitForm = useMutation({
     mutationKey: "submitJp",
@@ -96,18 +97,6 @@ export default function AnalysisForm({ id }) {
   useEffect(() => {
     if (Object.keys(seerData).length && !Object.keys(modelOptions).length) setModelOptions(seerData);
   }, [seerData, modelOptions]);
-
-  function handleChange(event) {
-    const { name, value, checked } = event.target;
-    switch (name) {
-      case "sendNotification":
-        if (!checked) {
-          setValue("jobName", null);
-          setValue("email", null);
-        }
-        break;
-    }
-  }
 
   function handleCohort(e, key) {
     const { checked } = e.target;
@@ -202,6 +191,14 @@ export default function AnalysisForm({ id }) {
     return maxFollowUpYears;
   }
 
+  // check if multiple cohorts are selected
+  function isMultiCohort(cohorts) {
+    return cohorts.some(({ options }) => {
+      const countSelected = options.filter((e) => e.checked).length;
+      return countSelected === 0 || countSelected > 1;
+    });
+  }
+
   /**
    * Processes the cohorts data and returns the filtered cohorts and cohort parameters.
    *
@@ -210,6 +207,7 @@ export default function AnalysisForm({ id }) {
    */
   function processCohorts(formData) {
     const cohorts = formData.cohorts.map(({ options, ...rest }) => {
+      // if no options are selected, select all
       const noSelect = options.filter((e) => e.checked).length === 0;
       return {
         ...rest,
@@ -300,12 +298,7 @@ export default function AnalysisForm({ id }) {
         <legend className="legend fw-bold">Data</legend>
         <Form.Group className="mb-4" controlId="inputType">
           <Form.Label className="required fw-bold">File Format</Form.Label>
-          <Form.Select
-            required
-            {...register("inputType", {
-              required: true,
-              onChange: handleChange,
-            })}>
+          <Form.Select required {...register("inputType", { required: true })}>
             <option value="seer">SEER*Stat Dictionary/Data Files</option>
             <option value="csv">CSV File</option>
             <option value="zip">Workspace</option>
@@ -591,7 +584,7 @@ export default function AnalysisForm({ id }) {
                 name="sendNotification"
                 id="sendNotification"
                 {...register("sendNotification", {
-                  onChange: handleChange,
+                  required: notificationRequired,
                 })}
               />
               <div>
@@ -608,23 +601,19 @@ export default function AnalysisForm({ id }) {
                 <Form.Group className="mb-3" controlId="jobName">
                   <Form.Label className={sendNotification && "required"}>Job Name</Form.Label>
                   <Form.Control
+                    {...register("jobName", { required: sendNotification, disabled: !sendNotification })}
                     name="jobName"
                     required={sendNotification}
-                    disabled={!sendNotification}
-                    {...register("jobName", { required: sendNotification })}
                   />
                 </Form.Group>
 
                 <Form.Group className="mb-3" controlId="email">
                   <Form.Label className={sendNotification && "required"}>Email</Form.Label>
                   <Form.Control
+                    {...register("email", { required: sendNotification, disabled: !sendNotification })}
                     name="email"
                     type="email"
                     required={sendNotification}
-                    {...register("email", {
-                      required: sendNotification,
-                      disabled: !sendNotification,
-                    })}
                   />
                 </Form.Group>
               </div>
