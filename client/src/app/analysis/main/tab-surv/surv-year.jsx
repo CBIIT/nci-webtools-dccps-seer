@@ -177,7 +177,7 @@ export default function SurvivalVsYear({
                     </Form.Group>
                   </Col>
                   <Col sm="auto" className="p-3 pt-0">
-                    <Form.Group className="d-flex">
+                    <Form.Group className="d-flex" controlId="trendStart">
                       <Form.Label className="me-2 text-nowrap">From</Form.Label>
                       <Form.Select
                         {...register("trendStart", {
@@ -200,7 +200,7 @@ export default function SurvivalVsYear({
                     </Form.Group>
                   </Col>
                   <Col sm="auto" className="p-3 pt-0">
-                    <Form.Group className="d-flex">
+                    <Form.Group className="d-flex" controlId="trendEnd">
                       <Form.Label className="me-2 text-nowrap">To</Form.Label>
                       <Form.Select
                         {...register("trendEnd", {

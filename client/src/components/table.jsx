@@ -9,7 +9,7 @@ export default function Table({ data, columns }) {
   });
 
   return (
-    <div className="mb-3" style={{ maxHeight: "650px", overflow: "scroll" }}>
+    <div className="mb-3" tabIndex="0" style={{ maxHeight: "650px", overflow: "scroll" }}>
       <BsTable striped bordered>
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (

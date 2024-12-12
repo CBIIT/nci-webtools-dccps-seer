@@ -21,9 +21,9 @@ export default function DeathVsYear({ data, seerData, params, cohortIndex, fitIn
   const intervalOptions = [...new Set((conditional || data.fullpredicted).map((e) => e.Interval))];
   const defaultInterval = intervalOptions.includes(5) ? 5 : Math.max(...intervalOptions);
   const { control, register, watch, setValue, handleSubmit } = useForm({
-    defaultValues: { intervals: [defaultInterval], jpTrend: false, useRange: false, trendRange: [] },
+    defaultValues: { intervalsD: [defaultInterval], jpTrend: false, useRange: false, trendRange: [] },
   });
-  const intervals = watch("intervals");
+  const intervalsD = watch("intervalsD");
   const jpTrend = watch("jpTrend");
   const observedHeader = params?.observed.includes("Relative")
     ? "Relative_Survival_Interval"
@@ -32,22 +32,22 @@ export default function DeathVsYear({ data, seerData, params, cohortIndex, fitIn
   const predictedHeader = "Predicted_Survival_Int";
   const predictedSeHeader = "Predicted_Survival_Int_SE";
   const memoData = useMemo(() => {
-    const filterInts = (conditional || data.fullpredicted).filter((e) => intervals.includes(e.Interval));
+    const filterInts = (conditional || data.fullpredicted).filter((e) => intervalsD.includes(e.Interval));
     return filterInts.map((e) => ({
       ...e,
       [observedHeader]: e[observedHeader] ? 100 - e[observedHeader] : e[observedHeader],
       [predictedHeader]: e[predictedHeader] ? 100 - e[predictedHeader] : e[predictedHeader],
     }));
-  }, [data, conditional, intervals]);
+  }, [data, conditional, intervalsD]);
 
   const deathTrend = useMemo(
     () =>
       trendQueryData?.data?.jpTrend
         ? trendQueryData.data.jpTrend[fitIndex].deathTrend
             .reduce((acc, ar) => [...acc, ...ar], [])
-            .filter((e) => intervals.includes(e.interval))
+            .filter((e) => intervalsD.includes(e.interval))
         : [],
-    [trendQueryData, jpTrend, intervals, fitIndex]
+    [trendQueryData, jpTrend, intervalsD, fitIndex]
   );
 
   // disable trends for conditional recalculation
@@ -56,7 +56,7 @@ export default function DeathVsYear({ data, seerData, params, cohortIndex, fitIn
   }, [conditional, jpTrend]);
   // auto select interval on conditional recalculation switch
   useEffect(() => {
-    if (!intervalOptions.includes(intervals)) setValue("intervals", [...intervals, defaultInterval]);
+    if (!intervalOptions.includes(intervalsD)) setValue("intervalsD", [...intervalsD, defaultInterval]);
   }, [conditional, defaultInterval]);
   useEffect(() => {
     setState({ deathTrendQueryKey: ["deathTrend", cohortIndex] });
@@ -86,7 +86,7 @@ export default function DeathVsYear({ data, seerData, params, cohortIndex, fitIn
           <Row className="mb-3">
             <Col sm="auto">
               <SelectHookForm
-                name="intervals"
+                name="intervalsD"
                 label="Years Since Diagnosis"
                 options={intervalOptions.map((e) => ({ label: e, value: e }))}
                 control={control}

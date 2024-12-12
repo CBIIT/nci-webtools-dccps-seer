@@ -86,7 +86,7 @@ export default function ConditionalForm({ data, params, cohortIndex, fitIndex, c
                   {fields.map((field, i) => (
                     <Row key={i} className="mb-3">
                       <Col sm="auto">
-                        <Form.Group className="d-flex">
+                        <Form.Group className="d-flex" controlId={"startInterval" + i}>
                           <Form.Label className="me-2 text-nowrap">Start Interval</Form.Label>
                           <Form.Select
                             {...register(`conditionalIntervals[${i}].start`, {
@@ -110,7 +110,7 @@ export default function ConditionalForm({ data, params, cohortIndex, fitIndex, c
                         </Form.Group>
                       </Col>
                       <Col sm="auto">
-                        <Form.Group className="d-flex">
+                        <Form.Group className="d-flex" controlId={"endInterval" + i}>
                           <Form.Label className="me-2 text-nowrap">End Interval</Form.Label>
                           <Form.Select
                             {...register(`conditionalIntervals[${i}].end`, {

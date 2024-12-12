@@ -16,8 +16,8 @@ export function CohortSelect({ params, manifest, className, handleSaveResults })
   const main = useStore((state) => state.main);
   const id = useStore((state) => state.params.id);
   const { cohortIndex, cutpointIndex, cluster, precision } = main;
-  const errors = manifest.filter((e) => typeof e === "string");
-  const cohorts = manifest.filter((e) => typeof e !== "string");
+  const errors = Array.isArray(manifest) ? manifest.filter((e) => typeof e === "string") : [manifest];
+  const cohorts = Array.isArray(manifest) ? manifest.filter((e) => typeof e !== "string") : [];
   const cohortIndexes = [...new Set(cohorts.map((e) => e.cohort_index))];
   const cutpoints = cohorts.filter((e) =>
     cohortIndex ? e.cohort_index == cohortIndex : e.cohort_index == cohortIndexes[0]
@@ -88,7 +88,7 @@ export function CohortSelect({ params, manifest, className, handleSaveResults })
       )}
       <Row>
         <Col sm="auto">
-          <Form.Group>
+          <Form.Group controlId="cohort">
             <Form.Label>Cohort</Form.Label>
             <Form.Select value={cohortIndex || ""} onChange={handleCohortChange}>
               {cohortIndexes.map((cohort_index, i) => (
@@ -101,7 +101,7 @@ export function CohortSelect({ params, manifest, className, handleSaveResults })
         </Col>
         {params.useRelaxModel && (
           <Col sm="auto">
-            <Form.Group>
+            <Form.Group controlId="cutpoint">
               <Form.Label>Cutpoint</Form.Label>
               <Form.Select value={cutpointIndex || ""} onChange={handleCutpointChange}>
                 {cutpoints.map((e, i) => (
@@ -114,7 +114,7 @@ export function CohortSelect({ params, manifest, className, handleSaveResults })
           </Col>
         )}
         <Col sm="auto">
-          <Form.Group>
+          <Form.Group controlId="precision">
             <Form.Label>Number of Decimal Places</Form.Label>
             <Form.Select value={precision} onChange={handlePrecisionChange}>
               {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((e, i) => (
@@ -160,6 +160,7 @@ export function CohortSelect({ params, manifest, className, handleSaveResults })
               checked={cluster === "cond"}
               onChange={handleClusterChange}
               disabled={cutpointIndex == 1}
+              className={cutpointIndex == 1 ? "disabled-contrast" : ""}
             />
           </Col>
         </Row>

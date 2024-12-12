@@ -123,7 +123,7 @@ export default function SurvTimePlot({
           </Button>
         </Col>
         <Col sm="auto">
-          <Form.Group className="d-flex text-nowrap align-items-center" controlId="fontSize">
+          <Form.Group className="d-flex text-nowrap align-items-center" controlId="fontSizeTime">
             <Form.Label className="me-2">Font Size</Form.Label>
             <Form.Control
               type="number"
