@@ -1,6 +1,5 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import classNames from "classnames";
 import { BsCaretLeftFill, BsCaretRightFill } from "react-icons/bs";
 
 export const SidebarPanel = ({ children }) => <>{children}</>;
@@ -12,7 +11,7 @@ export function SidebarContainer({ collapsed = false, onCollapsed = () => {}, ch
     "className": "set-absolute",
     "style": {
       position: "absolute",
-      left: "-10px",
+      left: "0px",
       background: "transparent",
       border: "none",
       outline: "none",
