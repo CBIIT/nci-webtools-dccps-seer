@@ -1,5 +1,6 @@
 "use client";
 import { Suspense, useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { ErrorBoundary } from "next/dist/client/components/error-boundary";
 import Alert from "react-bootstrap/Alert";
 import Loading from "@/components/loading";
@@ -13,8 +14,11 @@ import { SidebarContainer, SidebarPanel, MainPanel } from "@/components/sidebar-
 import { useStore } from "./store";
 
 export default function Analysis({ searchParams }) {
+  const router = useRouter();
+  const pathname = usePathname();
   const openSidebar = useStore((state) => state.openSidebar);
   const toggleSidebar = useStore((state) => state.toggleSidebar);
+  const params = useStore((state) => state.params);
   const resetMain = useStore((state) => state.resetMain);
   const { id } = searchParams;
 
@@ -22,6 +26,10 @@ export default function Analysis({ searchParams }) {
   useEffect(() => {
     resetMain();
   }, [id]);
+
+  useEffect(() => {
+    if (!id && params.id) router.push(`${pathname}?id=${params.id}`, { shallow: true });
+  }, [id, params.id, router, pathname]);
 
   return (
     <Container className="py-4">
