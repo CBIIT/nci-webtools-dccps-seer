@@ -94,14 +94,16 @@ calculateJoinpoint <- function(inputFolder, outputFolder) {
                             )
                         }
                         if (!is.null(cond)) {
-                            cond$FitList[[fitIndex]]$fullpredicted <- download.data(
-                                input = data,
-                                fit = cond,
-                                nJP = params$maxJp,
-                                yearvar = params$year,
-                                downloadtype = "full",
-                                subset = cohortSubsets[[cohortComboIndex]]
-                            )
+                            for (fitIndex in seq_along(cond$FitList)) {
+                                cond$FitList[[fitIndex]]$fullpredicted <- download.data(
+                                    input = data,
+                                    fit = cond,
+                                    nJP = params$maxJp,
+                                    yearvar = params$year,
+                                    downloadtype = "full",
+                                    subset = cohortSubsets[[cohortComboIndex]]
+                                )
+                            }
                         }
 
                         # save model coefficients to a separate file to preserve data structure
@@ -194,6 +196,7 @@ calculateJoinpoint <- function(inputFolder, outputFolder) {
             error = function(e) {
                 save(e, file = file.path(outputFolder, sprintf("error-%s.RData", cohortComboIndex)))
                 e$message
+                # capture.output(traceback(e))
             }
         )
     })
