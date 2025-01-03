@@ -1,5 +1,5 @@
-import { useMemo, useEffect } from "react";
-import { Modal, Button, Form, Container, Row, Col } from "react-bootstrap";
+import { useMemo, useState, useEffect } from "react";
+import { Modal, Button, Form, Container, Alert } from "react-bootstrap";
 import Table from "react-bootstrap/Table";
 import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { useForm } from "react-hook-form";
@@ -43,6 +43,7 @@ export default function ConfigureDataModal() {
     { label: `${dataType} Int SE`, value: `${dataType.split(" ")[0]}_SE_Interval` },
     { label: `${dataType} Cum SE`, value: `${dataType.split(" ")[0]}_SE_Cum` },
   ];
+  const [showAlert, setShowAlert] = useState(false);
 
   useEffect(() => {
     if (userData && hasHeaders) {
@@ -51,6 +52,10 @@ export default function ConfigureDataModal() {
       parseCsvFile2(userData).then((data) => setUserCsv({ parsedNoHead: data }));
     }
   }, [hasHeaders, userData]);
+
+  function closeAlert() {
+    setShowAlert(false);
+  }
 
   async function onSubmit(data) {
     const { mapHeaders, ...rest } = data;
@@ -101,11 +106,13 @@ export default function ConfigureDataModal() {
 
       setState({ seerData: { seerStatDictionary: headers, seerStatData: reduceData, cohortVariables, config } });
     }
-    handleClose();
+    // handleClose();
+    setShowAlert(true);
   }
 
   function onReset() {
     reset({ ...defaultState.userCsv.form, openConfigDataModal: true });
+    setShowAlert(false);
   }
 
   const tableData = useMemo(() => {
@@ -121,7 +128,7 @@ export default function ConfigureDataModal() {
           )
         : [];
     }
-  }, [parsedNoHead, parsedHead.data]);
+  }, [displayLines, parsedNoHead, parsedHead.data]);
   const columns = useMemo(() => {
     if (hasHeaders) {
       return parsedHead.headers.map((col) =>
@@ -147,7 +154,7 @@ export default function ConfigureDataModal() {
     columns: columns,
     getCoreRowModel: getCoreRowModel(),
   });
-
+  console.log(errors);
   return (
     <Modal show={openConfigDataModal} onHide={handleClose} size="xl">
       <Modal.Header closeButton>
@@ -156,6 +163,11 @@ export default function ConfigureDataModal() {
       <Form onSubmit={handleSubmit(onSubmit)} onReset={onReset}>
         <Modal.Body className="bg-light">
           <Container>
+            {showAlert && (
+              <Alert variant="success" onClose={closeAlert} dismissible>
+                Configuration Saved.
+              </Alert>
+            )}
             <Form.Group className="mb-3" controlId="hasHeaders">
               <Form.Check {...register("hasHeaders")} type="checkbox" label="Data File Contains Headers" />
               <Form.Text>Check this option is your file contains column headers in the first row</Form.Text>
@@ -200,7 +212,24 @@ export default function ConfigureDataModal() {
                   <tr>
                     {columns.map((col, index) => (
                       <th key={index}>
-                        <Form.Select {...register("mapHeaders." + index)} style={{ width: "250px" }}>
+                        <Form.Select
+                          {...register(`mapHeaders[${index}]`, {
+                            validate: (value) => {
+                              if (value) {
+                                const option = headerOptions.filter((e) => e.value === value)[0];
+                                if (!option?.multiple) {
+                                  const selectedValues = watch("mapHeaders");
+                                  const duplicates = selectedValues.filter((v) => v === value);
+                                  console.log(value, option, duplicates);
+                                  if (duplicates.length > 1) {
+                                    return `${option.label} already selected`;
+                                  }
+                                }
+                              }
+                              return true;
+                            },
+                          })}
+                          style={{ width: "250px" }}>
                           <option></option>
                           {headerOptions.map((e, i) => (
                             <option key={i} value={e.value}>
@@ -208,6 +237,9 @@ export default function ConfigureDataModal() {
                             </option>
                           ))}
                         </Form.Select>
+                        {errors.mapHeaders && errors.mapHeaders[index] && (
+                          <Form.Text className="text-white">{errors.mapHeaders[index].message}</Form.Text>
+                        )}
                       </th>
                     ))}
                   </tr>
