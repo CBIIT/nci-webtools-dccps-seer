@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
-import { Modal, Button, Form, Container, Alert } from "react-bootstrap";
+import { Modal, Button, Form, Container, Alert, Row, Col } from "react-bootstrap";
 import Table from "react-bootstrap/Table";
 import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { useForm } from "react-hook-form";
@@ -168,35 +168,51 @@ export default function ConfigureDataModal() {
                 Configuration Saved. Proceed by closing this configuration and select your model specifications.
               </Alert>
             )}
-            <Form.Group className="mb-3" controlId="hasHeaders">
-              <Form.Check {...register("hasHeaders")} type="checkbox" label="Data File Contains Headers" />
-              <Form.Text>Check this option is your file contains column headers in the first row</Form.Text>
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="dataType">
-              <Form.Label className="fw-bold">Data Type</Form.Label>
-              <Form.Select {...register("dataType")}>
-                <option value="Relative Survival">Relative Survival</option>
-                <option value="CauseSpecific Survival">Cause-Specific Survival</option>
-              </Form.Select>
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="rates">
-              <Form.Label className="fw-bold">Rates</Form.Label>
-              <Form.Select {...register("rates")}>
-                <option value="percents">Percents</option>
-                <option value="proportion">Proportions</option>
-              </Form.Select>
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="displayLines">
-              <Form.Label className="fw-bold">Display Lines</Form.Label>
-              <Form.Select {...register("displayLines")}>
-                {[20, 30, 40, 50, 60].map((e) => (
-                  <option key={e} value={e}>
-                    {e}
-                  </option>
-                ))}
-              </Form.Select>
-              <Form.Text>Number of lines to preview from data</Form.Text>
-            </Form.Group>
+            <Row>
+              <Col sm="auto">
+                <Form.Group className="mb-3" controlId="hasHeaders">
+                  <Form.Check {...register("hasHeaders")} type="checkbox" label="Data File Contains Headers" />
+                  <Form.Text>Check this option is your file contains column headers in the first row</Form.Text>
+                </Form.Group>
+              </Col>
+            </Row>
+            <Row>
+              <Col sm="auto">
+                <Form.Group className="mb-3" controlId="dataType">
+                  <Form.Label className="fw-bold">Data Type</Form.Label>
+                  <Form.Select {...register("dataType")}>
+                    <option value="Relative Survival">Relative Survival</option>
+                    <option value="CauseSpecific Survival">Cause-Specific Survival</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+            </Row>
+            <Row>
+              <Col sm="auto">
+                <Form.Group className="mb-3" controlId="rates">
+                  <Form.Label className="fw-bold">Rates</Form.Label>
+                  <Form.Select {...register("rates")}>
+                    <option value="percents">Percents</option>
+                    <option value="proportion">Proportions</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+            </Row>
+            <Row>
+              <Col sm="auto">
+                <Form.Group className="mb-3" controlId="displayLines">
+                  <Form.Label className="fw-bold">Display Lines</Form.Label>
+                  <Form.Select {...register("displayLines")}>
+                    {[20, 30, 40, 50, 60].map((e) => (
+                      <option key={e} value={e}>
+                        {e}
+                      </option>
+                    ))}
+                  </Form.Select>
+                  <Form.Text>Number of lines to preview from data</Form.Text>
+                </Form.Group>
+              </Col>
+            </Row>
             <div className="mt-3">
               Please map{" "}
               <b>
