@@ -154,7 +154,7 @@ export default function ConfigureDataModal() {
     columns: columns,
     getCoreRowModel: getCoreRowModel(),
   });
-  console.log(errors);
+
   return (
     <Modal show={openConfigDataModal} onHide={handleClose} size="xl">
       <Modal.Header closeButton>
@@ -165,7 +165,7 @@ export default function ConfigureDataModal() {
           <Container>
             {showAlert && (
               <Alert variant="success" onClose={closeAlert} dismissible>
-                Configuration Saved.
+                Configuration Saved. Proceed by closing this configuration and select your model specifications.
               </Alert>
             )}
             <Form.Group className="mb-3" controlId="hasHeaders">
@@ -220,7 +220,6 @@ export default function ConfigureDataModal() {
                                 if (!option?.multiple) {
                                   const selectedValues = watch("mapHeaders");
                                   const duplicates = selectedValues.filter((v) => v === value);
-                                  console.log(value, option, duplicates);
                                   if (duplicates.length > 1) {
                                     return `${option.label} already selected`;
                                   }
