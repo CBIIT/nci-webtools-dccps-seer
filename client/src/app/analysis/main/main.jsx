@@ -72,10 +72,11 @@ export default function AnalysisMain({ id }) {
     }, 1000);
   }, []);
   useEffect(() => {
-    if (jobStatus && jobStatus.status === "COMPLETED") {
+    // if (jobStatus && jobStatus.status === "COMPLETED") {
+    if (id) {
       setState({ openSidebar: false });
     }
-  }, [setState, jobStatus]);
+  }, [setState, jobStatus, id]);
 
   async function handleSaveResults() {
     const { modelData, coefData } = await fetchAll(id, manifest);

@@ -33,10 +33,11 @@ export default function AnalysisMain({ id }) {
   });
 
   useEffect(() => {
-    if (jobStatus && jobStatus.status === "COMPLETED") {
+    // if (jobStatus && jobStatus.status === "COMPLETED") {
+    if (id) {
       setState({ openSidebar: false });
     }
-  }, [setState, jobStatus]);
+  }, [setState, jobStatus, id]);
 
   return (
     <Container>
