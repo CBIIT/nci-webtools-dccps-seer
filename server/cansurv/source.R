@@ -1,4 +1,8 @@
 # History: 
+# 2025-01-01 Update likelihood functions to fix the cure parameter
+# 2025-01-06 Add code to compute cure fractions
+# 2024-12-18 Update code to return data and objects in return list.
+#            Update MLE functions to return survival estimates.   
 # 2024-07-19 Change return value to 0 when no parms passed to fs_nLL_getProb
 # 2024-07-17 Add input arguments for seed, maxiter, and convergence tol
 # 2024-06-06 Let interval 1 be the reference as in the Cansurv software
@@ -17,7 +21,18 @@
 #            Rename flex_surv to CanSurv, covars to cure,
 #            covars.cont to continuous
 #
-# flex_surv function requires flexsurv and stats4 R packages to be loaded
+# NOTES: 
+# The code requires the flexsurv and stats4 R packages to be loaded.
+####################################################################################
+# The main functions are:
+#   CanSurv()           for model fitting
+#   getProfileLoglike() get the data for the plot of profile likelihood L(c) vs c 
+####################################################################################
+
+
+############################
+# Documentation for CanSurv
+############################
 # Input:
 #   data        - Data frame containing all variables needed
 #   dist        - One of "lnorm", "llogis", "weibull", "gompertz", or "semi-parametric".
@@ -69,20 +84,47 @@
 #   reltol         - The relative convergence tolerance in optim.
 #                    The default is sqrt(.Machine$double.eps).
 #
-# Output: A list is returned with objects 'fit.list' and 'varmap'.
+# Output: A list is returned with objects 'fit.list', 'varmap' and 'fit.list.by'.
 #   The object varmap is a matrix of the original and normalized variable
-#   names in the data.
+#   names for variables that were used in the model.
+#   The object fit.list.by is NULL when there were no by (strata) variables in the analysis,
+#     and is a data frame of the by variables when there were by variables used
+#     in the analysis. The rows of this data frame match the order of fit.list (below).
 #   The object fit.list is a list of sublists, where each sublist contains
-#   the following:
-#   fit            - The return object from the mle function
-#   converged      - TRUE or FALSE
-#   message        - Error message if converged = FALSE
-#   init.estimates - Initial estimates
-#   init.loglike   - Initial loglikelihood
-#   estimates      - Final estimates
-#   loglike        - Final loglikelihood
-#   vcov           - Variance-covariance matrix for estimates
-#   by             - List of "by" values
+#   the objects 'fitlist', 'obj', and 'data'. The object 'data' is the data frame
+#   that was used in the analysis and contains additional columns needed for 
+#   creating plots. The columns in this data frame are normalized (see varmap below).
+#   The additional columns for plots are: 
+#     '.Surv.Act'       - The actuarial survival values  
+#     '.Surv.Est'       - The estimated survival values
+#     '.Dev.Resid'      - The deviance residuals
+#     '.Cure.Fraction'  - The estimates of the cure fraction
+#   The object 'obj' is a list containing information needed by function getKyearPlotData().
+#   The object 'fitlist' is a list containing:
+#     fit            - The return object from the mle function
+#     converged      - TRUE or FALSE
+#     message        - Error message if converged = FALSE
+#     init.estimates - Initial estimates
+#     init.loglike   - Initial loglikelihood
+#     estimates      - Final estimates
+#     loglike        - Final loglikelihood
+#     vcov           - Variance-covariance matrix for estimates
+#     by             - List of "by" (stratification) values
+
+#####################################
+# Documentation for getProfileLoglike
+#####################################
+# Input:
+# fit   - A list containing 'fitlist', 'obj', and 'data', ie one of the model fits from CanSurv.
+#         If there were no by (strata) variables, then this is fit.list[[1]]. If there were
+#         strata variables, then it is fit.list[[i]] for stratum i (see fit.list.by).
+# lower - The lower limit of the cure fraction. Must be >= 0. The default is 0. 
+# upper - The upper limit of the cure fraction. Must have lower <= upper <= 1. The default is 1.
+# step  - The step size. The default is 0.1.
+#
+# Output: A matrix with columns CureFraction and Loglike
+
+
 
 CanSurv <- function(data, dist="lnorm", cure=NULL, mu=NULL, sigma=NULL, 
                       continuous=NULL, by=NULL,
@@ -195,7 +237,8 @@ fs_main <- function(data, obj) {
     fit.list[[len+1]] <- fs_getRetList1(tmp, byDF, i)
   }
   if (DEBUG) cat("End: fs_main\n")
-  list(fit.list=fit.list, var.map=obj$varmap)
+
+  list(fit.list=fit.list, var.map=obj$varmap, fit.list.by=byDF)
 }
 
 fs_getRetList1 <- function(flist1, byDF, index) {
@@ -204,12 +247,12 @@ fs_getRetList1 <- function(flist1, byDF, index) {
     msg     <- getErrorMsgFromTryError(flist1)
     fitlist <- list(converged=FALSE, message=msg)
   } else {
-    fitlist <- flist1$fitlist
+    fitlist <- getPlotData(flist1)
   }
   
-  by <- NULL
-  if (!is.null(byDF)) by <- as.list(byDF[index, , drop=FALSE])
-  fitlist$by <- by
+  #by <- NULL
+  #if (!is.null(byDF)) by <- as.list(byDF[index, , drop=FALSE])
+  #fitlist$by <- by
 
   fitlist
 }
@@ -237,7 +280,7 @@ fs_analysis <- function(data0, obj0, subset) {
   if (prt) fs_print_fitlist(fitlist)
 
   if (DEBUG) cat("End: fs_analysis\n")
-  list(fitlist=fitlist, obj=obj)
+  list(fitlist=fitlist, obj=obj, data=data)
 }
 
 fs_isFitOk <- function(fit) {
@@ -268,6 +311,7 @@ fs_isFitOk <- function(fit) {
   } else {
     msg <- "Did not converge"
   }
+
   list(ok=ret, msg=msg)
 }
 
@@ -427,6 +471,7 @@ fs_add_exp_int <- function(data, obj) {
   vec <- fs_setVecRows(exp_cum, time) 
   v1  <- 1 - died/(alive - lost_fu/2)
   v2  <- pmax(v1, vec)
+
   #vec <- pmin(rep(0.999999999999, nrow(data)), v2) 
   vec <- pmin(rep(1, nrow(data)), v2) 
   data[, obj$exp_int] <- vec
@@ -539,7 +584,8 @@ fs_updatedata.0 <- function(data, obj) {
     }
   }   
   
-  data <- fs_subsetData(data, obj)
+  # Do not drop variables
+  #data <- fs_subsetData(data, obj)
 
   # Add intercept
   data[, obj$intercept] <- 1
@@ -700,9 +746,15 @@ fs_getNumericObjVarNames <- function() {
 # Function to normalize variable names
 fs_normAllVarNames <- function(data, obj) {
 
-  cx <- colnames(data)
-  cx <- fs_normVarNames(cx)
-  colnames(data) <- cx
+  # Instead of renaming variables, add in a new column with normalized name
+  cx0 <- colnames(data)
+  cx  <- fs_normVarNames(cx0)
+  tmp <- cx != cx0
+  if (any(tmp)) {
+    cx0 <- cx0[tmp]
+    cx  <- cx[tmp]
+    for (i in 1:length(cx)) data[, cx[i]] <- data[, cx0[i], drop=TRUE]
+  }  
 
   nms <- fs_getAllObjVarNames()
   map <- NULL
@@ -830,7 +882,7 @@ fs_check_int <- function(x, nm, def, min=0) {
   x
 }
 
-fs_check_num <- function(x, nm, def, pos=0) {
+fs_check_num <- function(x, nm, def, pos=0, nonneg=0, maxeq=NULL, maxlt=NULL) {
 
   if (!length(x)) x <- def
   if (!is.finite(x) || (length(x) != 1)) {
@@ -838,6 +890,15 @@ fs_check_num <- function(x, nm, def, pos=0) {
   }
   if (pos && (x <= 0)) {
     stop(paste0("ERROR: ", nm, " must be positive"))
+  }
+  if (nonneg && (x < 0)) {
+    stop(paste0("ERROR: ", nm, " must be non-negative"))
+  }
+  if (length(maxeq) && (x > maxeq)) {
+    stop(paste0("ERROR: ", nm, " must be <= ", maxeq))
+  }
+  if (length(maxlt) && (x >= maxlt)) {
+    stop(paste0("ERROR: ", nm, " must be < ", maxlt))
   }
 
   x
@@ -957,6 +1018,22 @@ fs_check_init <- function(x, nm, incnms=1) {
   tmp <- !is.finite(x)
   if (any(tmp)) stop(paste0("ERROR: ", nm, " contains non-finite values"))
 
+  NULL
+}
+
+fs_check_list <- function(x, nm, must.inc=NULL) {
+
+  if (!is.list(x)) stop(paste0("ERROR: ", nm, " must be a list"))
+  if (length(must.inc)) {
+    tmp  <- !(must.inc %in% names(x))
+    miss <- must.inc[tmp]
+    if (length(miss)) {
+      miss <- paste0("'", miss, "'")
+      str  <- paste0(miss, collapse=", ")
+      msg  <- paste0("ERROR: ", nm, " is missing objects ", str)
+      stop(msg) 
+    }
+  }
   NULL
 }
 
@@ -1333,10 +1410,10 @@ fs_getInitMuSigma <- function(data, obj, adj_weights) {
 # MLE functions
 ##################################################
 
-fs_MLE <- function(data, obj, only.loglike=0) {
+fs_MLE <- function(data, obj, only.loglike=0, only.survival=0) {
 
   if (obj$semi.flag) {
-    return(fs_MLE_semi(data, obj, only.loglike=only.loglike))
+    return(fs_MLE_semi(data, obj, only.loglike=only.loglike, only.survival=only.survival))
   }
 
   DEBUG <- obj$DEBUG
@@ -1367,6 +1444,8 @@ fs_MLE <- function(data, obj, only.loglike=0) {
   ivec          <- data[, obj$time, drop=TRUE]
   time          <- ivec
   VEC           <- alive - lost_fu/2 - died
+  fix.cure      <- obj[["FIX.CURE", exact=TRUE]]
+
   if (dist %in% c("lnorm", "llogis", "weibull")) ivec <- log(ivec)
   died.pos  <- died > 0
   diedFlag  <- any(died.pos)
@@ -1383,7 +1462,7 @@ fs_MLE <- function(data, obj, only.loglike=0) {
   fs_nLL <- function(cure=rep(0, ncure), mu=rep(0, nmu), 
                      sigma=rep(0, nsigma)) {
 
-    temp     <- fs_nLL_getProb(data, cure, nms.cure)
+    temp     <- fs_nLL_getProb(data, cure, nms.cure, fix.cure=fix.cure)
     muvec    <- fs_coefMatSum(data, mu, nms.mu)
     sigmavec <- fs_coefMatSum(data, sigma, nms.sigma)
     
@@ -1405,6 +1484,8 @@ fs_MLE <- function(data, obj, only.loglike=0) {
     tmp.p1 <- p > 1
     if (any(tmp.p1)) stop("ERROR: p > 1")
 
+    if (only.survival) return(list(s=s, p=p))
+
     arg  <- 1 - p*exp_int
     tmp1 <- diedFlag && any(died.pos & (arg <= 0))
     tmp2 <- VECFlag && any(VEC.pos & tmp.p0)
@@ -1418,20 +1499,29 @@ fs_MLE <- function(data, obj, only.loglike=0) {
 
     ret
   }
+  fs_nLL_fix_cure <- function(mu=rep(0, nmu), sigma=rep(0, nsigma)) {
+    fs_nLL(cure=0, mu=mu, sigma=sigma) 
+  }
 
+  if (only.survival) return(fs_nLL(cure=init_cure, mu=init_mu, sigma=init_sigma))
   if (only.loglike) {
     ll0 <- -fs_nLL(cure=init_cure, mu=init_mu, sigma=init_sigma)
     return(ll0)
   }
 
-  init <- list(cure=init_cure, mu=init_mu, sigma=init_sigma)
-  fit  <- mle(fs_nLL, start=init, control=obj$control)
+  if (!length(fix.cure)) {
+    init <- list(cure=init_cure, mu=init_mu, sigma=init_sigma)
+    fit  <- mle(fs_nLL, start=init, control=obj$control)
+  } else {
+    init <- list(mu=init_mu, sigma=init_sigma)
+    fit  <- mle(fs_nLL_fix_cure, start=init, control=obj$control)
+  }
 
   if (DEBUG) cat("End: fs_MLE\n")
   fit
 }
 
-fs_MLE_semi <- function(data, obj, only.loglike=0) {
+fs_MLE_semi <- function(data, obj, only.loglike=0, only.survival=0) {
 
   DEBUG <- obj$DEBUG
   if (DEBUG) cat("Begin: fs_MLE_semi\n")
@@ -1464,6 +1554,7 @@ fs_MLE_semi <- function(data, obj, only.loglike=0) {
   VECFlag       <- any(VEC.pos)
   VEC.0         <- VEC == 0
   VEC0Flag      <- any(VEC.0)
+  fix.cure      <- obj[["FIX.CURE", exact=TRUE]]
 
   MINLOGARG     <- 1e-300
   BADRETURN     <- 1e300
@@ -1472,12 +1563,11 @@ fs_MLE_semi <- function(data, obj, only.loglike=0) {
                      alpha=rep(0, nalpha)) {
 
     if (ncure) {
-      temp   <- fs_nLL_getProb(data, cure, nms.cure)
+      temp   <- fs_nLL_getProb(data, cure, nms.cure, fix.cure=fix.cure)
     } else {
       temp   <- 0
     }
     muvec    <- fs_coefMatSum(data, mu, nms.mu)
-
     #alphavec <- rep(log(cumsum(exp(alpha))), nsets) 
     # For alphavec, since alpha is for intervals 2, ..., nint, add in 0 to alpha
     if (nalpha) {
@@ -1488,6 +1578,7 @@ fs_MLE_semi <- function(data, obj, only.loglike=0) {
     }
 
     s <- temp + (1-temp)*exp(-exp(alphavec-muvec))
+
     p <- fs_setVecRows(s, time)
 
     # Check p
@@ -1495,6 +1586,8 @@ fs_MLE_semi <- function(data, obj, only.loglike=0) {
     if (any(tmp.p0)) p[tmp.p0]  <- 0
     tmp.p1 <- p > 1
     if (any(tmp.p1)) stop("ERROR: p > 1")
+
+    if (only.survival) return(list(s=s, p=p))
 
     arg  <- 1 - p*exp_int
     tmp1 <- diedFlag && any(died.pos & (arg <= 0))
@@ -1509,27 +1602,38 @@ fs_MLE_semi <- function(data, obj, only.loglike=0) {
 
     ret
   }
+  fs_nLL_semi_fix_cure <- function(mu=rep(0, nmu), alpha=rep(0, nalpha)) {
+    fs_nLL_semi(cure=0, mu=mu, alpha=alpha)
+  }
 
+  if (only.survival) return(fs_nLL_semi(cure=init_cure, mu=init_mu, alpha=init_alpha))
   if (only.loglike) {
     ll0 <- -fs_nLL_semi(cure=init_cure, mu=init_mu, alpha=init_alpha)
     if (DEBUG) cat("End: fs_MLE_semi\n")
     return(ll0)
   }
 
-  init <- list(cure=init_cure, mu=init_mu, alpha=init_alpha)
-  fit  <- mle(fs_nLL_semi, start=init, control=obj$control)
+  if (!length(fix.cure)) {
+    init <- list(cure=init_cure, mu=init_mu, alpha=init_alpha)
+    fit  <- mle(fs_nLL_semi, start=init, control=obj$control)
+  } else {
+    init <- list(mu=init_mu, alpha=init_alpha)
+    fit  <- mle(fs_nLL_semi_fix_cure, start=init, control=obj$control)
+  }
 
   if (DEBUG) cat("End: fs_MLE_semi\n")
   fit
 }
 
-
-
-fs_nLL_getProb <- function(data, parmvec, nms) {
+fs_nLL_getProb <- function(data, parmvec, nms, fix.cure=NULL) {
 
   if (length(parmvec)) {
-    vec <- -fs_coefMatSum(data, parmvec, nms)
-    ret <- 1/(1 + exp(vec))
+    if (is.null(fix.cure)) { 
+      vec <- -fs_coefMatSum(data, parmvec, nms)
+      ret <- 1/(1 + exp(vec))
+    } else  {
+      ret <- fix.cure
+    }
   } else {
     ret <- 0
   }
@@ -1565,3 +1669,252 @@ fs_printRetObj <- function(x) {
   }
   invisible(NULL)
 }
+
+###########################################################################
+### Code for plots
+###########################################################################
+getActuarialSurv <- function(alive, died, loss, exp_surv_int) {
+
+  eff   <- alive - 0.5*loss
+  vec   <- (1/exp_surv_int)*(eff - died)/eff
+  ret   <- cumprod(vec)
+
+  ret
+}
+
+getEstFromFinal <- function(est.tab, which) {
+
+  # est.tab is fitlist$estimates (2 column object with rownames)
+  # which is "cure", "mu", "sigma", "alpha"
+
+  rnms <- rownames(est.tab)
+  str  <- paste0(which, ".")
+  len  <- nchar(str)
+  tmp  <- substr(rnms, 1, len) == str
+  nms  <- rnms[tmp]
+  ret  <- est.tab[tmp, 1, drop=TRUE]
+
+  # Remove prefix in nms
+  nms <- substr(nms, len+1, 9999)
+
+  names(ret) <- nms
+
+  ret
+} 
+
+setInitEstFromFinalEst <- function(est.tab, obj) {
+
+  # est.tab is fitlist$estimates (2 column object with rownames)
+  if (obj$est_cure) obj$init_cure <- getEstFromFinal(est.tab, "cure")
+  obj$init_mu    <- getEstFromFinal(est.tab, "mu")
+  obj$init_sigma <- getEstFromFinal(est.tab, "sigma")
+  if (obj$semi.flag) obj$init_alpha <- getEstFromFinal(est.tab, "alpha")
+
+  obj
+}
+
+getEstActSurvTable <- function(fit) {
+
+  fitlist <- fit$fitlist
+  obj     <- fit$obj
+  est.tab <- fitlist$estimates
+  data    <- fit$data
+
+  # New column names in data
+  actv         <- ".Surv.Act"
+  estv         <- ".Surv.Est"
+  pv           <- ".Surv.P"
+  obj$surv.act <- actv
+  obj$surv.est <- estv
+  obj$surv.p   <- pv
+
+  # Set initial estimates to the final estimates
+  obj2 <- setInitEstFromFinalEst(est.tab, obj) 
+  
+  # Get the estimated survival for all observations
+  tmp          <- fs_MLE(data, obj2, only.loglike=0, only.survival=1)
+  data[, estv] <- tmp$s
+  data[, pv]   <- tmp$p
+
+  # Compute cumulative survival
+  start    <- obj$set.start
+  end      <- obj$set.stop
+  surv.act <- rep(NA, nrow(data))
+  surv.est <- surv.act
+  died     <- data[, obj$died, drop=TRUE]
+  alive    <- data[, obj$alive, drop=TRUE]
+  lost_fu  <- data[, obj$lost_fu, drop=TRUE]      
+  exp_int  <- data[, obj$exp_int, drop=TRUE]
+
+  for (i in 1:length(start)) {
+    vec           <- start[i]:end[i]
+    tmp           <- getActuarialSurv(alive[vec], died[vec], lost_fu[vec], exp_int[vec])
+    surv.act[vec] <- tmp
+  }
+  data[, actv] <- surv.act
+
+  list(data=data, obj=obj)
+}
+
+getDevianceResiduals <- function(fit) {
+
+  # This function must be called after getEstActSurvTable
+  fitlist <- fit$fitlist
+  obj     <- fit$obj
+  data    <- fit$data
+  start   <- obj$set.start
+  end     <- obj$set.stop
+  died    <- data[, obj$died, drop=TRUE]
+  alive   <- data[, obj$alive, drop=TRUE]
+  lost_fu <- data[, obj$lost_fu, drop=TRUE]   
+  exp_int <- data[, obj$exp_int, drop=TRUE]  
+  exp.S   <- data[, obj$surv.p, drop=TRUE]
+  nr      <- nrow(data)
+ 
+  # Observed number of survivors
+  eff.n <- alive - 0.5*lost_fu
+  obs.n <- eff.n - died
+
+  # Compute P-hat
+  Pvec <- exp.S*exp_int
+
+  # Predicted number of survivors
+  pred.n <- eff.n*Pvec
+
+  # Deviance residuals
+  vec   <- obs.n*log(obs.n/pred.n) + died*log(died/(eff.n-pred.n))
+  tmp   <- Pvec <= 0
+  if (any(tmp)) {
+    v2       <- died*log(died/eff.n) 
+    vec[tmp] <- v2[tmp]
+  }
+  tmp   <- Pvec >= 1
+  if (any(tmp)) {
+    v2       <- obs.n*log(obs.n/eff.n)
+    vec[tmp] <- v2[tmp]
+  }
+
+  resid <- sign(pred.n - obs.n)*sqrt(2)*sqrt(vec)
+
+  v             <- ".Dev.Resid"
+  data[, v]     <- resid
+  obj$dev.resid <- v
+  
+  list(data=data, obj=obj)
+}
+
+getIdStrFromVars <- function(data, vars, sep="_") {
+
+  nvars <- length(vars)
+  if (!nvars) return(rep("0", nrow(data)))
+
+  ret   <- trimws(data[, vars[1], drop=TRUE]) 
+  if (nvars > 1) {
+    for (i in 2:nvars) {
+      tmp <- trimws(data[, vars[i], drop=TRUE]) 
+      ret <- paste0(ret, sep, tmp)
+    }
+  }
+
+  ret
+}
+
+getCureFrac <- function(data, parms) {
+
+  vars <- names(parms)
+  
+  # Check to see if all vars are in data
+  tmp  <- vars %in% colnames(data)
+  vars <- vars[tmp]
+  if (!length(tmp)) stop("ERROR: variables missing in data")
+
+  parms      <- parms[vars]
+  dim(parms) <- c(length(parms), 1)
+  mat        <- as.matrix(data[, vars, drop=FALSE])
+  ret        <- 1/(1 + exp(-(mat %*% parms)))  
+
+  ret
+}
+
+# Function to compute cure fractions
+getCureFractions <- function(fit) {
+
+  fitlist   <- fit$fitlist
+  obj       <- fit$obj
+  data      <- fit$data
+  new       <- ".Cure.Fraction"
+  obj$cure.fraction <- new
+
+  # Get the cure estimated parms, prefix "cure." is removed
+  cure <- getEstFromFinal(fitlist$estimates, "cure")
+  
+  # Get cure fraction for each observation
+  data[, new] <- getCureFrac(data, cure)
+  
+  list(data=data, obj=obj)
+}
+
+getPlotData <- function(fitlist) {
+
+  # Get survival estimates for plots
+  tmp <- try(getEstActSurvTable(fitlist), silent=TRUE)
+  if (!inherits(tmp, "try-error")) {
+    fitlist$data <- tmp$data
+    fitlist$obj  <- tmp$obj
+  }
+
+  # Deviance residuals
+  tmp <- try(getDevianceResiduals(fitlist), silent=TRUE)
+  if (!inherits(tmp, "try-error")) {
+    fitlist$data <- tmp$data
+    fitlist$obj  <- tmp$obj
+  } 
+
+  tmp <- try(getCureFractions(fitlist), silent=TRUE)
+  if (!inherits(tmp, "try-error")) {
+    fitlist$data <- tmp$data
+    fitlist$obj  <- tmp$obj
+  }
+
+  fitlist
+}
+
+getProfileLoglike <- function(fit, lower=0, upper=1, step=0.1) {
+
+  # The object FIX.CURE will be used as the fixed value in MLE function
+
+  fs_check_list(fit, "fit", must.inc=c("fitlist", "data", "obj")) 
+  fitlist <- fit$fitlist
+  data    <- fit$data
+  obj     <- fit$obj
+  upper   <- fs_check_num(upper, "upper", 1,   pos=0, nonneg=1, maxeq=1,     maxlt=NULL)
+  lower   <- fs_check_num(lower, "lower", 0,   pos=0, nonneg=1, maxeq=upper, maxlt=NULL)
+  step    <- fs_check_num(step,  "step",  0.1, pos=0, nonneg=1, maxeq=1,     maxlt=NULL)
+
+  # Only compute if cure consists of intercept
+  if (!obj$est_cure) return(NULL)
+  if (length(obj[["cure", exact=TRUE]])) return(NULL)
+
+  curevec <- seq(lower, upper, step)
+  ncure   <- length(curevec)
+  ret     <- rep(NA, ncure)
+
+  # Use the final estimates as initial estimates
+  obj2 <- setInitEstFromFinalEst(fitlist$estimates, obj)
+
+  for (i in 1:ncure) {
+    obj2$FIX.CURE <- curevec[i]
+    
+    # Get MLEs
+    fit2 <- try(fs_MLE(data, obj2), silent=TRUE)
+
+    # Check the fit and rerun if necessary
+    fitlist2 <- fs_checkFitAndRerun(fit2, data, obj2)
+    if (fitlist2$converged) ret[i] <- fitlist2$loglike
+  }
+
+  ret <- cbind(curevec, ret)
+  colnames(ret) <- c("CureFraction", "Loglike")
+  ret
+}
+
