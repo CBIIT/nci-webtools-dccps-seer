@@ -95,11 +95,11 @@ export default function AnalysisForm({ id }) {
               const { data } = await parseSeerStatFiles(dictionaryFile, dataFile);
               // get cohort variables, located between year of diagnosis and interval variables
               const varNames = headers.map((e) => e.label);
-              const yearIndex = varNames.findIndex((e) => /year/gi.test(e));
+              const pageTypeIndex = varNames.findIndex((e) => /page type/gi.test(e));
               const intervalIndex = varNames.indexOf("Interval");
               const cohortVariables =
-                intervalIndex - yearIndex > 1
-                  ? headers.slice(yearIndex, intervalIndex).map((e) => ({
+                intervalIndex - pageTypeIndex > 1
+                  ? headers.slice(pageTypeIndex + 1, intervalIndex).map((e) => ({
                       ...e,
                       factors: e.factors.map((f) => ({ ...f, label: f.label.replace(/"/gi, "").trim() })),
                     }))
@@ -138,9 +138,11 @@ export default function AnalysisForm({ id }) {
       reset(session.params);
     }
   }, [session, setState, getValues, reset, populatecovariates, setSeerVariables]);
+  // parse seerdata after data upload
   useEffect(() => {
     if (inputFile && !Object.keys(seerData).length) handleLoadData(inputType, inputFile);
   }, [inputType, inputFile, seerData, handleLoadData]);
+  // populate form after seerdata is parsed
   useEffect(() => {
     if (Object.keys(seerData).length && fields.length == 0) {
       populatecovariates(seerData.cohortVariables);
