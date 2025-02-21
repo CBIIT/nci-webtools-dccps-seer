@@ -9,8 +9,8 @@ import {
   makeLegendTrace,
   makeLayout,
   makeAnnotation,
-} from "@/components/plots/plotUtils";
-import Plot from "@/components/plots/time-plot";
+} from "@/components/plots/utils";
+import Plot from "@/components/plots/time";
 
 export default function SurvTimePlot({
   data,
