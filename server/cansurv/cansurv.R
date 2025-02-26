@@ -26,15 +26,10 @@ calculateCanSurv <- function(inputFolder, outputFolder) {
                 reltol = params$reltol
             )
             save(results, file = file.path(outputFolder, "results.RData"))
-            fit <- results$fit.list[[1]]$fit
-            fit_summary <- summary(fit)
             parseResults <- list(
-                converged = results$fit.list[[1]]$converged,
-                init.estimates = results$fit.list[[1]]$init.estimates,
-                init.loglike = results$fit.list[[1]]$init.loglike,
-                estimates = results$fit.list[[1]]$estimates,
-                loglike = toString(results$fit.list[[1]]$loglike),
-                vcov = results$fit.list[[1]]$vcov
+                fit.list = parseFitList(results$fit.list),
+                var.map = results$var.map,
+                fit.list.by = results$fit.list.by
             )
             write_json(parseResults, path = file.path(outputFolder, "results.json"), auto_unbox = TRUE)
             "results.json"
@@ -46,4 +41,32 @@ calculateCanSurv <- function(inputFolder, outputFolder) {
     )
     save(manifest, file = file.path(outputFolder, "manifest.RData"))
     write_json(manifest, path = file.path(outputFolder, "manifest.json"), auto_unbox = TRUE)
+}
+
+parseFitList <- function(fit.list) {
+    lapply(fit.list, function(data) {
+        list(
+            fitlist = list(
+                fit = parseMleObject(data$fitlist$fit),
+                converged = data$fitlist$converged,
+                init.estimates = data$fitlist$init.estimates,
+                init.loglike = data$fitlist$init.loglike,
+                estimates = data$fitlist$estimates,
+                loglike = as.numeric(logLik(data$fitlist$loglike)),
+                vcov = data$fitlist$vcov
+            ),
+            obj = data$obj,
+            data = data$data
+        )
+    })
+}
+
+parseMleObject <- function(mleObj) {
+    list(
+        call = as.character(mleObj@call),
+        coef = coef(mleObj),
+        vcov = vcov(mleObj),
+        logLik = as.numeric(logLik(mleObj)),
+        nobs = nobs(mleObj)
+    )
 }

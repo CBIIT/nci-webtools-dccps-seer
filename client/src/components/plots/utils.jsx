@@ -17,7 +17,7 @@ export function makeLineTrace(name = "", group, index, xArray, yArray, statistic
     x: xArray,
     y: yArray,
     showlegend: false,
-    hovertemplate: predictedHoverTemplate(name, statistic, precision),
+    hovertemplate: statistic ? predictedHoverTemplate(name, statistic, precision) : false,
     hoverlabel: {
       align: "left",
       bgcolor: "#FFF",
@@ -37,7 +37,7 @@ export function makeDashTrace(name = "", group, index, xArray, yArray, statistic
     x: xArray,
     y: yArray,
     showlegend: false,
-    hovertemplate: projectedHoverTemplate(name, statistic, precision),
+    hovertemplate: statistic ? projectedHoverTemplate(name, statistic, precision) : false,
     hoverlabel: {
       align: "left",
       bgcolor: "#FFF",
@@ -57,7 +57,7 @@ export function makeMarkerTrace(name = "", group, index, xArray, yArray, statist
     x: xArray,
     y: yArray,
     showlegend: false,
-    hovertemplate: observationHoverTemplate(name, statistic, precision),
+    hovertemplate: statistic ? observationHoverTemplate(name, statistic, precision) : false,
     hoverlabel: {
       align: "left",
       bgcolor: "#FFF",

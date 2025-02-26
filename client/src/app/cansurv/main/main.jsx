@@ -6,13 +6,14 @@ import { useStore } from "../store";
 import { fetchStatus, fetchOutput } from "@/services/queries";
 import Status from "../status";
 import Report from "./report";
+import Actuarial from "./tab-actuarial/actuarial";
 
 export default function AnalysisMain({ id }) {
   const setState = useStore((state) => state.setState);
   const seerData = useStore((state) => state.seerData);
   const params = useStore((state) => state.params);
   const main = useStore((state) => state.main);
-  const {} = main;
+  const { precision } = main;
 
   const { data: jobStatus } = useQuery({
     queryKey: ["status", id],
@@ -32,6 +33,12 @@ export default function AnalysisMain({ id }) {
     enabled: jobStatus?.status === "COMPLETED" && !!manifest,
   });
 
+  // periodically dispatch resize event to trigger plotly redraw
+  useEffect(() => {
+    setInterval(() => {
+      if (window) dispatchEvent(new Event("resize"));
+    }, 1000);
+  }, []);
   useEffect(() => {
     // if (jobStatus && jobStatus.status === "COMPLETED") {
     if (id) {
@@ -49,7 +56,9 @@ export default function AnalysisMain({ id }) {
               <Report data={results} />
             </Tab>
             <Tab eventKey="data" title="Data"></Tab>
-            <Tab eventKey="curves" title="Estimated and Actuarial Survival Curves"></Tab>
+            <Tab eventKey="curves" title="Estimated and Actuarial Survival Curves">
+              <Actuarial data={results} seerData={seerData} params={params} precision={precision} />
+            </Tab>
             <Tab eventKey="kYear" title="K-Year Survival Rate"></Tab>
             <Tab eventKey="dev" title="Deviance Residuals"></Tab>
             <Tab eventKey="ll" title="LogLikelihood L(c) vs c"></Tab>
