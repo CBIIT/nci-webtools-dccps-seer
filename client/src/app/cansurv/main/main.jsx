@@ -7,6 +7,7 @@ import { fetchStatus, fetchOutput } from "@/services/queries";
 import Status from "../status";
 import Report from "./report";
 import Actuarial from "./tab-actuarial/actuarial";
+import Deviance from "./tab-deviance/deviance";
 
 export default function AnalysisMain({ id }) {
   const setState = useStore((state) => state.setState);
@@ -60,7 +61,9 @@ export default function AnalysisMain({ id }) {
               <Actuarial data={results} seerData={seerData} params={params} precision={precision} />
             </Tab>
             <Tab eventKey="kYear" title="K-Year Survival Rate"></Tab>
-            <Tab eventKey="dev" title="Deviance Residuals"></Tab>
+            <Tab eventKey="dev" title="Deviance Residuals">
+              <Deviance data={results} seerData={seerData} params={params} precision={precision} />
+            </Tab>
             <Tab eventKey="ll" title="LogLikelihood L(c) vs c"></Tab>
           </Tabs>
         </div>
