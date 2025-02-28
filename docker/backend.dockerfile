@@ -6,6 +6,7 @@ RUN dnf -y update \
     nodejs20-npm  \
     tar \ 
     R-4.3.2 \
+    gzip \
     && dnf clean all
 
 RUN ln -s -f /usr/bin/node-20 /usr/bin/node; ln -s -f /usr/bin/npm-20 /usr/bin/npm;
