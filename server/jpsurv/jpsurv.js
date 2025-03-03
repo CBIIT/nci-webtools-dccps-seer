@@ -26,7 +26,7 @@ export async function jpsurv(params, logger, env) {
         "templates/user-success-email.html",
         {
           submittedAt,
-          resultsUrl: `${env.APP_BASE_URL}/jpsurv/analysis?id=${id}`,
+          resultsUrl: `${env.APP_BASE_URL}/jpsurv/jpsurv?id=${id}`,
           emailAdmin: env.EMAIL_ADMIN,
           jobName: params.jobName,
         }

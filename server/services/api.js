@@ -7,7 +7,7 @@ import multer from "multer";
 import path from "path";
 import DiskStorage from "./storage.js";
 import { logRequests, logErrors, logFiles, handleValidationErrors } from "./middleware.js";
-import { getTrends, recalculateConditional, submit } from "./analysis.js";
+import { getTrends, recalculateConditional, submit } from "./jpsurv.js";
 import { exportWorkspace, importWorkspace } from "./workspace.js";
 
 export function createApi(env) {

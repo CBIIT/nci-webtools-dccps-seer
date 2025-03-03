@@ -284,7 +284,7 @@ export default function AnalysisForm({ id }) {
 
   function onReset(event) {
     event.preventDefault();
-    router.push("/analysis", { shallow: false });
+    router.push("/jpsurv", { shallow: false });
     reset(defaultForm);
     resetStore();
     queryClient.invalidateQueries();
