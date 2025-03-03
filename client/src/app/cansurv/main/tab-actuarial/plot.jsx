@@ -39,20 +39,25 @@ export default function ActPlot({ data, params, title, subtitle, xTitle, yTitle,
     precision,
     fontSize
   );
-  const cureTraces = makeDashTrace(
-    cureTraceName,
-    cureTraceName,
-    2,
-    data.map((e) => e.Interval),
-    data.map((e) => e[".Cure.Fraction"][0] * 100),
-    false,
-    precision,
-    fontSize
-  );
+
+  const cureTraces = data[0]?.[".Cure.Fraction"]
+    ? makeDashTrace(
+        cureTraceName,
+        cureTraceName,
+        2,
+        data.map((e) => e.Interval),
+        data.map((e) => e[".Cure.Fraction"][0] * 100),
+        false,
+        precision,
+        fontSize
+      )
+    : [];
 
   const estLegendTrace = makeLegendTrace(estTraceName, estTraceName, 0, "lines");
   const actLegendTrace = makeLegendTrace(actTraceName, actTraceName, 1, "lines + markers");
-  const cureLegendTrace = makeLegendTrace(cureTraceName, cureTraceName, 2, "lines", "dash");
+  const cureLegendTrace = data[0]?.[".Cure.Fraction"]
+    ? makeLegendTrace(cureTraceName, cureTraceName, 2, "lines", "dash")
+    : [];
 
   const traces = [actTraces, estTraces, cureTraces, estLegendTrace, actLegendTrace, cureLegendTrace];
 

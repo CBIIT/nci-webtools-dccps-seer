@@ -33,11 +33,15 @@ export default function ActTable({ data, formState, seerData, valueToLabelMap, p
       header: () => "Estimated (%)",
       cell: (info) => (info.getValue() ? (info.getValue() * 100).toFixed(precision) : "NA"),
     }),
-    columnHelper.accessor((e) => e[".Cure.Fraction"], {
-      id: "cure-fraction",
-      header: `Cure Fraction (%)`,
-      cell: (info) => (info.getValue() ? (info.getValue()[0] * 100).toFixed(precision) : "NA"),
-    }),
+    ...(data[0]?.[".Cure.Fraction"]
+      ? [
+          columnHelper.accessor((e) => e[".Cure.Fraction"], {
+            id: "cure-fraction",
+            header: `Cure Fraction (%)`,
+            cell: (info) => (info.getValue() ? (info.getValue()[0] * 100).toFixed(precision) : "NA"),
+          }),
+        ]
+      : []),
   ];
 
   return <Table data={data} columns={columns} />;
