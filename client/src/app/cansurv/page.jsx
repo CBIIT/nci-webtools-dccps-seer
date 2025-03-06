@@ -1,6 +1,6 @@
 "use client";
 import { Suspense, useEffect } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { ErrorBoundary } from "next/dist/client/components/error-boundary";
 import Alert from "react-bootstrap/Alert";
 import Loading from "@/components/loading";
@@ -10,17 +10,17 @@ import Col from "react-bootstrap/Col";
 import Form from "./form";
 import Main from "./main/main";
 import { SidebarContainer, SidebarPanel, MainPanel } from "@/components/sidebar-container";
-
 import { useStore } from "./store";
 
-export default function Analysis({ searchParams }) {
+export default function Analysis() {
   const router = useRouter();
   const pathname = usePathname();
   const openSidebar = useStore((state) => state.openSidebar);
   const toggleSidebar = useStore((state) => state.toggleSidebar);
-  const params = useStore((state) => state.params);
+  const storeId = useStore((state) => state.params.id);
   const resetMain = useStore((state) => state.resetMain);
-  const { id } = searchParams;
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
 
   // reset main state when id changes
   useEffect(() => {
@@ -28,8 +28,10 @@ export default function Analysis({ searchParams }) {
   }, [id]);
 
   useEffect(() => {
-    if (!id && params.id) router.push(`${pathname}?id=${params.id}`, { shallow: true });
-  }, [id, params.id, router, pathname]);
+    if (!id && storeId) {
+      router.push(`${pathname}?id=${storeId}`, { shallow: true });
+    }
+  }, [id, storeId, router, pathname]);
 
   return (
     <Container className="py-4">

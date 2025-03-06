@@ -215,10 +215,10 @@ export default function AnalysisForm({ id }) {
 
   function onReset(event) {
     event.preventDefault();
-    router.push("/cansurv", { shallow: false });
     reset(defaultForm);
     resetStore();
-    queryClient.invalidateQueries();
+    router.push("/cansurv", { shallow: false });
+    queryClient.clear();
   }
 
   return (

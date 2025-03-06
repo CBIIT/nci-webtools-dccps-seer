@@ -26,12 +26,12 @@ export default function AnalysisMain({ id }) {
   const { data: manifest } = useQuery({
     queryKey: ["manifest", id],
     queryFn: () => fetchOutput(id, "manifest.json"),
+    select: (data) => (data.includes(".json") ? data : false),
     enabled: jobStatus?.status === "COMPLETED",
   });
-  const { data: results } = useQuery({
-    queryKey: ["results", id],
-    queryFn: () => fetchOutput(id, manifest),
-    enabled: jobStatus?.status === "COMPLETED" && !!manifest,
+  const { data: results } = useSuspenseQuery({
+    queryKey: ["results", id, jobStatus, manifest],
+    queryFn: () => (jobStatus?.status === "COMPLETED" && !!manifest ? fetchOutput(id, manifest) : null),
   });
 
   // periodically dispatch resize event to trigger plotly redraw
