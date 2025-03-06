@@ -3,6 +3,7 @@ import GoogleAnalytics from "@/components/analytics";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+import { usePathname } from "next/navigation";
 import "./styles/main.scss";
 
 export default function RootLayout({ children }) {
@@ -13,11 +14,14 @@ export default function RootLayout({ children }) {
     { title: "Help", path: "/help", subRoutes: [] },
   ];
   const queryClient = new QueryClient({});
+  const pathname = usePathname();
+  const currentRoute = routes.find((route) => route.path === pathname);
+  const pageTitle = currentRoute ? `${currentRoute.title} | Survival Stats Tools` : "Survival Stats Tools";
 
   return (
     <html lang="en">
       <head>
-        <title>JPSurv Analysis Tool</title>
+        <title>{pageTitle}</title>
         <meta name="keywords" content="jpsurv" />
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <GoogleAnalytics id="UA-62346354-12" />
