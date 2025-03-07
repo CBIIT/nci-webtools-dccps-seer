@@ -1,4 +1,8 @@
 "use client";
+import { Suspense } from "react";
+import { ErrorBoundary } from "next/dist/client/components/error-boundary";
+import Alert from "react-bootstrap/Alert";
+import Loading from "@/components/loading";
 import GoogleAnalytics from "@/components/analytics";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
@@ -33,7 +37,11 @@ export default function RootLayout({ children }) {
         <main
           className="position-relative d-flex flex-column flex-grow-1 align-items-stretch bg-light"
           style={{ minHeight: "600px" }}>
-          <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+          <ErrorBoundary fallback={<Alert variant="warning">Error loading Form</Alert>}>
+            <Suspense fallback={<Loading />}>
+              <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+            </Suspense>
+          </ErrorBoundary>
         </main>
         <Footer />
       </body>
