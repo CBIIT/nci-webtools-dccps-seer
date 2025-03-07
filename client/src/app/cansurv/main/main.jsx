@@ -8,6 +8,7 @@ import Status from "../status";
 import Report from "./report";
 import Actuarial from "./tab-actuarial/actuarial";
 import Deviance from "./tab-deviance/deviance";
+import KYear from "./tab-k-year/k-year";
 
 export default function AnalysisMain({ id }) {
   const setState = useStore((state) => state.setState);
@@ -60,7 +61,9 @@ export default function AnalysisMain({ id }) {
             <Tab eventKey="curves" title="Estimated and Actuarial Survival Curves">
               <Actuarial data={results} seerData={seerData} params={params} precision={precision} />
             </Tab>
-            <Tab eventKey="kYear" title="K-Year Survival Rate"></Tab>
+            <Tab eventKey="kYear" title="K-Year Survival Rate">
+              <KYear data={results} seerData={seerData} params={params} precision={precision} />
+            </Tab>
             <Tab eventKey="dev" title="Deviance Residuals">
               <Deviance data={results} seerData={seerData} params={params} precision={precision} />
             </Tab>
