@@ -9,6 +9,7 @@ import Report from "./report";
 import Actuarial from "./tab-actuarial/actuarial";
 import Deviance from "./tab-deviance/deviance";
 import KYear from "./tab-k-year/k-year";
+import Loglike from "./tab-loglike/loglike";
 
 export default function AnalysisMain({ id }) {
   const setState = useStore((state) => state.setState);
@@ -67,7 +68,9 @@ export default function AnalysisMain({ id }) {
             <Tab eventKey="dev" title="Deviance Residuals">
               <Deviance data={results} seerData={seerData} params={params} precision={precision} />
             </Tab>
-            <Tab eventKey="ll" title="LogLikelihood L(c) vs c"></Tab>
+            <Tab eventKey="ll" title="LogLikelihood L(c) vs c">
+              <Loglike data={results} seerData={seerData} params={params} precision={precision} />
+            </Tab>
           </Tabs>
         </div>
       )}

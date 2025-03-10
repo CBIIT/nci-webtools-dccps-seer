@@ -56,7 +56,8 @@ parseFitList <- function(fit.list) {
                 vcov = data$fitlist$vcov
             ),
             obj = data$obj,
-            data = data$data
+            data = data$data,
+            profileLL = getProfileLoglike(data, lower = 0, upper = 1, step = 0.1)
         )
     })
 }
