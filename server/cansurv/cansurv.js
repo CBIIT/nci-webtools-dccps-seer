@@ -26,7 +26,7 @@ export async function cansurv(params, logger, env) {
         "templates/user-success-email.html",
         {
           submittedAt,
-          resultsUrl: `${env.APP_BASE_URL}/jpsurv/cansurv?id=${id}`,
+          resultsUrl: `${env.APP_BASE_URL}/cansurv?id=${id}`,
           emailAdmin: env.EMAIL_ADMIN,
           jobName: params.jobName,
         }
