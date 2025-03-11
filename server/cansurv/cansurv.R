@@ -32,7 +32,7 @@ calculateCanSurv <- function(inputFolder, outputFolder) {
                 fit.list.by = results$fit.list.by
             )
             write_json(parseResults, path = file.path(outputFolder, "results.json"), auto_unbox = TRUE)
-            "results.json"
+            list(data = "results.json")
         },
         error = function(e) {
             save(e, file = file.path(outputFolder, "error.RData"))

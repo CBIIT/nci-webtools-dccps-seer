@@ -10,6 +10,8 @@ import Actuarial from "./tab-actuarial/actuarial";
 import Deviance from "./tab-deviance/deviance";
 import KYear from "./tab-k-year/k-year";
 import Loglike from "./tab-loglike/loglike";
+import { Controls } from "./controls";
+import { downloadAll } from "@/services/xlsx";
 
 export default function AnalysisMain({ id }) {
   const setState = useStore((state) => state.setState);
@@ -28,12 +30,11 @@ export default function AnalysisMain({ id }) {
   const { data: manifest } = useQuery({
     queryKey: ["manifest", id],
     queryFn: () => fetchOutput(id, "manifest.json"),
-    select: (data) => (data.includes(".json") ? data : false),
     enabled: jobStatus?.status === "COMPLETED",
   });
   const { data: results } = useSuspenseQuery({
     queryKey: ["results", id, jobStatus, manifest],
-    queryFn: () => (jobStatus?.status === "COMPLETED" && !!manifest ? fetchOutput(id, manifest) : null),
+    queryFn: () => (jobStatus?.status === "COMPLETED" && manifest?.data ? fetchOutput(id, manifest.data) : null),
   });
 
   // periodically dispatch resize event to trigger plotly redraw
@@ -49,9 +50,26 @@ export default function AnalysisMain({ id }) {
     }
   }, [setState, jobStatus, id]);
 
+  async function handleSaveResults() {
+    const { modelData, coefData } = await fetchAll(id, manifest);
+
+    downloadAll(
+      modelData,
+      coefData,
+      seerData,
+      params,
+      `jpsurv_${params.files.dataFile.split(".").slice(0, -1).join(".")}`
+    );
+  }
+
   return (
     <Container>
       <Status seerData={seerData} status={jobStatus} />
+      {manifest && (
+        <div className="shadow p-3 border rounded bg-white mb-3">
+          <Controls manifest={manifest} handleSaveResults={handleSaveResults} />
+        </div>
+      )}
       {results && (
         <div className="shadow border rounded bg-white my-3">
           <Tabs defaultActiveKey="report">

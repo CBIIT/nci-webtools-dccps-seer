@@ -234,8 +234,8 @@ export default function AnalysisForm({ id }) {
               onChange: handleChange,
             })}>
             <option value="seer">SEER*Stat Dictionary/Data Files</option>
-            {/* <option value="csv">CSV File</option>
-            <option value="zip">Workspace</option> */}
+            {/* <option value="csv">CSV File</option> */}
+            <option value="zip">Workspace</option>
           </Form.Select>
         </Form.Group>
 
