@@ -23,7 +23,8 @@ export function createApi(env) {
   const router = Router();
   router.use(express.json({ limit: "100mb" }));
   router.use(compression());
-  router.use(cors());
+  router.use(cors({ origin: "http://survivalstatstools-dev.cancer.gov" }));
+  // router.use(cors({ origin: env.APP_BASE_URL }));
   router.use(logRequests());
 
   // serve static files under /data
