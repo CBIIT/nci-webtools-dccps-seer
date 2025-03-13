@@ -168,7 +168,7 @@ export default function Help() {
           <ol>
             <li>
               Open JPSurv by searching for &ldquo;JPSurv&rdquo; and &ldquo;NCI&rdquo; keywords or entering the URL
-              <a href="https://analysistools.cancer.gov/jpsurv/">https://analysistools.cancer.gov/jpsurv/</a>
+              <a href="https://survivalstatstools.cancer.gov/">https://survivalstatstools.cancer.gov/</a>
             </li>
             <li>Confirm that Dic/Data Files is selected in the File Format section.</li>
             <li>
@@ -195,7 +195,7 @@ export default function Help() {
           <ol>
             <li>
               Open JPSurv by searching for &ldquo;JPSurv&rdquo; and &ldquo;NCI&rdquo; keywords or entering the URL
-              <a href="https://analysistools.cancer.gov/jpsurv/">https://analysistools.cancer.gov/jpsurv/</a>
+              <a href="https://survivalstatstools.cancer.gov/">https://survivalstatstools.cancer.gov/</a>
             </li>
             <li>Confirm that CSV Files is selected in the File Format section.</li>
             <li>Click the Browse button and select the .csv or .txt file exported in Step 1.</li>
@@ -223,7 +223,7 @@ export default function Help() {
           <ol>
             <li>
               Open JPSurv by searching for &ldquo;JPSurv&rdquo; and &ldquo;NCI&rdquo; keywords or entering the URL
-              <a href="https://analysistools.cancer.gov/jpsurv/">https://analysistools.cancer.gov/jpsurv/</a>
+              <a href="https://survivalstatstools.cancer.gov/">https://survivalstatstools.cancer.gov/</a>
             </li>
             <li>Confirm that Workspace is selected in the File Format section.</li>
             <li>Click the Browse button and select the .jpsurv workspace file.</li>
