@@ -19,6 +19,8 @@ RUN npm install
 
 COPY client /app/client/
 
+ARG API_BASE_URL
+ENV API_BASE_URL $API_BASE_URL
 RUN npm run build 
 
 EXPOSE 80

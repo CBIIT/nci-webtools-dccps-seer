@@ -12,6 +12,8 @@ services:
     build:
       context: "."
       dockerfile: "./docker/frontend.dockerfile"
+      args:
+        - API_BASE_URL=http://backend:9000
     environment:
       API_BASE_URL: http://backend:9000
       APP_PATH: ""
