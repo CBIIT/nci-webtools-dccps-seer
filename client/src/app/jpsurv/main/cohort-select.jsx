@@ -60,7 +60,7 @@ export function CohortSelect({ params, manifest, className, handleSaveResults })
   };
 
   async function handleSaveWorkspace() {
-    const response = await fetch(`api/export/${id}`);
+    const response = await fetch(`/api/export/${id}`);
     if (!response.ok) {
       throw new Error("Network response was not ok");
     }
