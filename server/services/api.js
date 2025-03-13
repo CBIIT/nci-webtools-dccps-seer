@@ -6,7 +6,7 @@ import cors from "cors";
 import multer from "multer";
 import path from "path";
 import DiskStorage from "./storage.js";
-import { logRequests, logErrors, logFiles, handleValidationErrors } from "./middleware.js";
+import { logRequests, logErrors, logFiles, handleValidationErrors, logForbiddenErrors } from "./middleware.js";
 import { getTrends, recalculateConditional, submit } from "./jpsurv.js";
 import { exportWorkspace, importWorkspace } from "./workspace.js";
 
@@ -69,6 +69,7 @@ export function createApi(env) {
     res.json(await importWorkspace(req.params.id, req.file.originalname, env));
   });
 
+  router.use(logForbiddenErrors());
   router.use(logErrors());
   return router;
 }

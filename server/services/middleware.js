@@ -49,3 +49,16 @@ export function logErrors(formatter = errorFormatter) {
     response.status(500).json(formatter(error));
   };
 }
+
+export function logForbiddenErrors() {
+  return (err, req, res, next) => {
+    if (err.status === 403) {
+      console.error(`403 Forbidden Error: ${err.message}`);
+      console.error(`Request URL: ${req.originalUrl}`);
+      console.error(`Request Method: ${req.method}`);
+      console.error(`Request Headers: ${JSON.stringify(req.headers)}`);
+      console.error(`Request Body: ${JSON.stringify(req.body)}`);
+    }
+    next(err);
+  };
+}
