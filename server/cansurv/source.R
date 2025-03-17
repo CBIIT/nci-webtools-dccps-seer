@@ -1,4 +1,6 @@
 # History: 
+# 2025-02-05 In fs_setupData, only check continuous variables for non-finite values.
+#            Change time column to 1, 2, ... if needed. 
 # 2025-01-01 Update likelihood functions to fix the cure parameter
 # 2025-01-06 Add code to compute cure fractions
 # 2024-12-18 Update code to return data and objects in return list.
@@ -550,6 +552,46 @@ fs_updateObj <- function(data, obj) {
   obj
 }
 
+# Function to change the time (interval) variable to 1, 2, ... if it is not coded that way
+# If time is recoded, it is assumed that the time variable is already ordered.
+fs_recodeTimeVar <- function(data, obj) {
+
+  timev    <- obj$time
+  timevec0 <- trimws(data[, timev, drop=TRUE])
+  recode   <- 1
+    
+   # Check if time is 1, 2, ...
+   unqtime <- sort(unique(as.numeric(timevec0)))
+   tmp     <- is.finite(unqtime)
+   unqtime <- unqtime[tmp]
+   n       <- length(unqtime)
+   if (n && all(unqtime %in% 1:n)) recode <- 0
+
+   if (recode) {
+     if (obj$DEBUG) cat("Recode time variable\n")
+     timevec <- rep(NA, nrow(data))
+
+     # Get unique values of timevec0
+     vals  <- unique(timevec0)
+     nvals <- length(vals)
+     for (i in 1:nvals) {
+       tmp          <- timevec0 %in% vals[i]
+       timevec[tmp] <- i
+     }
+     if (any(is.na(timevec))) stop("ERROR recoding timevec")
+
+     # Update data and obj
+     data[, timev] <- timevec
+
+     # Save original values
+     var           <- paste0(timev, ".ORIG")
+     data[, var]   <- timevec0
+     obj$time.orig <- var
+   }
+
+   list(data=data, obj=obj)
+}
+
 fs_updatedata.0 <- function(data, obj) {
 
   cure        <- obj[["cure", exact=TRUE]] 
@@ -559,6 +601,12 @@ fs_updatedata.0 <- function(data, obj) {
   covars      <- unique(c(cure, mu, sigma))
   tmp         <- !(covars %in% covars.cont)
   covars      <- covars[tmp]
+
+  # Recdode the time (interval) variable if needed
+  tmp  <- fs_recodeTimeVar(data, obj)
+  data <- tmp$data
+  obj  <- tmp$obj
+  tmp  <- NULL
 
   # Check data for special characters
   tmp  <- fs_setupData(data, obj) 
@@ -605,9 +653,9 @@ fs_setupData <- function(data, obj) {
   nms  <- nms[tmp]
   if (!length(nms)) return(list(data=data, obj=obj))
 
-  # Consider all variables
-  #vars  <- unlist(obj[nms]) 
-  vars  <- colnames(data)
+  # Consider only continuous variables used in the analysis
+  vars  <- unlist(obj[nms]) 
+  #vars  <- colnames(data)
   nvars <- length(vars) 
   nr    <- nrow(data)
   rem   <- rep(FALSE, nr)
