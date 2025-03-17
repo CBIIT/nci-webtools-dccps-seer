@@ -4,6 +4,7 @@ import { useEffect, useMemo } from "react";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useStore } from "../store";
 import { fetchStatus, fetchOutput } from "@/services/queries";
+import Description from "./description";
 import Status from "../status";
 import Report from "./report";
 import Actuarial from "./tab-actuarial/actuarial";
@@ -64,7 +65,7 @@ export default function AnalysisMain({ id }) {
 
   return (
     <Container>
-      <Status seerData={seerData} status={jobStatus} />
+      {!Object.keys(seerData).length > 0 ? <Description /> : <Status seerData={seerData} status={jobStatus} />}
       {manifest && (
         <div className="shadow p-3 border rounded bg-white mb-3">
           <Controls manifest={manifest} handleSaveResults={handleSaveResults} />
