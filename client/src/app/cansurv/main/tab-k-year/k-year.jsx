@@ -29,7 +29,7 @@ export default function KYear({ data, seerData, precision }) {
               .reduce(
                 (acc, [name, value]) => [
                   ...acc,
-                  seerData.cohortVariables.filter((e) => e.name === name)[0].factors.filter((e) => e.value === value)[0]
+                  seerData.cohortVariables.filter((e) => e.name === name)[0].factors.filter((e) => e.value == value)[0]
                     .label,
                 ],
                 []
