@@ -54,7 +54,7 @@ export default function ActPlot({ data, params, title, subtitle, xTitle, yTitle,
     : [];
 
   const estLegendTrace = makeLegendTrace(estTraceName, estTraceName, 0, "lines");
-  const actLegendTrace = makeLegendTrace(actTraceName, actTraceName, 1, "lines + markers");
+  const actLegendTrace = makeLegendTrace(actTraceName, actTraceName, 1, "markers");
   const cureLegendTrace = data[0]?.[".Cure.Fraction"]
     ? makeLegendTrace(cureTraceName, cureTraceName, 2, "lines", "dash")
     : [];

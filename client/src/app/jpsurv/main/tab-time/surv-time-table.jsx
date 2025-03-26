@@ -23,7 +23,7 @@ export default function SurvTimeTable({
       cell: (info) => info.getValue(),
     }),
     columnHelper.accessor("Interval", {
-      header: () => "Interval",
+      header: () => "Time Since Diagnosis",
       cell: (info) => info.getValue(),
     }),
     columnHelper.accessor(observedHeader, {

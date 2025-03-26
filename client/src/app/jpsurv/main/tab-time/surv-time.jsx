@@ -49,7 +49,7 @@ export default function SurvivalVsTime({ data, seerData, params, cohortIndex, fi
             params={params}
             title={`${conditional ? "Conditional " : ""}${statistic} by Diagnosis Year for Selected Diagnosis Year`}
             subtitle={`Joinpoint ${fitIndex} - ${getCohortLabel(params, cohortIndex)}`}
-            xTitle={`${isRecalcCond ? "Conditional " : ""}Interval`}
+            xTitle={`${isRecalcCond ? "Conditional " : ""}Time Since Diagnosis`}
             yTitle={`${isRecalcCond ? "Conditional " : ""}${statistic}`}
             observedHeader={observedHeader}
             predictedHeader={predictedHeader}

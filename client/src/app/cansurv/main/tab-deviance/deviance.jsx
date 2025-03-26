@@ -84,7 +84,7 @@ export default function Deviance({ data, seerData, params, precision }) {
             params={params}
             title={`Plot of Deviance Residuals`}
             subtitle={getPlotSubtitle()}
-            xTitle={"Interval"}
+            xTitle={"Time Since Diagnosis"}
             yTitle={"Deviance Residuals"}
             precision={precision}
           />

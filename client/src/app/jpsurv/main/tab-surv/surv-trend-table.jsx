@@ -7,7 +7,7 @@ export default function TrendTable({ data, params, precision }) {
   const columnHelper = createColumnHelper();
   const columns = [
     columnHelper.accessor("interval", {
-      header: () => "Interval",
+      header: () => "Time Since Diagnosis",
       cell: (d) => d.getValue(),
     }),
     columnHelper.accessor((row) => row["start.year"], {

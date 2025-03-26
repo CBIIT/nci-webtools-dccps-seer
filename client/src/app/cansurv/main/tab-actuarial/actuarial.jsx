@@ -124,7 +124,7 @@ export default function Actuarial({ data, seerData, params, precision }) {
             params={params}
             title={`Comparison of Estimated and Actuarial Survival`}
             subtitle={getPlotSubtitle()}
-            xTitle={"Interval"}
+            xTitle={"Time Since Diagnosis"}
             yTitle={`${statistic}`}
             precision={precision}
           />

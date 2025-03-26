@@ -20,7 +20,7 @@ export default function ActTable({ data, formState, seerData, valueToLabelMap, p
         })
       ),
     columnHelper.accessor("Interval", {
-      header: () => "Interval",
+      header: () => "Time Since Diagnosis",
       cell: (info) => info.getValue(),
     }),
     columnHelper.accessor((e) => e[".Surv.Act"], {

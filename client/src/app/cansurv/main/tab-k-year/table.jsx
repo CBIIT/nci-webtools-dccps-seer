@@ -13,7 +13,7 @@ export default function KYearTable({ data, seerData, valueToLabelMap, precision 
       })
     ),
     columnHelper.accessor("Interval", {
-      header: () => "Interval",
+      header: () => "Time Since Diagnosis",
       cell: (info) => info.getValue(),
     }),
     columnHelper.accessor((e) => e[".Surv.Act"], {

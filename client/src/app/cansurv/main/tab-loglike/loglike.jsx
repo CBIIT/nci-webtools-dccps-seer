@@ -58,7 +58,7 @@ export default function Loglike({ data, seerData, params, precision }) {
   return (
     <Container fluid>
       {!Object.keys(memoData).length > 0 ? (
-        <Alert variant="info">Data unavailable. Please calculate with &quot;Cure in Model&quot; option.</Alert>
+        <Alert variant="info">LogLikelihood Unavailable</Alert>
       ) : (
         <>
           <Row className="border-bottom mb-3">

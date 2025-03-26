@@ -164,7 +164,7 @@ export default function KYear({ data, seerData, precision }) {
             title={`Plot of K-Year Survival by Covariate`}
             subtitle={getPlotSubtitle()}
             xTitle={xAxisOptions.filter((e) => e.value === formState.xAxisVar)[0].label}
-            yTitle={"Survival"}
+            yTitle={"Relative Survival"}
             precision={precision}
           />
         </Col>
