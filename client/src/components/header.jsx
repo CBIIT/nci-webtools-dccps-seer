@@ -3,7 +3,6 @@ import AppNavbar from "./navbar/navbar";
 import { useState } from "react";
 import { BsSearch } from "react-icons/bs";
 import Image from "next/image";
-import logo from "/public/assets/dccps-logo.svg";
 import { Container, Row, Col } from "react-bootstrap";
 
 export default function Header({ routes = [] }) {
@@ -28,7 +27,7 @@ export default function Header({ routes = [] }) {
         <Row>
           <Col xl="9" md="8" sm="12">
             <a rel="noopener noreferrer" href="https://cancercontrol.cancer.gov/">
-              <Image src={logo} alt="JPSurv Logo" className="mw-100 jpsurv-logo" width={700} height={65} unoptimized />
+              <Image src={'/assets/dccps-logo.svg'} alt="JPSurv Logo" className="mw-100 jpsurv-logo" width={700} height={65} unoptimized />
             </a>
           </Col>
           <Col xl="3" md="4" sm="9" xs="9">
