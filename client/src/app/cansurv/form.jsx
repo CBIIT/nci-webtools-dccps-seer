@@ -135,7 +135,7 @@ export default function AnalysisForm({ id }) {
       setState({ seerData: session.seerData, params: session.params });
       populatecovariates(session.seerData.cohortVariables);
       setSeerVariables(session.seerData.seerStatDictionary);
-      reset(session.params);
+      reset({ ...session.params, inputFile: asFileList(session.params.inputFile) });
     }
   }, [session, setState, getValues, reset, populatecovariates, setSeerVariables]);
   // parse seerdata after data upload
@@ -198,6 +198,7 @@ export default function AnalysisForm({ id }) {
         headers: seerData.seerStatDictionary.map((e) => e.name),
         seerStatFile: "seerStatData.json",
       },
+      inputFile: Array.from(inputFile).map((file) => file.name),
     };
 
     submitForm.mutate({ params, data: seerData });

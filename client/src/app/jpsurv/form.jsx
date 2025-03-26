@@ -87,7 +87,7 @@ export default function AnalysisForm({ id }) {
     if (session && !getValues("id")) {
       setState({ seerData: session.seerData, params: session.params });
       setModelOptions(session.seerData);
-      reset(session.params);
+      reset({ ...session.params, inputFile: asFileList(session.params.inputFile) });
     }
   }, [getValues, session]);
   useEffect(() => {
@@ -261,6 +261,7 @@ export default function AnalysisForm({ id }) {
         headers: seerData.seerStatDictionary.map((e) => e.name),
         seerStatFile: "seerStatData.json",
       },
+      inputFile: Array.from(inputFile).map((file) => file.name),
     };
 
     // const seerStatFile = asFileList(
