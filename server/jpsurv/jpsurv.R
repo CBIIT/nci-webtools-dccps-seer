@@ -108,10 +108,10 @@ calculateJoinpoint <- function(inputFolder, outputFolder) {
 
                         # save model coefficients to a separate file to preserve data structure
                         coef <- getModelCoefficients(uncond)
-                        write_json(coef, path = file.path(outputFolder, coefFile), auto_unbox = TRUE)
+                        write_json(coef, path = file.path(outputFolder, coefFile), auto_unbox = TRUE, digits = NA)
                         if (!is.null(cond)) {
                             coef <- getModelCoefficients(cond)
-                            write_json(coef, path = file.path(outputFolder, condCoefFile), auto_unbox = TRUE)
+                            write_json(coef, path = file.path(outputFolder, condCoefFile), auto_unbox = TRUE, digits = NA)
                         }
 
 
@@ -129,10 +129,10 @@ calculateJoinpoint <- function(inputFolder, outputFolder) {
                         uncond$FitList <- relabelData(uncond$FitList, params)
 
                         # save results to file
-                        write_json(uncond$FitList, path = file.path(outputFolder, modelFile), auto_unbox = TRUE)
+                        write_json(uncond$FitList, path = file.path(outputFolder, modelFile), auto_unbox = TRUE, digits = NA)
                         if (!is.null(cond)) {
                             cond$FitList <- relabelData(cond$FitList, params)
-                            write_json(cond$FitList, path = file.path(outputFolder, condModelFile), auto_unbox = TRUE)
+                            write_json(cond$FitList, path = file.path(outputFolder, condModelFile), auto_unbox = TRUE, digits = NA)
                         }
 
                         list(
@@ -168,7 +168,7 @@ calculateJoinpoint <- function(inputFolder, outputFolder) {
 
                     # save model coefficients to a separate file to preserve data structure
                     coef <- getModelCoefficients(model)
-                    write_json(coef, path = file.path(outputFolder, coefFile), auto_unbox = TRUE)
+                    write_json(coef, path = file.path(outputFolder, coefFile), auto_unbox = TRUE, digits = NA)
 
                     # convert values to conditional
                     if (params$useCondModel || params$useRelaxModel) {
@@ -182,7 +182,7 @@ calculateJoinpoint <- function(inputFolder, outputFolder) {
                     model$FitList <- relabelData(model$FitList, params)
 
                     # save results to file
-                    write_json(model$FitList, path = file.path(outputFolder, modelFile), auto_unbox = TRUE)
+                    write_json(model$FitList, path = file.path(outputFolder, modelFile), auto_unbox = TRUE, digits = NA)
 
                     list(
                         "coefficients" = coefFile,
@@ -202,7 +202,7 @@ calculateJoinpoint <- function(inputFolder, outputFolder) {
     })
     if (params$useRelaxModel) manifest <- flatten_list(manifest)
     save(manifest, file = file.path(outputFolder, "manifest.RData"))
-    write_json(manifest, path = file.path(outputFolder, "manifest.json"), auto_unbox = TRUE)
+    write_json(manifest, path = file.path(outputFolder, "manifest.json"), auto_unbox = TRUE, digits = NA)
 }
 
 # scale data from whole numbers to proportional percentage value

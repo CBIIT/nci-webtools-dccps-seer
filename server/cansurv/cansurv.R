@@ -31,7 +31,7 @@ calculateCanSurv <- function(inputFolder, outputFolder) {
                 var.map = results$var.map,
                 fit.list.by = results$fit.list.by
             )
-            write_json(parseResults, path = file.path(outputFolder, "results.json"), auto_unbox = TRUE)
+            write_json(parseResults, path = file.path(outputFolder, "results.json"), auto_unbox = TRUE, digits = NA)
             list(data = "results.json")
         },
         error = function(e) {
@@ -40,7 +40,7 @@ calculateCanSurv <- function(inputFolder, outputFolder) {
         }
     )
     save(manifest, file = file.path(outputFolder, "manifest.RData"))
-    write_json(manifest, path = file.path(outputFolder, "manifest.json"), auto_unbox = TRUE)
+    write_json(manifest, path = file.path(outputFolder, "manifest.json"), auto_unbox = TRUE, digits = NA)
 }
 
 parseFitList <- function(fit.list) {
