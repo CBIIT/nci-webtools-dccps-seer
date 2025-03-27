@@ -4,7 +4,7 @@ import { Container, Row, Col, Form, Button, Spinner } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import ActuarialPlot from "./plot";
 import ActuarialTable from "./table";
-import { downloadTable } from "@/services/xlsx";
+import { downloadTableCansurv } from "@/services/xlsx";
 
 export default function Actuarial({ data, seerData, params, precision }) {
   const { register, watch } = useForm({
@@ -133,19 +133,13 @@ export default function Actuarial({ data, seerData, params, precision }) {
       <Row className="justify-content-between align-items-center">
         <Col sm="auto">Total Row Count: {memoData.length}</Col>
         <Col sm="auto">
-          {/* <Button
+          <Button
             variant="link"
             onClick={() =>
-              downloadTable(
-                memoData,
-                ["Interval", ".Surv.Est", ".Surv.Act", ".Cure.Fraction"],
-                seerData,
-                params,
-                getPlotSubtitle()
-              )
+              downloadTableCansurv(memoData, Object.keys(memoData[0]), params, `EstAct-${getPlotSubtitle()}`)
             }>
             Download Graph Dataset
-          </Button> */}
+          </Button>
         </Col>
       </Row>
       <Row>

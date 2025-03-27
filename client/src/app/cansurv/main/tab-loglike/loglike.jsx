@@ -1,10 +1,10 @@
 "use client";
 import { useMemo } from "react";
-import { Container, Row, Col, Form, Alert } from "react-bootstrap";
+import { Container, Row, Col, Form, Alert, Button } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import LoglikePlot from "./plot";
 import LoglikeTable from "./table";
-import { downloadTable } from "@/services/xlsx";
+import { downloadTableCansurv } from "@/services/xlsx";
 
 export default function Loglike({ data, seerData, params, precision }) {
   const { register, watch } = useForm({
@@ -96,19 +96,13 @@ export default function Loglike({ data, seerData, params, precision }) {
           <Row className="justify-content-between align-items-center">
             <Col sm="auto">Total Row Count: {memoData.length}</Col>
             <Col sm="auto">
-              {/* <Button
-            variant="link"
-            onClick={() =>
-              downloadTable(
-                memoData,
-                ["Interval", ".Surv.Est", ".Surv.Act", ".Cure.Fraction"],
-                seerData,
-                params,
-                getPlotSubtitle()
-              )
-            }>
-            Download Graph Dataset
-          </Button> */}
+              <Button
+                variant="link"
+                onClick={() =>
+                  downloadTableCansurv(memoData, Object.keys(memoData), params, `loglike-${getPlotSubtitle()}`)
+                }>
+                Download Graph Dataset
+              </Button>
             </Col>
           </Row>
           <Row>

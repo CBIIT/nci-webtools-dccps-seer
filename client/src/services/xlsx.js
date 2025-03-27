@@ -36,6 +36,24 @@ export function downloadTable(data, headers, seerData, params, filename) {
   writeFile(wb, `${filename}.xlsx`);
 }
 
+export function downloadTableCansurv(data, headers, params, filename) {
+  const wb = utils.book_new();
+  const table = data.map((row) =>
+    headers.reduce((acc, key) => {
+      if (row.hasOwnProperty(key)) {
+        acc[key] = Array.isArray(row[key]) ? row[key].join(", ") : row[key];
+      }
+      return acc;
+    }, {})
+  );
+  const dataWs = utils.json_to_sheet(table);
+  utils.book_append_sheet(wb, dataWs, "Data");
+
+  const settingsWs = utils.json_to_sheet(parseParams(params));
+  utils.book_append_sheet(wb, settingsWs, "Settings");
+  writeFile(wb, `${filename}.xlsx`);
+}
+
 function modelEstimatesSheet(estData, data, jp, params) {
   const estimates = estData.map((e) => ({
     "Parameter": e["_row"],
@@ -79,4 +97,20 @@ function settingsSheet(params) {
 
   const transposedData = Object.keys(data).map((key) => [key, data[key]]);
   return utils.aoa_to_sheet(transposedData);
+}
+
+function parseParams(params) {
+  return [
+    Object.fromEntries(
+      Object.entries(params).map(([key, value]) => {
+        if (typeof value === "string") {
+          return [key, value];
+        } else if (Array.isArray(value) && value.every((item) => typeof item === "string")) {
+          return [key, value.join(", ")];
+        } else {
+          return [key, JSON.stringify(value)];
+        }
+      })
+    ),
+  ];
 }

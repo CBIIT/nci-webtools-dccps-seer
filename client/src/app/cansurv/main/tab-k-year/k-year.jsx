@@ -1,12 +1,12 @@
 "use client";
 import { useMemo } from "react";
-import { Container, Row, Col, Form } from "react-bootstrap";
+import { Container, Row, Col, Form, Button } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import KYearPlot from "./plot";
 import KYearTable from "./table";
-import { downloadTable } from "@/services/xlsx";
+import { downloadTableCansurv } from "@/services/xlsx";
 
-export default function KYear({ data, seerData, precision }) {
+export default function KYear({ data, params, seerData, precision }) {
   const defaultValues = useMemo(() => {
     const stratum = data["fit.list.by"].length ? Object.keys(data["fit.list.by"][0]) : [];
     const subs = seerData.cohortVariables
@@ -172,19 +172,13 @@ export default function KYear({ data, seerData, precision }) {
       <Row className="justify-content-between align-items-center">
         <Col sm="auto">Total Row Count: {memoData.length}</Col>
         <Col sm="auto">
-          {/* <Button
+          <Button
             variant="link"
             onClick={() =>
-              downloadTable(
-                memoData,
-                ["Interval", ".Surv.Est", ".Surv.Act", ".Cure.Fraction"],
-                seerData,
-                params,
-                getPlotSubtitle()
-              )
+              downloadTableCansurv(memoData, Object.keys(memoData[0]), params, `kYear-${getPlotSubtitle()}`)
             }>
             Download Graph Dataset
-          </Button> */}
+          </Button>
         </Col>
       </Row>
       <Row>

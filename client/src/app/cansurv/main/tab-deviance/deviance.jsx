@@ -1,10 +1,10 @@
 "use client";
 import { useMemo } from "react";
-import { Container, Row, Col, Form } from "react-bootstrap";
+import { Container, Row, Col, Form, Button } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import DeviancePlot from "./plot";
 import DevianceTable from "./table";
-import { downloadTable } from "@/services/xlsx";
+import { downloadTableCansurv } from "@/services/xlsx";
 
 export default function Deviance({ data, seerData, params, precision }) {
   const { register, watch } = useForm({
@@ -93,19 +93,13 @@ export default function Deviance({ data, seerData, params, precision }) {
       <Row className="justify-content-between align-items-center">
         <Col sm="auto">Total Row Count: {memoData.length}</Col>
         <Col sm="auto">
-          {/* <Button
+          <Button
             variant="link"
             onClick={() =>
-              downloadTable(
-                memoData,
-                ["Interval", ".Surv.Est", ".Surv.Act", ".Cure.Fraction"],
-                seerData,
-                params,
-                getPlotSubtitle()
-              )
+              downloadTableCansurv(memoData, Object.keys(memoData[0]), params, `deviance-${getPlotSubtitle()}`)
             }>
             Download Graph Dataset
-          </Button> */}
+          </Button>
         </Col>
       </Row>
       <Row>
