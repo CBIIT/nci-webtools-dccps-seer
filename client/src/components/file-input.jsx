@@ -24,6 +24,9 @@ export default function FileInput(props) {
 
   function handleChange(event) {
     onChange(event.target.files);
+    if (props.onChange) {
+      props.onChange(event);
+    }
   }
 
   function removeFile(index) {

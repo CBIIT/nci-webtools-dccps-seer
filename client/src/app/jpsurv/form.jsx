@@ -44,10 +44,15 @@ export default function AnalysisForm({ id }) {
     setValue,
     getValues,
     watch,
+    trigger,
     formState: { errors },
   } = useForm({ defaultValues: defaultForm });
 
-  const { fields, append } = useFieldArray({
+  const {
+    fields,
+    append,
+    reset: resetFields,
+  } = useFieldArray({
     control,
     name: "cohorts",
   });
@@ -108,7 +113,7 @@ export default function AnalysisForm({ id }) {
       const dictionaryFile = files.find((file) => /.dic$/i.test(file.name));
       const dataFile = files.find((file) => /(.txt|.csv|.tsv)$/i.test(file.name));
 
-      if (inputType == "seer") {
+      if (inputType === "seer" && dictionaryFile && dataFile) {
         try {
           if (dictionaryFile && dataFile) {
             // parse SEER*Stat files to extract dictionary headers and data
@@ -143,7 +148,7 @@ export default function AnalysisForm({ id }) {
         } catch (e) {
           console.log(e);
         }
-      } else if (inputType == "csv") {
+      } else if (inputType === "csv" && dataFile) {
         setUserCsv({ userData: dataFile, openConfigDataModal: true });
       }
     }
@@ -192,6 +197,7 @@ export default function AnalysisForm({ id }) {
 
   // check if multiple cohorts are selected
   function isMultiCohort(cohorts) {
+    if (!cohorts) return false;
     return cohorts.some(({ options }) => {
       const countSelected = options.filter((e) => e.checked).length;
       return countSelected === 0 || countSelected > 1;
@@ -299,7 +305,7 @@ export default function AnalysisForm({ id }) {
         <Form.Group className="mb-4" controlId="inputType">
           <Form.Label className="required fw-bold">File Format</Form.Label>
           <Form.Select required {...register("inputType", { required: true })}>
-            <option value="seer">SEER*Stat Dictionary/Data Files</option>
+            <option value="seer">SEER*Stat Dictionary and Data Files</option>
             <option value="csv">CSV File</option>
             <option value="zip">Workspace</option>
           </Form.Select>
@@ -308,7 +314,7 @@ export default function AnalysisForm({ id }) {
         <Form.Group className="mb-3" controlId="inputFile">
           <Form.Label className="required fw-bold">
             {inputType === "seer"
-              ? "SEER*Stat Dictionary/Data Files (.dic/.txt)"
+              ? "SEER*Stat Dictionary and Data Files (.dic/.txt)"
               : inputType === "csv"
               ? "Data (.txt/.csv/.tsv)"
               : "Workspace (.zip)"}
@@ -317,12 +323,25 @@ export default function AnalysisForm({ id }) {
             control={control}
             rules={{
               required: !Object.keys(seerData).length,
+              max: inputType === "seer" ? 2 : 1,
+              validate: (files) => {
+                if (inputType === "seer") {
+                  return files?.length === 2 || "Exactly 2 files are required for SEER*Stat.";
+                }
+                return true;
+              },
             }}
             name="inputFile"
             multiple={inputType === "seer"}
             accept={".dic,.csv,.tsv,.zip,.txt"}
+            isInvalid={errors?.inputFile}
+            onChange={() => {
+              trigger("inputFile");
+              // if (fields) reset("cohorts");
+              setState({ seerData: {} });
+            }}
           />
-          <Form.Text className="text-danger">{errors?.referenceDataFiles?.message}</Form.Text>
+          <Form.Text className="text-danger">{errors?.inputFile?.message}</Form.Text>
         </Form.Group>
         {Object.keys(seerData).length > 0 && (
           <div>
