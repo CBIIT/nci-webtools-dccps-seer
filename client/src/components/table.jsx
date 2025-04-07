@@ -1,7 +1,7 @@
 import BsTable from "react-bootstrap/Table";
 import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 
-export default function Table({ data, columns }) {
+export default function Table({ data, columns, ...props }) {
   const table = useReactTable({
     data,
     columns,
@@ -10,7 +10,7 @@ export default function Table({ data, columns }) {
 
   return (
     <div className="mb-3" tabIndex="0" style={{ maxHeight: "650px", overflow: "scroll" }}>
-      <BsTable striped bordered>
+      <BsTable striped bordered {...props}>
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>

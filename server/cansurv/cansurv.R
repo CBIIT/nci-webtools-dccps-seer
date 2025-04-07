@@ -51,7 +51,7 @@ parseFitList <- function(fit.list) {
                 converged = data$fitlist$converged,
                 init.estimates = data$fitlist$init.estimates,
                 init.loglike = data$fitlist$init.loglike,
-                estimates = data$fitlist$estimates,
+                estimates = data$fitlist$estimates %>% as.data.frame() %>% tibble::rownames_to_column(var = "parameter"),
                 loglike = as.numeric(logLik(data$fitlist$loglike)),
                 vcov = data$fitlist$vcov
             ),

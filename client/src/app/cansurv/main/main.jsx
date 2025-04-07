@@ -75,10 +75,10 @@ export default function AnalysisMain({ id }) {
         <div className="shadow border rounded bg-white my-3">
           <Tabs defaultActiveKey="report">
             <Tab eventKey="report" title="Report">
-              <Report data={results} />
+              <Report data={results} precision={precision} />
             </Tab>
             <Tab eventKey="data" title="Data"></Tab>
-            <Tab eventKey="curves" title="Estimated and Actuarial Survival Curves">
+            <Tab eventKey="act" title="Estimated and Actuarial Survival Curves">
               <Actuarial data={results} seerData={seerData} params={params} precision={precision} />
             </Tab>
             <Tab eventKey="kYear" title="K-Year Survival Rate">
