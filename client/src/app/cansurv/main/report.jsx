@@ -9,19 +9,25 @@ export default function Report({ data, seerData, precision }) {
     return data["fit.list"][0];
   }, [data]);
 
-  const stratumOptions = useMemo(() => {
-    return (
-      data["fit.list.by"]?.map((e, index) => ({
-        label: Object.entries(e)
-          .map(
-            ([name, value]) =>
-              seerData.cohortVariables.find((v) => v.name === name)?.factors.find((f) => f.value == value)?.label || ""
-          )
-          .join(" / "),
-        value: index,
-      })) || []
-    );
-  }, [data, seerData.cohortVariables]);
+  const stratumOptions = useMemo(
+    () =>
+      data["fit.list.by"]?.length
+        ? data["fit.list.by"].map((e, index) => ({
+            label: Object.entries(e)
+              .reduce(
+                (acc, [name, value]) => [
+                  ...acc,
+                  seerData.cohortVariables.filter((e) => e.name === name)[0].factors.filter((e) => e.value == value)[0]
+                    .label,
+                ],
+                []
+              )
+              .join(" / "),
+            value: index,
+          }))
+        : [],
+    [data]
+  );
 
   const valueToLabelMap = useMemo(() => {
     const map = { stratum: {}, ...Object.fromEntries(seerData.cohortVariables.map((e) => [e.name, {}])) };
