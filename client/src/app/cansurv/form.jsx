@@ -269,6 +269,7 @@ export default function AnalysisForm({ id }) {
               // reset("cohorts");
               setState({ seerData: {} });
             }}
+            disabled={!!Object.keys(seerData).length}
           />
           <Form.Text className="text-danger">{errors?.inputFile?.message}</Form.Text>
         </Form.Group>
@@ -327,7 +328,13 @@ export default function AnalysisForm({ id }) {
             <h5>Computation Specifications</h5>
             <Form.Group controlId="maxit" className="my-3">
               <Form.Label className="fw-bold">Maximum Number of Iterations</Form.Label>
-              <Form.Control {...register("maxit", { valueAsNumber: true })} type="number" min="100" max="1000" />
+              <Form.Control
+                {...register("maxit", { valueAsNumber: true })}
+                placeholder="100"
+                type="number"
+                min="100"
+                max="1000"
+              />
             </Form.Group>
             <Form.Group controlId="reltol" className="my-3">
               <Form.Label className="fw-bold">Relative Convergence Tolerance</Form.Label>
@@ -340,16 +347,26 @@ export default function AnalysisForm({ id }) {
                     message: "Value must be at most 1e-4",
                   },
                 })}
+                placeholder="1.5e-8"
               />
               <Form.Text className="text-danger">{errors?.reltol?.message}</Form.Text>
             </Form.Group>
             <Form.Group controlId="n_restart_conv" className="my-3">
               <Form.Label className="fw-bold">Number of Restarts</Form.Label>
-              <Form.Control {...register("n_restart_conv", { valueAsNumber: true })} type="number" min="0" max="100" />
+              <Form.Control
+                {...register("n_restart_conv", { valueAsNumber: true })}
+                placeholder="10"
+                type="number"
+                min="0"
+                max="100"
+              />
             </Form.Group>
             <Form.Group controlId="seed" className="my-3">
               <Form.Label className="fw-bold">Seed</Form.Label>
-              <Form.Control {...register("seed", { valueAsNumber: true })} type="number"></Form.Control>
+              <Form.Control
+                {...register("seed", { valueAsNumber: true })}
+                placeholder="123"
+                type="number"></Form.Control>
             </Form.Group>
 
             <h5>Analysis Variables</h5>
