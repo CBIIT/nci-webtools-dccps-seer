@@ -1,0 +1,110 @@
+[System]
+Output filename=P:\srab\Angela\CumulativeIncidence\cansurv_replacement\cansurv\seer_input\example_013124.txt
+Matrix filename=P:\srab\Angela\CumulativeIncidence\cansurv_replacement\cansurv\seer_input\example_013124.ssm
+Database name=Incidence - SEER Research Plus Data, 17 Registries, Nov 2021 Sub (2000-2019) - Linked To County Attributes - Total U.S., 1969-2020 Counties
+
+[Session Options]
+Type=Survival
+Rate filename=U.S. by SES/geography/race (NHW,NHB,NHAIAN,NHAPI,HISP) 1992-2018, Ages 0-99, State-county (modeled by varied state-county-ses)
+Statistic=Relative Survival
+SurvivalMethod=Actuarial
+SurvivalBeginMonth=Month of diagnosis recode
+SurvivalBeginYear=Year of diagnosis
+SurvivalEndMonth=Month of follow-up recode
+SurvivalEndYear=Year of follow-up recode
+SurvivalVitalStatus=Vital status recode (study cutoff used)
+StudyCutoffDate=12/2019
+LostToFollowupDate=12/2019
+NumberOfIntervals=19
+MonthsPerInterval=12
+RatesDisplayedAs=Proportions
+
+[Export Options]
+GZipped=false
+Variable format=numeric
+File format=DOS/Windows
+Field delimiter=tab
+Missing character=space
+Fields with delimiter in quotes=false
+Remove thousands separators=true
+Flags included=true
+Variable names included=true
+Column Variables as Stats=false
+
+[Life Page Variables]
+Var1Name=Page type
+Var2Name=Age breast with all 7gr
+Var2Base=Age recode with <1 year olds
+Var3Name=Merge AJCC stage-breast
+Var3Base=Breast - Adjusted AJCC 6th Stage (1988-2015)~Year of diagnosis~Derived SEER Cmb Stg Grp (2016-2017)
+Var4Name=Sex
+Var5Name=Origin recode NHIA (Hispanic, Non-Hisp)
+Var6Name=Interval
+Var7Name=Alive at Start
+Var8Name=Died
+Var9Name=Lost to Followup
+Var10Name=Observed Survival (Interval)
+Var11Name=Observed Survival (Cum)
+Var12Name=Expected Survival (Interval)
+Var13Name=Expected Survival (Cum)
+Var14Name=Relative Survival (Interval)
+Var15Name=Relative Survival (Cum)
+Var16Name=Observed SE (Interval)
+Var17Name=Observed SE (Cum)
+Var18Name=Relative SE (Interval)
+Var19Name=Relative SE (Cum)
+
+[Format=Page type]
+0=Life Page
+1=Summary Page
+2=Z-Statistics Page
+3=Period Life Page
+4=Period Summary Page
+5=Age Std Life Page
+
+[Format=Age breast with all 7gr]
+0=15-44
+1=45-54
+2=55-64
+3=65-74
+4=75+
+5=All ages
+6=15-54
+
+[Format=Merge AJCC stage-breast]
+0=I
+1=II
+2=III
+3=IV
+4=All excl insitu
+
+[Format=Sex]
+0=Male and female
+1="  Male"
+2="  Female"
+
+[Format=Origin recode NHIA (Hispanic, Non-Hisp)]
+0=Non-Spanish-Hispanic-Latino
+1=Spanish-Hispanic-Latino
+
+[Format=Interval]
+1=<1 yr
+2=1-<2 yr
+3=2-<3 yr
+4=3-<4 yr
+5=4-<5 yr
+6=5-<6 yr
+7=6-<7 yr
+8=7-<8 yr
+9=8-<9 yr
+10=9-<10 yr
+11=10-<11 yr
+12=11-<12 yr
+13=12-<13 yr
+14=13-<14 yr
+15=14-<15 yr
+16=15-<16 yr
+17=16-<17 yr
+18=17-<18 yr
+19=18-<19 yr
+

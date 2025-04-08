@@ -280,6 +280,47 @@ export default function AnalysisForm({ id }) {
             {seerData.config["Session Options"]["RatesDisplayedAs"]}
           </div>
         )}
+        {!Object.keys(seerData).length && inputType === "seer" && (
+          <div>
+            <div>
+              <Button
+                className="p-0"
+                variant="link"
+                onClick={async () => {
+                  try {
+                    // Helper function to fetch and convert a file to a Blob
+                    const fetchFile = async (url, fileName) => {
+                      const response = await fetch(url);
+                      if (!response.ok) throw new Error(`Failed to fetch ${fileName}`);
+                      const blob = await response.blob();
+                      return new File([blob], fileName, { type: blob.type });
+                    };
+
+                    // Fetch both files
+                    const dicFile = await fetchFile("/data/cansurv_example.dic", "cansurv_example.dic");
+                    const txtFile = await fetchFile("/data/cansurv_example.txt", "cansurv_example.txt");
+
+                    // Set the files in the form
+                    setValue("inputFile", asFileList([dicFile, txtFile]));
+                  } catch (error) {
+                    console.error("Error loading example files:", error);
+                  }
+                }}>
+                Load Example
+              </Button>
+            </div>
+            <div>
+              <Button className="p-0" variant="link" href="/data/cansurv_example.txt" download>
+                Download Example Data
+              </Button>
+            </div>
+            <div>
+              <Button className="p-0" variant="link" href="/data/cansurv_example.dic" download>
+                Download Example Dictionary
+              </Button>
+            </div>
+          </div>
+        )}
         <div className="text-end mb-3">
           {inputType === "csv" && (
             <Button variant="link" onClick={() => setUserCsv({ openConfigDataModal: true })}>
