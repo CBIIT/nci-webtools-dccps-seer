@@ -28,9 +28,7 @@ export default function Analysis() {
   }, [id]);
 
   useEffect(() => {
-    if (!id && storeId) {
-      router.push(`${pathname}?id=${storeId}`, { shallow: true });
-    }
+    if (!id && storeId) router.push(`${pathname}?id=${storeId}`, { shallow: true });
   }, [id, storeId, router, pathname]);
 
   return (

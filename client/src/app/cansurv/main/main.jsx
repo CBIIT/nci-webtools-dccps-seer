@@ -71,7 +71,7 @@ export default function AnalysisMain({ id }) {
           <Controls manifest={manifest} handleSaveResults={handleSaveResults} />
         </div>
       )}
-      {results && (
+      {results && Object.keys(seerData).length > 0 && (
         <div className="shadow border rounded bg-white my-3">
           <Tabs defaultActiveKey="report">
             <Tab eventKey="report" title="Report">
