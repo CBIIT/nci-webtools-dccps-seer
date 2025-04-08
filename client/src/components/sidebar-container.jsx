@@ -23,7 +23,7 @@ export function SidebarContainer({ collapsed = false, onCollapsed = () => {}, ch
     "title": collapsed ? "Show Configuration Panel" : "Hide Configuration Panel",
   };
   const CollapseButton = ({ collapsed, toggleCollapse }) =>
-    collapsed ? <BsCaretLeftFill {...toggleProps} /> : <BsCaretRightFill {...toggleProps} />;
+    collapsed ? <BsCaretRightFill {...toggleProps} /> : <BsCaretLeftFill {...toggleProps} />;
   // <i
   // onClick={toggleCollapse}
   // className={classNames(
