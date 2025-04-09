@@ -286,6 +286,7 @@ export default function AnalysisForm({ id }) {
               <Button
                 className="p-0"
                 variant="link"
+                size="sm"
                 onClick={async () => {
                   try {
                     // Helper function to fetch and convert a file to a Blob
@@ -310,13 +311,13 @@ export default function AnalysisForm({ id }) {
               </Button>
             </div>
             <div>
-              <Button className="p-0" variant="link" href="/data/cansurv_example.txt" download>
-                Download Example Data
+              <Button className="p-0" variant="link" size="sm" href="/data/cansurv_example.txt" download>
+                Download Example (.txt)
               </Button>
             </div>
             <div>
-              <Button className="p-0" variant="link" href="/data/cansurv_example.dic" download>
-                Download Example Dictionary
+              <Button className="p-0" variant="link" size="sm" href="/data/cansurv_example.dic" download>
+                Download Example (.dic)
               </Button>
             </div>
           </div>

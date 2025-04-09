@@ -356,6 +356,7 @@ export default function AnalysisForm({ id }) {
               <Button
                 className="p-0"
                 variant="link"
+                size="sm"
                 onClick={async () => {
                   try {
                     // Helper function to fetch and convert a file to a Blob
@@ -367,8 +368,14 @@ export default function AnalysisForm({ id }) {
                     };
 
                     // Fetch both files
-                    const dicFile = await fetchFile("/data/Tutorial_JPSurv_01242022.dic", "Tutorial_JPSurv_01242022.dic");
-                    const txtFile = await fetchFile("/data/Tutorial_JPSurv_01242022.txt", "Tutorial_JPSurv_01242022.txt");
+                    const dicFile = await fetchFile(
+                      "/data/Tutorial_JPSurv_01242022.dic",
+                      "Tutorial_JPSurv_01242022.dic"
+                    );
+                    const txtFile = await fetchFile(
+                      "/data/Tutorial_JPSurv_01242022.txt",
+                      "Tutorial_JPSurv_01242022.txt"
+                    );
 
                     // Set the files in the form
                     setValue("inputFile", asFileList([dicFile, txtFile]));
@@ -380,13 +387,13 @@ export default function AnalysisForm({ id }) {
               </Button>
             </div>
             <div>
-              <Button className="p-0" variant="link" href="/data/Tutorial_JPSurv_01242022.txt" download>
-                Download Example Data
+              <Button className="p-0" variant="link" size="sm" href="/data/Tutorial_JPSurv_01242022.txt" download>
+                Download Example (.txt)
               </Button>
             </div>
             <div>
-              <Button className="p-0" variant="link" href="/data/Tutorial_JPSurv_01242022.dic" download>
-                Download Example Dictionary
+              <Button className="p-0" variant="link" size="sm" href="/data/Tutorial_JPSurv_01242022.dic" download>
+                Download Example (.dic)
               </Button>
             </div>
           </div>
