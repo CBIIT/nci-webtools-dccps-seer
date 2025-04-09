@@ -223,6 +223,17 @@ export default function AnalysisForm({ id }) {
     queryClient.invalidateQueries();
   }
 
+  function numberInputOnWheelPreventChange(e) {
+    // Prevent the input value change
+    e.target.blur();
+    // Prevent the page/container scrolling
+    e.stopPropagation();
+    // Refocus immediately, on the next tick (after the current function is done)
+    setTimeout(() => {
+      e.target.focus();
+    }, 0);
+  }
+
   return (
     <Form onSubmit={handleSubmit(onSubmit)} onReset={onReset}>
       <fieldset className="fieldset shadow-sm border rounded my-4 pt-4 px-3">
@@ -383,6 +394,7 @@ export default function AnalysisForm({ id }) {
                 type="number"
                 min="100"
                 max="1000"
+                onWheel={numberInputOnWheelPreventChange}
               />
             </Form.Group>
             <Form.Group controlId="reltol" className="my-3">
@@ -415,6 +427,7 @@ export default function AnalysisForm({ id }) {
                 type="number"
                 min="0"
                 max="100"
+                onWheel={numberInputOnWheelPreventChange}
               />
               <Form.Text className="text-danger">{errors?.n_restart_conv?.message}</Form.Text>
             </Form.Group>
@@ -423,7 +436,9 @@ export default function AnalysisForm({ id }) {
               <Form.Control
                 {...register("seed", { valueAsNumber: true })}
                 placeholder="Any numeric value"
-                type="number"></Form.Control>
+                type="number"
+                onWheel={numberInputOnWheelPreventChange}
+              />
             </Form.Group>
 
             <h5>Analysis Variables</h5>

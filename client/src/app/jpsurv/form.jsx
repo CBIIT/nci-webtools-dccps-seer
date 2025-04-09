@@ -297,6 +297,17 @@ export default function AnalysisForm({ id }) {
     setError(null);
   }
 
+  function numberInputOnWheelPreventChange(e) {
+    // Prevent the input value change
+    e.target.blur();
+    // Prevent the page/container scrolling
+    e.stopPropagation();
+    // Refocus immediately, on the next tick (after the current function is done)
+    setTimeout(() => {
+      e.target.focus();
+    }, 0);
+  }
+
   return (
     <Form onSubmit={handleSubmit(onSubmit)} onReset={onReset}>
       <Image src={"/assets/jpsurv.png"} alt="JPSurv (Joint Point Survival Model)" width={120} height={43} />
@@ -607,7 +618,12 @@ export default function AnalysisForm({ id }) {
                     <Form.Label className="fw-bold">
                       Minimum Number of Years between Joinpoints (Excluding Joinpoints)
                     </Form.Label>
-                    <Form.Control {...register("numbetwn", { valueAsNumber: true })} type="number" min="2" />
+                    <Form.Control
+                      {...register("numbetwn", { valueAsNumber: true })}
+                      type="number"
+                      min="2"
+                      onWheel={numberInputOnWheelPreventChange}
+                    />
                   </Form.Group>
                   <Form.Group controlId="numfromstart" className="my-3">
                     <Form.Label className="fw-bold">
@@ -616,7 +632,9 @@ export default function AnalysisForm({ id }) {
                     <Form.Control
                       {...register("numfromstart", { valueAsNumber: true })}
                       type="number"
-                      min="2"></Form.Control>
+                      onWheel={numberInputOnWheelPreventChange}
+                      min="2"
+                    />
                   </Form.Group>
                   <Form.Group controlId="numtoend" className="my-3">
                     <Form.Label className="fw-bold">
@@ -625,14 +643,18 @@ export default function AnalysisForm({ id }) {
                     <Form.Control
                       {...register("numtoend", { valueAsNumber: true })}
                       type="number"
-                      min="2"></Form.Control>
+                      min="2"
+                      onWheel={numberInputOnWheelPreventChange}
+                    />
                   </Form.Group>
                   <Form.Group controlId="projectedYears" className="my-3">
                     <Form.Label className="fw-bold">Number of Calendar Years of Projected Survival</Form.Label>
                     <Form.Control
                       {...register("projectedYears", { valueAsNumber: true })}
                       type="number"
-                      min="0"></Form.Control>
+                      min="0"
+                      onWheel={numberInputOnWheelPreventChange}
+                    />
                   </Form.Group>
                   <Button variant="link" className="mt-3" onClick={() => reset({ ...watch(), ...defaultAdvOptions })}>
                     Reset Advanced Options
