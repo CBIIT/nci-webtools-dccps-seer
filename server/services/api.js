@@ -39,9 +39,6 @@ export function createApi(env) {
   // register routes
   router.get("/ping", async (req, res) => res.json(true));
 
-  router.post("/echo", async (req, res) => {
-    res.json(req.body);
-  });
   // router.post("/upload/:id", validate, handleValidationErrors, upload.any(), logFiles(), (req, res) => {
   //   res.json({ id: req.params.id });
   // });
