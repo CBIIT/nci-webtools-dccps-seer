@@ -23,9 +23,9 @@ export default function ActTable({ data, formState, seerData, valueToLabelMap, p
       header: () => "Time Since Diagnosis",
       cell: (info) => info.getValue(),
     }),
-    columnHelper.accessor((e) => e[".Surv.Act"], {
+    columnHelper.accessor((e) => e["Relative_Survival_Cum"], {
       id: "actuarial-survival",
-      header: () => "Actuarial Survival (%)",
+      header: () => "Observed (%)",
       cell: (info) => (info.getValue() ? (info.getValue() * 100).toFixed(precision) : "NA"),
     }),
     columnHelper.accessor((e) => e[".Surv.Est"], {

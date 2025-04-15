@@ -16,7 +16,7 @@ export default function ActPlot({ data, params, title, subtitle, xTitle, yTitle,
   const [annotations, setAnnotations] = useState([]);
 
   const estTraceName = `Estimated`;
-  const actTraceName = `Actuarial`;
+  const obsTraceName = `Observed`;
   const cureTraceName = `Cure Fraction`;
 
   const estTraces = makeLineTrace(
@@ -29,12 +29,12 @@ export default function ActPlot({ data, params, title, subtitle, xTitle, yTitle,
     precision,
     fontSize
   );
-  const actTraces = makeMarkerTrace(
-    actTraceName,
-    actTraceName,
+  const obsTraces = makeMarkerTrace(
+    obsTraceName,
+    obsTraceName,
     1,
     data.map((e) => e.Interval),
-    data.map((e) => e[".Surv.Act"] * 100),
+    data.map((e) => e["Relative_Survival_Cum"] * 100),
     false,
     precision,
     fontSize
@@ -54,12 +54,12 @@ export default function ActPlot({ data, params, title, subtitle, xTitle, yTitle,
     : [];
 
   const estLegendTrace = makeLegendTrace(estTraceName, estTraceName, 0, "lines");
-  const actLegendTrace = makeLegendTrace(actTraceName, actTraceName, 1, "markers");
+  const actLegendTrace = makeLegendTrace(obsTraceName, obsTraceName, 1, "markers");
   const cureLegendTrace = data[0]?.[".Cure.Fraction"]
     ? makeLegendTrace(cureTraceName, cureTraceName, 2, "lines", "dash")
     : [];
 
-  const traces = [actTraces, estTraces, cureTraces, estLegendTrace, actLegendTrace, cureLegendTrace];
+  const traces = [obsTraces, estTraces, cureTraces, estLegendTrace, actLegendTrace, cureLegendTrace];
 
   const layout = makeLayout([0, data.length + 1], title, subtitle, xTitle, yTitle, fontSize);
   const layoutMemo = useMemo(() => ({ ...layout, annotations }), [layout, annotations]);
