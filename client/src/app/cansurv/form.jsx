@@ -396,6 +396,7 @@ export default function AnalysisForm({ id }) {
                 max="1000"
                 onWheel={numberInputOnWheelPreventChange}
               />
+              <Form.Text className="text-danger">{errors?.maxit?.message}</Form.Text>
             </Form.Group>
             <Form.Group controlId="reltol" className="my-3">
               <Form.Label className="fw-bold">Reasdlative Convergence Tolerance</Form.Label>
@@ -439,6 +440,7 @@ export default function AnalysisForm({ id }) {
                 type="number"
                 onWheel={numberInputOnWheelPreventChange}
               />
+              <Form.Text className="text-danger">{errors?.seed?.message}</Form.Text>
             </Form.Group>
 
             <h5>Analysis Variables</h5>
