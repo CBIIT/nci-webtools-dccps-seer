@@ -77,7 +77,6 @@ export default function AnalysisMain({ id }) {
             <Tab eventKey="report" title="Report">
               <Report data={results} seerData={seerData} precision={precision} />
             </Tab>
-            <Tab eventKey="data" title="Data"></Tab>
             <Tab eventKey="act" title="Estimated and Actuarial Survival Curves">
               <Actuarial data={results} seerData={seerData} params={params} precision={precision} />
             </Tab>
