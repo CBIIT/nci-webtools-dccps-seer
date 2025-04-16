@@ -16,9 +16,8 @@ export default function KYearTable({ data, seerData, valueToLabelMap, precision 
       header: () => "Time Since Diagnosis",
       cell: (info) => info.getValue(),
     }),
-    columnHelper.accessor((e) => e[".Surv.Act"], {
-      id: "actuarial-survival",
-      header: () => "Actuarial Survival (%)",
+    columnHelper.accessor("Relative_Survival_Cum", {
+      header: () => "Observed (%)",
       cell: (info) => (info.getValue() ? (info.getValue() * 100).toFixed(precision) : "NA"),
     }),
     columnHelper.accessor((e) => e[".Surv.Est"], {

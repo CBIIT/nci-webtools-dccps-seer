@@ -24,7 +24,7 @@ export default function KYearPlot({ data, xAxisVar, valueToLabelMap, title, subt
       1,
       1,
       data.map((e) => valueToLabelMap[xAxisVar][e[xAxisVar]]),
-      data.map((e) => e[".Surv.Act"] * 100),
+      data.map((e) => e["Relative_Survival_Cum"] * 100),
       false,
       precision,
       fontSize
