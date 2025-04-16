@@ -1,6 +1,6 @@
 "use client";
 import { useMemo } from "react";
-import { Container, Row, Col, Form, Button } from "react-bootstrap";
+import { Container, Row, Col, Form, Button, Alert } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import KYearPlot from "./plot";
 import KYearTable from "./table";
@@ -92,100 +92,109 @@ export default function KYear({ data, params, seerData, precision }) {
   }
   return (
     <Container fluid>
-      <Row className="border-bottom mb-3">
-        <Col className="p-3">
-          {stratumOptions.length > 0 && (
-            <Row className="mb-3">
-              <Col sm="auto">
-                <Form.Group controlId="stratum">
-                  <Form.Label>Stratum</Form.Label>
-                  <Form.Select {...register("stratum", { valueAsNumber: true })}>
-                    {stratumOptions.map((e) => (
-                      <option key={e.label} value={e.value}>
-                        {e.label}
-                      </option>
-                    ))}
-                  </Form.Select>
-                </Form.Group>
-              </Col>
-            </Row>
-          )}
-          <Row className="mb-3">
-            <Col sm="auto">
-              <Form.Group controlId="k">
-                <Form.Label>K Value</Form.Label>
-                <Form.Select {...register("k", { valueAsNumber: true })}>
-                  {kOptions.map((f) => (
-                    <option key={f.value} value={f.value}>
-                      {f.label}
-                    </option>
-                  ))}
-                </Form.Select>
-              </Form.Group>
-            </Col>
-            <Col sm="auto">
-              <Form.Group controlId="xAxisVar">
-                <Form.Label>X Axis Variable</Form.Label>
-                <Form.Select {...register("xAxisVar")}>
-                  {xAxisOptions.map((f) => (
-                    <option key={f.value} value={f.value}>
-                      {f.label}
-                    </option>
-                  ))}
-                </Form.Select>
-              </Form.Group>
+      {xAxisOptions.length === 0 ? (
+        <Alert variant="info">
+          <div>K-Year Survival Unavailable</div>
+          <div>All Covariates were configured as Stratum. Unselect at least one covariate to enable this plot</div>
+        </Alert>
+      ) : (
+        <>
+          <Row className="border-bottom mb-3">
+            <Col className="p-3">s
+              {stratumOptions.length > 0 && (
+                <Row className="mb-3">
+                  <Col sm="auto">
+                    <Form.Group controlId="stratum">
+                      <Form.Label>Stratum</Form.Label>
+                      <Form.Select {...register("stratum", { valueAsNumber: true })}>
+                        {stratumOptions.map((e) => (
+                          <option key={e.label} value={e.value}>
+                            {e.label}
+                          </option>
+                        ))}
+                      </Form.Select>
+                    </Form.Group>
+                  </Col>
+                </Row>
+              )}
+              <Row className="mb-3">
+                <Col sm="auto">
+                  <Form.Group controlId="k">
+                    <Form.Label>K Value</Form.Label>
+                    <Form.Select {...register("k", { valueAsNumber: true })}>
+                      {kOptions.map((f) => (
+                        <option key={f.value} value={f.value}>
+                          {f.label}
+                        </option>
+                      ))}
+                    </Form.Select>
+                  </Form.Group>
+                </Col>
+                <Col sm="auto">
+                  <Form.Group controlId="xAxisVar">
+                    <Form.Label>X Axis Variable</Form.Label>
+                    <Form.Select {...register("xAxisVar")}>
+                      {xAxisOptions.map((f) => (
+                        <option key={f.value} value={f.value}>
+                          {f.label}
+                        </option>
+                      ))}
+                    </Form.Select>
+                  </Form.Group>
+                </Col>
+              </Row>
+              <Row>
+                {subStratumVars.map((e) => (
+                  <Col key={e.name} sm="auto">
+                    <Form.Group controlId={e.name}>
+                      <Form.Label></Form.Label>
+                      {e.label}
+                      <Form.Select {...register(e.name, { valueAsNumber: true })}>
+                        {e.factors.map((f) => (
+                          <option key={f.value} value={f.value}>
+                            {f.label}
+                          </option>
+                        ))}
+                      </Form.Select>
+                    </Form.Group>
+                  </Col>
+                ))}
+              </Row>
             </Col>
           </Row>
           <Row>
-            {subStratumVars.map((e) => (
-              <Col key={e.name} sm="auto">
-                <Form.Group controlId={e.name}>
-                  <Form.Label></Form.Label>
-                  {e.label}
-                  <Form.Select {...register(e.name, { valueAsNumber: true })}>
-                    {e.factors.map((f) => (
-                      <option key={f.value} value={f.value}>
-                        {f.label}
-                      </option>
-                    ))}
-                  </Form.Select>
-                </Form.Group>
-              </Col>
-            ))}
+            <Col>
+              <KYearPlot
+                data={memoData}
+                xAxisVar={formState.xAxisVar}
+                valueToLabelMap={valueToLabelMap}
+                title={`Plot of K-Year Survival by Covariate`}
+                subtitle={getPlotSubtitle()}
+                xTitle={xAxisOptions.filter((e) => e.value === formState.xAxisVar)[0].label}
+                yTitle={"Relative Survival"}
+                precision={precision}
+              />
+            </Col>
           </Row>
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          <KYearPlot
-            data={memoData}
-            xAxisVar={formState.xAxisVar}
-            valueToLabelMap={valueToLabelMap}
-            title={`Plot of K-Year Survival by Covariate`}
-            subtitle={getPlotSubtitle()}
-            xTitle={xAxisOptions.filter((e) => e.value === formState.xAxisVar)[0].label}
-            yTitle={"Relative Survival"}
-            precision={precision}
-          />
-        </Col>
-      </Row>
-      <Row className="justify-content-between align-items-center">
-        <Col sm="auto">Total Row Count: {memoData.length}</Col>
-        <Col sm="auto">
-          <Button
-            variant="link"
-            onClick={() =>
-              downloadTableCansurv(memoData, Object.keys(memoData[0]), params, `kYear-${getPlotSubtitle()}`)
-            }>
-            Download Graph Dataset
-          </Button>
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          <KYearTable data={memoData} seerData={seerData} valueToLabelMap={valueToLabelMap} precision={precision} />
-        </Col>
-      </Row>
+          <Row className="justify-content-between align-items-center">
+            <Col sm="auto">Total Row Count: {memoData.length}</Col>
+            <Col sm="auto">
+              <Button
+                variant="link"
+                onClick={() =>
+                  downloadTableCansurv(memoData, Object.keys(memoData[0]), params, `kYear-${getPlotSubtitle()}`)
+                }>
+                Download Graph Dataset
+              </Button>
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <KYearTable data={memoData} seerData={seerData} valueToLabelMap={valueToLabelMap} precision={precision} />
+            </Col>
+          </Row>
+        </>
+      )}
     </Container>
   );
 }
