@@ -12,7 +12,7 @@ export function Controls({ manifest, className, handleSaveResults }) {
   const id = useStore((state) => state.params.id);
   const { precision } = main;
   const errors = typeof manifest === "string" ? [manifest] : [];
-  
+
   function handlePrecisionChange(e) {
     setState({ main: { ...main, precision: +e.target.value } });
   }
@@ -34,7 +34,7 @@ export function Controls({ manifest, className, handleSaveResults }) {
   }
 
   return (
-    <Form className={"mb-3 " + className}>
+    <Form className={className}>
       {errors.length > 0 && (
         <Alert variant="warning" dismissible>
           <ul>
