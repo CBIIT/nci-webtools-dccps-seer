@@ -1,4 +1,5 @@
 "use client";
+import Script from "next/script";
 import { Suspense } from "react";
 import { ErrorBoundary } from "next/dist/client/components/error-boundary";
 import Alert from "react-bootstrap/Alert";
@@ -28,8 +29,8 @@ export default function RootLayout({ children }) {
         <title>{pageTitle}</title>
         <meta name="keywords" content="jpsurv" />
         <link rel="icon" href="/favicon.ico" sizes="any" />
-        <GoogleAnalytics id="UA-62346354-12" />
-        <script async src="https://cbiit.github.io/nci-softwaresolutions-elements/components/include-html.js"></script>
+        <GoogleAnalytics id="G-DGFTR3EY14" />
+        <Script src="https://cbiit.github.io/nci-softwaresolutions-elements/components/include-html.js" />
       </head>
       <body>
         <include-html src="https://cbiit.github.io/nci-softwaresolutions-elements/banners/government-shutdown.html"></include-html>
