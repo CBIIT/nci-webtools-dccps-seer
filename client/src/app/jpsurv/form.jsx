@@ -309,7 +309,7 @@ export default function AnalysisForm({ id }) {
   }
 
   return (
-    <Form onSubmit={handleSubmit(onSubmit)} onReset={onReset}>
+    <Form onSubmit={handleSubmit(onSubmit)} onReset={onReset} noValidate>
       <Image src={"/assets/jpsurv.png"} alt="JPSurv (Joint Point Survival Model)" width={120} height={43} />
       <fieldset className="fieldset shadow-sm border rounded my-4 pt-4 px-3">
         <legend className="legend fw-bold">Data</legend>
@@ -619,7 +619,10 @@ export default function AnalysisForm({ id }) {
                       Minimum Number of Years between Joinpoints (Excluding Joinpoints)
                     </Form.Label>
                     <Form.Control
-                      {...register("numbetwn", { valueAsNumber: true })}
+                      {...register("numbetwn", {
+                        valueAsNumber: true,
+                        validate: (value) => !isNaN(value) || "Value must be a valid number",
+                      })}
                       type="number"
                       min="2"
                       onWheel={numberInputOnWheelPreventChange}
@@ -630,7 +633,10 @@ export default function AnalysisForm({ id }) {
                       Minimum Number of Years before First Joinpoint (Excluding Joinpoint)
                     </Form.Label>
                     <Form.Control
-                      {...register("numfromstart", { valueAsNumber: true })}
+                      {...register("numfromstart", {
+                        valueAsNumber: true,
+                        validate: (value) => !isNaN(value) || "Value must be a valid number",
+                      })}
                       type="number"
                       onWheel={numberInputOnWheelPreventChange}
                       min="2"
@@ -641,7 +647,10 @@ export default function AnalysisForm({ id }) {
                       Minimum Number of Years after Last Joinpoint (Excluding Joinpoint)
                     </Form.Label>
                     <Form.Control
-                      {...register("numtoend", { valueAsNumber: true })}
+                      {...register("numtoend", {
+                        valueAsNumber: true,
+                        validate: (value) => !isNaN(value) || "Value must be a valid number",
+                      })}
                       type="number"
                       min="2"
                       onWheel={numberInputOnWheelPreventChange}
@@ -650,7 +659,10 @@ export default function AnalysisForm({ id }) {
                   <Form.Group controlId="projectedYears" className="my-3">
                     <Form.Label className="fw-bold">Number of Calendar Years of Projected Survival</Form.Label>
                     <Form.Control
-                      {...register("projectedYears", { valueAsNumber: true })}
+                      {...register("projectedYears", {
+                        valueAsNumber: true,
+                        validate: (value) => !isNaN(value) || "Value must be a valid number",
+                      })}
                       type="number"
                       min="0"
                       onWheel={numberInputOnWheelPreventChange}

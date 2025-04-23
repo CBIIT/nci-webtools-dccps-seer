@@ -235,7 +235,7 @@ export default function AnalysisForm({ id }) {
   }
 
   return (
-    <Form onSubmit={handleSubmit(onSubmit)} onReset={onReset}>
+    <Form onSubmit={handleSubmit(onSubmit)} onReset={onReset} noValidate>
       <fieldset className="fieldset shadow-sm border rounded my-4 pt-4 px-3">
         <legend className="legend fw-bold">Data</legend>
         <Form.Group className="mb-4" controlId="inputType">
@@ -384,6 +384,7 @@ export default function AnalysisForm({ id }) {
               <Form.Control
                 {...register("maxit", {
                   valueAsNumber: true,
+                  validate: (value) => !isNaN(value) || "Value must be a valid number",
                   min: { value: 100, message: "Value must be at least 100" },
                   max: {
                     value: 1000,
@@ -403,6 +404,7 @@ export default function AnalysisForm({ id }) {
               <Form.Control
                 {...register("reltol", {
                   valueAsNumber: true,
+                  validate: (value) => !isNaN(value) || "Value must be a valid number",
                   min: { value: 1e-10, message: "Value must be at least 1e-10" },
                   max: {
                     value: 1e-4,
@@ -418,6 +420,7 @@ export default function AnalysisForm({ id }) {
               <Form.Control
                 {...register("n_restart_conv", {
                   valueAsNumber: true,
+                  validate: (value) => !isNaN(value) || "Value must be a valid number",
                   min: { value: 0, message: "Value must be at least 0" },
                   max: {
                     value: 100,
@@ -435,7 +438,10 @@ export default function AnalysisForm({ id }) {
             <Form.Group controlId="seed" className="my-3">
               <Form.Label className="fw-bold">Seed</Form.Label>
               <Form.Control
-                {...register("seed", { valueAsNumber: true })}
+                {...register("seed", {
+                  valueAsNumber: true,
+                  validate: (value) => !isNaN(value) || "Value must be a valid number",
+                })}
                 placeholder="Any numeric value"
                 type="number"
                 onWheel={numberInputOnWheelPreventChange}
