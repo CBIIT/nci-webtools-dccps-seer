@@ -400,7 +400,7 @@ export default function AnalysisForm({ id }) {
               <Form.Text className="text-danger">{errors?.maxit?.message}</Form.Text>
             </Form.Group>
             <Form.Group controlId="reltol" className="my-3">
-              <Form.Label className="fw-bold">Reasdlative Convergence Tolerance</Form.Label>
+              <Form.Label className="fw-bold">Relative Convergence Tolerance</Form.Label>
               <Form.Control
                 {...register("reltol", {
                   valueAsNumber: true,
