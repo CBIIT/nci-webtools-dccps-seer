@@ -39,7 +39,7 @@ export default function TrendTable({ data, params, precision }) {
         let trend = "";
         if (row.original["lowCI"] > 0) trend = "Increasing";
         else if (row.original["upCI"] < 0) trend = "Decreasing";
-        else if (row.original["lowCI"] <= 0 && original["upCI"] >= 0) trend = "Not significant";
+        else if (row.original["lowCI"] <= 0 && row.original["upCI"] >= 0) trend = "Not significant";
         return <span>{trend}</span>;
       },
     },
