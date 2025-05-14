@@ -94,17 +94,18 @@ export default function AnalysisForm({ id }) {
               // parse SEER*Stat files to extract dictionary headers and data
               const { headers, config } = await parseSeerStatDictionary(dictionaryFile);
               const { data } = await parseSeerStatFiles(dictionaryFile, dataFile);
-              // get cohort variables, located between year of diagnosis and interval variables
-              const varNames = headers.map((e) => e.label);
-              const pageTypeIndex = varNames.findIndex((e) => /page type/gi.test(e));
-              const intervalIndex = varNames.indexOf("Interval");
-              const cohortVariables =
-                intervalIndex - pageTypeIndex > 1
-                  ? headers.slice(pageTypeIndex + 1, intervalIndex).map((e) => ({
-                      ...e,
-                      factors: e.factors.map((f) => ({ ...f, label: f.label.replace(/"/gi, "").trim() })),
-                    }))
-                  : [];
+              // get cohort variables by filtering unknown labels
+              const exclude = ["Page type", "Interval", /^year/gi];
+              const cohortVariables = headers
+                .filter(
+                  (e) =>
+                    e.factors.length &&
+                    !exclude.some((item) => (item instanceof RegExp ? item.test(e.label) : item === e.label))
+                )
+                .map((e) => ({
+                  ...e,
+                  factors: e.factors.map((f) => ({ ...f, label: f.label.replace(/"/gi, "").trim() })),
+                }));
 
               const seer = {
                 dictionaryFile: dictionaryFile.name,
@@ -141,7 +142,7 @@ export default function AnalysisForm({ id }) {
   }, [session, setState, getValues, reset, populatecovariates, setSeerVariables]);
   // parse seerdata after data upload
   useEffect(() => {
-    if (inputFile && !Object.keys(seerData).length) handleLoadData(inputType, inputFile);
+    if (inputFile && !(seerData?.cohortVariables)) handleLoadData(inputType, inputFile);
   }, [inputType, inputFile, seerData, handleLoadData]);
   // populate form after seerdata is parsed
   useEffect(() => {
