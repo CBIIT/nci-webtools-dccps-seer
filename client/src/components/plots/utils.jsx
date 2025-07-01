@@ -103,7 +103,7 @@ export function makeLayout(range, title, subtitle, xTitle, yTitle, fontSize = 14
       title: `<b>${xTitle}</b>`,
       range: range,
       autorange: true,
-      //   dtick: divId == "timePlot" ? 1 : null,
+      dtick: 1,
     },
     yaxis: {
       title: `<b>${yTitle}</b>`,

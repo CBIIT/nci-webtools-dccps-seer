@@ -16,15 +16,15 @@ export default function ActPlot({ data, params, title, subtitle, xTitle, yTitle,
   const [annotations, setAnnotations] = useState([]);
 
   const estTraceName = `Estimated`;
-  const obsTraceName = `Observed`;
+  const obsTraceName = `Observed Actuarial`;
   const cureTraceName = `Cure Fraction`;
 
   const estTraces = makeLineTrace(
     estTraceName,
     estTraceName,
     0,
-    data.map((e) => e.Interval),
-    data.map((e) => e[".Surv.Est"] * 100),
+    [0, ...data.map((e) => e.Interval)],
+    [100, ...data.map((e) => e[".Surv.Est"] * 100)],
     false,
     precision,
     fontSize
@@ -33,31 +33,33 @@ export default function ActPlot({ data, params, title, subtitle, xTitle, yTitle,
     obsTraceName,
     obsTraceName,
     1,
-    data.map((e) => e.Interval),
-    data.map((e) => e["Relative_Survival_Cum"] * 100),
+    [0, ...data.map((e) => e.Interval)],
+    [100, ...data.map((e) => e["Relative_Survival_Cum"] * 100)],
     false,
     precision,
     fontSize
   );
 
-  const cureTraces = data[0]?.[".Cure.Fraction"]
-    ? makeDashTrace(
-        cureTraceName,
-        cureTraceName,
-        2,
-        data.map((e) => e.Interval),
-        data.map((e) => e[".Cure.Fraction"][0] * 100),
-        false,
-        precision,
-        fontSize
-      )
-    : [];
+  const cureFraction = data[0]?.[".Cure.Fraction"] ? data[0][".Cure.Fraction"][0] : 0;
+  const cureThreshold = 0.0001; // lower limit for displaying the cure fraction to avoid cluttering the plot with a line at 0
+  const cureTraces =
+    cureFraction > cureThreshold
+      ? makeDashTrace(
+          cureTraceName,
+          cureTraceName,
+          2,
+          [0, ...data.map((e) => e.Interval)],
+          [cureFraction * 100, ...data.map((_) => cureFraction * 100)],
+          false,
+          precision,
+          fontSize
+        )
+      : [];
 
   const estLegendTrace = makeLegendTrace(estTraceName, estTraceName, 0, "lines");
   const actLegendTrace = makeLegendTrace(obsTraceName, obsTraceName, 1, "markers");
-  const cureLegendTrace = data[0]?.[".Cure.Fraction"]
-    ? makeLegendTrace(cureTraceName, cureTraceName, 2, "lines", "dash")
-    : [];
+  const cureLegendTrace =
+    cureFraction > cureThreshold ? makeLegendTrace(cureTraceName, cureTraceName, 2, "lines", "dash") : [];
 
   const traces = [obsTraces, estTraces, cureTraces, estLegendTrace, actLegendTrace, cureLegendTrace];
 
