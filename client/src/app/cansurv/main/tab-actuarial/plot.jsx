@@ -15,9 +15,9 @@ export default function ActPlot({ data, params, title, subtitle, xTitle, yTitle,
   const [fontSize, setFontSize] = useState(14);
   const [annotations, setAnnotations] = useState([]);
 
-  const estTraceName = `Estimated`;
-  const obsTraceName = `Observed Actuarial`;
-  const cureTraceName = `Cure Fraction`;
+  const estTraceName = "Estimated";
+  const obsTraceName = "Observed Actuarial";
+  const cureTraceName = "Cure Fraction";
 
   const estTraces = makeLineTrace(
     estTraceName,

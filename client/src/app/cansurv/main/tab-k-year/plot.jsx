@@ -8,9 +8,12 @@ export default function KYearPlot({ data, xAxisVar, valueToLabelMap, title, subt
   const [fontSize, setFontSize] = useState(14);
   const [annotations, setAnnotations] = useState([]);
 
+  const estTraceName = "Estimated";
+  const obsTraceName = "Observed Actuarial";
+
   const dataTraces = [
     makeLineTrace(
-      "Estimated",
+      estTraceName,
       0,
       0,
       data.map((e) => valueToLabelMap[xAxisVar][e[xAxisVar]]),
@@ -20,7 +23,7 @@ export default function KYearPlot({ data, xAxisVar, valueToLabelMap, title, subt
       fontSize
     ),
     makeMarkerTrace(
-      "Actuarial",
+      obsTraceName,
       1,
       1,
       data.map((e) => valueToLabelMap[xAxisVar][e[xAxisVar]]),
@@ -30,8 +33,9 @@ export default function KYearPlot({ data, xAxisVar, valueToLabelMap, title, subt
       fontSize
     ),
   ];
-  const estLegendTrace = makeLegendTrace("Estimated", 0, 0, "lines");
-  const actLegendTrace = makeLegendTrace("Actuarial", 1, 1, "markers");
+
+  const estLegendTrace = makeLegendTrace(estTraceName, 0, 0, "lines");
+  const actLegendTrace = makeLegendTrace(obsTraceName, 1, 1, "markers");
   const traces = [...dataTraces, estLegendTrace, actLegendTrace];
 
   const layout = {

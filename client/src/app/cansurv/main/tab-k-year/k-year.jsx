@@ -100,7 +100,7 @@ export default function KYear({ data, params, seerData, precision }) {
       ) : (
         <>
           <Row className="border-bottom mb-3">
-            <Col className="p-3">s
+            <Col className="p-3">
               {stratumOptions.length > 0 && (
                 <Row className="mb-3">
                   <Col sm="auto">
@@ -168,7 +168,7 @@ export default function KYear({ data, params, seerData, precision }) {
                 data={memoData}
                 xAxisVar={formState.xAxisVar}
                 valueToLabelMap={valueToLabelMap}
-                title={`Plot of K-Year Survival by Covariate`}
+                title={`Plot of ${formState.k}-Year Survival by Covariate`}
                 subtitle={getPlotSubtitle()}
                 xTitle={xAxisOptions.filter((e) => e.value === formState.xAxisVar)[0].label}
                 yTitle={"Relative Survival"}
