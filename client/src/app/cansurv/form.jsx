@@ -63,7 +63,7 @@ export default function AnalysisForm({ id }) {
     (cohortVariables) => {
       // add dynamic fields for cohort variables
       setValue("covariates", []);
-      cohortVariables.forEach(({ label, name }) => append({ label, name, type: {} }));
+      cohortVariables.forEach(({ label, name }) => append({ label, name, type: { categorical: true } }));
     },
     [setValue, append]
   );
@@ -142,7 +142,7 @@ export default function AnalysisForm({ id }) {
   }, [session, setState, getValues, reset, populatecovariates, setSeerVariables]);
   // parse seerdata after data upload
   useEffect(() => {
-    if (inputFile && !(seerData?.cohortVariables)) handleLoadData(inputType, inputFile);
+    if (inputFile && !seerData?.cohortVariables) handleLoadData(inputType, inputFile);
   }, [inputType, inputFile, seerData, handleLoadData]);
   // populate form after seerdata is parsed
   useEffect(() => {
@@ -167,6 +167,17 @@ export default function AnalysisForm({ id }) {
   function handleCheck(e, key) {
     const { checked } = e.target;
     setValue(key, checked);
+
+    // only check categorical if all other options are unchecked
+    const fieldIndex = key.split(".")[1];
+    const covariateTypes = getValues(`covariates.${fieldIndex}.type`);
+    const { continuous, by, mu, sigma, cure } = covariateTypes;
+
+    if (!continuous && !by && !mu && !sigma && !cure) {
+      setValue(`covariates.${fieldIndex}.type.categorical`, true);
+    } else {
+      setValue(`covariates.${fieldIndex}.type.categorical`, false);
+    }
   }
 
   async function onSubmit(formData) {
@@ -180,7 +191,7 @@ export default function AnalysisForm({ id }) {
   async function submitCalculation(formData) {
     const id = uuidv4();
     const getVariableOptions = (covariates) => {
-      let options = { cure: [], mu: [], sigma: [], continuous: [], by: [] };
+      let options = { cure: [], mu: [], sigma: [], continuous: [], by: [], categorical: [] };
       covariates.forEach((v) =>
         Object.entries(v.type).forEach(([option, bool]) => {
           if (bool) options[option].push(v.name);
@@ -315,6 +326,9 @@ export default function AnalysisForm({ id }) {
 
                     // Set the files in the form
                     setValue("inputFile", asFileList([dicFile, txtFile]));
+                    // set form options
+                    setValue("est_cure", true);
+                    setValue("distribution", "llogis");
                   } catch (error) {
                     console.error("Error loading example files:", error);
                   }
@@ -455,6 +469,14 @@ export default function AnalysisForm({ id }) {
               fields.map(({ label }, fieldIndex) => (
                 <Form.Group key={label} controlId={label} className="mb-4">
                   <Form.Label className="fw-bold">{label}</Form.Label>
+                  <Form.Check
+                    {...register(`covariates.${fieldIndex}.type.categorical`, {})}
+                    label={"Categorical"}
+                    id={`${label}.categorical`}
+                    name={`${label}.categorical`}
+                    type="checkbox"
+                    disabled={true}
+                  />
                   <Form.Check
                     {...register(`covariates.${fieldIndex}.type.continuous`, {})}
                     onChange={(e) => {

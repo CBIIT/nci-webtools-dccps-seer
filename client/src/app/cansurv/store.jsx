@@ -5,7 +5,6 @@ export const defaultForm = {
   inputType: "seer",
   inputFile: "",
   covariates: [],
-
   distribution: "lnorm",
   maxit: 100,
   reltol: 1.5e-8,
@@ -17,6 +16,7 @@ export const defaultForm = {
   sigma: [],
   continuous: [],
   by: [],
+  categorical: [],
   time: "",
   alive: "",
   died: "",
