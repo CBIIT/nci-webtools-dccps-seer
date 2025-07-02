@@ -10,7 +10,7 @@ export default function Table({ data, columns, ...props }) {
 
   return (
     <div className="mb-3" tabIndex="0" style={{ maxHeight: "650px", overflow: "scroll" }}>
-      <BsTable striped bordered {...props}>
+      <BsTable striped bordered {...props} className="m-0">
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>

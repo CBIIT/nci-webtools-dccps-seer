@@ -47,6 +47,11 @@ export default function Report({ data, seerData, precision }) {
     return Object.values(groupBy(fit.data, (item) => subs.map((key) => item[key]))).map((group) => group[0]); // Get the first item from each group
   }, [fit.data, seerData.cohortVariables]);
 
+  const llKeys = ["init.loglike", "loglike", "converged"];
+  const loglikeTable = Object.entries(fit.fitlist)
+    .filter(([key, _]) => llKeys.includes(key))
+    .map(([key, value]) => ({ parameter: key, value }));
+
   const columnHelper = createColumnHelper();
   const columnEstimates = [
     columnHelper.accessor("parameter", {
@@ -61,6 +66,19 @@ export default function Report({ data, seerData, precision }) {
       id: "stderr",
       header: () => "Std. Error",
       cell: (info) => info.getValue().toFixed(precision),
+    }),
+  ];
+  const columnLoglike = [
+    columnHelper.accessor("parameter", {
+      header: () => "Parameter",
+      cell: (info) => info.getValue(),
+    }),
+    columnHelper.accessor("value", {
+      header: () => "Value",
+      cell: (info) => {
+        const value = info.getValue();
+        return typeof value === "number" ? value.toFixed(precision) : value.toString();
+      },
     }),
   ];
   const columnCure = [
@@ -92,6 +110,7 @@ export default function Report({ data, seerData, precision }) {
         <Col>
           <h4>Final Estimates and Tests</h4>
           <Table data={fit.fitlist.estimates} columns={columnEstimates} size="sm" />
+          <Table data={loglikeTable} columns={columnLoglike} size="sm" />
         </Col>
       </Row>
       <Row>
