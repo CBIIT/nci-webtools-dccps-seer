@@ -101,6 +101,12 @@ export async function copyFiles(source, destination, overwrite = false) {
   }
 }
 
+/**
+ * Returns a new object containing only the properties of the input object whose values are not null.
+ *
+ * @param {Object} object - The source object to pick properties from.
+ * @returns {Object} A new object with only the properties whose values are not null.
+ */
 export function pickNonNullValues(object) {
   return pickBy(object, (v) => v !== null);
 }

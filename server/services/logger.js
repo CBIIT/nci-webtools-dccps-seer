@@ -20,6 +20,13 @@ export function formatObject(object) {
   }
 }
 
+/**
+ * Creates and returns a configured Winston logger instance for the application.
+ *
+ * @param {string} name - The label to identify the logger (e.g., module or service name).
+ * @param {string} [level="info"] - The minimum log level (e.g., "info", "debug", "error").
+ * @returns {import("winston").Logger} A Winston Logger instance with custom formatting.
+ */
 export function createLogger(name, level = "info") {
   return new createWinstonLogger({
     level: level,
