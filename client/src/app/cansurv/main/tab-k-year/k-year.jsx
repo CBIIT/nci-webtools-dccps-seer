@@ -147,8 +147,7 @@ export default function KYear({ data, params, seerData, precision }) {
                 {subStratumVars.map((e) => (
                   <Col key={e.name} sm="auto">
                     <Form.Group controlId={e.name}>
-                      <Form.Label></Form.Label>
-                      {e.label}
+                      <Form.Label>{e.label}</Form.Label>
                       <Form.Select {...register(e.name, { valueAsNumber: true })}>
                         {e.factors.map((f) => (
                           <option key={f.value} value={f.value}>
