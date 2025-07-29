@@ -1,12 +1,7 @@
-/results
-/config/config.ini
-/config/config.dev.ini
-*.pyc
 node_modules
+/data 
 .DS_Store
-/logs/*
-/jpsurv/.vscode
-/jpsurv/tests/.pytest_cache
-/jpsurv/tests/__pycache__
-/tmp
-server/renv/cache/[^\.gitkeep]*
+tmp
+.env
+*.crt
+*.key

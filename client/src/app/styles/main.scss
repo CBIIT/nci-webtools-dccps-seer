@@ -1,0 +1,103 @@
+@import "./bootstrap-variables.scss";
+@import "bootstrap/scss/bootstrap";
+@import "./bootstrap-theme.scss";
+
+body {
+  font-family: "Inter", sans-serif;
+}
+
+.jpsurv-logo {
+  height: 65px;
+}
+
+.table thead tr th {
+  background-color: #2e7bb2;
+  color: white;
+}
+
+.accordion-button {
+  color: $blue;
+}
+
+.disabled-contrast {
+  label {
+    opacity: 0.63 !important;
+  }
+}
+
+.video-container {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  height: 0;
+  overflow: hidden;
+  max-width: 100%;
+  background: #000;
+}
+
+.video-container video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+@media (max-width: 767px) {
+  .jpsurv-logo {
+    height: auto;
+  }
+}
+
+.legend-wrap {
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.navbar-nav .nav-item .nav-link.nav-menu-active,
+.navbar-nav .nav-item .nav-link.nav-menu-active:hover {
+  background-color: #df3041;
+  color: white;
+}
+
+.submenu {
+  color: black;
+  text-decoration: none;
+}
+.submenu:hover {
+  background-color: white;
+}
+
+.submenu-border {
+  box-shadow: 0 20px 20px rgba(180, 22, 22, 0.1); /* Adjust the shadow values */
+  border-bottom: 0.01px solid #d9d9d9;
+  z-index: 10;
+}
+
+.submenu:hover {
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.submenu .active {
+  text-decoration: underline;
+  text-decoration-thickness: 2px; /* Set the desired thickness */
+  text-decoration-color: #bf00a4; /* Set the desired underline color */
+  text-underline-offset: 10px; /* Set the desired space between the line and the text */
+  text-decoration-skip-ink: none; /* Ensure the underline is not skipped over descenders */
+  color: black;
+}
+
+.active-submenu {
+  text-decoration: none;
+}
+
+.navbar-toggler {
+  border: none;
+}
+.navbar-toggler:focus,
+.navbar-toggler:focus > *,
+.navbar-toggler:focus > *:before,
+.navbar-toggler:focus > *:after {
+  box-shadow: none !important;
+}

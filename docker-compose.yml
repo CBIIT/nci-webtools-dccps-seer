@@ -1,20 +1,21 @@
 services:
   backend:
     build:
-      context: '.'
-      dockerfile: './docker/backend.dockerfile'
-    volumes:
-      - './config:/app/config:ro'
-      - './tmp:/app/tmp'
-      - './logs:/app/logs'
+      context: "."
+      dockerfile: "./docker/backend.dockerfile"
+    env_file: server/.env
+    # entrypoint: ["npm", "run", "start:debug"]
     ports:
-      - '9002:80'
+      - "9000:9000"
 
-  queue_processor:
+  frontend:
     build:
-      context: '.'
-      dockerfile: './docker/queueProcessor.dockerfile'
-    volumes:
-      - './config:/app/config:ro'
-      - './tmp:/app/tmp'
-      - './logs:/app/logs'
+      context: "."
+      dockerfile: "./docker/frontend.dockerfile"
+      args:
+        - API_BASE_URL=http://backend:9000
+    environment:
+      API_BASE_URL: http://backend:9000
+      APP_PATH: ""
+    ports:
+      - "80:80"

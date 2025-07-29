@@ -1,31 +1,24 @@
 {
-  "name": "nci-webtools-dccps-seer-test",
-  "version": "1.0.0",
-  "description": "Environment for testing nci-webtools-dccps-seer test",
+  "name": "jpsurv-analysis",
+  "version": "4.0.0",
+  "description": "",
   "main": "index.js",
   "scripts": {
-    "build:image": "cd docker && docker build -t cbiitss/jpsurv:dev .",
-    "start:dev": "echo \"Go to: http://localhost:9000/jpsurv\" && docker run --rm -it -p 9000:8000 -v \"$PWD/jpsurv\":/deploy/jpsurv cbiitss/jpsurv:dev",
-    "start:msdev": "echo \"Go to: http://localhost:9000/jpsurv\" && docker run --rm -it -p 9000:8000 -v \"%CD%\\jpsurv\":/deploy/jpsurv cbiitss/jpsurv:dev",
-    "test": "mocha test/end-to-end/scripts/ --reporter xunit --reporter-options output=test/end-to-end/scripts/e2e_results.xml"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "prettier --write --ignore-unknown ."
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/CBIIT/nci-webtools-dccps-seer.git"
-  },
-  "keywords": [
-    "jpsurv",
-    "dccps",
-    "seer"
-  ],
-  "author": "Charles Stockman",
-  "license": "UNLICENSED",
-  "bugs": {
-    "url": "https://github.com/CBIIT/nci-webtools-dccps-seer/issues"
-  },
-  "homepage": "https://github.com/CBIIT/nci-webtools-dccps-seer#readme",
+  "author": "",
+  "license": "ISC",
   "devDependencies": {
-    "mocha": "^5.2.0",
-    "selenium-webdriver": "^3.6.0"
+    "lint-staged": "^13.0.2",
+    "prettier": "^2.7.1"
+  },
+  "prettier": {
+    "printWidth": 120,
+    "quoteProps": "consistent",
+    "bracketSameLine": true
+  },
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown"
   }
 }
