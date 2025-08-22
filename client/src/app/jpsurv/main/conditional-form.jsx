@@ -55,7 +55,7 @@ export default function ConditionalForm({ data, params, cohortIndex, fitIndex, c
 
       setState({ conditional: relabelData(changePrecision(scaleData(data, 100), precision), seerData, params) });
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
   }
 

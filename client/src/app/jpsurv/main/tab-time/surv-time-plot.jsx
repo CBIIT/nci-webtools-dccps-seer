@@ -106,7 +106,6 @@ export default function SurvTimePlot({
 
   async function addAnnotation() {
     const xMean = params.useCondModel ? (params.conditionalStart + params.conditionalEnd) / 2 : params.interval / 2;
-    console.log(xMean);
     const newAnnotation = makeAnnotation(xMean, 50, annotations.length);
     setAnnotations([...annotations, newAnnotation]);
   }
