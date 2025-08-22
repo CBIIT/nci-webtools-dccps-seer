@@ -75,7 +75,7 @@ export default function DeathVsYear({ data, seerData, params, cohortIndex, fitIn
           }),
       });
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
   }
 

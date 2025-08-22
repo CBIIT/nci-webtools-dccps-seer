@@ -121,7 +121,7 @@ export default function AnalysisForm({ id }) {
               throw new Error("Invalid SEER*STAT files selected.");
             }
           } catch (e) {
-            console.log(e);
+            console.error(e);
           }
         } else if (inputType == "csv") {
           setUserCsv({ userData: dataFile, openConfigDataModal: true });

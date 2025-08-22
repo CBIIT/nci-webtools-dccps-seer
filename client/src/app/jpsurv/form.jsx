@@ -128,7 +128,7 @@ export default function AnalysisForm({ id }) {
               throw new Error("Invalid SEER*STAT files selected.");
             }
           } catch (e) {
-            console.log(e);
+            console.error(e);
           }
         } else if (inputType === "csv" && dataFile) {
           setUserCsv({ userData: dataFile, openConfigDataModal: true });
@@ -147,7 +147,6 @@ export default function AnalysisForm({ id }) {
     }
   }, [getValues, session]);
   useEffect(() => {
-    console.log(seerData);
     if (inputFile && !seerData?.cohortVariables) handleLoadData(inputType, inputFile);
   }, [inputType, inputFile, seerData, handleLoadData]);
   useEffect(() => {
