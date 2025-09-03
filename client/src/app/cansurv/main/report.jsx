@@ -91,7 +91,12 @@ export default function Report({ data, seerData, precision }) {
     columnHelper.accessor((e) => e[".Cure.Fraction"], {
       id: "cure-fraction",
       header: () => "Cure Fraction",
-      cell: (info) => (info.getValue() ? info.getValue()[0].toFixed(precision) : "NA"),
+      cell: (info) => {
+        const value = info.getValue();
+        if (!value) return "NA";
+        const numValue = Array.isArray(value) ? value[0] : value;
+        return numValue.toFixed(precision);
+      },
     }),
   ];
 
