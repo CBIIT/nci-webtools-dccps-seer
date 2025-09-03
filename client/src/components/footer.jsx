@@ -1,27 +1,51 @@
 "use client";
 
+function parseVersionAndDate(versionString) {
+  if (!versionString) return { version: "dev", date: new Date().toISOString().split("T")[0] };
+  const versionMatch = versionString.match(/(\d+\.\d+\.\d+)(_dev)?/);
+  const version = versionMatch ? versionMatch[1] + (versionMatch[2] || "") : "dev";
+
+  // Extract 8-digit date if present
+  const dateMatch = versionString.match(/(\d{8})/)?.[1];
+  const date = dateMatch
+    ? `${dateMatch.slice(0, 4)}-${dateMatch.slice(4, 6)}-${dateMatch.slice(6, 8)}`
+    : new Date().toISOString().split("T")[0];
+
+  return { version, date };
+}
+
 export default function Footer() {
+  const { version, date } = parseVersionAndDate(process.env.NEXT_PUBLIC_VERSION);
+
   return (
     <footer className="flex-grow-0">
       <div className="bg-primary text-light py-4">
         <div className="container">
-          <div className="mb-4">
-            <a
-              href="https://cancercontrol.cancer.gov/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-light h4 mb-1">
-              Division of Cancer Control and Population Sciences
-            </a>
-            <div className="h6">
-              at the{" "}
+          <div className="row">
+            <div className="col-lg-8 mb-4">
               <a
-                className="text-light fw-semibold"
+                href="https://cancercontrol.cancer.gov/"
                 target="_blank"
                 rel="noopener noreferrer"
-                href="https://www.cancer.gov/">
-                National Cancer Institute
+                className="text-light h4 mb-1">
+                Division of Cancer Control and Population Sciences
               </a>
+              <div className="h6">
+                at the{" "}
+                <a
+                  className="text-light fw-semibold"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href="https://www.cancer.gov/">
+                  National Cancer Institute
+                </a>
+              </div>
+            </div>
+            <div className="col-lg-4 mb-4">
+              <a className="text-light" target="_blank" href="https://github.com/CBIIT/nci-webtools-dccps-seer">
+                Version: {version}
+              </a>
+              <div>Last Updated: {date}</div>
             </div>
           </div>
           <div className="row">
