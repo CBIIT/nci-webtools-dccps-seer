@@ -5,6 +5,7 @@ import { createColumnHelper } from "@tanstack/react-table";
 export default function TrendTable({ data, params, precision }) {
   const { firstYear } = params;
   const columnHelper = createColumnHelper();
+
   const columns = [
     columnHelper.accessor("interval", {
       header: () => "Time Since Diagnosis",
@@ -26,20 +27,36 @@ export default function TrendTable({ data, params, precision }) {
     }),
     columnHelper.accessor("lowCI", {
       header: () => "Lower Limit 95% C.I.",
-      cell: (info) => (info.getValue() ? info.getValue()[0].toFixed(precision) : "NA"),
+      cell: (info) => {
+        const value = info.getValue();
+        if (!value) return "NA";
+        const numValue = Array.isArray(value) ? value[0] : value;
+        return numValue.toFixed(precision);
+      },
     }),
     columnHelper.accessor("upCI", {
       header: () => "Upper Limit 95% C.I.",
-      cell: (info) => (info.getValue() ? info.getValue()[0].toFixed(precision) : "NA"),
+      cell: (info) => {
+        const value = info.getValue();
+        if (!value) return "NA";
+        const numValue = Array.isArray(value) ? value[0] : value;
+        return numValue.toFixed(precision);
+      },
     }),
     {
       id: "significance",
       header: "Significance",
       cell: ({ row }) => {
+        const lowCI = row.original["lowCI"];
+        const upCI = row.original["upCI"];
+
+        const lowValue = Array.isArray(lowCI) ? lowCI[0] : lowCI;
+        const upValue = Array.isArray(upCI) ? upCI[0] : upCI;
+
         let trend = "";
-        if (row.original["lowCI"] > 0) trend = "Increasing";
-        else if (row.original["upCI"] < 0) trend = "Decreasing";
-        else if (row.original["lowCI"] <= 0 && row.original["upCI"] >= 0) trend = "Not significant";
+        if (lowValue > 0) trend = "Increasing";
+        else if (upValue < 0) trend = "Decreasing";
+        else if (lowValue <= 0 && upValue >= 0) trend = "Not significant";
         return <span>{trend}</span>;
       },
     },
