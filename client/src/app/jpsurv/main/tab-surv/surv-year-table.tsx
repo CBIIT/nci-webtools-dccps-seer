@@ -1,7 +1,7 @@
 "use client";
 import Table from "@/components/table";
 import { createColumnHelper } from "@tanstack/react-table";
-import { SurvYearTableProps } from "./types";
+import { SurvYearTableProps } from "../types";
 
 export default function SurvYearTable({
   data,
