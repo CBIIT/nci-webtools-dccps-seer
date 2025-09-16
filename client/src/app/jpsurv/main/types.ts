@@ -1,4 +1,4 @@
-// Type definitions for JPSurv tab-surv components
+// Common type definitions for JPSurv main components
 
 export interface DataPoint {
   Interval: number;
@@ -16,6 +16,7 @@ export interface Params {
   id: string;
   useRelaxModel?: boolean;
   cohortVars: string[];
+  cohorts?: Cohort[];
 }
 
 export interface Cohort {
@@ -32,6 +33,15 @@ export interface TrendDataPoint {
   upCI: number | number[];
 }
 
+export interface SeerData {
+  config: {
+    "Session Options": {
+      Statistic: string;
+    };
+  };
+}
+
+// Survival-specific types
 export interface SurvYearPlotProps {
   data: DataPoint[];
   trendData: any[];
@@ -56,24 +66,12 @@ export interface SurvYearTableProps {
   precision: number;
 }
 
-export interface TrendTableProps {
-  data: TrendDataPoint[];
-  params: Params;
-  precision: number;
-}
-
 export interface SurvivalVsYearProps {
   data: {
     fullpredicted: DataPoint[];
     predicted: DataPoint[];
   };
-  seerData: {
-    config: {
-      "Session Options": {
-        Statistic: string;
-      };
-    };
-  };
+  seerData: SeerData;
   params: Params;
   cohortIndex: number;
   fitIndex: number;
@@ -82,3 +80,45 @@ export interface SurvivalVsYearProps {
   precision: number;
 }
 
+// Death-specific types
+export interface DeathYearPlotProps {
+  data: DataPoint[];
+  params: Params;
+  title: string;
+  subtitle: string;
+  xTitle: string;
+  yTitle: string;
+  observedHeader: string;
+  predictedHeader: string;
+  precision: number;
+}
+
+export interface DeathYearTableProps {
+  data: DataPoint[];
+  params: Params;
+  observedHeader: string;
+  observedSeHeader: string;
+  predictedHeader: string;
+  predictedSeHeader: string;
+  precision: number;
+}
+
+export interface DeathVsYearProps {
+  data: {
+    fullpredicted: DataPoint[];
+    predicted?: DataPoint[];
+  };
+  seerData: SeerData;
+  params: Params;
+  cohortIndex: number;
+  fitIndex: number;
+  conditional?: DataPoint[];
+  precision: number;
+}
+
+// Common trend table type
+export interface TrendTableProps {
+  data: TrendDataPoint[];
+  params: Params;
+  precision: number;
+}

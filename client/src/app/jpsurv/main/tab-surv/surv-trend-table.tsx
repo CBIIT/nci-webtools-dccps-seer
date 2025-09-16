@@ -1,7 +1,7 @@
 "use client";
 import Table from "@/components/table";
 import { createColumnHelper } from "@tanstack/react-table";
-import { TrendTableProps } from "./types";
+import { TrendTableProps } from "../types";
 
 export default function TrendTable({ data, params, precision }: TrendTableProps) {
   const { firstYear } = params;
@@ -24,7 +24,10 @@ export default function TrendTable({ data, params, precision }: TrendTableProps)
     }),
     columnHelper.accessor("estimate", {
       header: () => "Estimate pp",
-      cell: (info) => (info.getValue() ? info.getValue().toFixed(precision) : "NA"),
+      cell: (info) => {
+        const value = info.getValue();
+        return value && typeof value === 'number' ? value.toFixed(precision) : "NA";
+      },
     }),
     columnHelper.accessor("lowCI", {
       header: () => "Lower Limit 95% C.I.",

@@ -1,20 +1,20 @@
 "use client";
 import Table from "@/components/table";
 import { createColumnHelper } from "@tanstack/react-table";
+import { DeathYearTableProps } from "../types";
 
 export default function DeathYearTable({
   data,
-  seerData,
   params,
   observedHeader,
   observedSeHeader,
   predictedHeader,
   predictedSeHeader,
   precision,
-}) {
+}: DeathYearTableProps) {
   const columnHelper = createColumnHelper();
   const columns = [
-    ...params.cohorts.map((cohort) =>
+    ...(params.cohorts || []).map((cohort) =>
       columnHelper.accessor(cohort.name, {
         header: () => cohort.label,
         cell: (info) => info.getValue(),

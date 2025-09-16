@@ -11,7 +11,7 @@ import TrendTable from "./surv-trend-table";
 import { downloadTable } from "@/services/xlsx";
 import { useStore } from "../../store";
 import { getCohortLabel } from "../cohort-select";
-import { SurvivalVsYearProps } from "./types";
+import { SurvivalVsYearProps } from "../types";
 
 export default function SurvivalVsYear({
   data,

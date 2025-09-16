@@ -12,7 +12,7 @@ import {
   colors,
 } from "@/components/plots/utils";
 import Plot from "@/components/plots/survival";
-import { SurvYearPlotProps } from "./types";
+import { SurvYearPlotProps } from "../types";
 
 export default function SurvYearPlot({
   data,

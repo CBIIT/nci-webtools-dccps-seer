@@ -11,8 +11,17 @@ import TrendTable from "../tab-surv/surv-trend-table";
 import { downloadTable } from "@/services/xlsx";
 import { useStore } from "../../store";
 import { getCohortLabel } from "../cohort-select";
+import { DeathVsYearProps } from "../types";
 
-export default function DeathVsYear({ data, seerData, params, cohortIndex, fitIndex, conditional, precision }) {
+export default function DeathVsYear({
+  data,
+  seerData,
+  params,
+  cohortIndex,
+  fitIndex,
+  conditional,
+  precision,
+}: DeathVsYearProps) {
   const setState = useStore((state) => state.setState);
   const deathTrendQueryKey = useStore((state) => state.deathTrendQueryKey).slice(0, 2);
   const queryClient = useQueryClient();
@@ -62,7 +71,7 @@ export default function DeathVsYear({ data, seerData, params, cohortIndex, fitIn
     setState({ deathTrendQueryKey: ["deathTrend", cohortIndex] });
   }, [setState, cohortIndex]);
 
-  async function getTrends(form) {
+  async function getTrends(form: any): Promise<void> {
     try {
       await queryClient.fetchQuery({
         queryKey: deathTrendQueryKey,

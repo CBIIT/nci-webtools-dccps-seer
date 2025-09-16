@@ -11,8 +11,9 @@ import {
   makeAnnotation,
 } from "@/components/plots/utils";
 import Plot from "@/components/plots/survival";
+import { DeathYearPlotProps } from "../types";
 
-export default function SurvYearPlot({
+export default function DeathYearPlot({
   data,
   params,
   title,
@@ -22,9 +23,9 @@ export default function SurvYearPlot({
   observedHeader,
   predictedHeader,
   precision,
-}) {
-  const [fontSize, setFontSize] = useState(14);
-  const [annotations, setAnnotations] = useState([]);
+}: DeathYearPlotProps) {
+  const [fontSize, setFontSize] = useState<number>(14);
+  const [annotations, setAnnotations] = useState<any[]>([]);
   const { statistic, yearStart, yearEnd } = params;
   const groupByInterval = groupBy(data, "Interval");
 
@@ -94,12 +95,12 @@ export default function SurvYearPlot({
   const layout = makeLayout([yearStart, yearEnd], title, subtitle, xTitle, yTitle, fontSize);
   const layoutMemo = useMemo(() => ({ ...layout, annotations }), [layout, annotations]);
 
-  async function addAnnotation() {
+  async function addAnnotation(): Promise<void> {
     const xMid = params.firstYear + (params.yearStart + params.yearEnd) / 2;
     const newAnnotation = makeAnnotation(xMid, 50, annotations.length);
     setAnnotations([...annotations, newAnnotation]);
   }
-  async function removeAnnotation(index) {
+  async function removeAnnotation(index: number): Promise<void> {
     setAnnotations(annotations.slice(0, index).concat(annotations.slice(index + 1)));
   }
 
@@ -119,7 +120,7 @@ export default function SurvYearPlot({
               defaultValue={14}
               min={12}
               max={20}
-              onChange={(e) => setFontSize(e.target.value)}
+              onChange={(e) => setFontSize(Number(e.target.value))}
             />
           </Form.Group>
         </Col>
