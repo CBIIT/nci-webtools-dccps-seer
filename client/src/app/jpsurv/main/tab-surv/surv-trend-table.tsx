@@ -1,8 +1,9 @@
 "use client";
 import Table from "@/components/table";
 import { createColumnHelper } from "@tanstack/react-table";
+import { TrendTableProps } from "./types";
 
-export default function TrendTable({ data, params, precision }) {
+export default function TrendTable({ data, params, precision }: TrendTableProps) {
   const { firstYear } = params;
   const columnHelper = createColumnHelper();
 

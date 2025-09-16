@@ -11,6 +11,7 @@ import TrendTable from "./surv-trend-table";
 import { downloadTable } from "@/services/xlsx";
 import { useStore } from "../../store";
 import { getCohortLabel } from "../cohort-select";
+import { SurvivalVsYearProps } from "./types";
 
 export default function SurvivalVsYear({
   data,
@@ -21,7 +22,7 @@ export default function SurvivalVsYear({
   conditional,
   cluster,
   precision,
-}) {
+}: SurvivalVsYearProps) {
   const setState = useStore((state) => state.setState);
   const survTrendQueryKey = useStore((state) => state.survTrendQueryKey);
   const queryClient = useQueryClient();
@@ -106,7 +107,7 @@ export default function SurvivalVsYear({
     setState({ survTrendQueryKey: ["trend", cohortIndex, trendStart, trendEnd] });
   }, [setState, jpTrend, calendarTrend, trendStart, trendEnd, cohortIndex]);
 
-  async function getTrends(form) {
+  async function getTrends(form: any): Promise<void> {
     try {
       await queryClient.fetchQuery({
         queryKey: survTrendQueryKey,
@@ -267,6 +268,7 @@ export default function SurvivalVsYear({
         <Col>
           <SurvYearPlot
             data={memoData}
+            trendData={survTrend}
             params={params}
             title={`${conditional ? "Conditional " : ""}${statistic} by Diagnosis Year`}
             subtitle={`Joinpoint ${fitIndex} - ${getCohortLabel(params, cohortIndex)}`}
