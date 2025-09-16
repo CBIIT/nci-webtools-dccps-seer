@@ -145,6 +145,7 @@ export default function DeathVsYear({
         <Col>
           <DeathYearPlot
             data={memoData}
+            trendData={deathTrend}
             params={params}
             title={`${conditional ? "Conditional " : ""}` + "Annual Probability of Dying of Cancer by Diagnosis Year"}
             subtitle={`Joinpoint ${fitIndex} - ${getCohortLabel(params, cohortIndex)}`}

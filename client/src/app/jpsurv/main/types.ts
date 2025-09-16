@@ -83,6 +83,7 @@ export interface SurvivalVsYearProps {
 // Death-specific types
 export interface DeathYearPlotProps {
   data: DataPoint[];
+  trendData?: any[];
   params: Params;
   title: string;
   subtitle: string;
