@@ -1,4 +1,4 @@
-const colors = [
+export const colors = [
   "#1f77b4", // muted blue
   "#ff7f0e", // safety orange
   "#2ca02c", // cooked asparagus green
@@ -121,16 +121,18 @@ export function makeLayout(range, title, subtitle, xTitle, yTitle, fontSize = 14
   };
 }
 
-export function makeAnnotation(x, y, index) {
+export function makeAnnotation(x, y, index, text = null, color = null, settings = {}) {
   return {
     x,
     y,
     xref: "x",
     yref: "y",
-    text: `Annotation ${index + 1}`,
-    bgcolor: "rgba(255, 255, 255, 0.9)",
+    text: text || `Annotation ${index + 1}`,
+    bgcolor: "transparent ",
+    font: { color: color || "rgba(0, 0, 0, 0.9)" },
     captureevents: true,
     showarrow: false,
+    ...settings,
   };
 }
 

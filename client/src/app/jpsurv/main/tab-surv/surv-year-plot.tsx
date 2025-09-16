@@ -9,6 +9,7 @@ import {
   makeLegendTrace,
   makeLayout,
   makeAnnotation,
+  colors,
 } from "@/components/plots/utils";
 import Plot from "@/components/plots/survival";
 import { SurvYearPlotProps } from "./types";
@@ -31,7 +32,7 @@ export default function SurvYearPlot({
   const groupByInterval = groupBy(data, (e) =>
     e["Start.interval"] ? `${e["Start.interval"]}-${e.Interval}` : e.Interval
   );
-  console.log(trendData);
+
   const traces = Object.entries(groupByInterval)
     .map(([interval, data], index) => {
       const observedTraceName = `${interval}-year Observed`;
@@ -94,8 +95,35 @@ export default function SurvYearPlot({
     })
     .flat();
 
+  const trendAnnotations = useMemo(() => {
+    if (!trendData || trendData.length === 0) return [];
+    return Object.entries(groupBy(trendData, "interval")).flatMap(([interval, trends], intervalIndex) =>
+      trends.map((trend: any, index: number) => {
+        const { "start.year": startYear, "end.year": endYear, estimate } = trend;
+        const intervalData = groupByInterval[interval] || [];
+        const midIndex = startYear + Math.floor((endYear - startYear) / 2);
+        const dataPoint = intervalData[midIndex] || {};
+
+        return makeAnnotation(
+          params.firstYear + startYear + (endYear - startYear) / 2,
+          Math.max(dataPoint[observedHeader] || 0, dataPoint[predictedHeader] || 0) + 3,
+          index,
+          estimate.toFixed(precision),
+          colors[intervalIndex % 10],
+          { captureevents: false }
+        );
+      })
+    );
+  }, [trendData, groupByInterval, observedHeader, predictedHeader, precision, params.firstYear]);
+
   const layout = makeLayout([yearStart, yearEnd], title, subtitle, xTitle, yTitle, fontSize);
-  const layoutMemo = useMemo(() => ({ ...layout, annotations }), [layout, annotations]);
+  const layoutMemo = useMemo(
+    () => ({
+      ...layout,
+      annotations: [...annotations, ...trendAnnotations],
+    }),
+    [layout, annotations, trendAnnotations]
+  );
 
   async function addAnnotation(): Promise<void> {
     const xMid = params.firstYear + (params.yearStart + params.yearEnd) / 2;
