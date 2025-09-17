@@ -1,7 +1,7 @@
 "use client";
 import Table from "@/components/table";
 import { createColumnHelper } from "@tanstack/react-table";
-import { DeathYearTableProps } from "../types";
+import { DeathYearTableProps } from "./types";
 
 export default function DeathYearTable({
   data,
@@ -30,19 +30,19 @@ export default function DeathYearTable({
     }),
     columnHelper.accessor(observedHeader, {
       header: () => "Observed Prob. of Death Interval (%)",
-      cell: (info) => (info.getValue() ? info.getValue().toFixed(precision) : "NA"),
+      cell: (info) => (info.getValue() ? (info.getValue() as number).toFixed(precision) : "NA"),
     }),
     columnHelper.accessor(observedSeHeader, {
       header: () => "Observed Prob. of Death Interval Std. Err. (%)",
-      cell: (info) => (info.getValue() ? info.getValue().toFixed(precision) : "NA"),
+      cell: (info) => (info.getValue() ? (info.getValue() as number).toFixed(precision) : "NA"),
     }),
     columnHelper.accessor(predictedHeader, {
       header: "Predictive Prob. of Death Interval (%)",
-      cell: (info) => (info.getValue() ? info.getValue().toFixed(precision) : "NA"),
+      cell: (info) => (info.getValue() ? (info.getValue() as number).toFixed(precision) : "NA"),
     }),
     columnHelper.accessor(predictedSeHeader, {
       header: "Predictive Prob. of Death Interval Std. Err. (%)",
-      cell: (info) => (info.getValue() ? info.getValue().toFixed(precision) : "NA"),
+      cell: (info) => (info.getValue() ? (info.getValue() as number).toFixed(precision) : "NA"),
     }),
   ];
 

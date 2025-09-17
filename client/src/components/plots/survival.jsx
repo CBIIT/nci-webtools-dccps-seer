@@ -6,7 +6,7 @@ const Plot = dynamic(() => import("react-plotly.js"), {
   ssr: false,
 });
 
-export default function SurvivalPlot({ data, layout, config, removeAnnotation }) {
+export default function SurvivalPlot({ data, layout, config = {}, removeAnnotation }) {
   return (
     <Container fluid style={{ minHeight: layout.height || 500 }}>
       <Row>
