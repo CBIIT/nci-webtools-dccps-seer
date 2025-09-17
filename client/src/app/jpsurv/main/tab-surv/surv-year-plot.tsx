@@ -46,8 +46,8 @@ export default function SurvYearPlot({
         observedTraceName,
         interval,
         index,
-        data.map((e) => e[params.year]),
-        data.map((e) => e[observedHeader]),
+        data.filter((e) => e[observedHeader]).map((e) => e[params.year]),
+        data.filter((e) => e[observedHeader]).map((e) => e[observedHeader]),
         statistic,
         precision,
         fontSize
