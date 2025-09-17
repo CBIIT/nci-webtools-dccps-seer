@@ -11,7 +11,8 @@ import TrendTable from "../tab-surv/surv-trend-table";
 import { downloadTable } from "@/services/xlsx";
 import { useStore } from "../../store";
 import { getCohortLabel } from "../cohort-select";
-import { DeathVsYearProps } from "../types";
+import { TrendQueryData } from "../types";
+import { DeathVsYearProps, DeathFormData } from "./types";
 
 export default function DeathVsYear({
   data,
@@ -29,7 +30,7 @@ export default function DeathVsYear({
   const trendQueryData = queryClient.getQueryData(deathTrendQueryKey);
   const intervalOptions = [...new Set((conditional || data.fullpredicted).map((e) => e.Interval))];
   const defaultInterval = intervalOptions.includes(5) ? 5 : Math.max(...intervalOptions);
-  const { control, register, watch, setValue, handleSubmit } = useForm({
+  const { control, register, watch, setValue, handleSubmit } = useForm<DeathFormData>({
     defaultValues: { intervalsD: [defaultInterval], jpTrend: false, useRange: false, trendRange: [] },
   });
   const intervalsD = watch("intervalsD");
@@ -51,8 +52,8 @@ export default function DeathVsYear({
 
   const deathTrend = useMemo(
     () =>
-      trendQueryData?.data?.jpTrend
-        ? trendQueryData.data.jpTrend[fitIndex].deathTrend
+      (trendQueryData as TrendQueryData)?.data?.jpTrend
+        ? (trendQueryData as TrendQueryData).data.jpTrend[fitIndex].deathTrend
             .reduce((acc, ar) => [...acc, ...ar], [])
             .filter((e) => intervalsD.includes(e.interval))
         : [],
@@ -65,13 +66,13 @@ export default function DeathVsYear({
   }, [conditional, jpTrend]);
   // auto select interval on conditional recalculation switch
   useEffect(() => {
-    if (!intervalOptions.includes(intervalsD)) setValue("intervalsD", [...intervalsD, defaultInterval]);
+    if (!intervalsD.every(interval => intervalOptions.includes(interval))) setValue("intervalsD", [...intervalsD, defaultInterval]);
   }, [conditional, defaultInterval]);
   useEffect(() => {
     setState({ deathTrendQueryKey: ["deathTrend", cohortIndex] });
   }, [setState, cohortIndex]);
 
-  async function getTrends(form: any): Promise<void> {
+  async function getTrends(form: DeathFormData): Promise<void> {
     try {
       await queryClient.fetchQuery({
         queryKey: deathTrendQueryKey,
@@ -99,6 +100,11 @@ export default function DeathVsYear({
                 label="Years Since Diagnosis"
                 options={intervalOptions.map((e) => ({ label: e, value: e }))}
                 control={control}
+                disabled={false}
+                className={undefined}
+                labelClass={undefined}
+                rules={undefined}
+                defaultValue={undefined}
                 isMulti
               />
               <Form.Text className="text-muted">
@@ -117,12 +123,12 @@ export default function DeathVsYear({
                     label="Between Joinpoints"
                     aria-label="Between Joinpoints"
                     type="checkbox"
-                    disabled={conditional}
+                    disabled={!!conditional}
                   />
                 </Form.Group>
               </Col>
               <Col sm="2" className="d-flex p-3 justify-content-center align-items-center">
-                <Button type="submit" disabled={!jpTrend || isFetching}>
+                <Button type="submit" disabled={!jpTrend || !!isFetching}>
                   {isFetching ? (
                     <>
                       <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> Loading

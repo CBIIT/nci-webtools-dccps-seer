@@ -12,7 +12,7 @@ import {
   colors,
 } from "@/components/plots/utils";
 import Plot from "@/components/plots/survival";
-import { SurvYearPlotProps } from "../types";
+import { SurvYearPlotProps } from "./types";
 
 export default function SurvYearPlot({
   data,
@@ -155,7 +155,7 @@ export default function SurvYearPlot({
           </Form.Group>
         </Col>
       </Row>
-      <Plot data={traces} layout={layoutMemo} config={{}} removeAnnotation={removeAnnotation} />
+      <Plot data={traces} layout={layoutMemo} removeAnnotation={removeAnnotation} />
     </Container>
   );
 }

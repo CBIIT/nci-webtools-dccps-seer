@@ -12,7 +12,7 @@ import {
   colors,
 } from "@/components/plots/utils";
 import Plot from "@/components/plots/survival";
-import { DeathYearPlotProps } from "../types";
+import { DeathYearPlotProps } from "./types";
 
 export default function DeathYearPlot({
   data,

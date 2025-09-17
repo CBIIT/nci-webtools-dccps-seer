@@ -29,8 +29,8 @@ export interface TrendDataPoint {
   "start.year": number;
   "end.year": number;
   estimate: number;
-  lowCI: number | number[];
-  upCI: number | number[];
+  lowCI?: number | number[];
+  upCI?: number | number[];
 }
 
 export interface SeerData {
@@ -41,81 +41,18 @@ export interface SeerData {
   };
 }
 
-// Survival-specific types
-export interface SurvYearPlotProps {
-  data: DataPoint[];
-  trendData: any[];
-  params: Params;
-  title: string;
-  subtitle: string;
-  xTitle: string;
-  yTitle: string;
-  observedHeader: string;
-  predictedHeader: string;
-  precision: number;
+export interface JpTrendItem {
+  survTrend: TrendDataPoint[][];
+  deathTrend: TrendDataPoint[][];
 }
 
-export interface SurvYearTableProps {
-  data: DataPoint[];
-  params: Params;
-  observedHeader: string;
-  observedSeHeader: string;
-  predictedHeader: string;
-  predictedSeHeader: string;
-  isRecalcCond?: boolean;
-  precision: number;
-}
-
-export interface SurvivalVsYearProps {
+export interface TrendQueryData {
   data: {
-    fullpredicted: DataPoint[];
-    predicted: DataPoint[];
+    jpTrend: JpTrendItem[];
+    calendarTrend: any; // Calendar trend data structure
   };
-  seerData: SeerData;
-  params: Params;
-  cohortIndex: number;
-  fitIndex: number;
-  conditional?: DataPoint[];
-  cluster?: number;
-  precision: number;
 }
 
-// Death-specific types
-export interface DeathYearPlotProps {
-  data: DataPoint[];
-  trendData?: any[];
-  params: Params;
-  title: string;
-  subtitle: string;
-  xTitle: string;
-  yTitle: string;
-  observedHeader: string;
-  predictedHeader: string;
-  precision: number;
-}
-
-export interface DeathYearTableProps {
-  data: DataPoint[];
-  params: Params;
-  observedHeader: string;
-  observedSeHeader: string;
-  predictedHeader: string;
-  predictedSeHeader: string;
-  precision: number;
-}
-
-export interface DeathVsYearProps {
-  data: {
-    fullpredicted: DataPoint[];
-    predicted?: DataPoint[];
-  };
-  seerData: SeerData;
-  params: Params;
-  cohortIndex: number;
-  fitIndex: number;
-  conditional?: DataPoint[];
-  precision: number;
-}
 
 // Common trend table type
 export interface TrendTableProps {

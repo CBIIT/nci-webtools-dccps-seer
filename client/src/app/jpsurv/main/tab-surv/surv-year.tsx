@@ -11,7 +11,8 @@ import TrendTable from "./surv-trend-table";
 import { downloadTable } from "@/services/xlsx";
 import { useStore } from "../../store";
 import { getCohortLabel } from "../cohort-select";
-import { SurvivalVsYearProps } from "../types";
+import { TrendQueryData } from "../types";
+import { SurvivalVsYearProps, SurvFormData } from "./types";
 
 export default function SurvivalVsYear({
   data,
@@ -38,7 +39,7 @@ export default function SurvivalVsYear({
     setValue,
     handleSubmit,
     formState: { errors },
-  } = useForm({
+  } = useForm<SurvFormData>({
     defaultValues: {
       intervals: [defaultInterval],
       jpTrend: false,
@@ -64,8 +65,8 @@ export default function SurvivalVsYear({
   const trendQueryData = queryClient.getQueryData(survTrendQueryKey);
   const survTrend = useMemo(
     () =>
-      trendQueryData?.data?.jpTrend
-        ? trendQueryData.data.jpTrend[fitIndex].survTrend
+      (trendQueryData as TrendQueryData)?.data?.jpTrend
+        ? (trendQueryData as TrendQueryData).data.jpTrend[fitIndex].survTrend
             .reduce((acc, ar) => [...acc, ...ar], [])
             .filter((e) => intervals.includes(e.interval))
         : [],
@@ -74,10 +75,10 @@ export default function SurvivalVsYear({
 
   const calTrend = useMemo(
     () =>
-      trendQueryData?.data?.calendarTrend
+      (trendQueryData as TrendQueryData)?.data?.calendarTrend
         ? (params.useRelaxModel
-            ? trendQueryData.data.calendarTrend[cluster][fitIndex]
-            : trendQueryData.data.calendarTrend[fitIndex]
+            ? (trendQueryData as TrendQueryData).data.calendarTrend[cluster][fitIndex]
+            : (trendQueryData as TrendQueryData).data.calendarTrend[fitIndex]
           )
             .reduce((acc, ar) => [...acc, ...ar], [])
             .filter((e) => intervals.includes(e.interval))
@@ -101,13 +102,13 @@ export default function SurvivalVsYear({
   }, [conditional, jpTrend, calendarTrend]);
   // auto select interval on conditional recalculation switch
   useEffect(() => {
-    if (!intervalOptions.includes(intervals)) setValue("intervals", [...intervals, defaultInterval]);
+    if (!intervals.every(interval => intervalOptions.includes(interval))) setValue("intervals", [...intervals, defaultInterval]);
   }, [conditional, defaultInterval]);
   useEffect(() => {
     setState({ survTrendQueryKey: ["trend", cohortIndex, trendStart, trendEnd] });
   }, [setState, jpTrend, calendarTrend, trendStart, trendEnd, cohortIndex]);
 
-  async function getTrends(form: any): Promise<void> {
+  async function getTrends(form: SurvFormData): Promise<void> {
     try {
       await queryClient.fetchQuery({
         queryKey: survTrendQueryKey,
@@ -137,6 +138,11 @@ export default function SurvivalVsYear({
                 label="Years Since Diagnosis"
                 options={intervalOptions.map((e) => ({ label: e, value: e }))}
                 control={control}
+                disabled={false}
+                className={undefined}
+                labelClass={undefined}
+                rules={undefined}
+                defaultValue={undefined}
                 isMulti
               />
               <Form.Text className="text-muted">
@@ -161,7 +167,7 @@ export default function SurvivalVsYear({
                         label="Between Joinpoints"
                         aria-label="Between Joinpoints"
                         type="checkbox"
-                        disabled={conditional}
+                        disabled={!!conditional}
                       />
                     </Form.Group>
                   </Col>
@@ -173,7 +179,7 @@ export default function SurvivalVsYear({
                         label="Between Calendar Years of Diagnosis"
                         aria-label="Between Calendar Years of Diagnosis"
                         type="checkbox"
-                        disabled={conditional}
+                        disabled={!!conditional}
                       />
                     </Form.Group>
                   </Col>
@@ -190,7 +196,7 @@ export default function SurvivalVsYear({
                             `Must be less than ${+form.trendEnd + firstYear}`,
                         })}
                         disabled={!calendarTrend}
-                        isInvalid={errors?.trendStart}>
+                        isInvalid={!!errors?.trendStart}>
                         {yearOptions.map((year) => (
                           <option key={year} value={+year}>
                             {year + firstYear}
@@ -213,7 +219,7 @@ export default function SurvivalVsYear({
                             `Must be greater than ${+form.trendStart + firstYear}`,
                         })}
                         disabled={!calendarTrend}
-                        isInvalid={errors?.trendEnd}>
+                        isInvalid={!!errors?.trendEnd}>
                         {yearOptions.map((year) => (
                           <option key={year} value={+year}>
                             {year + firstYear}
@@ -226,7 +232,7 @@ export default function SurvivalVsYear({
                 </Row>
               </Col>
               <Col sm="2" className="d-flex justify-content-center align-items-center">
-                <Button type="submit" disabled={!(calendarTrend || jpTrend) || isFetching}>
+                <Button type="submit" disabled={!(calendarTrend || jpTrend) || !!isFetching}>
                   {isFetching ? (
                     <>
                       <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> Loading
