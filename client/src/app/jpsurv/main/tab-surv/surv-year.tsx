@@ -102,7 +102,8 @@ export default function SurvivalVsYear({
   }, [conditional, jpTrend, calendarTrend]);
   // auto select interval on conditional recalculation switch
   useEffect(() => {
-    if (!intervals.every(interval => intervalOptions.includes(interval))) setValue("intervals", [...intervals, defaultInterval]);
+    if (!intervals.every((interval) => intervalOptions.includes(interval)))
+      setValue("intervals", [...intervals, defaultInterval]);
   }, [conditional, defaultInterval]);
   useEffect(() => {
     setState({ survTrendQueryKey: ["trend", cohortIndex, trendStart, trendEnd] });
@@ -192,6 +193,7 @@ export default function SurvivalVsYear({
                           required: calendarTrend ? "Required" : false,
                           validate: (value, form) =>
                             !calendarTrend ||
+                            !form?.trendEnd ||
                             value < form.trendEnd ||
                             `Must be less than ${+form.trendEnd + firstYear}`,
                         })}
@@ -215,6 +217,7 @@ export default function SurvivalVsYear({
                           required: calendarTrend ? "Required" : false,
                           validate: (value, form) =>
                             !calendarTrend ||
+                            !form?.trendStart ||
                             value > form.trendStart ||
                             `Must be greater than ${+form.trendStart + firstYear}`,
                         })}
