@@ -67,7 +67,7 @@ export default function AnalysisForm({ id }) {
   const notificationRequired = watch("maxJp") > 2 || isMultiCohort(watch("cohorts"));
 
   const submitForm = useMutation({
-    mutationKey: "submitJp",
+    mutationKey: ["submitJp"],
     mutationFn: ({ params, data }) => submit(params.id, params, data),
     onSettled: (data, error) => {
       if (error) setError(error.response.data.error);
@@ -75,7 +75,7 @@ export default function AnalysisForm({ id }) {
     },
   });
   const importMutation = useMutation({
-    mutationKey: "importJp",
+    mutationKey: ["importJp"],
     mutationFn: ({ id, fileList }) => importWorkspace(id, fileList),
     onSettled: (data, error) => {
       if (error) setError(error.response.data.error);

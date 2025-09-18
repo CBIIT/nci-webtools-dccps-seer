@@ -5,7 +5,8 @@ import { useCallback, useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import Spinner from "react-bootstrap/Spinner";
+import { useQuery, useMutation, useQueryClient, useIsMutating } from "@tanstack/react-query";
 import { v4 as uuidv4 } from "uuid";
 import { useStore, defaultForm } from "./store";
 import { parseSeerStatDictionary, parseSeerStatFiles } from "@/services/file/file.service";
@@ -45,11 +46,16 @@ export default function AnalysisForm({ id }) {
   const inputType = watch("inputType");
   const inputFile = watch("inputFile");
   const sendNotification = watch("sendNotification");
+  const isMutatingSubmit = useIsMutating({ mutationKey: ["submitCansurv"] });
+  const isMutatingImport = useIsMutating({ mutationKey: ["importCansurv"] });
+  const isSubmitting = isMutatingSubmit || isMutatingImport;
 
   const submitForm = useMutation({
+    mutationKey: ["submitCansurv"],
     mutationFn: ({ params, data }) => submit(params.id, params, data),
   });
   const importMutation = useMutation({
+    mutationKey: ["importCansurv"],
     mutationFn: ({ id, fileList }) => importWorkspace(id, fileList),
   });
   const { data: session } = useQuery({
@@ -600,8 +606,14 @@ export default function AnalysisForm({ id }) {
         <Button
           type="submit"
           variant="primary"
-          disabled={inputType === "zip" ? !inputFile.length : !Object.keys(seerData).length}>
-          Submit
+          disabled={inputType === "zip" ? !inputFile.length : !Object.keys(seerData).length || isSubmitting}>
+          {isSubmitting ? (
+            <>
+              <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> Loading
+            </>
+          ) : (
+            "Submit"
+          )}
         </Button>
       </div>
     </Form>
