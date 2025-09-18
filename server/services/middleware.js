@@ -29,7 +29,12 @@ export function errorFormatter(error) {
 export function logRequests(formatter = requestFormatter) {
   return (request, response, next) => {
     const { logger } = request.app.locals;
-    logger.info(formatter(request));
+
+    // Skip logging for ping route
+    if (request.path !== "/ping") {
+      logger.info(formatter(request));
+    }
+
     next();
   };
 }
