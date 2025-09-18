@@ -1,9 +1,9 @@
 // Survival component type definitions
-import { DataPoint, Params, SeerData } from "../types";
+import { DataPoint, Params, SeerData, TrendDataPoint } from "../types";
 
 export interface SurvYearPlotProps {
   data: DataPoint[];
-  trendData: any[];
+  trendData: TrendDataPoint[];
   params: Params;
   title: string;
   subtitle: string;

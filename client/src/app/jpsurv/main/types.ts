@@ -3,7 +3,7 @@
 export interface DataPoint {
   Interval: number;
   "Start.interval"?: number;
-  [key: string]: any; // For flexible property access like params.year, observedHeader, etc.
+  [key: string]: unknown;
 }
 
 export interface Params {
@@ -49,7 +49,7 @@ export interface JpTrendItem {
 export interface TrendQueryData {
   data: {
     jpTrend: JpTrendItem[];
-    calendarTrend: any; // Calendar trend data structure
+    calendarTrend: TrendDataPoint[][][] | TrendDataPoint[][];
   };
 }
 

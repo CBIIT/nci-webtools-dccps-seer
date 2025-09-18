@@ -13,6 +13,7 @@ import {
 } from "@/components/plots/utils";
 import Plot from "@/components/plots/survival";
 import { SurvYearPlotProps } from "./types";
+import { TrendDataPoint, DataPoint } from "../types";
 
 export default function SurvYearPlot({
   data,
@@ -27,27 +28,40 @@ export default function SurvYearPlot({
   precision,
 }: SurvYearPlotProps) {
   const [fontSize, setFontSize] = useState<number>(14);
-  const [annotations, setAnnotations] = useState<any[]>([]);
+  const [annotations, setAnnotations] = useState<
+    Array<{
+      x: number;
+      y: number;
+      xref: string;
+      yref: string;
+      text: string;
+      bgcolor: string;
+      font: { color: string };
+      captureevents: boolean;
+      showarrow: boolean;
+      [key: string]: unknown;
+    }>
+  >([]);
   const { statistic, yearStart, yearEnd } = params;
-  const groupByInterval = groupBy(data, (e) =>
+  const groupByInterval = groupBy(data, (e: DataPoint) =>
     e["Start.interval"] ? `${e["Start.interval"]}-${e.Interval}` : e.Interval
-  );
+  ) as Record<string, DataPoint[]>;
 
   const traces = Object.entries(groupByInterval)
-    .map(([interval, data], index) => {
+    .map(([interval, intervalData]: [string, DataPoint[]], index: number) => {
       const observedTraceName = `${interval}-year Observed`;
       const predictedTraceName = `${interval}-year Predicted`;
       const projectedTraceName = `${interval}-year Projected`;
-      const projectedStart = data.map((e) => e[observedHeader]).findIndex((e) => !e);
-      const predictedData = data.slice(0, projectedStart > -1 ? projectedStart : data.length);
-      const projectedData = data.slice(projectedStart > 1 ? projectedStart - 1 : projectedStart);
+      const projectedStart = intervalData.map((e: DataPoint) => e[observedHeader]).findIndex((e: unknown) => !e);
+      const predictedData = intervalData.slice(0, projectedStart > -1 ? projectedStart : intervalData.length);
+      const projectedData = intervalData.slice(projectedStart > 1 ? projectedStart - 1 : projectedStart);
 
       const observedTraces = makeMarkerTrace(
         observedTraceName,
         interval,
         index,
-        data.filter((e) => e[observedHeader]).map((e) => e[params.year]),
-        data.filter((e) => e[observedHeader]).map((e) => e[observedHeader]),
+        intervalData.filter((e: DataPoint) => e[observedHeader]).map((e: DataPoint) => e[params.year]),
+        intervalData.filter((e: DataPoint) => e[observedHeader]).map((e: DataPoint) => e[observedHeader]),
         statistic,
         precision,
         fontSize
@@ -56,8 +70,8 @@ export default function SurvYearPlot({
         predictedTraceName,
         interval,
         index,
-        predictedData.map((e) => e[params.year]),
-        predictedData.map((e) => e[predictedHeader]),
+        predictedData.map((e: DataPoint) => e[params.year]),
+        predictedData.map((e: DataPoint) => e[predictedHeader]),
         statistic,
         precision,
         fontSize
@@ -66,8 +80,8 @@ export default function SurvYearPlot({
         projectedTraceName,
         interval,
         index,
-        projectedData.map((e) => e[params.year]),
-        projectedData.map((e) => e[predictedHeader]),
+        projectedData.map((e: DataPoint) => e[params.year]),
+        projectedData.map((e: DataPoint) => e[predictedHeader]),
         statistic,
         precision,
         fontSize
@@ -97,16 +111,16 @@ export default function SurvYearPlot({
 
   const trendAnnotations = useMemo(() => {
     if (!trendData || trendData.length === 0) return [];
-    return Object.entries(groupBy(trendData, "interval")).flatMap(([interval, trends], intervalIndex) =>
-      trends.map((trend: any, index: number) => {
+    return Object.entries(groupBy(trendData, "interval")).flatMap(([interval, trends]: [string, TrendDataPoint[]], intervalIndex: number) =>
+      trends.map((trend: TrendDataPoint, index: number) => {
         const { "start.year": startYear, "end.year": endYear, estimate } = trend;
         const intervalData = groupByInterval[interval] || [];
         const midIndex = startYear + Math.floor((endYear - startYear) / 2);
-        const dataPoint = intervalData[midIndex] || {};
+        const dataPoint = intervalData[midIndex] || ({} as DataPoint);
 
         return makeAnnotation(
           params.firstYear + startYear + (endYear - startYear) / 2,
-          Math.max(dataPoint[observedHeader] || 0, dataPoint[predictedHeader] || 0) + 3,
+          Math.max((dataPoint[observedHeader] as number) || 0, (dataPoint[predictedHeader] as number) || 0) + 3,
           index,
           estimate.toFixed(precision),
           colors[intervalIndex % 10],

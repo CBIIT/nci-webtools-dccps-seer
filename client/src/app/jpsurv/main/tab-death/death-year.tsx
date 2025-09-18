@@ -11,7 +11,7 @@ import TrendTable from "../tab-surv/surv-trend-table";
 import { downloadTable } from "@/services/xlsx";
 import { useStore } from "../../store";
 import { getCohortLabel } from "../cohort-select";
-import { TrendQueryData } from "../types";
+import { TrendQueryData, DataPoint, TrendDataPoint } from "../types";
 import { DeathVsYearProps, DeathFormData } from "./types";
 
 export default function DeathVsYear({
@@ -28,7 +28,10 @@ export default function DeathVsYear({
   const queryClient = useQueryClient();
   const isFetching = useIsFetching({ queryKey: ["deathTrend"] });
   const trendQueryData = queryClient.getQueryData(deathTrendQueryKey);
-  const intervalOptions = [...new Set((conditional || data.fullpredicted).map((e) => e.Interval))];
+  const intervalOptions = useMemo(() => 
+    [...new Set((conditional || data.fullpredicted).map((e: DataPoint) => e.Interval))], 
+    [conditional, data.fullpredicted]
+  );
   const defaultInterval = intervalOptions.includes(5) ? 5 : Math.max(...intervalOptions);
   const { control, register, watch, setValue, handleSubmit } = useForm<DeathFormData>({
     defaultValues: { intervalsD: [defaultInterval], jpTrend: false, useRange: false, trendRange: [] },
@@ -42,32 +45,32 @@ export default function DeathVsYear({
   const predictedHeader = "Predicted_Survival_Int";
   const predictedSeHeader = "Predicted_Survival_Int_SE";
   const memoData = useMemo(() => {
-    const filterInts = (conditional || data.fullpredicted).filter((e) => intervalsD.includes(e.Interval));
+    const filterInts = (conditional || data.fullpredicted).filter((e: DataPoint) => intervalsD.includes(e.Interval));
     return filterInts.map((e) => ({
       ...e,
-      [observedHeader]: e[observedHeader] ? 100 - e[observedHeader] : e[observedHeader],
-      [predictedHeader]: e[predictedHeader] ? 100 - e[predictedHeader] : e[predictedHeader],
+      [observedHeader]: e[observedHeader] ? 100 - (e[observedHeader] as number) : e[observedHeader],
+      [predictedHeader]: e[predictedHeader] ? 100 - (e[predictedHeader] as number) : e[predictedHeader],
     }));
-  }, [data, conditional, intervalsD]);
+  }, [data, conditional, intervalsD, observedHeader, predictedHeader]);
 
   const deathTrend = useMemo(
     () =>
       (trendQueryData as TrendQueryData)?.data?.jpTrend
         ? (trendQueryData as TrendQueryData).data.jpTrend[fitIndex].deathTrend
-            .reduce((acc, ar) => [...acc, ...ar], [])
-            .filter((e) => intervalsD.includes(e.interval))
+            .reduce((acc: TrendDataPoint[], ar: TrendDataPoint[]) => [...acc, ...ar], [])
+            .filter((e: TrendDataPoint) => intervalsD.includes(e.interval))
         : [],
-    [trendQueryData, jpTrend, intervalsD, fitIndex]
+    [trendQueryData, intervalsD, fitIndex]
   );
 
   // disable trends for conditional recalculation
   useEffect(() => {
     if (jpTrend && !!conditional) setValue("jpTrend", false);
-  }, [conditional, jpTrend]);
+  }, [conditional, jpTrend, setValue]);
   // auto select interval on conditional recalculation switch
   useEffect(() => {
     if (!intervalsD.every(interval => intervalOptions.includes(interval))) setValue("intervalsD", [...intervalsD, defaultInterval]);
-  }, [conditional, defaultInterval]);
+  }, [conditional, defaultInterval, intervalOptions, intervalsD, setValue]);
   useEffect(() => {
     setState({ deathTrendQueryKey: ["deathTrend", cohortIndex] });
   }, [setState, cohortIndex]);

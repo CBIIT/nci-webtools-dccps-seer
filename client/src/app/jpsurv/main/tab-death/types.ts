@@ -41,5 +41,5 @@ export interface DeathFormData {
   intervalsD: number[];
   jpTrend: boolean;
   useRange: boolean;
-  trendRange: any[];
+  trendRange: number[];
 }
