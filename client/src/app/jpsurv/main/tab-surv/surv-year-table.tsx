@@ -2,6 +2,7 @@
 import Table from "@/components/table";
 import { createColumnHelper } from "@tanstack/react-table";
 import { SurvYearTableProps } from "./types";
+import { DataPoint } from "../types";
 
 export default function SurvYearTable({
   data,
@@ -15,9 +16,9 @@ export default function SurvYearTable({
 }: SurvYearTableProps) {
   const { statistic } = params;
 
-  const columnHelper = createColumnHelper();
+  const columnHelper = createColumnHelper<DataPoint>();
   const columns = [
-    ...params.cohorts.map((cohort) =>
+    ...(params.cohorts || []).map((cohort) =>
       columnHelper.accessor(cohort.name, {
         header: () => cohort.label,
         cell: (info) => info.getValue(),

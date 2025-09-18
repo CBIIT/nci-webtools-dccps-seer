@@ -1,11 +1,11 @@
 "use client";
 import Table from "@/components/table";
 import { createColumnHelper } from "@tanstack/react-table";
-import { TrendTableProps } from "../types";
+import { TrendTableProps, TrendDataPoint } from "../types";
 
 export default function TrendTable({ data, params, precision }: TrendTableProps) {
   const { firstYear } = params;
-  const columnHelper = createColumnHelper();
+  const columnHelper = createColumnHelper<TrendDataPoint>();
 
   const columns = [
     columnHelper.accessor("interval", {
@@ -50,7 +50,7 @@ export default function TrendTable({ data, params, precision }: TrendTableProps)
     {
       id: "significance",
       header: "Significance",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: { original: TrendDataPoint } }) => {
         const lowCI = row.original["lowCI"];
         const upCI = row.original["upCI"];
 

@@ -2,6 +2,7 @@
 import Table from "@/components/table";
 import { createColumnHelper } from "@tanstack/react-table";
 import { DeathYearTableProps } from "./types";
+import { DataPoint } from "../types";
 
 export default function DeathYearTable({
   data,
@@ -12,7 +13,7 @@ export default function DeathYearTable({
   predictedSeHeader,
   precision,
 }: DeathYearTableProps) {
-  const columnHelper = createColumnHelper();
+  const columnHelper = createColumnHelper<DataPoint>();
   const columns = [
     ...(params.cohorts || []).map((cohort) =>
       columnHelper.accessor(cohort.name, {
