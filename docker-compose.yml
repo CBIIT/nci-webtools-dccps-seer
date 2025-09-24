@@ -5,6 +5,8 @@ services:
       dockerfile: "./docker/backend.dockerfile"
     env_file: server/.env
     # entrypoint: ["npm", "run", "start:debug"]
+    volumes:
+      - ./data:/app/data
     ports:
       - "9000:9000"
 
