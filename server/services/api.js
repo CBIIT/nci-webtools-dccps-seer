@@ -1,5 +1,4 @@
 import express from "express";
-import Router from "express-promise-router";
 import { check } from "express-validator";
 import compression from "compression";
 import cors from "cors";
@@ -20,7 +19,7 @@ export function createApi(env) {
   const validate = check("id").isUUID();
 
   // register middleware
-  const router = Router();
+  const router = express.Router();
   router.use(express.json({ limit: "100mb" }));
   router.use(compression());
   router.use(cors());
