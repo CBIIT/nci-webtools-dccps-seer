@@ -30,6 +30,9 @@ export default function RootLayout({ children }) {
         <meta name="keywords" content="jpsurv" />
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <GoogleAnalytics id="G-DGFTR3EY14" />
+        <script
+          src="https://assets.adobedtm.com/6a4249cd0a2c/785de09de161/launch-70d67a6a40a8.min.js"
+          async=""></script>
         <Script src="https://cbiit.github.io/nci-softwaresolutions-elements/components/include-html.js" />
       </head>
       <body>
