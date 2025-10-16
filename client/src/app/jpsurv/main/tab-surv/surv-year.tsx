@@ -29,8 +29,8 @@ export default function SurvivalVsYear({
   const queryClient = useQueryClient();
   const isFetching = useIsFetching({ queryKey: ["trend"] });
   const isRecalcCond = !!conditional;
-  const intervalOptions = useMemo(() => 
-    [...new Set((conditional || data.fullpredicted).map((e: DataPoint) => e.Interval))], 
+  const intervalOptions = useMemo(
+    () => [...new Set((conditional || data.fullpredicted).map((e: DataPoint) => e.Interval))],
     [conditional, data.fullpredicted]
   );
   const defaultInterval = intervalOptions.includes(5) ? 5 : Math.max(...intervalOptions);
@@ -78,16 +78,16 @@ export default function SurvivalVsYear({
 
   const calTrend = useMemo(() => {
     if (!(trendQueryData as TrendQueryData)?.data?.calendarTrend) return [];
-    
+
     const calendarTrend = (trendQueryData as TrendQueryData).data.calendarTrend as any;
     let trendArray: TrendDataPoint[][];
-    
+
     if (params.useRelaxModel) {
       trendArray = calendarTrend[cluster!][fitIndex] as TrendDataPoint[][];
     } else {
       trendArray = calendarTrend[fitIndex] as TrendDataPoint[][];
     }
-    
+
     return trendArray
       .reduce((acc: TrendDataPoint[], ar: TrendDataPoint[]) => [...acc, ...ar], [])
       .filter((e: TrendDataPoint) => intervals.includes(e.interval));
@@ -192,17 +192,12 @@ export default function SurvivalVsYear({
                     </Form.Group>
                   </Col>
                   <Col sm="auto" className="p-3 pt-0">
-                    <Form.Group className="d-flex" controlId="trendStart">
+                    <Form.Group controlId="trendStart">
                       <Form.Label className="me-2 text-nowrap">From</Form.Label>
                       <Form.Select
                         {...register("trendStart", {
                           valueAsNumber: true,
                           required: calendarTrend ? "Required" : false,
-                          validate: (value, form) =>
-                            !calendarTrend ||
-                            !form?.trendEnd ||
-                            value < form.trendEnd ||
-                            `Must be less than ${+form.trendEnd + firstYear}`,
                         })}
                         disabled={!calendarTrend}
                         isInvalid={!!errors?.trendStart}>
@@ -216,17 +211,16 @@ export default function SurvivalVsYear({
                     </Form.Group>
                   </Col>
                   <Col sm="auto" className="p-3 pt-0">
-                    <Form.Group className="d-flex" controlId="trendEnd">
+                    <Form.Group controlId="trendEnd">
                       <Form.Label className="me-2 text-nowrap">To</Form.Label>
                       <Form.Select
                         {...register("trendEnd", {
                           valueAsNumber: true,
                           required: calendarTrend ? "Required" : false,
                           validate: (value, form) =>
-                            !calendarTrend ||
-                            !form?.trendStart ||
+                            !!!form.trendStart ||
                             value > form.trendStart ||
-                            `Must be greater than ${+form.trendStart + firstYear}`,
+                            `'To' Must be greater than ${+form.trendStart + firstYear}`,
                         })}
                         disabled={!calendarTrend}
                         isInvalid={!!errors?.trendEnd}>
