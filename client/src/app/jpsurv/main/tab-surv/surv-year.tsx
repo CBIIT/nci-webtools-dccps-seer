@@ -149,8 +149,9 @@ export default function SurvivalVsYear({
                 disabled={false}
                 className={undefined}
                 labelClass={undefined}
-                rules={undefined}
+                rules={{ required: jpTrend || calendarTrend ? "Required" : false }}
                 defaultValue={undefined}
+                error={errors?.intervals}
                 isMulti
               />
               <Form.Text className="text-muted">

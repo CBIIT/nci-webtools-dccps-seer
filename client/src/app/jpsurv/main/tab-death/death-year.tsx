@@ -28,12 +28,19 @@ export default function DeathVsYear({
   const queryClient = useQueryClient();
   const isFetching = useIsFetching({ queryKey: ["deathTrend"] });
   const trendQueryData = queryClient.getQueryData(deathTrendQueryKey);
-  const intervalOptions = useMemo(() => 
-    [...new Set((conditional || data.fullpredicted).map((e: DataPoint) => e.Interval))], 
+  const intervalOptions = useMemo(
+    () => [...new Set((conditional || data.fullpredicted).map((e: DataPoint) => e.Interval))],
     [conditional, data.fullpredicted]
   );
   const defaultInterval = intervalOptions.includes(5) ? 5 : Math.max(...intervalOptions);
-  const { control, register, watch, setValue, handleSubmit } = useForm<DeathFormData>({
+  const {
+    control,
+    register,
+    watch,
+    setValue,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<DeathFormData>({
     defaultValues: { intervalsD: [defaultInterval], jpTrend: false, useRange: false, trendRange: [] },
   });
   const intervalsD = watch("intervalsD");
@@ -69,7 +76,8 @@ export default function DeathVsYear({
   }, [conditional, jpTrend, setValue]);
   // auto select interval on conditional recalculation switch
   useEffect(() => {
-    if (!intervalsD.every(interval => intervalOptions.includes(interval))) setValue("intervalsD", [...intervalsD, defaultInterval]);
+    if (!intervalsD.every((interval) => intervalOptions.includes(interval)))
+      setValue("intervalsD", [...intervalsD, defaultInterval]);
   }, [conditional, defaultInterval, intervalOptions, intervalsD, setValue]);
   useEffect(() => {
     setState({ deathTrendQueryKey: ["deathTrend", cohortIndex] });
@@ -106,8 +114,9 @@ export default function DeathVsYear({
                 disabled={false}
                 className={undefined}
                 labelClass={undefined}
-                rules={undefined}
+                rules={{ required: jpTrend ? "Required" : false }}
                 defaultValue={undefined}
+                error={errors?.intervalsD}
                 isMulti
               />
               <Form.Text className="text-muted">

@@ -13,6 +13,7 @@ export default function SelectHookForm({
   control,
   rules,
   defaultValue,
+  error,
   ...rest
 }) {
   const selectStyles = {
@@ -36,14 +37,11 @@ export default function SelectHookForm({
         ...base,
         // match with the menu
         borderRadius: state.isFocused ? "3px 3px 0 0" : 3,
-        // Overwrittes the different states of border
-        // borderColor: state.isFocused ? '#f1e4ef' : '#8e4b86',
-        // Removes weird border around container
-        // boxShadow: state.isFocused ? null : null,
-        // '&:hover': {
-        // Overwrittes the different states of border
-        // borderColor: state.isFocused ? '#8e4b86' : '#f1e4ef',
-        // },
+        // Apply error styling when validation fails
+        borderColor: error ? '#dc3545' : state.isFocused ? base.borderColor : base.borderColor,
+        '&:hover': {
+          borderColor: error ? '#dc3545' : base.borderColor,
+        },
       }),
       menuList: (base) => ({
         ...base,
@@ -77,6 +75,11 @@ export default function SelectHookForm({
           />
         )}
       />
+      {error && (
+        <Form.Control.Feedback type="invalid" style={{ display: 'block' }}>
+          {error.message}
+        </Form.Control.Feedback>
+      )}
     </Form.Group>
   );
 }
