@@ -57,7 +57,12 @@ export default function FileInput(props) {
               className="list-group-item-action d-flex justify-content-between align-items-center"
               key={index}>
               <small className="text-muted text-truncate">{file.name}</small>
-              <Button size="sm" variant="outline-danger" className="border-0" onClick={() => removeFile(index)}>
+              <Button
+                size="sm"
+                variant="outline-danger"
+                className="border-0"
+                onClick={() => removeFile(index)}
+                disabled={props.disabled}>
                 <RxCross1 aria-label="Remove File Icon" />
                 <span className="visually-hidden">Remove File</span>
               </Button>
