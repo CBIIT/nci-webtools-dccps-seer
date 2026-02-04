@@ -328,7 +328,13 @@ export default function AnalysisForm({ id }) {
           <legend className="legend fw-bold">Data</legend>
           <Form.Group className="mb-4" controlId="inputType">
             <Form.Label className="required fw-bold">File Format</Form.Label>
-            <Form.Select required {...register("inputType", { required: true })}>
+            <Form.Select
+              required
+              {...register("inputType", { required: true })}
+              onChange={(e) => {
+                reset({ ...defaultForm, inputType: e.target.value });
+                resetStore();
+              }}>
               <option value="seer">SEER*Stat Dictionary and Data Files</option>
               <option value="csv">CSV File</option>
               <option value="zip">Workspace</option>

@@ -262,7 +262,11 @@ export default function AnalysisForm({ id }) {
             required
             {...register("inputType", {
               required: true,
-            })}>
+            })}
+            onChange={(e) => {
+              reset({ ...defaultForm, inputType: e.target.value });
+              resetStore();
+            }}>
             <option value="seer">SEER*Stat Dictionary and Data Files</option>
             {/* <option value="csv">CSV File</option> */}
             <option value="zip">Workspace</option>
