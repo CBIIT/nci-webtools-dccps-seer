@@ -66,15 +66,18 @@ export default function SurvivalVsYear({
   );
 
   const trendQueryData = queryClient.getQueryData(survTrendQueryKey);
-  const survTrend = useMemo(
-    () =>
-      (trendQueryData as TrendQueryData)?.data?.jpTrend
-        ? (trendQueryData as TrendQueryData).data.jpTrend[fitIndex].survTrend
-            .reduce((acc: TrendDataPoint[], ar: TrendDataPoint[]) => [...acc, ...ar], [])
-            .filter((e: TrendDataPoint) => intervals.includes(e.interval))
-        : [],
-    [trendQueryData, intervals, fitIndex]
-  );
+  const survTrend = useMemo(() => {
+    if (!(trendQueryData as TrendQueryData)?.data?.jpTrend) return [];
+
+    const flattenedData = (trendQueryData as TrendQueryData).data.jpTrend[fitIndex].survTrend.reduce(
+      (acc: TrendDataPoint[], ar: TrendDataPoint[]) => [...acc, ...ar],
+      []
+    );
+
+    return intervals.length === 0
+      ? flattenedData
+      : flattenedData.filter((e: TrendDataPoint) => intervals.includes(e.interval));
+  }, [trendQueryData, intervals, fitIndex]);
 
   const calTrend = useMemo(() => {
     if (!(trendQueryData as TrendQueryData)?.data?.calendarTrend) return [];
@@ -88,9 +91,11 @@ export default function SurvivalVsYear({
       trendArray = calendarTrend[fitIndex] as TrendDataPoint[][];
     }
 
-    return trendArray
-      .reduce((acc: TrendDataPoint[], ar: TrendDataPoint[]) => [...acc, ...ar], [])
-      .filter((e: TrendDataPoint) => intervals.includes(e.interval));
+    const flattenedData = trendArray.reduce((acc: TrendDataPoint[], ar: TrendDataPoint[]) => [...acc, ...ar], []);
+
+    return intervals.length === 0
+      ? flattenedData
+      : flattenedData.filter((e: TrendDataPoint) => intervals.includes(e.interval));
   }, [trendQueryData, intervals, fitIndex, cluster, params.useRelaxModel]);
 
   const observedHeader = isRecalcCond ? "observed" : params?.observed;
@@ -149,7 +154,7 @@ export default function SurvivalVsYear({
                 disabled={false}
                 className={undefined}
                 labelClass={undefined}
-                rules={{ required: jpTrend || calendarTrend ? "Required" : false }}
+                rules={undefined}
                 defaultValue={undefined}
                 error={errors?.intervals}
                 isMulti
