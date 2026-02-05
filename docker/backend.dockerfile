@@ -16,11 +16,10 @@ WORKDIR /app/server
 
 # install R packages with renv
 COPY r-packages /app/r-packages
-COPY server /app/server/
+COPY server/renv.lock /app/server/
 COPY server/.Rprofile /app/server/
 COPY server/renv/activate.R /app/server/renv/
 COPY server/renv/settings.json /app/server/renv/
-
 RUN R -e "\
     options(\
     renv.config.repos.override = 'https://packagemanager.posit.co/cran/__linux__/rhel9/latest', \
@@ -28,9 +27,16 @@ RUN R -e "\
     ); \
     renv::restore();"
 
-COPY server/package.json server/package-lock.json ./
 
+COPY server/package.json server/package-lock.json ./
 RUN npm install
+
+# copy everything else
+COPY server/server.js server/worker.js server/pm2.config.json server/.env.example ./
+COPY server/cansurv ./cansurv
+COPY server/jpsurv ./jpsurv
+COPY server/services ./services
+COPY server/templates ./templates
 
 # Create ENV file if it doesn't exist https://github.com/nodejs/node/issues/50993
 RUN touch .env
