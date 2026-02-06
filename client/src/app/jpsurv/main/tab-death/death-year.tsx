@@ -61,16 +61,12 @@ export default function DeathVsYear({
   }, [data, conditional, intervalsD, observedHeader, predictedHeader]);
 
   const deathTrend = useMemo(
-    () => {
-      if (!(trendQueryData as TrendQueryData)?.data?.jpTrend) return [];
-      
-      const flattenedData = (trendQueryData as TrendQueryData).data.jpTrend[fitIndex].deathTrend
-        .reduce((acc: TrendDataPoint[], ar: TrendDataPoint[]) => [...acc, ...ar], []);
-      
-      return intervalsD.length === 0
-        ? flattenedData
-        : flattenedData.filter((e: TrendDataPoint) => intervalsD.includes(e.interval));
-    },
+    () =>
+      (trendQueryData as TrendQueryData)?.data?.jpTrend
+        ? (trendQueryData as TrendQueryData).data.jpTrend[fitIndex].deathTrend
+            .reduce((acc: TrendDataPoint[], ar: TrendDataPoint[]) => [...acc, ...ar], [])
+            .filter((e: TrendDataPoint) => intervalsD.includes(e.interval))
+        : [],
     [trendQueryData, intervalsD, fitIndex]
   );
 
@@ -118,7 +114,7 @@ export default function DeathVsYear({
                 disabled={false}
                 className={undefined}
                 labelClass={undefined}
-                rules={undefined}
+                rules={{ required: jpTrend ? "Required" : false }}
                 defaultValue={undefined}
                 error={errors?.intervalsD}
                 isMulti
