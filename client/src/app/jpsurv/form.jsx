@@ -151,14 +151,25 @@ export default function AnalysisForm({ id }) {
       setModelOptions(session.seerData);
       reset({ ...session.params, inputFile: asFileList(session.params.inputFile) });
     }
-  }, [getValues, session]);
+  }, [getValues, session, setState, reset]);
+
   // parse seerdata after data upload
   useEffect(() => {
     if (inputFile && !seerData?.cohortVariables) handleLoadData(inputType, inputFile);
   }, [inputType, inputFile, seerData, handleLoadData]);
+
   useEffect(() => {
     if (Object.keys(seerData).length && !Object.keys(modelOptions).length) setModelOptions(seerData);
   }, [seerData, modelOptions]);
+
+  // Cleanup: Clear Zustand state when component unmounts
+  useEffect(() => {
+    return () => {
+      if (!id) {
+        resetStore();
+      }
+    };
+  }, [id, resetStore]);
 
   function handleCohort(e, key) {
     const { checked } = e.target;

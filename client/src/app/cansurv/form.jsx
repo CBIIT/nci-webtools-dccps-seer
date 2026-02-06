@@ -146,10 +146,12 @@ export default function AnalysisForm({ id }) {
       reset({ ...session.params, inputFile: asFileList(session.params.inputFile) });
     }
   }, [session, setState, getValues, reset, populatecovariates, setSeerVariables]);
+
   // parse seerdata after data upload
   useEffect(() => {
     if (inputFile && !seerData?.cohortVariables) handleLoadData(inputType, inputFile);
   }, [inputType, inputFile, seerData, handleLoadData]);
+
   // populate form after seerdata is parsed
   useEffect(() => {
     if (Object.keys(seerData).length && fields.length == 0) {
@@ -157,6 +159,15 @@ export default function AnalysisForm({ id }) {
       setSeerVariables(seerData.seerStatDictionary);
     }
   }, [seerData, fields, populatecovariates, setSeerVariables]);
+
+  // Cleanup: Clear Zustand state when component unmounts
+  useEffect(() => {
+    return () => {
+      if (!id) {
+        resetStore();
+      }
+    };
+  }, [id, resetStore]);
 
   function handleChange(event) {
     const { name, value, checked } = event.target;
