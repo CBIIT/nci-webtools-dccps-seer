@@ -42,7 +42,7 @@ export default function Footer() {
               </div>
             </div>
             <div className="col-lg-4 mb-4">
-              <a className="text-light" target="_blank" href="https://github.com/CBIIT/nci-webtools-dccps-seer">
+              <a className="text-light" target="_blank" rel="noopener noreferrer" href="https://github.com/CBIIT/nci-webtools-dccps-seer">
                 Version: {version}
               </a>
               <div>Last Updated: {date}</div>
