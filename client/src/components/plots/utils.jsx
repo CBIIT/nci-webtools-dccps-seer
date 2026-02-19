@@ -128,7 +128,7 @@ export function makeAnnotation(x, y, index, text = null, color = null, settings 
     xref: "x",
     yref: "y",
     text: text || `Annotation ${index + 1}`,
-    bgcolor: "transparent ",
+    bgcolor: "transparent",
     font: { color: color || "rgba(0, 0, 0, 0.9)" },
     captureevents: true,
     showarrow: false,
