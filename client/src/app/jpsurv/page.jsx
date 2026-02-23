@@ -19,7 +19,7 @@ export default function Analysis(props) {
   const pathname = usePathname();
   const openSidebar = useStore((state) => state.openSidebar);
   const toggleSidebar = useStore((state) => state.toggleSidebar);
-  const params = useStore((state) => state.params);
+  const storedId = useStore((state) => state.params.id);
   const resetMain = useStore((state) => state.resetMain);
   const { id } = searchParams;
 
@@ -29,8 +29,8 @@ export default function Analysis(props) {
   }, [id]);
 
   useEffect(() => {
-    if (!id && params.id) router.push(`${pathname}?id=${params.id}`, { shallow: true });
-  }, [id, params.id, router, pathname]);
+    if (!id && storedId) router.push(`${pathname}?id=${storedId}`, { shallow: true });
+  }, [id, storedId, router, pathname]);
 
   return (
     <Container className="py-4">
