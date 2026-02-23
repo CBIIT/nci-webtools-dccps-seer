@@ -22,7 +22,7 @@
     "lodash": "^4.17.21",
     "lodash-es": "^4.17.21",
     "multer": "^2.0.2",
-    "nodemailer": "^6.9.15",
+    "nodemailer": "^8.0.1",
     "pm2": "^6.0.13",
     "r-wrapper": "^1.1.2",
     "uuid": "^11.0.3",
