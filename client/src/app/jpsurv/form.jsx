@@ -48,7 +48,7 @@ export default function AnalysisForm({ id }) {
     watch,
     trigger,
     formState: { errors },
-  } = useForm({ defaultValues: defaultForm });
+  } = useForm({ defaultValues: useStore.getState().params });
 
   const {
     fields,
@@ -159,6 +159,14 @@ export default function AnalysisForm({ id }) {
   useEffect(() => {
     if (Object.keys(seerData).length && !Object.keys(modelOptions).length) setModelOptions(seerData);
   }, [seerData, modelOptions]);
+
+  // sync form state to store on every change
+  useEffect(() => {
+    const { unsubscribe } = watch((values) => {
+      setState({ params: values });
+    });
+    return () => unsubscribe();
+  }, [watch, setState]);
 
   function handleCohort(e, key) {
     const { checked } = e.target;

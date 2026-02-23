@@ -36,7 +36,7 @@ export default function AnalysisForm({ id }) {
     watch,
     trigger,
     formState: { errors },
-  } = useForm({ defaultValues: defaultForm });
+  } = useForm({ defaultValues: useStore.getState().params });
 
   const { fields, append } = useFieldArray({
     control,
@@ -157,6 +157,14 @@ export default function AnalysisForm({ id }) {
       setSeerVariables(seerData.seerStatDictionary);
     }
   }, [seerData, fields, populatecovariates, setSeerVariables]);
+
+  // sync form state to store on every change
+  useEffect(() => {
+    const { unsubscribe } = watch((values) => {
+      setState({ params: values });
+    });
+    return () => unsubscribe();
+  }, [watch, setState]);
 
   function handleChange(event) {
     const { name, value, checked } = event.target;
