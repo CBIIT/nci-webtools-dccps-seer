@@ -94,7 +94,7 @@ export default function ConditionalForm({ data, params, cohortIndex, fitIndex, c
                               required: conditional ? "Required" : false,
                               validate: (value, form) =>
                                 value < form.conditionalIntervals[i].end ||
-                                `Must be less than ${+form.conditionalIntervals[i].end}`,
+                                `Must be less than ${+form.conditionalIntervals[i].end || 'End Interval'}`,
                             })}
                             disabled={!conditional || isFetching}
                             isInvalid={errors?.conditionalIntervals && errors?.conditionalIntervals[i]?.start}>
@@ -118,7 +118,7 @@ export default function ConditionalForm({ data, params, cohortIndex, fitIndex, c
                               required: conditional ? "Required" : false,
                               validate: (value, form) =>
                                 value > form.conditionalIntervals[i].start ||
-                                `Must be greater than ${+form.conditionalIntervals[i].start}`,
+                                `Must be greater than ${+form.conditionalIntervals[i].start || 'Start Interval'}`,
                             })}
                             disabled={!conditional || isFetching}
                             isInvalid={errors?.conditionalIntervals && errors?.conditionalIntervals[i]?.end?.message}>
