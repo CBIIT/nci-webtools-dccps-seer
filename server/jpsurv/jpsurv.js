@@ -25,6 +25,7 @@ export async function jpsurv(params, logger, env) {
         `JPSurv - ${params.jobName} - ${submittedAt} EST`,
         "templates/user-success-email.html",
         {
+          appName: "JPSurv",
           submittedAt,
           resultsUrl: `${env.APP_BASE_URL}/jpsurv?id=${id}`,
           emailAdmin: env.EMAIL_ADMIN,
@@ -43,6 +44,7 @@ export async function jpsurv(params, logger, env) {
         `JPSurv Error - ${params.jobName} - ${submittedAt} EST`,
         "templates/user-failure-email.html",
         {
+          appName: "JPSurv",
           submittedAt,
           id,
           error: error.message.toString(),

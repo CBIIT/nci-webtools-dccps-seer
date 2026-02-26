@@ -25,6 +25,7 @@ export async function cansurv(params, logger, env) {
         `CanSurv - ${params.jobName} - ${submittedAt} EST`,
         "templates/user-success-email.html",
         {
+          appName: "CanSurv",
           submittedAt,
           resultsUrl: `${env.APP_BASE_URL}/cansurv?id=${id}`,
           emailAdmin: env.EMAIL_ADMIN,
@@ -43,6 +44,7 @@ export async function cansurv(params, logger, env) {
         `CanSurv Error - ${params.jobName} - ${submittedAt} EST`,
         "templates/user-failure-email.html",
         {
+          appName: "CanSurv",
           submittedAt,
           id,
           error: error.message.toString(),

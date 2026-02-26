@@ -3,14 +3,14 @@
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>JPSurv Error</title>
+    <title><%= appName %> Error</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
   </head>
 
   <body>
-    Dear JPSurv User, <br />
+    Dear <%= appName %> User, <br />
     <p>
-      The job you submitted to the JPSurv failed to be processed. Please
+      The job you submitted to <%= appName %> failed to be processed. Please
       correct your settings and resubmit or contact us at
       <a href="mailto:<%= emailAdmin %>"><%= emailAdmin %></a> for more information or
       if you have any questions.
@@ -26,7 +26,7 @@
 
     <p>
       Respectfully, <br />
-      JPSurv Analysis Tool
+      <%= appName %> Analysis Tool
     </p>
   </body>
 </html>
