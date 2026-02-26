@@ -69,3 +69,11 @@ export async function joinpointConditional(params, logger, env) {
 
   return await r.async("jpsurv/jpsurv.R", "joinpointConditional", { params, outputFolder });
 }
+
+export async function getTrends(params, logger, env = process.env) {
+  return await trends(params, logger, env);
+}
+
+export async function recalculateConditional(params, logger, env = process.env) {
+  return await joinpointConditional(params, logger, env);
+}
