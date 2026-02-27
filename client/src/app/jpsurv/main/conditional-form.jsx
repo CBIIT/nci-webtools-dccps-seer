@@ -23,8 +23,10 @@ export default function ConditionalForm({ data, params, cohortIndex, fitIndex, c
     watch,
     handleSubmit,
     setValue,
+    trigger,
     formState: { errors },
   } = useForm({
+    reValidateMode: "onSubmit",
     defaultValues: {
       conditional: useConditional,
       conditionalIntervals: [{ start: "", end: "" }],
@@ -95,6 +97,10 @@ export default function ConditionalForm({ data, params, cohortIndex, fitIndex, c
                               validate: (value, form) =>
                                 value < form.conditionalIntervals[i].end ||
                                 `Must be less than ${+form.conditionalIntervals[i].end || 'End Interval'}`,
+                              onChange: () => {
+                                if (errors?.conditionalIntervals?.[i]?.start) trigger(`conditionalIntervals[${i}].start`);
+                                if (errors?.conditionalIntervals?.[i]?.end) trigger(`conditionalIntervals[${i}].end`);
+                              },
                             })}
                             disabled={!conditional || isFetching}
                             isInvalid={errors?.conditionalIntervals && errors?.conditionalIntervals[i]?.start}>
@@ -119,6 +125,10 @@ export default function ConditionalForm({ data, params, cohortIndex, fitIndex, c
                               validate: (value, form) =>
                                 value > form.conditionalIntervals[i].start ||
                                 `Must be greater than ${+form.conditionalIntervals[i].start || 'Start Interval'}`,
+                              onChange: () => {
+                                if (errors?.conditionalIntervals?.[i]?.start) trigger(`conditionalIntervals[${i}].start`);
+                                if (errors?.conditionalIntervals?.[i]?.end) trigger(`conditionalIntervals[${i}].end`);
+                              },
                             })}
                             disabled={!conditional || isFetching}
                             isInvalid={errors?.conditionalIntervals && errors?.conditionalIntervals[i]?.end?.message}>
