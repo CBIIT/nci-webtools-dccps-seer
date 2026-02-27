@@ -223,7 +223,6 @@ export default function AnalysisForm({ id }) {
         dictionaryFile: seerData?.dictionaryFile,
         dataFile: seerData.dataFile,
         headers: seerData.seerStatDictionary.map((e) => e.name),
-        seerStatFile: "seerStatData.json",
       },
       inputFile: Array.from(inputFile).map((file) => file.name),
     };

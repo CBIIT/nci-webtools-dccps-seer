@@ -6,7 +6,7 @@ source("cansurv/source.R")
 
 calculateCanSurv <- function(inputFolder, outputFolder) {
     params <- read_json(file.path(inputFolder, "params.json"))
-    data <- read_json(file.path(inputFolder, params$files$seerStatFile), simplifyDataFrame = T)
+    data <- read_json(file.path(inputFolder, "data.json"), simplifyDataFrame = T)
     data <- bind_rows(data$seerStatData)
 
     manifest <- tryCatch(
