@@ -3,6 +3,7 @@ import { isMainModule, readJson } from "./services/utils.js";
 import { createLogger } from "./services/logger.js";
 import { jpsurv } from "./jpsurv/jpsurv.js";
 import { cansurv } from "./cansurv/cansurv.js";
+import { recurrence } from "./recurrence/recurrence.js";
 
 if (isMainModule(import.meta)) {
   try {
@@ -24,6 +25,8 @@ export async function main(argv = process.argv, env = process.env) {
 
   if (params?.type == "cansurv") {
     return await cansurv(params, logger, env);
+  } else if (params?.type == "recurrence") {
+    return await recurrence(params, logger, env);
   } else {
     return await jpsurv(params, logger, env);
   }

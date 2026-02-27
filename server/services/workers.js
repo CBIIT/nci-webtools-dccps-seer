@@ -4,7 +4,7 @@ import ECS, { ECSClient, RunTaskCommand } from "@aws-sdk/client-ecs";
 import { createLogger } from "./logger.js";
 import { jpsurv } from "../jpsurv/jpsurv.js";
 import { cansurv } from "../cansurv/cansurv.js";
-import { recurrence } from "../recurrence/index.js";
+import { recurrence } from "../recurrence/recurrence.js";
 
 /**
  * Submits an analysis job by writing input parameters and data to designated input/output folders,
