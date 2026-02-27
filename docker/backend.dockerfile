@@ -35,6 +35,7 @@ RUN npm install
 COPY server/server.js server/worker.js server/pm2.config.json server/.env.example ./
 COPY server/cansurv ./cansurv
 COPY server/jpsurv ./jpsurv
+COPY server/recurrence ./recurrence
 COPY server/services ./services
 COPY server/templates ./templates
 
