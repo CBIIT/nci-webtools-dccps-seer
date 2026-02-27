@@ -19,7 +19,7 @@ export async function submit(params, data, env = process.env) {
   const inputFolder = path.resolve(env.INPUT_FOLDER, id);
   const outputFolder = path.resolve(env.OUTPUT_FOLDER, id);
   const paramsFilePath = path.resolve(inputFolder, "params.json");
-  const dataFilePath = path.resolve(inputFolder, params.files.seerStatFile);
+  const dataFilePath = path.resolve(inputFolder, "data.json");
   const statusFilePath = path.resolve(outputFolder, "status.json");
   await mkdirs([inputFolder, outputFolder]);
 
