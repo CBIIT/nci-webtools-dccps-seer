@@ -59,7 +59,7 @@ export default function AnalysisMain({ id }) {
       coefData,
       seerData,
       params,
-      `jpsurv_${params.files.dataFile.split(".").slice(0, -1).join(".")}`
+      `cansurv_${params.inputFile[0].split(".").slice(0, -1).join(".")}`
     );
   }
 
