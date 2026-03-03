@@ -218,7 +218,6 @@ export default function AnalysisForm({ id }) {
       ...formData,
       ...variableOptions,
       id,
-      type: "cansurv",
       files: {
         dictionaryFile: seerData?.dictionaryFile,
         dataFile: seerData.dataFile,

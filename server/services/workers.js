@@ -58,13 +58,15 @@ export function getWorker(workerType = "local") {
 export async function runLocalWorker(id, env = process.env) {
   const paramsFilePath = path.resolve(env.INPUT_FOLDER, id, "params.json");
   const params = await readJson(paramsFilePath);
-  const logger = createLogger(env.APP_NAME, env.LOG_LEVEL);
-  if (params?.type == "cansurv") {
+  const logger = createLogger(`${params.worker} - ${id}`, env.LOG_LEVEL);
+  if (params?.worker == "cansurv") {
     return await cansurv(params, logger, env);
-  } else if (params?.type == "recurrence") {
+  } else if (params?.worker == "recurrence") {
     return await recurrence(params, logger, env);
-  } else {
+  } else if (params?.worker == "jpsurv") {
     return await jpsurv(params, logger, env);
+  } else {
+    throw new Error(`Unknown worker type: ${params.worker}`);
   }
 }
 
