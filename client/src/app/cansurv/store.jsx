@@ -2,6 +2,7 @@ import { create } from "zustand";
 
 export const defaultForm = {
   id: "",
+  worker: "cansurv",
   inputType: "seer",
   inputFile: "",
   covariates: [],
