@@ -10,6 +10,7 @@ import Loading from "@/components/loading";
 import { SidebarContainer, SidebarPanel, MainPanel } from "@/components/sidebar-container";
 import GroupDataForm from "./form";
 import { useStore } from "./store";
+import Main from "./main/main";
 
 export default function GroupPage() {
   const router = useRouter();
@@ -49,7 +50,11 @@ export default function GroupPage() {
           <MainPanel>
             <Col>
               <div style={{ minHeight: "400px" }}>
-                <p className="text-muted fst-italic mt-3">Results will appear here after submission.</p>
+                <ErrorBoundary fallback={<Alert variant="warning">Error loading Main</Alert>}>
+                  <Suspense fallback={<Loading />}>
+                    <Main id={id} />
+                  </Suspense>
+                </ErrorBoundary>
               </div>
             </Col>
           </MainPanel>
