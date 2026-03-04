@@ -99,6 +99,24 @@ function settingsSheet(params) {
   return utils.aoa_to_sheet(transposedData);
 }
 
+export function downloadGroupResults(results, params, filename) {
+  const wb = utils.book_new();
+
+  const parameterRows = [
+    { Parameter: "Stage Variable", Value: params.stageVariable ?? "" },
+    { Parameter: "Distant Stage Value", Value: params.distantStageValue ?? "" },
+    { Parameter: "Adjustment Factor r", Value: params.adjustmentFactorR ?? "" },
+    { Parameter: "Years of Follow-up", Value: params.followUpYears ?? "" },
+  ];
+  const paramsWs = utils.json_to_sheet(parameterRows);
+  utils.book_append_sheet(wb, paramsWs, "Parameters");
+
+  const resultsWs = utils.json_to_sheet(results);
+  utils.book_append_sheet(wb, resultsWs, "Results");
+
+  writeFile(wb, `${filename}.xlsx`);
+}
+
 function parseParams(params) {
   return [
     Object.fromEntries(
