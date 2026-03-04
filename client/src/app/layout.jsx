@@ -16,12 +16,17 @@ export default function RootLayout({ children }) {
     // { title: "Home", path: "/", subRoutes: [] },
     { title: "JPSurv", path: "/jpsurv", subRoutes: [] },
     { title: "CanSurv", path: "/cansurv", subRoutes: [] },
-    { title: "RecurRisk", path: "/recurrence", subRoutes: [] },
+    { title: "RecurRisk", path: "/recurrence/group", subRoutes: [
+      { title: "Group Data", path: "/recurrence/group" },
+      { title: "Individual Data", path: "/recurrence/individual" },
+    ]},
     { title: "Help", path: "/help", subRoutes: [] },
   ];
   const queryClient = new QueryClient({});
   const pathname = usePathname();
-  const currentRoute = routes.find((route) => route.path === pathname);
+  const currentRoute = routes.find(
+    (route) => route.path === pathname || route.subRoutes?.some((sub) => sub.path === pathname)
+  );
   const pageTitle = currentRoute ? `${currentRoute.title} | Survival Stats Tools` : "Survival Stats Tools";
 
   return (
