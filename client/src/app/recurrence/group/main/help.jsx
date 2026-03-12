@@ -13,9 +13,9 @@ export default function Help({}) {
         non-cured survival.
       </p>
 
-      <h2 class="h5 mb-2">
+      <h2 className="h5 mb-2">
         Input
-        <small class="fw-normal h6 ms-1">
+        <small className="fw-normal h6 ms-1">
           <a href="/data/recurrence_risk_groupdata/recurrence_risk_groupdata.zip" target="_blank">
             (sample: recurrence_risk_groupdata.zip)
           </a>
@@ -61,7 +61,7 @@ export default function Help({}) {
         </li>
       </ul>
 
-      <h2 class="h5 mb-2">Output</h2>
+      <h2 className="h5 mb-2">Output</h2>
       <ul>
         <li>
           <strong>link:</strong>
@@ -130,7 +130,7 @@ export default function Help({}) {
         </li>
       </ul>
 
-      <h2 class="h5 mb-2">References</h2>
+      <h2 className="h5 mb-2">References</h2>
       <ol>
         <li>
           Mariotto AB, Zou Z, Zhang F, Howlader N, Kurian AW, Etzioni R. Can We Use Survival Data from Cancer Registries
