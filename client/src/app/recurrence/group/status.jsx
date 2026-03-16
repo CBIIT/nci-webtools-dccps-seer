@@ -4,6 +4,9 @@ export default function Status({ seerData, status }) {
     <>
       {!status || status?.status !== "COMPLETED" ? (
         <div className="shadow border rounded bg-white p-3">
+          {!status && Object.keys(seerData).length === 0 && (
+            <div>Please upload your data on the left and click on Submit</div>
+          )}
           {!status && Object.keys(seerData).length > 0 && (
             <div>Please configure your stage variables on the left and click on Submit</div>
           )}

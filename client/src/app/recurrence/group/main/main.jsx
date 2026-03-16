@@ -1,14 +1,12 @@
 "use client";
 import { Container, Tab, Tabs } from "react-bootstrap";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useStore } from "../store";
 import { fetchStatus, fetchOutput } from "@/services/queries";
 import Status from "../status";
 import Results from "./results";
 import Help from "./help";
-import { Controls } from "./controls";
-import { downloadAll } from "@/services/xlsx";
 
 export default function AnalysisMain({ id }) {
   const setState = useStore((state) => state.setState);
@@ -39,7 +37,7 @@ export default function AnalysisMain({ id }) {
       <div className="shadow border rounded bg-white my-3">
         <Tabs defaultActiveKey="results">
           <Tab eventKey="results" title="Results">
-            <Results data={results} />
+            <Results data={results} params={params} />
           </Tab>
           <Tab eventKey="help" title="Help">
             <Help />

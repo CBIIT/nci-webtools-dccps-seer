@@ -3,7 +3,8 @@ import { useMemo } from "react";
 import { createColumnHelper } from "@tanstack/react-table";
 import Dropdown from "react-bootstrap/Dropdown";
 import Table from "@/components/table";
-import { useStore } from "../store";
+import Button from "react-bootstrap/Button";
+import { FaDownload } from "react-icons/fa";
 import { downloadGroupResults } from "@/services/xlsx";
 
 const DEFAULT_COLUMN_KEYS = [
@@ -40,15 +41,13 @@ function buildColumns(keys) {
   const helper = createColumnHelper();
   return keys.map((key) =>
     helper.accessor(key, {
-      header: () => key,
+      header: () => <div className="mx-3">{key}</div>,
       cell: (info) => formatCell(info.getValue()),
     })
   );
 }
 
-export default function Results({ data }) {
-  const params = useStore((state) => state.params);
-
+export default function Results({ data, params }) {
   const rows = data ?? [];
 
   const columns = useMemo(() => {
@@ -77,22 +76,26 @@ export default function Results({ data }) {
     window.URL.revokeObjectURL(url);
   }
 
-  if (!rows.length) return null;
+  const componentHeader = [
+    <Button variant="link" onClick={handleDownloadResults} className="text-decoration-none">
+      <FaDownload /> Results
+    </Button>,
+    <Button variant="link" onClick={handleSaveWorkspace} className="text-decoration-none">
+      <FaDownload /> Workspace
+    </Button>,
+  ];
 
   return (
     <div className="p-3">
-      <div className="d-flex justify-content-end mb-2">
-        <Dropdown>
-          <Dropdown.Toggle variant="outline-primary" id="export-group-results">
-            Export
-          </Dropdown.Toggle>
-          <Dropdown.Menu align="end">
-            <Dropdown.Item onClick={handleDownloadResults}>Results</Dropdown.Item>
-            <Dropdown.Item onClick={handleSaveWorkspace}>Workspace</Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown>
-      </div>
-      <Table data={rows} columns={columns} size="sm" useFilter useSort usePagination />
+      <Table
+        data={rows}
+        columns={columns}
+        componentHeader={componentHeader}
+        size="sm"
+        useFilter
+        useSort
+        usePagination
+      />
     </div>
   );
 }

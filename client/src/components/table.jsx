@@ -2,6 +2,9 @@ import { useState } from "react";
 import BsTable from "react-bootstrap/Table";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
 import {
   flexRender,
   getCoreRowModel,
@@ -13,7 +16,15 @@ import {
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 
-export default function Table({ data, columns, useFilter = false, useSort = false, usePagination = false, ...props }) {
+export default function Table({
+  data,
+  columns,
+  useFilter = false,
+  useSort = false,
+  usePagination = false,
+  componentHeader = [],
+  ...props
+}) {
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState([]);
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
@@ -41,16 +52,24 @@ export default function Table({ data, columns, useFilter = false, useSort = fals
   const rowEnd = usePagination ? Math.min((pageIndex + 1) * pageSize, totalRows) : totalRows;
 
   return (
-    <div className="mb-3">
+    <Container className="mb-3">
       {useFilter && (
-        <div className="mb-2">
-          <Form.Control
-            aria-label="Search filter"
-            placeholder="Search filter"
-            value={globalFilter}
-            onChange={(e) => setGlobalFilter(e.target.value)}
-          />
-        </div>
+        <Row className="mb-2">
+          <Col sm="2">
+            <Form.Control
+              aria-label="Search filter"
+              placeholder="Search filter"
+              value={globalFilter}
+              onChange={(e) => setGlobalFilter(e.target.value)}
+            />
+          </Col>
+          {componentHeader &&
+            componentHeader.map((e, i) => (
+              <Col sm="auto" key={i} className={i === 0 ? "ms-auto" : ""}>
+                {e}
+              </Col>
+            ))}
+        </Row>
       )}
 
       <div tabIndex="0" className="table-responsive" style={usePagination ? undefined : { maxHeight: "650px" }}>
@@ -62,10 +81,11 @@ export default function Table({ data, columns, useFilter = false, useSort = fals
                   <th
                     key={header.id}
                     onClick={useSort ? header.column.getToggleSortingHandler() : undefined}
-                    style={useSort && header.column.getCanSort() ? { cursor: "pointer", userSelect: "none" } : undefined}>
+                    style={
+                      useSort && header.column.getCanSort() ? { cursor: "pointer", userSelect: "none" } : undefined
+                    }>
                     {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                    {useSort &&
-                      ({ asc: " \u2191", desc: " \u2193" }[header.column.getIsSorted()] ?? "")}
+                    {useSort && ({ asc: " \u2191", desc: " \u2193" }[header.column.getIsSorted()] ?? "")}
                   </th>
                 ))}
               </tr>
@@ -121,6 +141,6 @@ export default function Table({ data, columns, useFilter = false, useSort = fals
           </div>
         </div>
       )}
-    </div>
+    </Container>
   );
 }
