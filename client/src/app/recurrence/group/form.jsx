@@ -36,6 +36,7 @@ export default function GroupDataForm({ id }) {
     setValue,
     getValues,
     watch,
+    trigger,
     formState: { errors },
   } = useForm({ defaultValues: useStore.getState().params });
 
@@ -114,7 +115,10 @@ export default function GroupDataForm({ id }) {
 
     const dictionaryFile = files.find((f) => /.dic$/i.test(f.name));
     const dataFile = files.find((f) => /.txt$/i.test(f.name));
-    if (!dictionaryFile || !dataFile) return;
+    if (!dictionaryFile || !dataFile) {
+      trigger("seerStatDataFiles");
+      return;
+    }
 
     setIsLoading(true);
     setError(null);
