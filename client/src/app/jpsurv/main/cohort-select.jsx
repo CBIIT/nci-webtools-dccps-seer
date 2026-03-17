@@ -8,7 +8,9 @@ import Button from "react-bootstrap/Button";
 import { useStore } from "../store";
 
 export function getCohortLabel(params, cohort_index) {
-  return params.cohortCombos[cohort_index - 1]?.map((c, i) => params.cohorts[i].options[c].label).join(" + ");
+  return params.cohortCombos[cohort_index - 1]
+    ?.map((c, i) => params.cohorts[i].options.find((o) => o.value == c)?.label)
+    .join(" + ");
 }
 
 export function CohortSelect({ params, manifest, className, handleSaveResults }) {

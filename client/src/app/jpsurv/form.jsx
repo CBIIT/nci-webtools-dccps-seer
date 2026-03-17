@@ -268,7 +268,8 @@ export default function AnalysisForm({ id }) {
     const { cohorts, cohortVars, cohortCombos } = processCohorts(formData);
     const statistic = seerData.config["Session Options"]["Statistic"];
     const rates = seerData.config["Session Options"]["RatesDisplayedAs"];
-    const firstYear = +seerData.seerStatDictionary.filter((e) => e.name === formData.year)[0]["factors"][0].label;
+    const yearFactor = seerData.seerStatDictionary.filter((e) => e.name === formData.year)[0]["factors"][0];
+    const firstYear = +yearFactor.label - yearFactor.value;
 
     const params = {
       ...formData,
