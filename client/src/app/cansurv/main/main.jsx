@@ -53,14 +53,9 @@ export default function AnalysisMain({ id }) {
 
   async function handleSaveResults() {
     const { modelData, coefData } = await fetchAll(id, manifest);
+    const filename = params.inputFile[0] instanceof File ? params.inputFile[0].name : params.inputFile[0];
 
-    downloadAll(
-      modelData,
-      coefData,
-      seerData,
-      params,
-      `cansurv_${params.inputFile[0].split(".").slice(0, -1).join(".")}`
-    );
+    downloadAll(modelData, coefData, seerData, params, `cansurv_${filename.split(".").slice(0, -1).join(".")}`);
   }
 
   return (
