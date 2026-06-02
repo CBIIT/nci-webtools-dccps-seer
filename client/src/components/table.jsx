@@ -23,6 +23,7 @@ export default function Table({
   useSort = false,
   usePagination = false,
   componentHeader = [],
+  emptyMessage = "No data available",
   ...props
 }) {
   const [globalFilter, setGlobalFilter] = useState("");
@@ -50,6 +51,9 @@ export default function Table({
   const totalRows = table.getFilteredRowModel().rows.length;
   const rowStart = usePagination ? pageIndex * pageSize + 1 : 1;
   const rowEnd = usePagination ? Math.min((pageIndex + 1) * pageSize, totalRows) : totalRows;
+
+  const columnCount = table.getHeaderGroups()[0]?.headers.length ?? 0;
+  const rows = table.getRowModel().rows;
 
   return (
     <Container className="mb-3">
@@ -92,13 +96,25 @@ export default function Table({
             ))}
           </thead>
           <tbody>
-            {table.getRowModel().rows.map((row) => (
-              <tr key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-                ))}
+            {rows.length === 0 ? (
+              <tr>
+                <td colSpan={columnCount} className="text-muted p-0">
+                  <div
+                    className="d-flex align-items-center justify-content-center text-center"
+                    style={{ minHeight: "100px" }}>
+                    {emptyMessage}
+                  </div>
+                </td>
               </tr>
-            ))}
+            ) : (
+              rows.map((row) => (
+                <tr key={row.id}>
+                  {row.getVisibleCells().map((cell) => (
+                    <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+                  ))}
+                </tr>
+              ))
+            )}
           </tbody>
         </BsTable>
       </div>

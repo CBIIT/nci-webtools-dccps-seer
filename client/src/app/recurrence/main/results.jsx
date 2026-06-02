@@ -86,7 +86,7 @@ export default function Results({ data, params }) {
   ];
 
   return (
-    <div className="p-3">
+    <div className="pt-3">
       <Table
         data={rows}
         columns={columns}
