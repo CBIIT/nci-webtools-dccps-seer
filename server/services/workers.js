@@ -50,6 +50,25 @@ export function getWorker(workerType = "local") {
 }
 
 /**
+ * Dispatches a submitted job to the correct analysis module.
+ * @param {object} params - Parsed params.json from INPUT_FOLDER
+ * @param {import("winston").Logger} logger
+ * @param {NodeJS.ProcessEnv} env
+ */
+export async function runAnalysis(params, logger, env) {
+  switch (params?.worker) {
+    case "cansurv":
+      return cansurv(params, logger, env);
+    case "recurrence":
+      return recurrence(params, logger, env);
+    case "jpsurv":
+      return jpsurv(params, logger, env);
+    default:
+      throw new Error(`Unknown worker type: ${params?.worker}`);
+  }
+}
+
+/**
  * Executes a worker process locally.
  * @param {string} id
  * @param {string} cwd
@@ -59,15 +78,7 @@ export async function runLocalWorker(id, env = process.env) {
   const paramsFilePath = path.resolve(env.INPUT_FOLDER, id, "params.json");
   const params = await readJson(paramsFilePath);
   const logger = createLogger(`${params.worker} - ${id}`, env.LOG_LEVEL);
-  if (params?.worker == "cansurv") {
-    return await cansurv(params, logger, env);
-  } else if (params?.worker == "recurrence") {
-    return await recurrence(params, logger, env);
-  } else if (params?.worker == "jpsurv") {
-    return await jpsurv(params, logger, env);
-  } else {
-    throw new Error(`Unknown worker type: ${params.worker}`);
-  }
+  return runAnalysis(params, logger, env);
 }
 
 /**
