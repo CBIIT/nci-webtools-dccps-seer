@@ -218,13 +218,14 @@ export default function GroupDataForm({ id }) {
     setError(null);
   }
 
-  const hasSeerData = Object.keys(seerData).length > 0;
-  console.log(seerData);
+  const hasSeerStatData = Boolean(seerData.seerStatDataFileNames?.length);
+  const hasCanSurvData = Boolean(seerData.canSurvDataFileName);
+  const hasAllInputData = hasSeerStatData && hasCanSurvData;
   return (
     <div style={{ position: "relative" }}>
       <LoadingOverlay isVisible={isLoading} message="Loading data..." />
       <Form onSubmit={handleSubmit(onSubmit)} onReset={onReset} noValidate>
-        <fieldset className="fieldset shadow-sm border rounded my-4 pt-4 px-3">
+        <fieldset className="fieldset border rounded my-4 pt-4 px-3">
           <legend className="legend fw-bold">Data</legend>
 
           <Form.Group className="mb-4" controlId="inputType">
@@ -274,7 +275,7 @@ export default function GroupDataForm({ id }) {
                     },
                   }}
                   onChange={handleSeerStatDataFilesChange}
-                  disabled={hasSeerData}
+                  disabled={!!id}
                 />
                 {errors.seerStatDataFiles && (
                   <Form.Text className="text-danger">
@@ -291,14 +292,14 @@ export default function GroupDataForm({ id }) {
                   accept=".csv"
                   rules={{ required: "This field is required." }}
                   onChange={handleCanSurvDataFileChange}
-                  disabled={hasSeerData}
+                  disabled={!!id}
                 />
                 {errors.canSurvDataFile && (
                   <Form.Text className="text-danger">{errors.canSurvDataFile.message}</Form.Text>
                 )}
               </Form.Group>
 
-              {hasSeerData && seerData.seerStatDataFileNames && (
+              {(hasSeerStatData || hasCanSurvData) && seerData.seerStatDataFileNames && (
                 <div className="mb-3">
                   <small className="text-muted">
                     <b>SEER*Stat:</b> {seerData.seerStatDataFileNames.join(", ")}
@@ -313,7 +314,7 @@ export default function GroupDataForm({ id }) {
                 </div>
               )}
 
-              {!hasSeerData && (
+              {!hasSeerStatData && (
                 <div className="mb-3">
                   <Button
                     className="p-0"
@@ -365,8 +366,8 @@ export default function GroupDataForm({ id }) {
           )}
         </fieldset>
 
-        {hasSeerData && (
-          <fieldset className="fieldset shadow-sm border rounded my-4 pt-4 px-3">
+        {hasSeerStatData && (
+          <fieldset className="fieldset border rounded my-4 pt-4 px-3">
             <legend className="legend fw-bold">Parameters</legend>
 
             <Form.Group className="mb-4" controlId="stageVariable">
@@ -442,8 +443,8 @@ export default function GroupDataForm({ id }) {
           </fieldset>
         )}
 
-        {hasSeerData && (
-          <fieldset className="fieldset shadow-sm border rounded my-4 pt-4 px-3">
+        {hasSeerStatData && (
+          <fieldset className="fieldset border rounded my-4 pt-4 px-3">
             <legend className="legend fw-bold">Notifications</legend>
             <Form.Group className="mb-3">
               <Form.Check
@@ -490,7 +491,7 @@ export default function GroupDataForm({ id }) {
             disabled={
               inputType === "zip"
                 ? !Array.from(workspaceFile || []).length || !!isSubmitting
-                : !hasSeerData || !!isSubmitting
+                : !hasAllInputData || !!isSubmitting
             }>
             {isSubmitting ? (
               <>
