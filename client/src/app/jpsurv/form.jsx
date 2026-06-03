@@ -332,7 +332,7 @@ export default function AnalysisForm({ id }) {
       <LoadingOverlay isVisible={isLoading} message="Loading data..." />
       <Form onSubmit={handleSubmit(onSubmit)} onReset={onReset} noValidate>
         <Image src={"/assets/jpsurv.png"} alt="JPSurv (Joint Point Survival Model)" width={120} height={43} />
-        <fieldset className="fieldset shadow-sm border rounded my-4 pt-4 px-3">
+        <fieldset className="fieldset border rounded my-4 pt-4 px-3">
           <legend className="legend fw-bold">Data</legend>
           <Form.Group className="mb-4" controlId="inputType">
             <Form.Label className="required fw-bold">File Format</Form.Label>
@@ -452,7 +452,7 @@ export default function AnalysisForm({ id }) {
 
         {Object.keys(modelOptions).length > 0 && (
           <>
-            <fieldset className="fieldset shadow-sm border rounded my-4 pt-4 px-3">
+            <fieldset className="fieldset border rounded my-4 pt-4 px-3">
               <legend className="legend fw-bold legend-wrap">Cohort and Model Specifications</legend>
               <Form.Group className="my-3" controlId="year">
                 <Form.Label className="required fw-bold">Year of Diagnosis</Form.Label>
@@ -705,7 +705,7 @@ export default function AnalysisForm({ id }) {
               </Accordion>
             </fieldset>
 
-            <fieldset className="fieldset shadow-sm border rounded my-4 pt-4 px-3">
+            <fieldset className="fieldset border rounded my-4 pt-4 px-3">
               <legend className="legend fw-bold">Notifications</legend>
               <Form.Group className="mb-3">
                 <Form.Check

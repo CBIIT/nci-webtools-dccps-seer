@@ -260,7 +260,7 @@ export default function AnalysisForm({ id }) {
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)} onReset={onReset} noValidate>
-      <fieldset className="fieldset shadow-sm border rounded my-4 pt-4 px-3">
+      <fieldset className="fieldset border rounded my-4 pt-4 px-3">
         <legend className="legend fw-bold">Data</legend>
         <Form.Group className="mb-4" controlId="inputType">
           <Form.Label className="required fw-bold">Input Type</Form.Label>
@@ -379,7 +379,7 @@ export default function AnalysisForm({ id }) {
 
       {Object.keys(seerData).length > 0 && (
         <>
-          <fieldset className="fieldset shadow-sm border rounded my-4 pt-4 px-3">
+          <fieldset className="fieldset border rounded my-4 pt-4 px-3">
             <legend className="legend fw-bold">Model Specifications</legend>
             <Form.Group className="mb-3">
               <Form.Check
@@ -559,7 +559,7 @@ export default function AnalysisForm({ id }) {
             )}
           </fieldset>
 
-          <fieldset className="fieldset shadow-sm border rounded my-4 pt-4 px-3">
+          <fieldset className="fieldset border rounded my-4 pt-4 px-3">
             <legend className="legend fw-bold">Notifications</legend>
             <Form.Group className="mb-3">
               <Form.Check
