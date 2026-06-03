@@ -1,6 +1,6 @@
 "use client";
 import { Container, Tab, Tabs } from "react-bootstrap";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useStore } from "../store";
 import { fetchStatus, fetchOutput } from "@/services/queries";
