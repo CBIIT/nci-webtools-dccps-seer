@@ -13,7 +13,7 @@ RUN mkdir -p /app/client
 
 WORKDIR /app/client
 
-COPY client/package.json /app/client/
+COPY client/package.json client/package-lock.json /app/client/
 
 RUN npm install
 
