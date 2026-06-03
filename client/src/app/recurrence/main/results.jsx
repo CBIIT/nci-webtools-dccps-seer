@@ -78,10 +78,11 @@ export default function Results({ data, params }) {
   }
 
   const componentHeader = [
-    <Button variant="link" onClick={handleDownloadResults} className="text-decoration-none">
+    <Button key="download-results" variant="link" onClick={handleDownloadResults} className="text-decoration-none">
       <FaDownload /> Results
     </Button>,
     <Button
+      key="save-workspace"
       variant="link"
       onClick={handleSaveWorkspace}
       className="text-decoration-none"
