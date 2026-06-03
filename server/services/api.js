@@ -6,7 +6,8 @@ import multer from "multer";
 import path from "path";
 import DiskStorage from "./storage.js";
 import { logRequests, logErrors, logFiles, handleValidationErrors, logForbiddenErrors } from "./middleware.js";
-import { getTrends, recalculateConditional, submit } from "./jpsurv.js";
+import { getTrends, recalculateConditional } from "../jpsurv/jpsurv.js";
+import { submit } from "./workers.js";
 import { exportWorkspace, importWorkspace } from "./workspace.js";
 
 export function createApi(env) {

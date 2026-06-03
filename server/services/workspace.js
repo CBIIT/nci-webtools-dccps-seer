@@ -47,7 +47,7 @@ export async function importWorkspace(id, zipFile, env = process.env) {
     }
     if (
       !existsSync(path.join(inputFolder, "params.json")) ||
-      !existsSync(path.join(inputFolder, "seerStatData.json"))
+      !existsSync(path.join(inputFolder, "data.json"))
     ) {
       throw new Error("Corrupted Workspace: Missing parameters");
     }

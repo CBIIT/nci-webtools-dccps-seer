@@ -4,8 +4,7 @@ calculateJoinpoint <- function(inputFolder, outputFolder) {
     library(JPSurv)
     library(dplyr)
     params <- read_json(file.path(inputFolder, "params.json"))
-
-    data <- read_json(file.path(inputFolder, params$files$seerStatFile), simplifyDataFrame = T)
+    data <- read_json(file.path(inputFolder, "data.json"), simplifyDataFrame = T)
     # filter data up to selected interval
     data <- subset(data$seerStatData, Interval <= params$interval)
     if (params$rates == "Percents") {

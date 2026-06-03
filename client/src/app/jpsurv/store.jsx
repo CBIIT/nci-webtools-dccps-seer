@@ -10,6 +10,7 @@ export const defaultAdvOptions = {
 
 export const defaultForm = {
   id: "",
+  worker: "jpsurv",
   inputType: "seer",
   inputFile: "",
   year: "",

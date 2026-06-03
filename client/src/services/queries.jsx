@@ -18,7 +18,7 @@ export async function fetchResults(id, file) {
 
 export async function fetchSession(id) {
   const params = (await axios.get(`/api/data/input/${id}/params.json`)).data;
-  const seerData = (await axios.get(`/api/data/input/${id}/seerStatData.json`)).data;
+  const seerData = (await axios.get(`/api/data/input/${id}/data.json`)).data;
   return { params, seerData };
 }
 
