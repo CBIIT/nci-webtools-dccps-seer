@@ -43,6 +43,7 @@ export async function recurrence(params, logger, env) {
   try {
     const results = await recurrenceFunctions[version][functionName]({ ...params, ...data });
     await writeJson(resultsFilePath, results);
+    await writeJson(path.resolve(outputFolder, "manifest.json"), { data: "results.json" });
     await writeJson(statusFilePath, { ...prevStatus, id, status: "COMPLETED", done: new Date() });
 
     if (notify) {
@@ -53,6 +54,8 @@ export async function recurrence(params, logger, env) {
         "templates/user-success-recurrence-email.html",
         {
           ...params,
+          seerStatDataFileNames: (data.seerStatDataFileNames || []).join(", "),
+          canSurvDataFileName: data.canSurvDataFileName || "",
           timestamp: submittedAt,
           resultsUrl: `${env.APP_BASE_URL}/recurrence?id=${id}`,
           emailAdmin: env.EMAIL_ADMIN,
