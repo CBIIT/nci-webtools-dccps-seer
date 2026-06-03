@@ -51,14 +51,13 @@ export async function recurrence(params, logger, env) {
       await sendNotification(
         email,
         `Recurrence Risk - ${jobName} - ${submittedAt} EST`,
-        "templates/user-success-recurrence-email.html",
+        "templates/user-success-email.html",
         {
-          ...params,
-          seerStatDataFileNames: (data.seerStatDataFileNames || []).join(", "),
-          canSurvDataFileName: data.canSurvDataFileName || "",
-          timestamp: submittedAt,
+          appName: "Recurrence Risk",
+          submittedAt,
           resultsUrl: `${env.APP_BASE_URL}/recurrence?id=${id}`,
           emailAdmin: env.EMAIL_ADMIN,
+          jobName: jobName,
         },
         env
       );
