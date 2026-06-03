@@ -60,7 +60,9 @@ export default function Results({ data, params }) {
   }
 
   async function handleSaveWorkspace() {
-    const response = await fetch(`/api/export/${id}`);
+    const jobId = params?.id;
+    if (!jobId) return;
+    const response = await fetch(`/api/export/${jobId}`);
     if (!response.ok) {
       throw new Error("Error during workspace export");
     }
@@ -68,7 +70,7 @@ export default function Results({ data, params }) {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `cansurv-${id}.zip`;
+    a.download = `recurrence-${jobId}.zip`;
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -79,7 +81,11 @@ export default function Results({ data, params }) {
     <Button variant="link" onClick={handleDownloadResults} className="text-decoration-none">
       <FaDownload /> Results
     </Button>,
-    <Button variant="link" onClick={handleSaveWorkspace} className="text-decoration-none">
+    <Button
+      variant="link"
+      onClick={handleSaveWorkspace}
+      className="text-decoration-none"
+      disabled={!params?.id}>
       <FaDownload /> Workspace
     </Button>,
   ];
