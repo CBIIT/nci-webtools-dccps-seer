@@ -78,7 +78,12 @@ export default function Results({ data, params }) {
   }
 
   const componentHeader = [
-    <Button key="download-results" variant="link" onClick={handleDownloadResults} className="text-decoration-none">
+    <Button
+      key="download-results"
+      variant="link"
+      onClick={handleDownloadResults}
+      className="text-decoration-none"
+      disabled={rows.length === 0}>
       <FaDownload /> Results
     </Button>,
     <Button
