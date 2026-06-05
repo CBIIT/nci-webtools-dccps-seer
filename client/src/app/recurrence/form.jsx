@@ -195,7 +195,7 @@ export default function GroupDataForm({ id }) {
       adjustmentFactorR: Number(formData.adjustmentFactorR),
       followUpYears: Number(formData.followUpYears),
     };
-    submitForm.mutate({ params, data: seerData });
+    await submitForm.mutateAsync({ params, data: seerData });
     reset(params);
     setState({ params });
     router.push(`${pathname}?id=${newId}`, { shallow: true });
