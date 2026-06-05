@@ -44,6 +44,7 @@ export default function GroupDataForm({ id }) {
   const workspaceFile = watch("workspaceFile");
   const sendNotification = watch("sendNotification");
   const stageVariable = watch("stageVariable");
+  const distantStageValue = watch("distantStageValue");
   const selectedHeader = seerData.seerStatDictionary?.find((h) => h.name === stageVariable);
 
   const isMutatingSubmit = useIsMutating({ mutationKey: ["submitRecurrence"] });
@@ -394,7 +395,7 @@ export default function GroupDataForm({ id }) {
               <Form.Select
                 {...register("distantStageValue", { required: "This field is required." })}
                 isInvalid={!!errors.distantStageValue}>
-                {!stageVariable && (
+                {!distantStageValue && (
                   <option value="" hidden>
                     No distant stage value selected
                   </option>

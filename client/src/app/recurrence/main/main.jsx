@@ -6,7 +6,7 @@ import { useStore } from "../store";
 import { fetchStatus, fetchOutput } from "@/services/queries";
 import Status from "../status";
 import Results from "./results";
-import Help from "./help";
+import Description from "./description";
 
 export default function AnalysisMain({ id }) {
   const setState = useStore((state) => state.setState);
@@ -33,17 +33,12 @@ export default function AnalysisMain({ id }) {
 
   return (
     <Container>
-      <Status status={jobStatus} seerData={seerData} />
-      <div className="shadow border rounded bg-white my-3">
-        <Tabs defaultActiveKey="results">
-          <Tab eventKey="results" title="Results">
-            <Results data={results} params={params} />
-          </Tab>
-          <Tab eventKey="help" title="Help">
-            <Help />
-          </Tab>
-        </Tabs>
-      </div>
+      {!Object.keys(seerData).length > 0 ? <Description /> : <Status seerData={seerData} status={jobStatus} />}
+      {jobStatus?.status === "COMPLETED" && (
+        <div className="shadow p-3 border rounded bg-white mb-3">
+          <Results data={results} params={params} />
+        </div>
+      )}
     </Container>
   );
 }
