@@ -25,7 +25,9 @@ export default function Status({ seerData, status }) {
               </div>
               <div>
                 For further assistance, please contact us at:{" "}
-                <a href="mailto:NCIJPSurvWebAdmin@mail.nih.gov">NCIJPSurvWebAdmin@mail.nih.gov</a>
+                <a href="mailto:NCIJPSurvWebAdmin@mail.nih.gov" style={{ color: "#266592" }}>
+                  NCIJPSurvWebAdmin@mail.nih.gov
+                </a>
               </div>
             </Alert>
           )}
