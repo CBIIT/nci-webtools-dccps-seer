@@ -43,13 +43,7 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Set dynamic environment variables
-        run: |
-          BRANCH_NAME=${{ github.ref_name }}
-          VERSION=$(echo "$BRANCH_NAME" | awk -F'_' '{print $2}')
-          DATE=$(echo "$BRANCH_NAME" | awk -F'_' '{print $3}')
-          echo "VERSION=${VERSION:-unknown_version}" >> $GITHUB_ENV
-          echo "DATE=${DATE:-unknown_date}" >> $GITHUB_ENV
-
+        run: |  
           TIMESTAMP=$(date +"%Y%m%d%H%M%S")
           REPO=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.$AWS_REGION.amazonaws.com/$APP
           echo "IMAGE_REPOSITORY=$REPO" >> $GITHUB_ENV
@@ -129,7 +123,7 @@ jobs:
             ${{ env.FRONTEND_IMAGE_LATEST }}
           build-args: |
             API_BASE_URL=http://localhost:${{ env.BACKEND_CONTAINER_PORT }}
-            NEXT_PUBLIC_VERSION=${{ env.VERSION }}
+            NEXT_PUBLIC_VERSION=${{ github.ref_name }}
           cache-from: type=registry,ref=${{ env.FRONTEND_IMAGE_LATEST }}
           cache-to: type=inline
 
