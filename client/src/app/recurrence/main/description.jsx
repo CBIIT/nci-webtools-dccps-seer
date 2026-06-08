@@ -4,7 +4,7 @@ export default function Description({}) {
   return (
     <div className="shadow border rounded bg-white p-3">
       <p>
-        This web application has been developed to estimate the risk of progressing to distant recurrence using
+        The RecurRisk tool has been developed to estimate the risk of progressing to distant recurrence using
         disease-specific survival typically provided by cancer registries. The disease-specific survival is assessed via
         cause-specific survival or relative survival using SEER*Stat software. The cause-specific survival or relative
         survival is assumed to follow a mixture-cure model and the risk of recurrence is inferred from the survival
