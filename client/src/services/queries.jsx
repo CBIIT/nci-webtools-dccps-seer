@@ -35,6 +35,9 @@ export async function recalculateConditional(id, params) {
 }
 
 export async function importWorkspace(id, [file]) {
+  if (file.size > 10 * 1024 * 1024) {
+    throw new Error("Workspace file exceeds the 10MB size limit.");
+  }
   const formData = new FormData();
   formData.append("files", file, file.name);
   return await axios.post(`/api/import/${id}`, formData);
