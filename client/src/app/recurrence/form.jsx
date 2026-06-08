@@ -26,7 +26,7 @@ export default function GroupDataForm({ id }) {
   const seerData = useStore((state) => state.seerData);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const isFirstRender = useRef(true);
+
 
   const {
     control,
@@ -89,21 +89,6 @@ export default function GroupDataForm({ id }) {
     const { unsubscribe } = watch((values) => setState({ params: values }));
     return () => unsubscribe();
   }, [watch, setState]);
-
-  // Clear file inputs and parsed data when inputType changes (skip first render)
-  useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-    setValue("seerStatDataFiles", null);
-    setValue("canSurvDataFile", null);
-    setValue("workspaceFile", null);
-    setValue("stageVariable", "");
-    setValue("distantStageValue", "");
-    setState({ seerData: {} });
-    setError(null);
-  }, [inputType]);
 
   // Reset distantStageValue when stageVariable changes
   useEffect(() => {
@@ -187,10 +172,10 @@ export default function GroupDataForm({ id }) {
   }
 
   async function submitCalculation(formData) {
-    const newId = uuidv4();
+    const id = uuidv4();
     const params = {
       ...formData,
-      id: newId,
+      id,
       distantStageValue: Number(formData.distantStageValue),
       adjustmentFactorR: Number(formData.adjustmentFactorR),
       followUpYears: Number(formData.followUpYears),
@@ -198,15 +183,15 @@ export default function GroupDataForm({ id }) {
     await submitForm.mutateAsync({ params, data: seerData });
     reset(params);
     setState({ params });
-    router.push(`${pathname}?id=${newId}`, { shallow: true });
+    router.push(`${pathname}?id=${id}`, { shallow: true });
   }
 
   async function loadWorkspace(formData) {
-    const newId = uuidv4();
+    const id = uuidv4();
     const workspaceFiles = Array.from(formData.workspaceFile || []);
     if (!workspaceFiles.length) return;
     const fileList = asFileList(workspaceFiles[0]);
-    const { data: workspaceId } = await importMutation.mutateAsync({ id: newId, fileList });
+    const { data: workspaceId } = await importMutation.mutateAsync({ id, fileList });
     router.push(`${pathname}?id=${workspaceId}`, { shallow: true });
   }
 
