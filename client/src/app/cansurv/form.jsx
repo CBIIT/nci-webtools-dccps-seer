@@ -226,7 +226,7 @@ export default function AnalysisForm({ id }) {
       inputFile: Array.from(inputFile).map((file) => file.name),
     };
 
-    submitForm.mutate({ params, data: seerData });
+    await submitForm.mutateAsync({ params, data: seerData });
     reset(params);
     setState({ params });
     router.push(`${pathname}?id=${id}`, { shallow: true });
