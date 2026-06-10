@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { BsCaretLeftFill, BsCaretRightFill } from "react-icons/bs";
 
 export const SidebarPanel = ({ children }) => <>{children}</>;
@@ -54,20 +54,13 @@ export function SidebarContainer({ collapsed = false, onCollapsed = () => {}, ch
   let sidebarPanelClass = sidebarPanel.props.className || "col-xl-3";
   let mainPanelClass = mainPanel.props.className || "col-xl-9";
 
-  // assign collapsed prop to internal _collapsed state
-  let [_collapsed, _setCollapsed] = useState(collapsed || false);
-  useEffect(() => _setCollapsed(collapsed), [collapsed]);
-
-  // notify callback when collapsed
   function toggleCollapse() {
-    let collapsed = !_collapsed;
-    _setCollapsed(collapsed);
-    onCollapsed(collapsed);
+    onCollapsed(!collapsed);
   }
 
   return (
     <div data-testid="SidebarContainer" className={`row ${className}`}>
-      <div data-testid="SidebarPanel" className={_collapsed ? "d-none" : sidebarPanelClass}>
+      <div data-testid="SidebarPanel" className={collapsed ? "d-none" : sidebarPanelClass}>
         {sidebarPanel}
       </div>
 
@@ -75,10 +68,10 @@ export function SidebarContainer({ collapsed = false, onCollapsed = () => {}, ch
         data-testid="MainPanel"
         className={`
                 position-relative
-                ${_collapsed ? "col-md" : mainPanelClass}
+                ${collapsed ? "col-md" : mainPanelClass}
             `}>
         {CollapseButton({
-          collapsed: _collapsed,
+          collapsed,
           toggleCollapse: toggleCollapse,
         })}
         {mainPanel}
