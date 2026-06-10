@@ -1,30 +1,40 @@
-FROM public.ecr.aws/amazonlinux/amazonlinux:2023
+FROM public.ecr.aws/amazonlinux/amazonlinux:2023 AS builder
 
 RUN dnf -y update \
-   && dnf -y install \
-   nodejs24 \
-   && dnf clean all
+    && dnf -y install nodejs24 \
+    && dnf clean all
 
-RUN mkdir -p /app/client
+WORKDIR /app
 
-WORKDIR /app/client
+COPY client/package.json client/package-lock.json ./
+RUN npm ci
 
-COPY client/package.json client/package-lock.json /app/client/
-
-RUN npm install
-
-COPY client /app/client/
+COPY client/ ./
 
 ARG API_BASE_URL
-ENV NEXT_PUBLIC_API_BASE_URL $API_BASE_URL
-# RUN echo "NEXT_PUBLIC_API_BASE_URL=$API_BASE_URL" >> .env.local
-
+ENV NEXT_PUBLIC_API_BASE_URL=$API_BASE_URL
 ARG NEXT_PUBLIC_VERSION=local
-ENV NEXT_PUBLIC_VERSION=${NEXT_PUBLIC_VERSION}
+ENV NEXT_PUBLIC_VERSION=$NEXT_PUBLIC_VERSION
+ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN npm run build 
+RUN npm run build
+
+FROM public.ecr.aws/amazonlinux/amazonlinux:2023 AS runner
+
+RUN dnf -y update \
+    && dnf -y install nodejs24 \
+    && dnf clean all
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=80
+ENV HOSTNAME=0.0.0.0
+
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
 
 EXPOSE 80
-EXPOSE 443
-
-CMD npm run start
+CMD ["node", "server.js"]
