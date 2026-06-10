@@ -30,7 +30,7 @@ COPY server/package.json server/package-lock.json ./
 RUN npm install
 
 # copy everything else
-COPY server/server.js server/worker.js server/pm2.config.json server/.env.example ./
+COPY server/server.js server/worker.js ./
 COPY server/cansurv ./cansurv
 COPY server/jpsurv ./jpsurv
 COPY server/recurrence ./recurrence
