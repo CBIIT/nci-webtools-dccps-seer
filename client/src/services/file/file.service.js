@@ -1,6 +1,6 @@
 import { parseCsv, stringifyCsv } from "./csv";
 import { saveAs } from "file-saver";
-import { writeFileXLSX, utils as xlsxUtils } from "xlsx";
+import { writeFileXLSX, utils as xlsxUtils } from "@e965/xlsx";
 
 export function readFile(file, type = "text") {
   return new Promise((resolve, reject) => {

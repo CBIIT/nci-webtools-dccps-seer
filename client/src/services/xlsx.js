@@ -1,4 +1,4 @@
-import { utils, writeFile } from "xlsx";
+import { utils, writeFile } from "@e965/xlsx";
 
 export function downloadAll(modelData, coefData, seerData, params, filename) {
   const wb = utils.book_new();
