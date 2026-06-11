@@ -8,6 +8,9 @@ RUN dnf -y update \
     gzip \
     && dnf clean all
 
+RUN npm install -g npm@latest
+RUN npm update -g
+
 RUN mkdir -p /app/server
 
 WORKDIR /app/server

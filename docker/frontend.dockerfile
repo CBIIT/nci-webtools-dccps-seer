@@ -25,6 +25,9 @@ RUN dnf -y update \
     && dnf -y install nodejs24 \
     && dnf clean all
 
+RUN npm install -g npm@latest
+RUN npm update -g
+
 WORKDIR /app
 
 ENV NODE_ENV=production
