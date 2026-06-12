@@ -6,10 +6,17 @@ RUN dnf -y update \
     R-4.3.2 \
     tar \ 
     gzip \
+    shadow-utils \
     && dnf clean all
 
 RUN npm install -g npm@latest
 RUN npm update -g
+
+# restrict python3.9 to root user
+RUN chmod 700 /usr/bin/python3.9 
+
+RUN groupadd -g 1000 appgroup \
+    && useradd -u 1000 -g appgroup -m -s /bin/bash app
 
 RUN mkdir -p /app/server
 
@@ -22,10 +29,7 @@ COPY server/.Rprofile /app/server/
 COPY server/renv/activate.R /app/server/renv/
 COPY server/renv/settings.json /app/server/renv/
 RUN R -e "\
-    options(\
-    renv.config.repos.override = 'https://packagemanager.posit.co/cran/__linux__/rhel9/latest', \
-    Ncpus = parallel::detectCores() \
-    ); \
+    options(renv.config.repos.override = 'https://packagemanager.posit.co/cran/__linux__/rhel9/latest'); \
     renv::restore();"
 
 
@@ -43,4 +47,7 @@ COPY server/templates ./templates
 # Create ENV file if it doesn't exist https://github.com/nodejs/node/issues/50993
 RUN touch .env
 
+RUN chown -R app:appgroup /app
+
+USER app
 CMD npm start
