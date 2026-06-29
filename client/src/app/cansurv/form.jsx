@@ -6,6 +6,9 @@ import { useForm, useFieldArray } from "react-hook-form";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import Spinner from "react-bootstrap/Spinner";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Popover from "react-bootstrap/Popover";
+import { VscPreview } from "react-icons/vsc";
 import { useQuery, useMutation, useQueryClient, useIsMutating } from "@tanstack/react-query";
 import { v4 as uuidv4 } from "uuid";
 import { useStore, defaultForm } from "./store";
@@ -492,71 +495,106 @@ export default function AnalysisForm({ id }) {
 
             <h5>Analysis Variables</h5>
             {fields.length ? (
-              fields.map(({ label }, fieldIndex) => (
-                <Form.Group key={label} controlId={label} className="mb-4">
-                  <Form.Label className="fw-bold">{label}</Form.Label>
-                  <Form.Check
-                    {...register(`covariates.${fieldIndex}.type.by`, {})}
-                    checked={!!watch(`covariates.${fieldIndex}.type.by`)}
-                    onChange={(e) => {
-                      handleCheck(e, `covariates.${fieldIndex}.type.by`);
-                    }}
-                    label={"Categorical / Stratum"}
-                    id={`${label}.by`}
-                    name={`${label}.by`}
-                    type="radio"
-                  />
-                  <Form.Check
-                    {...register(`covariates.${fieldIndex}.type.continuous`, {})}
-                    checked={!!watch(`covariates.${fieldIndex}.type.continuous`)}
-                    onChange={(e) => {
-                      handleCheck(e, `covariates.${fieldIndex}.type.continuous`);
-                    }}
-                    label={"Continuous"}
-                    id={`${label}.continuous`}
-                    name={`${label}.continuous`}
-                    type="radio"
-                  />
-                  <div className="ms-3">
+              fields.map(({ label, name }, fieldIndex) => {
+                const factors = seerData.seerStatDictionary?.find((e) => e.name === name)?.factors ?? [];
+                return (
+                  <Form.Group key={label} controlId={label} className="mb-4">
+                    <div className="d-flex align-items-center gap-2">
+                      <Form.Label className="fw-bold mb-0">{label}</Form.Label>
+                      {factors.length > 0 && (
+                        <OverlayTrigger
+                          trigger="click"
+                          rootClose
+                          placement="right"
+                          overlay={
+                            <Popover>
+                              <Popover.Header as="h3">
+                                {label} ({factors.length})
+                              </Popover.Header>
+                              <Popover.Body>
+                                <ul className="mb-0 ps-3">
+                                  {factors.map((f) => (
+                                    <li key={f.value}>
+                                      <strong>{f.value}</strong>: {String(f.label).replace(/"/g, "").trim()}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </Popover.Body>
+                            </Popover>
+                          }>
+                          <Button
+                            variant="link"
+                            size="sm"
+                            className="p-0 d-flex align-items-center"
+                            aria-label={`View ${label} factors`}>
+                            <VscPreview />
+                          </Button>
+                        </OverlayTrigger>
+                      )}
+                    </div>
                     <Form.Check
-                      {...register(`covariates.${fieldIndex}.type.mu`, {
-                        disabled: watch(`covariates.${fieldIndex}.type.by`),
-                      })}
+                      {...register(`covariates.${fieldIndex}.type.by`, {})}
+                      checked={!!watch(`covariates.${fieldIndex}.type.by`)}
                       onChange={(e) => {
-                        handleCheck(e, `covariates.${fieldIndex}.type.mu`);
+                        handleCheck(e, `covariates.${fieldIndex}.type.by`);
                       }}
-                      label={"Mu"}
-                      id={`${label}.mu`}
-                      name={`${label}.mu`}
-                      type="checkbox"
+                      label={"Categorical / Stratum"}
+                      id={`${label}.by`}
+                      name={`${label}.by`}
+                      type="radio"
                     />
                     <Form.Check
-                      {...register(`covariates.${fieldIndex}.type.sigma`, {
-                        disabled: watch(`covariates.${fieldIndex}.type.by`),
-                      })}
+                      {...register(`covariates.${fieldIndex}.type.continuous`, {})}
+                      checked={!!watch(`covariates.${fieldIndex}.type.continuous`)}
                       onChange={(e) => {
-                        handleCheck(e, `covariates.${fieldIndex}.type.sigma`);
+                        handleCheck(e, `covariates.${fieldIndex}.type.continuous`);
                       }}
-                      label={"Sigma"}
-                      id={`${label}.sigma`}
-                      name={`${label}.sigma`}
-                      type="checkbox"
+                      label={"Continuous"}
+                      id={`${label}.continuous`}
+                      name={`${label}.continuous`}
+                      type="radio"
                     />
-                    <Form.Check
-                      {...register(`covariates.${fieldIndex}.type.cure`, {
-                        disabled: watch(`covariates.${fieldIndex}.type.by`),
-                      })}
-                      onChange={(e) => {
-                        handleCheck(e, `covariates.${fieldIndex}.type.cure`);
-                      }}
-                      label={"Cure"}
-                      id={`${label}.cure`}
-                      name={`${label}.cure`}
-                      type="checkbox"
-                    />
-                  </div>
-                </Form.Group>
-              ))
+                    <div className="ms-3">
+                      <Form.Check
+                        {...register(`covariates.${fieldIndex}.type.mu`, {
+                          disabled: watch(`covariates.${fieldIndex}.type.by`),
+                        })}
+                        onChange={(e) => {
+                          handleCheck(e, `covariates.${fieldIndex}.type.mu`);
+                        }}
+                        label={"Mu"}
+                        id={`${label}.mu`}
+                        name={`${label}.mu`}
+                        type="checkbox"
+                      />
+                      <Form.Check
+                        {...register(`covariates.${fieldIndex}.type.sigma`, {
+                          disabled: watch(`covariates.${fieldIndex}.type.by`),
+                        })}
+                        onChange={(e) => {
+                          handleCheck(e, `covariates.${fieldIndex}.type.sigma`);
+                        }}
+                        label={"Sigma"}
+                        id={`${label}.sigma`}
+                        name={`${label}.sigma`}
+                        type="checkbox"
+                      />
+                      <Form.Check
+                        {...register(`covariates.${fieldIndex}.type.cure`, {
+                          disabled: watch(`covariates.${fieldIndex}.type.by`),
+                        })}
+                        onChange={(e) => {
+                          handleCheck(e, `covariates.${fieldIndex}.type.cure`);
+                        }}
+                        label={"Cure"}
+                        id={`${label}.cure`}
+                        name={`${label}.cure`}
+                        type="checkbox"
+                      />
+                    </div>
+                  </Form.Group>
+                );
+              })
             ) : (
               <p className="text-info">No covariates in data</p>
             )}
