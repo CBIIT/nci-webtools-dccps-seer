@@ -17,7 +17,6 @@ export const defaultForm = {
   sigma: [],
   continuous: [],
   by: [],
-  categorical: [],
   time: "",
   alive: "",
   died: "",
