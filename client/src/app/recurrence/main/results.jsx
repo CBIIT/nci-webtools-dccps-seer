@@ -33,26 +33,51 @@ const PRECISION = 4;
 function formatCell(value) {
   if (value === null || value === undefined) return "";
   if (typeof value === "number") return value.toFixed(PRECISION);
+  if (Array.isArray(value)) return value.map((v) => formatCell(v)).join(", ");
   return String(value);
 }
 
-function buildColumns(keys) {
+function buildColumns(keys, columnLabels) {
   const helper = createColumnHelper();
   return keys.map((key) =>
     helper.accessor(key, {
-      header: () => <div className="mx-3">{key}</div>,
+      header: () => <div className="mx-3">{columnLabels[key] ?? key}</div>,
       cell: (info) => formatCell(info.getValue()),
     })
   );
 }
 
-export default function Results({ data, params }) {
-  const rows = data ?? [];
+export default function Results({ data, params, seerData }) {
+  const { cohortMaps, columnLabels } = useMemo(() => {
+    const dict = seerData?.seerStatDictionary ?? [];
+    const cohortMaps = {};
+    const columnLabels = {};
+    for (const h of dict) {
+      columnLabels[h.name] = h.label;
+      if (h.factors?.length) {
+        cohortMaps[h.name] = new Map(h.factors.map((f) => [String(f.value), f.label]));
+      }
+    }
+    return { cohortMaps, columnLabels };
+  }, [seerData]);
+
+  const rows = useMemo(
+    () =>
+      (data ?? []).map((row) => {
+        const out = { ...row };
+        for (const key of Object.keys(out)) {
+          const fmap = cohortMaps[key];
+          if (fmap) out[key] = fmap.get(String(out[key])) ?? out[key];
+        }
+        return out;
+      }),
+    [data, cohortMaps]
+  );
 
   const columns = useMemo(() => {
     const keys = rows.length > 0 ? Object.keys(rows[0]) : DEFAULT_COLUMN_KEYS;
-    return buildColumns(keys);
-  }, [rows]);
+    return buildColumns(keys, columnLabels);
+  }, [rows, columnLabels]);
 
   function handleDownloadResults() {
     const prefix = params.id ? `recurrisk_group_data_results_${params.id}` : "recurrisk_group_data_results";
