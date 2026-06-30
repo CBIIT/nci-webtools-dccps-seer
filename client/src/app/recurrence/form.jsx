@@ -1,7 +1,7 @@
 "use client";
 import dynamic from "next/dynamic";
 import { useRouter, usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
@@ -26,7 +26,6 @@ export default function GroupDataForm({ id }) {
   const seerData = useStore((state) => state.seerData);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-
 
   const {
     control,
@@ -111,7 +110,7 @@ export default function GroupDataForm({ id }) {
     try {
       const { headers, config } = await parseSeerStatDictionary(dictionaryFile);
       const { data } = await parseSeerStatFiles(dictionaryFile, dataFile);
-      const followUpYears = Math.min(25, getMaxFollowUpYears(config));
+      const followUpYears = getMaxFollowUpYears(config);
 
       setState({
         seerData: {
@@ -414,16 +413,15 @@ export default function GroupDataForm({ id }) {
 
             <Form.Group className="mb-4" controlId="followUpYears">
               <Form.Label className="required fw-bold">Years of Follow-up</Form.Label>
-              <Form.Control
-                {...register("followUpYears", {
-                  required: "This field is required.",
-                  valueAsNumber: true,
-                  min: { value: 1, message: "Please enter a value equal to or greater than 1." },
-                })}
-                type="number"
-                min="1"
-                isInvalid={!!errors.followUpYears}
-              />
+              <Form.Select
+                {...register("followUpYears", { required: "This field is required." })}
+                isInvalid={!!errors.followUpYears}>
+                {Array.from({ length: getMaxFollowUpYears(seerData.seerStatDictionary) }, (_, i) => (
+                  <option key={i} value={i + 1}>
+                    {i + 1}
+                  </option>
+                ))}
+              </Form.Select>
               <Form.Control.Feedback type="invalid">{errors.followUpYears?.message}</Form.Control.Feedback>
             </Form.Group>
           </fieldset>
