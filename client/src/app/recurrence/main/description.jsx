@@ -23,38 +23,38 @@ export default function Description({}) {
       </h2>
       <ul>
         <li>
-          <strong>SEER*Stat Dic File:</strong>
+          <strong>SEER*Stat Dic File: </strong>
           the dictionary file exported from SEER*Stat software with .dic extension which contains the information
           describing the layout of the export data file.
         </li>
         <li>
-          <strong>SEER*Stat Data File:</strong>
+          <strong>SEER*Stat Data File: </strong>
           the cause-specific survival or relative survival data generated from SEER*Stat in .txt format. Note that, if
           the .txt file is not exported from SEER*Stat but manually converted, the user should make sure the delimiter
           used in the txt file is the same as the one specified in the dic file - field delimiter option.
         </li>
         <li>
-          <strong>CanSurv CSV File:</strong>
+          <strong>CanSurv CSV File: </strong>
           the CSV format output from CanSurv software including information on strata/covariates and estimated
           parameters for the mixture cure survival model.
         </li>
         <li>
-          <strong>Stage Variable:</strong>
+          <strong>Stage Variable: </strong>
           the stage variable defined in SEER*Stat data. All variable names in the data set will be listed after
           uploading the SEER*Stat files. If there are more than 1 stage variable, the user will need to select the one
           which contains the distant stage.
         </li>
         <li>
-          <strong>Distant Stage Value:</strong>
+          <strong>Distant Stage Value: </strong>
           the user will need to select the numeric value of distant stage from the listed values of Stage Variable.
         </li>
         <li>
-          <strong>Adjustment Factor r:</strong>
+          <strong>Adjustment Factor r: </strong>
           the factor used to adjust the registry-based survival curves for sensitivity analysis. The user may click the
           up and down arrows to change the value or type in any value. The default value is 1.
         </li>
         <li>
-          <strong>Years of Follow-up:</strong>
+          <strong>Years of Follow-up: </strong>
           the range of follow-up years in the output. The default number is 25. If the maximum number of follow-up years
           (max.num.year) in the SEER*Stat data is less than 25, then the default number will be updated to the
           max.num.year.
@@ -64,68 +64,68 @@ export default function Description({}) {
       <h2 className="h5 mb-2">Output</h2>
       <ul>
         <li>
-          <strong>link:</strong>
+          <strong>link: </strong>
           the parametric survival distribution among those not cured specified in CanSurv.
         </li>
         <li>
-          <strong>cure:</strong>
+          <strong>cure: </strong>
           the cure fraction estimated from the mixture cure survival model.
         </li>
         <li>
-          <strong>lambda/k:</strong>
+          <strong>lambda/k: </strong>
           the estimated parameters of the survival distribution for those not cured.
         </li>
         <li>
-          <strong>theta:</strong>
+          <strong>theta: </strong>
           the exponential hazard of the time from recurrence to cancer death.
         </li>
         <li>
-          <strong>surv_curemodel:</strong>
+          <strong>surv_curemodel: </strong>
           the survival estimated from the mixture cure survival model.
         </li>
         <li>
-          <strong>surv_notcure:</strong>
+          <strong>surv_notcure: </strong>
           the estimated survival for the non-cured fraction.
         </li>
         <li>
-          <strong>median_surv_notcured:</strong>
+          <strong>median_surv_notcured: </strong>
           the median survival time for the non-cured fraction.
         </li>
         <li>
-          <strong>s1_numerical:</strong>
+          <strong>s1_numerical: </strong>
           the numerical estimated survival to recurrence (recurrence-free survival) for the non-cured fraction.
         </li>
         <li>
-          <strong>G_numerical:</strong>
+          <strong>G_numerical: </strong>
           the numerical estimated survival to recurrence.
         </li>
         <li>
-          <strong>CI_numerical:</strong>
+          <strong>CI_numerical: </strong>
           1-G_numerical, the numerical estimated cumulative incidence of recurrence which is the probability of
           progressing to cancer recurrence.
         </li>
         <li>
-          <strong>s1_analytical:</strong>
+          <strong>s1_analytical: </strong>
           the analytical estimated survival to recurrence (recurrence-free survival) for the non-cured fraction.
         </li>
         <li>
-          <strong>G_analytical:</strong>
+          <strong>G_analytical: </strong>
           the analytical estimated survival to recurrence.
         </li>
         <li>
-          <strong>CI_analytical:</strong>
+          <strong>CI_analytical: </strong>
           1- G_analytical, the analytical estimated cumulative incidence of recurrence.
         </li>
         <li>
-          <strong>se_CI_analytical:</strong>
+          <strong>se_CI_analytical: </strong>
           the standard error of CI_analytical.
         </li>
         <li>
-          <strong>obs_surv:</strong>
+          <strong>obs_surv: </strong>
           the observed survival from SEER*Stat.
         </li>
         <li>
-          <strong>obs_dist_surv:</strong>
+          <strong>obs_dist_surv: </strong>
           the observed survival for distant stage from SEER*Stat.
         </li>
       </ul>
