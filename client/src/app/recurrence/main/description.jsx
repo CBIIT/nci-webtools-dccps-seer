@@ -2,7 +2,7 @@
 
 export default function Description({}) {
   return (
-    <div className="shadow border rounded bg-white p-3">
+    <div className="shadow border rounded bg-white p-3 mt-2">
       <p>
         The RecurRisk tool has been developed to estimate the risk of progressing to distant recurrence using
         disease-specific survival typically provided by cancer registries. The disease-specific survival is assessed via

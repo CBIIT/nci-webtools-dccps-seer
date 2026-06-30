@@ -33,7 +33,8 @@ export default function AnalysisMain({ id }) {
 
   return (
     <Container>
-      {!Object.keys(seerData).length > 0 ? <Description /> : <Status seerData={seerData} status={jobStatus} />}
+      <Status seerData={seerData} status={jobStatus} />
+      {!jobStatus && <Description />}
       {jobStatus?.status === "COMPLETED" && (
         <div className="shadow p-3 border rounded bg-white mb-3">
           <Results data={results} params={params} seerData={seerData} />

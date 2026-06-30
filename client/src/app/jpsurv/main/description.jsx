@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Row, Col } from "react-bootstrap";
 export default function Instructions() {
   return (
-    <div className="shadow border rounded bg-white p-3">
+    <div className="shadow border rounded bg-white p-3 mt-2">
       <Row>
         <Col md="12">
           <p>

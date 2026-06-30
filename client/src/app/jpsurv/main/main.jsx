@@ -87,7 +87,8 @@ export default function AnalysisMain({ id }) {
 
   return (
     <Container>
-      {!Object.keys(seerData).length > 0 ? <Description /> : <Status seerData={seerData} status={jobStatus} />}
+      <Status seerData={seerData} status={jobStatus} />
+      {!jobStatus && <Description />}
       {params.id && manifest && (
         <div className="shadow p-3 border rounded bg-white mb-3">
           <CohortSelect params={params} manifest={manifest} data={memoResults} handleSaveResults={handleSaveResults} />
