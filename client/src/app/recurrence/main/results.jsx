@@ -128,7 +128,7 @@ export default function Results({ data, params, seerData }) {
         columns={columns}
         componentHeader={componentHeader}
         size="sm"
-        useFilter
+        useColumnFilter
         useSort
         usePagination
       />

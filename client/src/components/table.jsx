@@ -20,6 +20,7 @@ export default function Table({
   data,
   columns,
   useFilter = false,
+  useColumnFilter = false,
   useSort = false,
   usePagination = false,
   componentHeader = [],
@@ -27,6 +28,7 @@ export default function Table({
   ...props
 }) {
   const [globalFilter, setGlobalFilter] = useState("");
+  const [columnFilters, setColumnFilters] = useState([]);
   const [sorting, setSorting] = useState([]);
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
 
@@ -35,19 +37,22 @@ export default function Table({
     columns,
     state: {
       ...(useFilter && { globalFilter }),
+      ...(useColumnFilter && { columnFilters }),
       ...(useSort && { sorting }),
       ...(usePagination && { pagination }),
     },
     onGlobalFilterChange: setGlobalFilter,
+    onColumnFiltersChange: setColumnFilters,
     onSortingChange: setSorting,
     onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
-    ...(useFilter && { getFilteredRowModel: getFilteredRowModel() }),
+    ...((useFilter || useColumnFilter) && { getFilteredRowModel: getFilteredRowModel() }),
     ...(useSort && { getSortedRowModel: getSortedRowModel() }),
     ...(usePagination && { getPaginationRowModel: getPaginationRowModel() }),
   });
 
   const { pageIndex, pageSize } = table.getState().pagination ?? {};
+  const pageCount = usePagination ? table.getPageCount() : 0;
   const totalRows = table.getFilteredRowModel().rows.length;
   const rowStart = usePagination ? pageIndex * pageSize + 1 : 1;
   const rowEnd = usePagination ? Math.min((pageIndex + 1) * pageSize, totalRows) : totalRows;
@@ -84,6 +89,7 @@ export default function Table({
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
+                    className={useColumnFilter ? "text-nowrap" : undefined}
                     onClick={useSort ? header.column.getToggleSortingHandler() : undefined}
                     style={
                       useSort && header.column.getCanSort() ? { cursor: "pointer", userSelect: "none" } : undefined
@@ -94,6 +100,23 @@ export default function Table({
                 ))}
               </tr>
             ))}
+            {useColumnFilter && (
+              <tr>
+                {table.getHeaderGroups()[0]?.headers.map((header) => (
+                  <th key={header.id} className="p-1 bg-light">
+                    {header.column.getCanFilter() ? (
+                      <Form.Control
+                        size="sm"
+                        aria-label={`Filter ${header.column.id}`}
+                        placeholder="Filter"
+                        value={header.column.getFilterValue() ?? ""}
+                        onChange={(e) => header.column.setFilterValue(e.target.value)}
+                      />
+                    ) : null}
+                  </th>
+                ))}
+              </tr>
+            )}
           </thead>
           <tbody>
             {rows.length === 0 ? (
@@ -123,7 +146,7 @@ export default function Table({
         <div className="d-flex flex-wrap align-items-center justify-content-between mt-2 gap-2">
           <div className="d-flex align-items-center gap-2">
             <Form.Select
-              aria-label="Items per page"
+              aria-label="Page size"
               size="sm"
               style={{ width: "auto" }}
               value={pageSize}
@@ -134,7 +157,7 @@ export default function Table({
                 </option>
               ))}
             </Form.Select>
-            <span className="fw-semibold text-nowrap">Items per page</span>
+            <span className="fw-semibold text-nowrap">Page size</span>
           </div>
           <div className="d-flex align-items-center gap-2">
             <span className="fw-semibold text-nowrap">
@@ -147,6 +170,21 @@ export default function Table({
               disabled={!table.getCanPreviousPage()}>
               &lsaquo;
             </Button>
+            <div className="d-flex align-items-center gap-1">
+              <Form.Select
+                aria-label="Go to page"
+                size="sm"
+                style={{ width: "auto" }}
+                value={pageCount === 0 ? "" : pageIndex}
+                disabled={pageCount === 0}
+                onChange={(e) => table.setPageIndex(Number(e.target.value))}>
+                {Array.from({ length: pageCount }, (_, i) => (
+                  <option key={i} value={i}>
+                    {i + 1}
+                  </option>
+                ))}
+              </Form.Select>
+            </div>
             <Button
               variant="outline-secondary"
               size="sm"
