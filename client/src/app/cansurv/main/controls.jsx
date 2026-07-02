@@ -31,6 +31,20 @@ export function getStratumValueToLabel(results, seerData) {
   return Object.fromEntries(getStratumOptions(results, seerData).map((o) => [o.value, o.label]));
 }
 
+// Build a { [varName]: { [factorValue]: factorLabel } } lookup for rendering data cells.
+// When `stratumValueToLabel` is provided (not undefined), it is added as `map.stratum`.
+// Non-factor variables produce empty sub-maps; callers should fall back to the raw value.
+export function getValueToLabelMap(variables, stratumValueToLabel) {
+  const map = stratumValueToLabel !== undefined ? { stratum: stratumValueToLabel } : {};
+  (variables ?? []).forEach((varObj) => {
+    map[varObj.name] = {};
+    (varObj.factors ?? []).forEach((factor) => {
+      map[varObj.name][factor.value] = factor.label;
+    });
+  });
+  return map;
+}
+
 export function Controls({ manifest, results, seerData, className, handleSaveResults }) {
   const setState = useStore((state) => state.setState);
   const main = useStore((state) => state.main);

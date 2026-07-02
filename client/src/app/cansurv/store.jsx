@@ -46,6 +46,7 @@ export const defaultState = {
   openSidebar: true,
   useConditional: false,
   conditional: null,
+  openReviewDataModal: false,
 };
 
 export const useStore = create((set) => ({

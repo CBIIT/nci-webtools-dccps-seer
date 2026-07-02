@@ -337,9 +337,14 @@ export default function AnalysisForm({ id }) {
         </Form.Group>
         {Object.keys(seerData).length > 0 && (
           <div>
-            <b>Data Type: </b>
-            {seerData.config["Session Options"]["Statistic"]} in{" "}
-            {seerData.config["Session Options"]["RatesDisplayedAs"]}
+            <div>
+              <b>Data Type: </b>
+              {seerData.config["Session Options"]["Statistic"]} in{" "}
+              {seerData.config["Session Options"]["RatesDisplayedAs"]}
+            </div>
+            <Button className="p-0" variant="link" onClick={() => setState({ openReviewDataModal: true })}>
+              Review Data
+            </Button>
           </div>
         )}
         {!Object.keys(seerData).length && inputType === "seer" && (

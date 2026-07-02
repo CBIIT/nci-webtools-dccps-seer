@@ -184,11 +184,16 @@ export async function parseSeerStatFiles(seerStatDictionaryFile, seerStatDataFil
     {
       period: ".",
     }[options["Missing character"]] || null;
+  // SEER*Stat data files may include the variable-name header row as the first line
+  // (per the dictionary's "Variable names included" flag). Skip it so the parsed
+  // records don't contain a duplicate of the header.
+  const variableNamesIncluded = String(options["Variable names included"]).toLowerCase() === "true";
 
   const { data } = parseCsv(dataFileContents, {
     headers: headers.map((h) => h.name),
     delimiter: fieldDelimiter,
     nullValue: missingCharacter,
+    skipLines: variableNamesIncluded ? 1 : 0,
   });
 
   return {

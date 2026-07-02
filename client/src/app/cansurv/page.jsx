@@ -9,6 +9,7 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Form from "./form";
 import Main from "./main/main";
+import ReviewDataModal from "./review-data-modal";
 import { SidebarContainer, SidebarPanel, MainPanel } from "@/components/sidebar-container";
 import { useStore } from "./store";
 
@@ -59,6 +60,7 @@ export default function Analysis() {
           </MainPanel>
         </SidebarContainer>
       </Row>
+      <ReviewDataModal />
     </Container>
   );
 }
