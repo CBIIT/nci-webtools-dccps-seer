@@ -16,9 +16,7 @@ import { parseSeerStatDictionary, parseSeerStatFiles } from "@/services/file/fil
 import { asFileList } from "@/components/file-input";
 import { fetchSession, submit, importWorkspace } from "@/services/queries";
 
-const FileInput = dynamic(() => import("@/components/file-input"), {
-  ssr: false,
-});
+const FileInput = dynamic(() => import("@/components/file-input"), { ssr: false });
 
 export default function AnalysisForm({ id }) {
   const queryClient = useQueryClient();
@@ -97,43 +95,56 @@ export default function AnalysisForm({ id }) {
         const dictionaryFile = files.find((file) => /.dic$/i.test(file.name));
         const dataFile = files.find((file) => /(.txt|.csv|.tsv)$/i.test(file.name));
 
-        if (inputType === "seer" && dictionaryFile && dataFile) {
+        if (inputType === "seer") {
+          if (!dictionaryFile || !dataFile) {
+            // invalid seer file selection - clear any previously parsed data
+            setState({ seerData: {} });
+            return;
+          }
+          // skip re-parsing if the same files are already loaded
+          const currentSeerData = useStore.getState().seerData;
+          if (
+            currentSeerData?.dictionaryFile === dictionaryFile.name &&
+            currentSeerData?.dataFile === dataFile.name &&
+            currentSeerData?.cohortVariables
+          ) {
+            return;
+          }
           try {
-            if (dictionaryFile && dataFile) {
-              // parse SEER*Stat files to extract dictionary headers and data
-              const { headers, config } = await parseSeerStatDictionary(dictionaryFile);
-              const { data } = await parseSeerStatFiles(dictionaryFile, dataFile);
-              // get cohort variables by filtering unknown labels
-              const exclude = ["Page type", "Interval", /^year/gi];
-              const cohortVariables = headers
-                .filter(
-                  (e) =>
-                    e.factors.length &&
-                    !exclude.some((item) => (item instanceof RegExp ? item.test(e.label) : item === e.label))
-                )
-                .map((e) => ({
-                  ...e,
-                  factors: e.factors.map((f) => ({ ...f, label: f.label.replace(/"/gi, "").trim() })),
-                }));
+            // parse SEER*Stat files to extract dictionary headers and data
+            const { headers, config } = await parseSeerStatDictionary(dictionaryFile);
+            const { data } = await parseSeerStatFiles(dictionaryFile, dataFile);
+            // get cohort variables by filtering unknown labels
+            const exclude = ["Page type", "Interval", /^year/gi];
+            const cohortVariables = headers
+              .filter(
+                (e) =>
+                  e.factors.length &&
+                  !exclude.some((item) => (item instanceof RegExp ? item.test(e.label) : item === e.label))
+              )
+              .map((e) => ({
+                ...e,
+                factors: e.factors.map((f) => ({ ...f, label: f.label.replace(/"/gi, "").trim() })),
+              }));
 
-              const seer = {
-                dictionaryFile: dictionaryFile.name,
-                dataFile: dataFile.name,
-                seerStatDictionary: headers,
-                seerStatData: data,
-                cohortVariables,
-                config,
-              };
+            const seerData = {
+              dictionaryFile: dictionaryFile.name,
+              dataFile: dataFile.name,
+              seerStatDictionary: headers,
+              seerStatData: data,
+              cohortVariables,
+              config,
+            };
 
-              setState({ seerData: seer });
-            } else {
-              throw new Error("Invalid SEER*STAT files selected.");
-            }
+            setState({ seerData });
           } catch (e) {
             console.error(e);
+            setState({ seerData: {} });
           }
         } else if (inputType == "csv") {
           setUserCsv({ userData: dataFile, openConfigDataModal: true });
+        } else {
+          setState({ seerData: {} });
         }
       }
     },
@@ -149,10 +160,10 @@ export default function AnalysisForm({ id }) {
       reset({ ...session.params, inputFile: asFileList(session.params.inputFile) });
     }
   }, [session, setState, getValues, reset, populatecovariates, setSeerVariables]);
-  // parse seerdata after data upload
+  // parse seerdata after data upload (or clear it if the file selection becomes invalid)
   useEffect(() => {
-    if (inputFile && !seerData?.cohortVariables) handleLoadData(inputType, inputFile);
-  }, [inputType, inputFile, seerData, handleLoadData]);
+    if (inputFile) handleLoadData(inputType, inputFile);
+  }, [inputType, inputFile, handleLoadData]);
   // populate form after seerdata is parsed
   useEffect(() => {
     if (Object.keys(seerData).length && fields.length == 0) {
@@ -318,10 +329,9 @@ export default function AnalysisForm({ id }) {
             isInvalid={errors?.inputFile}
             onChange={() => {
               trigger("inputFile");
-              // reset("cohorts");
               setState({ seerData: {} });
             }}
-            disabled={!!Object.keys(seerData).length}
+            disabled={!!id}
           />
           <Form.Text className="text-danger">{errors?.inputFile?.message}</Form.Text>
         </Form.Group>
