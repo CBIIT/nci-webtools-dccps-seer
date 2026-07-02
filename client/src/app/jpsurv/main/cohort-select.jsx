@@ -5,6 +5,9 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Tooltip from "react-bootstrap/Tooltip";
+import { CiCircleQuestion } from "react-icons/ci";
 import { useStore } from "../store";
 
 export function getCohortLabel(params, cohort_index) {
@@ -117,7 +120,16 @@ export function CohortSelect({ params, manifest, className, handleSaveResults })
         )}
         <Col sm="auto">
           <Form.Group controlId="precision">
-            <Form.Label>Number of Decimal Places</Form.Label>
+            <Form.Label>
+              Precision{" "}
+              <OverlayTrigger
+                placement="top"
+                overlay={<Tooltip id="precision-tooltip">Number of decimal places in data</Tooltip>}>
+                <span>
+                  <CiCircleQuestion />
+                </span>
+              </OverlayTrigger>
+            </Form.Label>
             <Form.Select value={precision} onChange={handlePrecisionChange}>
               {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((e, i) => (
                 <option key={i} value={e}>
