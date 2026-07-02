@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import { Container, Row, Col, Alert, Button } from "react-bootstrap";
 import LoglikePlot from "./plot";
 import LoglikeTable from "./table";
+import { getValueToLabelMap } from "../controls";
 import { downloadTableCansurv } from "@/services/xlsx";
 
 export default function Loglike({ data, seerData, params, precision, stratumIndex = 0, stratumValueToLabel = {} }) {
@@ -12,18 +13,10 @@ export default function Loglike({ data, seerData, params, precision, stratumInde
     return data["fit.list"][stratumIndex]?.profileLL ?? {};
   }, [data, stratumIndex]);
 
-  const valueToLabelMap = useMemo(() => {
-    const map = {
-      stratum: stratumValueToLabel,
-      ...Object.fromEntries(seerData.cohortVariables.map((e) => [e.name, {}])),
-    };
-    seerData.cohortVariables.forEach((varObj) => {
-      varObj.factors.forEach((factor) => {
-        map[varObj.name][factor.value] = factor.label;
-      });
-    });
-    return map;
-  }, [seerData, stratumValueToLabel]);
+  const valueToLabelMap = useMemo(
+    () => getValueToLabelMap(seerData.cohortVariables, stratumValueToLabel),
+    [seerData, stratumValueToLabel]
+  );
 
   function getPlotSubtitle() {
     return hasStrata ? valueToLabelMap.stratum[stratumIndex] ?? "" : "";

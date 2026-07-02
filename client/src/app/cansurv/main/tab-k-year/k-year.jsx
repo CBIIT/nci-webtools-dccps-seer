@@ -4,6 +4,7 @@ import { Container, Row, Col, Form, Button, Alert } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import KYearPlot from "./plot";
 import KYearTable from "./table";
+import { getValueToLabelMap } from "../controls";
 import { downloadTableCansurv } from "@/services/xlsx";
 
 export default function KYear({ data, params, seerData, precision, stratumIndex = 0, stratumValueToLabel = {} }) {
@@ -22,18 +23,10 @@ export default function KYear({ data, params, seerData, precision, stratumIndex 
   const formState = watch();
   const hasStrata = data["fit.list.by"]?.length > 0;
 
-  const valueToLabelMap = useMemo(() => {
-    const map = {
-      stratum: stratumValueToLabel,
-      ...Object.fromEntries(seerData.cohortVariables.map((e) => [e.name, {}])),
-    };
-    seerData.cohortVariables.forEach((varObj) => {
-      varObj.factors.forEach((factor) => {
-        map[varObj.name][factor.value] = factor.label;
-      });
-    });
-    return map;
-  }, [seerData.cohortVariables, stratumValueToLabel]);
+  const valueToLabelMap = useMemo(
+    () => getValueToLabelMap(seerData.cohortVariables, stratumValueToLabel),
+    [seerData.cohortVariables, stratumValueToLabel]
+  );
 
   const kOptions = useMemo(() => {
     const fit = data["fit.list"][stratumIndex]?.data ?? [];

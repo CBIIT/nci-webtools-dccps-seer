@@ -3,21 +3,14 @@ import { useMemo } from "react";
 import Table from "@/components/table";
 import { createColumnHelper } from "@tanstack/react-table";
 import { groupBy } from "lodash";
+import { getValueToLabelMap } from "./controls";
 
 export default function Report({ data, seerData, precision, stratumIndex = 0 }) {
   const fit = useMemo(() => {
     return data["fit.list"][stratumIndex] ?? data["fit.list"][0];
   }, [data, stratumIndex]);
 
-  const valueToLabelMap = useMemo(() => {
-    const map = Object.fromEntries(seerData.cohortVariables.map((e) => [e.name, {}]));
-    seerData.cohortVariables.forEach((varObj) => {
-      varObj.factors.forEach((factor) => {
-        map[varObj.name][factor.value] = factor.label;
-      });
-    });
-    return map;
-  }, [seerData]);
+  const valueToLabelMap = useMemo(() => getValueToLabelMap(seerData.cohortVariables), [seerData]);
 
   const cureFractionTable = useMemo(() => {
     const subs = seerData.cohortVariables.map((e) => e.name);

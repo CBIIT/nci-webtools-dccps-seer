@@ -4,6 +4,7 @@ import { Container, Row, Col, Form, Button, Spinner } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import ActuarialPlot from "./plot";
 import ActuarialTable from "./table";
+import { getValueToLabelMap } from "../controls";
 import { downloadTableCansurv } from "@/services/xlsx";
 
 export default function Actuarial({ data, seerData, params, precision, stratumIndex = 0, stratumValueToLabel = {} }) {
@@ -34,15 +35,10 @@ export default function Actuarial({ data, seerData, params, precision, stratumIn
     });
   }, [data, formState, stratumIndex]);
 
-  const valueToLabelMap = useMemo(() => {
-    const map = { stratum: stratumValueToLabel, ...Object.fromEntries(subStratumVars.map((e) => [e.name, {}])) };
-    subStratumVars.forEach((varObj) => {
-      varObj.factors.forEach((factor) => {
-        map[varObj.name][factor.value] = factor.label;
-      });
-    });
-    return map;
-  }, [subStratumVars, stratumValueToLabel]);
+  const valueToLabelMap = useMemo(
+    () => getValueToLabelMap(subStratumVars, stratumValueToLabel),
+    [subStratumVars, stratumValueToLabel]
+  );
 
   function getPlotSubtitle() {
     let subtitle = `${hasStrata ? (valueToLabelMap.stratum[stratumIndex] ?? "") + " / " : ""}`;
