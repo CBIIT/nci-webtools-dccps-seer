@@ -6,7 +6,7 @@ import KYearPlot from "./plot";
 import KYearTable from "./table";
 import { downloadTableCansurv } from "@/services/xlsx";
 
-export default function KYear({ data, params, seerData, precision }) {
+export default function KYear({ data, params, seerData, precision, stratumIndex = 0, stratumValueToLabel = {} }) {
   const defaultValues = useMemo(() => {
     const stratum = data["fit.list.by"].length ? Object.keys(data["fit.list.by"][0]) : [];
     const subs = seerData.cohortVariables
@@ -15,49 +15,30 @@ export default function KYear({ data, params, seerData, precision }) {
         acc[e.name] = 0;
         return acc;
       }, {});
-    return { stratum: 0, k: 1, xAxisVar: Object.keys(subs)[0], ...subs };
+    return { k: 1, xAxisVar: Object.keys(subs)[0], ...subs };
   }, [data, seerData]);
 
   const { register, watch } = useForm({ defaultValues });
   const formState = watch();
+  const hasStrata = data["fit.list.by"]?.length > 0;
 
-  const stratumOptions = useMemo(
-    () =>
-      data["fit.list.by"]?.length
-        ? data["fit.list.by"].map((e, index) => ({
-            label: Object.entries(e)
-              .reduce(
-                (acc, [name, value]) => [
-                  ...acc,
-                  seerData.cohortVariables.filter((e) => e.name === name)[0].factors.filter((e) => e.value == value)[0]
-                    .label,
-                ],
-                []
-              )
-              .join(" / "),
-            value: index,
-          }))
-        : [],
-    [data, seerData.cohortVariables]
-  );
   const valueToLabelMap = useMemo(() => {
-    const map = { stratum: {}, ...Object.fromEntries(seerData.cohortVariables.map((e) => [e.name, {}])) };
-    stratumOptions.forEach((option) => {
-      map["stratum"][option.value] = option.label;
-    });
+    const map = {
+      stratum: stratumValueToLabel,
+      ...Object.fromEntries(seerData.cohortVariables.map((e) => [e.name, {}])),
+    };
     seerData.cohortVariables.forEach((varObj) => {
       varObj.factors.forEach((factor) => {
         map[varObj.name][factor.value] = factor.label;
       });
     });
     return map;
-  }, [stratumOptions, seerData.cohortVariables]);
+  }, [seerData.cohortVariables, stratumValueToLabel]);
 
   const kOptions = useMemo(() => {
-    const { stratum, ..._ } = formState;
-    const fit = data["fit.list"][stratum].data;
+    const fit = data["fit.list"][stratumIndex]?.data ?? [];
     return [...new Set(fit.map((e) => e.Interval))].map((e) => ({ label: e, value: e }));
-  }, [data, formState]);
+  }, [data, stratumIndex]);
 
   const xAxisOptions = useMemo(() => {
     const stratum = data["fit.list.by"].length ? Object.keys(data["fit.list.by"][0]) : [];
@@ -72,18 +53,18 @@ export default function KYear({ data, params, seerData, precision }) {
   }, [data, formState.xAxisVar]);
 
   const memoData = useMemo(() => {
-    const { stratum, k, xAxisVar, [xAxisVar]: _, ...subStratum } = formState;
-    const fit = data["fit.list"][stratum].data;
+    const { k, xAxisVar, [xAxisVar]: _, ...subStratum } = formState;
+    const fit = data["fit.list"][stratumIndex]?.data ?? [];
     return fit
       .filter((e) => {
         return Object.entries(subStratum).every(([key, value]) => e[key] == value);
       })
       .filter((e) => e.Interval == k);
-  }, [data, formState]);
+  }, [data, formState, stratumIndex]);
 
   function getPlotSubtitle() {
-    const { stratum, k, xAxisVar, ...subs } = formState;
-    let subtitle = `${stratumOptions.length ? valueToLabelMap.stratum[stratum] + " / " : ""}`;
+    const { k, xAxisVar, ...subs } = formState;
+    let subtitle = `${hasStrata ? (valueToLabelMap.stratum[stratumIndex] ?? "") + " / " : ""}`;
     Object.entries(subs).forEach(
       ([key, value], i) =>
         (subtitle += `${valueToLabelMap[key][value]}${i < Object.keys(subs).length - 1 ? " / " : ""}`)
@@ -101,22 +82,6 @@ export default function KYear({ data, params, seerData, precision }) {
         <>
           <Row className="border-bottom mb-3">
             <Col className="p-3">
-              {stratumOptions.length > 0 && (
-                <Row className="mb-3">
-                  <Col sm="auto">
-                    <Form.Group controlId="stratum">
-                      <Form.Label>Stratum</Form.Label>
-                      <Form.Select {...register("stratum", { valueAsNumber: true })}>
-                        {stratumOptions.map((e) => (
-                          <option key={e.label} value={e.value}>
-                            {e.label}
-                          </option>
-                        ))}
-                      </Form.Select>
-                    </Form.Group>
-                  </Col>
-                </Row>
-              )}
               <Row className="mb-3">
                 <Col sm="auto">
                   <Form.Group controlId="k">

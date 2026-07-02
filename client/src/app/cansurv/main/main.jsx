@@ -1,6 +1,6 @@
 "use client";
 import { Container, Tab, Tabs } from "react-bootstrap";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useStore } from "../store";
 import { fetchStatus, fetchOutput } from "@/services/queries";
@@ -11,7 +11,7 @@ import Actuarial from "./tab-actuarial/actuarial";
 import Deviance from "./tab-deviance/deviance";
 import KYear from "./tab-k-year/k-year";
 import Loglike from "./tab-loglike/loglike";
-import { Controls } from "./controls";
+import { Controls, getStratumOptions, getStratumValueToLabel } from "./controls";
 import { downloadAll } from "@/services/xlsx";
 
 export default function AnalysisMain({ id }) {
@@ -19,7 +19,7 @@ export default function AnalysisMain({ id }) {
   const seerData = useStore((state) => state.seerData);
   const params = useStore((state) => state.params);
   const main = useStore((state) => state.main);
-  const { precision } = main;
+  const { precision, stratumIndex } = main;
 
   const { data: jobStatus } = useQuery({
     queryKey: ["status", id],
@@ -51,6 +51,16 @@ export default function AnalysisMain({ id }) {
     }
   }, [setState, jobStatus, id]);
 
+  const stratumOptions = useMemo(() => getStratumOptions(results, seerData), [results, seerData]);
+  const stratumValueToLabel = useMemo(() => getStratumValueToLabel(results, seerData), [results, seerData]);
+
+  // clamp stratumIndex when new results have fewer strata
+  useEffect(() => {
+    if (stratumOptions.length > 0 && stratumIndex >= stratumOptions.length) {
+      setState({ main: { ...main, stratumIndex: 0 } });
+    }
+  }, [stratumOptions.length]);
+
   async function handleSaveResults() {
     const { modelData, coefData } = await fetchAll(id, manifest);
     const filename = params.inputFile[0] instanceof File ? params.inputFile[0].name : params.inputFile[0];
@@ -63,26 +73,54 @@ export default function AnalysisMain({ id }) {
       {!Object.keys(seerData).length > 0 ? <Description /> : <Status seerData={seerData} status={jobStatus} />}
       {manifest && (
         <div className="shadow p-3 border rounded bg-white mb-3">
-          <Controls manifest={manifest} handleSaveResults={handleSaveResults} />
+          <Controls manifest={manifest} results={results} seerData={seerData} handleSaveResults={handleSaveResults} />
         </div>
       )}
       {results && Object.keys(seerData).length > 0 && (
         <div className="shadow border rounded bg-white my-3">
           <Tabs defaultActiveKey="report">
             <Tab eventKey="report" title="Report">
-              <Report data={results} seerData={seerData} precision={precision} />
+              <Report data={results} seerData={seerData} precision={precision} stratumIndex={stratumIndex} />
             </Tab>
             <Tab eventKey="act" title="Estimated and Actuarial Survival Curves">
-              <Actuarial data={results} seerData={seerData} params={params} precision={precision} />
+              <Actuarial
+                data={results}
+                seerData={seerData}
+                params={params}
+                precision={precision}
+                stratumIndex={stratumIndex}
+                stratumValueToLabel={stratumValueToLabel}
+              />
             </Tab>
             <Tab eventKey="kYear" title="K-Year Survival Rate">
-              <KYear data={results} seerData={seerData} params={params} precision={precision} />
+              <KYear
+                data={results}
+                seerData={seerData}
+                params={params}
+                precision={precision}
+                stratumIndex={stratumIndex}
+                stratumValueToLabel={stratumValueToLabel}
+              />
             </Tab>
             <Tab eventKey="dev" title="Deviance Residuals">
-              <Deviance data={results} seerData={seerData} params={params} precision={precision} />
+              <Deviance
+                data={results}
+                seerData={seerData}
+                params={params}
+                precision={precision}
+                stratumIndex={stratumIndex}
+                stratumValueToLabel={stratumValueToLabel}
+              />
             </Tab>
             <Tab eventKey="ll" title="LogLikelihood L(c) vs c">
-              <Loglike data={results} seerData={seerData} params={params} precision={precision} />
+              <Loglike
+                data={results}
+                seerData={seerData}
+                params={params}
+                precision={precision}
+                stratumIndex={stratumIndex}
+                stratumValueToLabel={stratumValueToLabel}
+              />
             </Tab>
           </Tabs>
         </div>

@@ -31,7 +31,7 @@ export const defaultForm = {
 
 export const defaultState = {
   params: defaultForm,
-  main: { cohortIndex: null, cutpointIndex: null, cluster: null, fitIndex: 0, precision: 2 },
+  main: { cohortIndex: null, cutpointIndex: null, cluster: null, fitIndex: 0, stratumIndex: 0, precision: 2 },
   results: {},
   seerData: {},
 

@@ -4,43 +4,20 @@ import Table from "@/components/table";
 import { createColumnHelper } from "@tanstack/react-table";
 import { groupBy } from "lodash";
 
-export default function Report({ data, seerData, precision }) {
+export default function Report({ data, seerData, precision, stratumIndex = 0 }) {
   const fit = useMemo(() => {
-    return data["fit.list"][0];
-  }, [data]);
-
-  const stratumOptions = useMemo(
-    () =>
-      data["fit.list.by"]?.length
-        ? data["fit.list.by"].map((e, index) => ({
-            label: Object.entries(e)
-              .reduce(
-                (acc, [name, value]) => [
-                  ...acc,
-                  seerData.cohortVariables.filter((e) => e.name === name)[0].factors.filter((e) => e.value == value)[0]
-                    .label,
-                ],
-                []
-              )
-              .join(" / "),
-            value: index,
-          }))
-        : [],
-    [data]
-  );
+    return data["fit.list"][stratumIndex] ?? data["fit.list"][0];
+  }, [data, stratumIndex]);
 
   const valueToLabelMap = useMemo(() => {
-    const map = { stratum: {}, ...Object.fromEntries(seerData.cohortVariables.map((e) => [e.name, {}])) };
-    stratumOptions.forEach((option) => {
-      map["stratum"][option.value] = option.label;
-    });
+    const map = Object.fromEntries(seerData.cohortVariables.map((e) => [e.name, {}]));
     seerData.cohortVariables.forEach((varObj) => {
       varObj.factors.forEach((factor) => {
         map[varObj.name][factor.value] = factor.label;
       });
     });
     return map;
-  }, [seerData, stratumOptions]);
+  }, [seerData]);
 
   const cureFractionTable = useMemo(() => {
     const subs = seerData.cohortVariables.map((e) => e.name);

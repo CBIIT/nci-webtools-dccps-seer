@@ -1,4 +1,5 @@
 "use client";
+import { useMemo } from "react";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
@@ -9,15 +10,42 @@ import Tooltip from "react-bootstrap/Tooltip";
 import { CiCircleQuestion } from "react-icons/ci";
 import { useStore } from "../store";
 
-export function Controls({ manifest, className, handleSaveResults }) {
+// Build display options for the Stratum select from the fit list metadata.
+// Returns [{ label: "Male / White", value: 0 }, ...] — value is the index into data["fit.list"].
+export function getStratumOptions(results, seerData) {
+  const fitListBy = results?.["fit.list.by"];
+  const cohortVariables = seerData?.cohortVariables;
+  if (!fitListBy?.length || !cohortVariables) return [];
+  return fitListBy.map((e, index) => ({
+    label: Object.entries(e)
+      .map(
+        ([name, value]) => cohortVariables.find((c) => c.name === name)?.factors.find((f) => f.value == value)?.label
+      )
+      .join(" / "),
+    value: index,
+  }));
+}
+
+// Build a { [stratumIndex]: label } lookup used by tabs to render plot subtitles.
+export function getStratumValueToLabel(results, seerData) {
+  return Object.fromEntries(getStratumOptions(results, seerData).map((o) => [o.value, o.label]));
+}
+
+export function Controls({ manifest, results, seerData, className, handleSaveResults }) {
   const setState = useStore((state) => state.setState);
   const main = useStore((state) => state.main);
   const id = useStore((state) => state.params.id);
-  const { precision } = main;
+  const { precision, stratumIndex } = main;
   const errors = typeof manifest === "string" ? [manifest] : [];
+
+  const stratumOptions = useMemo(() => getStratumOptions(results, seerData), [results, seerData]);
 
   function handlePrecisionChange(e) {
     setState({ main: { ...main, precision: +e.target.value } });
+  }
+
+  function handleStratumChange(e) {
+    setState({ main: { ...main, stratumIndex: +e.target.value } });
   }
 
   async function handleSaveWorkspace() {
@@ -48,6 +76,20 @@ export function Controls({ manifest, className, handleSaveResults }) {
         </Alert>
       )}
       <Row>
+        {stratumOptions.length > 0 && (
+          <Col sm="auto">
+            <Form.Group controlId="stratum">
+              <Form.Label>Stratum</Form.Label>
+              <Form.Select value={stratumIndex} onChange={handleStratumChange}>
+                {stratumOptions.map((e) => (
+                  <option key={e.value} value={e.value}>
+                    {e.label}
+                  </option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+          </Col>
+        )}
         <Col sm="auto">
           <Form.Group controlId="precision">
             <Form.Label>

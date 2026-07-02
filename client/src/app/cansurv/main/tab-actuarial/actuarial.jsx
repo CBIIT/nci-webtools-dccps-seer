@@ -6,41 +6,21 @@ import ActuarialPlot from "./plot";
 import ActuarialTable from "./table";
 import { downloadTableCansurv } from "@/services/xlsx";
 
-export default function Actuarial({ data, seerData, params, precision }) {
+export default function Actuarial({ data, seerData, params, precision, stratumIndex = 0, stratumValueToLabel = {} }) {
   const { register, watch } = useForm({
     defaultValues: useMemo(() => {
       const stratum = data["fit.list.by"].length ? Object.keys(data["fit.list.by"][0]) : [];
-      const subs = seerData.cohortVariables
+      return seerData.cohortVariables
         .filter((e) => !stratum.includes(e.name))
         .reduce((acc, e) => {
           acc[e.name] = 0;
           return acc;
         }, {});
-
-      return { stratum: 0, ...subs };
     }, [data, seerData]),
   });
   const formState = watch();
   const statistic = seerData?.config["Session Options"]["Statistic"];
-  const stratumOptions = useMemo(
-    () =>
-      data["fit.list.by"]?.length
-        ? data["fit.list.by"].map((e, index) => ({
-            label: Object.entries(e)
-              .reduce(
-                (acc, [name, value]) => [
-                  ...acc,
-                  seerData.cohortVariables.filter((e) => e.name === name)[0].factors.filter((e) => e.value == value)[0]
-                    .label,
-                ],
-                []
-              )
-              .join(" / "),
-            value: index,
-          }))
-        : [],
-    [data]
-  );
+  const hasStrata = data["fit.list.by"]?.length > 0;
 
   const subStratumVars = useMemo(() => {
     const stratum = data["fit.list.by"].length ? Object.keys(data["fit.list.by"][0]) : [];
@@ -48,29 +28,25 @@ export default function Actuarial({ data, seerData, params, precision }) {
   }, [data]);
 
   const memoData = useMemo(() => {
-    const { stratum, ...subStratum } = formState;
-    const fit = data["fit.list"][stratum].data;
+    const fit = data["fit.list"][stratumIndex]?.data ?? [];
     return fit.filter((item) => {
-      return Object.entries(subStratum).every(([key, value]) => item[key] == value);
+      return Object.entries(formState).every(([key, value]) => item[key] == value);
     });
-  }, [data, formState]);
+  }, [data, formState, stratumIndex]);
 
   const valueToLabelMap = useMemo(() => {
-    const map = { stratum: {}, ...Object.fromEntries(subStratumVars.map((e) => [e.name, {}])) };
-    stratumOptions.forEach((option) => {
-      map["stratum"][option.value] = option.label;
-    });
+    const map = { stratum: stratumValueToLabel, ...Object.fromEntries(subStratumVars.map((e) => [e.name, {}])) };
     subStratumVars.forEach((varObj) => {
       varObj.factors.forEach((factor) => {
         map[varObj.name][factor.value] = factor.label;
       });
     });
     return map;
-  }, [stratumOptions, subStratumVars]);
+  }, [subStratumVars, stratumValueToLabel]);
 
   function getPlotSubtitle() {
-    const { stratum, ...subs } = formState;
-    let subtitle = `${stratumOptions.length ? valueToLabelMap.stratum[stratum] + " / " : ""}`;
+    let subtitle = `${hasStrata ? (valueToLabelMap.stratum[stratumIndex] ?? "") + " / " : ""}`;
+    const subs = formState;
     Object.entries(subs).forEach(
       ([key, value], i) =>
         (subtitle += `${valueToLabelMap[key][value]}${i < Object.keys(subs).length - 1 ? " / " : ""}`)
@@ -82,22 +58,6 @@ export default function Actuarial({ data, seerData, params, precision }) {
     <Container fluid>
       <Row className="border-bottom mb-3">
         <Col className="p-3">
-          {stratumOptions.length > 0 && (
-            <Row className="mb-3">
-              <Col sm="auto">
-                <Form.Group controlId="stratum">
-                  <Form.Label>Stratum</Form.Label>
-                  <Form.Select {...register("stratum", { valueAsNumber: true })}>
-                    {stratumOptions.map((e) => (
-                      <option key={e.label} value={e.value}>
-                        {e.label}
-                      </option>
-                    ))}
-                  </Form.Select>
-                </Form.Group>
-              </Col>
-            </Row>
-          )}
           <Row>
             {subStratumVars.map((e) => (
               <Col key={e.name} sm="auto">
@@ -149,6 +109,7 @@ export default function Actuarial({ data, seerData, params, precision }) {
             seerData={seerData}
             valueToLabelMap={valueToLabelMap}
             precision={precision}
+            stratumIndex={stratumIndex}
           />
         </Col>
       </Row>

@@ -2,14 +2,14 @@
 import Table from "@/components/table";
 import { createColumnHelper } from "@tanstack/react-table";
 
-export default function ActTable({ data, formState, seerData, valueToLabelMap, precision }) {
-  const { stratum, ...subStratum } = formState;
+export default function ActTable({ data, formState, seerData, valueToLabelMap, precision, stratumIndex = 0 }) {
+  const subStratum = formState;
   const columnHelper = createColumnHelper();
   const columns = [
     columnHelper.display({
       id: "stratum",
       header: () => "Stratum",
-      cell: valueToLabelMap.stratum[formState.stratum],
+      cell: valueToLabelMap.stratum[stratumIndex],
     }),
     ...seerData.cohortVariables
       .filter((e) => Object.keys(subStratum).includes(e.name))
