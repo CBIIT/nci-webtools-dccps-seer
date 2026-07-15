@@ -25,6 +25,7 @@ export async function jpsurv(params, logger, env) {
         `JPSurv - ${params.jobName} - ${submittedAt} EST`,
         "templates/user-success-email.html",
         {
+          appName: "JPSurv",
           submittedAt,
           resultsUrl: `${env.APP_BASE_URL}/jpsurv?id=${id}`,
           emailAdmin: env.EMAIL_ADMIN,
@@ -43,6 +44,7 @@ export async function jpsurv(params, logger, env) {
         `JPSurv Error - ${params.jobName} - ${submittedAt} EST`,
         "templates/user-failure-email.html",
         {
+          appName: "JPSurv",
           submittedAt,
           id,
           error: error.message.toString(),
@@ -68,4 +70,12 @@ export async function joinpointConditional(params, logger, env) {
   const outputFolder = path.resolve(env.OUTPUT_FOLDER, id);
 
   return await r.async("jpsurv/jpsurv.R", "joinpointConditional", { params, outputFolder });
+}
+
+export async function getTrends(params, logger, env = process.env) {
+  return await trends(params, logger, env);
+}
+
+export async function recalculateConditional(params, logger, env = process.env) {
+  return await joinpointConditional(params, logger, env);
 }

@@ -1,9 +1,38 @@
 import path from "path";
+import { mkdirs, readJson, writeJson } from "./utils.js";
 import ECS, { ECSClient, RunTaskCommand } from "@aws-sdk/client-ecs";
-import { readJson } from "./utils.js";
 import { createLogger } from "./logger.js";
 import { jpsurv } from "../jpsurv/jpsurv.js";
 import { cansurv } from "../cansurv/cansurv.js";
+import { recurrence } from "../recurrence/recurrence.js";
+
+/**
+ * Submits an analysis job by writing input parameters and data to designated input/output folders,
+ * and then dispatching an asynchronous worker.
+ * @param {object} params - Job parameters including id, files, and options such as sendNotification.
+ * @param {object} data - Data file contents to be written for processing.
+ * @param {NodeJS.ProcessEnv} [env=process.env] - Optional environment variables.
+ * @returns {Promise<object>} Job status object containing id, status, and submittedAt.
+ */
+export async function submit(params, data, env = process.env) {
+  const { id } = params;
+  const inputFolder = path.resolve(env.INPUT_FOLDER, id);
+  const outputFolder = path.resolve(env.OUTPUT_FOLDER, id);
+  const paramsFilePath = path.resolve(inputFolder, "params.json");
+  const dataFilePath = path.resolve(inputFolder, "data.json");
+  const statusFilePath = path.resolve(outputFolder, "status.json");
+  await mkdirs([inputFolder, outputFolder]);
+
+  const worker = getWorker(params.sendNotification ? env.WORKER_TYPE : "local");
+  const status = { id, status: "SUBMITTED", submittedAt: new Date() };
+
+  await writeJson(paramsFilePath, params);
+  await writeJson(dataFilePath, data);
+  await writeJson(statusFilePath, status);
+
+  worker(id).catch(console.error);
+  return status;
+}
 
 export function getWorkerCommand(id) {
   return ["node", ["--env-file=.env", "worker.js", id]];
@@ -21,6 +50,25 @@ export function getWorker(workerType = "local") {
 }
 
 /**
+ * Dispatches a submitted job to the correct analysis module.
+ * @param {object} params - Parsed params.json from INPUT_FOLDER
+ * @param {import("winston").Logger} logger
+ * @param {NodeJS.ProcessEnv} env
+ */
+export async function runAnalysis(params, logger, env) {
+  switch (params?.worker) {
+    case "cansurv":
+      return cansurv(params, logger, env);
+    case "recurrence":
+      return recurrence(params, logger, env);
+    case "jpsurv":
+      return jpsurv(params, logger, env);
+    default:
+      throw new Error(`Unknown worker type: ${params?.worker}`);
+  }
+}
+
+/**
  * Executes a worker process locally.
  * @param {string} id
  * @param {string} cwd
@@ -29,12 +77,8 @@ export function getWorker(workerType = "local") {
 export async function runLocalWorker(id, env = process.env) {
   const paramsFilePath = path.resolve(env.INPUT_FOLDER, id, "params.json");
   const params = await readJson(paramsFilePath);
-  const logger = createLogger(env.APP_NAME, env.LOG_LEVEL);
-  if (params?.type == "cansurv") {
-    return await cansurv(params, logger, env);
-  } else {
-    return await jpsurv(params, logger, env);
-  }
+  const logger = createLogger(`${params.worker} - ${id}`, env.LOG_LEVEL);
+  return runAnalysis(params, logger, env);
 }
 
 /**

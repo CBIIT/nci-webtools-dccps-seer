@@ -14,7 +14,8 @@ export function handleValidationErrors(request, response, next) {
 }
 
 export function requestFormatter(request) {
-  const parts = [request.method, request.path, formatObject(request.query), formatObject(request.body)];
+  // const parts = [request.method, request.path, formatObject(request.query), formatObject(request.body)];
+  const parts = [request.method, request.path, formatObject(request.query)];
   return parts.join(" ");
 }
 

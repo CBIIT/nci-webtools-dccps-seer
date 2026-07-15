@@ -84,14 +84,14 @@ function renderRoutes({ routes, pathName, openSubmenu, handleOpenSubmenu, handle
           </Link>
         </Nav.Item>
       ) : (
-        <div
-          className={clsx(
-            "nav-link",
-            (openSubmenu === route.title || openSubmenu === route.subRoutes.title || isRouteActive(route, pathName)) &&
-              "nav-menu-active",
-            "pointer-cursor"
-          )}>
+        <div className="nav-item">
           <div
+            className={clsx(
+              "nav-link",
+              (openSubmenu === route.title || openSubmenu === route.subRoutes.title || isRouteActive(route, pathName)) &&
+                "nav-menu-active",
+              "pointer-cursor"
+            )}
             onClick={(e) => {
               handleOpenSubmenu(e, route.title, route.subRoutes);
               // Unhighlight all other navbar items with a path
@@ -164,9 +164,9 @@ export default function AppNavbar({ routes = [] }) {
             background: `url('https://surveillance.cancer.gov/images/dccps_logo.png') right -5px no-repeat`,
           }}>
           <h4 className="py-1">
-            <a href="/" title="JPSurv Home" className="text-white text-decoration-none">
+            <Link href="/" title="JPSurv Home" className="text-white text-decoration-none">
               Surveillance Research Program
-            </a>
+            </Link>
           </h4>
         </Container>
       </div>
@@ -208,7 +208,7 @@ export default function AppNavbar({ routes = [] }) {
                       <SubMenu
                         subRoutes={route.subRoutes}
                         pathName={pathName}
-                        isOpen={openSubmenu === route.title}
+                        isOpen={openSubmenu === route.title || isRouteActive(route, pathName)}
                         isMainActive={isRouteActive(route, pathName)}
                       />
                     </div>

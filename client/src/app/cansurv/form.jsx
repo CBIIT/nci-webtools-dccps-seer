@@ -218,17 +218,15 @@ export default function AnalysisForm({ id }) {
       ...formData,
       ...variableOptions,
       id,
-      type: "cansurv",
       files: {
         dictionaryFile: seerData?.dictionaryFile,
         dataFile: seerData.dataFile,
         headers: seerData.seerStatDictionary.map((e) => e.name),
-        seerStatFile: "seerStatData.json",
       },
       inputFile: Array.from(inputFile).map((file) => file.name),
     };
 
-    submitForm.mutate({ params, data: seerData });
+    await submitForm.mutateAsync({ params, data: seerData });
     reset(params);
     setState({ params });
     router.push(`${pathname}?id=${id}`, { shallow: true });
@@ -262,7 +260,7 @@ export default function AnalysisForm({ id }) {
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)} onReset={onReset} noValidate>
-      <fieldset className="fieldset shadow-sm border rounded my-4 pt-4 px-3">
+      <fieldset className="fieldset border rounded my-4 pt-4 px-3">
         <legend className="legend fw-bold">Data</legend>
         <Form.Group className="mb-4" controlId="inputType">
           <Form.Label className="required fw-bold">Input Type</Form.Label>
@@ -381,7 +379,7 @@ export default function AnalysisForm({ id }) {
 
       {Object.keys(seerData).length > 0 && (
         <>
-          <fieldset className="fieldset shadow-sm border rounded my-4 pt-4 px-3">
+          <fieldset className="fieldset border rounded my-4 pt-4 px-3">
             <legend className="legend fw-bold">Model Specifications</legend>
             <Form.Group className="mb-3">
               <Form.Check
@@ -561,7 +559,7 @@ export default function AnalysisForm({ id }) {
             )}
           </fieldset>
 
-          <fieldset className="fieldset shadow-sm border rounded my-4 pt-4 px-3">
+          <fieldset className="fieldset border rounded my-4 pt-4 px-3">
             <legend className="legend fw-bold">Notifications</legend>
             <Form.Group className="mb-3">
               <Form.Check

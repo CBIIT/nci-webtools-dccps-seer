@@ -20,7 +20,7 @@ export function Controls({ manifest, className, handleSaveResults }) {
   async function handleSaveWorkspace() {
     const response = await fetch(`/api/export/${id}`);
     if (!response.ok) {
-      throw new Error("Network response was not ok");
+      throw new Error("Error during workspace export");
     }
     const blob = await response.blob();
     const url = window.URL.createObjectURL(blob);
