@@ -8,8 +8,11 @@ import { Container, Row, Col } from "react-bootstrap";
 export default function Header({ routes = [] }) {
   const [search, setSearch] = useState("");
 
-  const newSearch = () =>
-    window.open("https://www.google.com/search?q=site:https://jpsurv.cancer.gov/ " + search, "_blank");
+  const newSearch = () => {
+    const query = `site:${window.location.host} ${search}`;
+    const searchParams = new URLSearchParams({ q: query });
+    window.open(`https://www.google.com/search?${searchParams}`, "_blank");
+  };
 
   function handleKey(e) {
     if (e.key === "Enter") {
