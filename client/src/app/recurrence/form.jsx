@@ -110,13 +110,15 @@ export default function GroupDataForm({ id }) {
     try {
       const { headers, config } = await parseSeerStatDictionary(dictionaryFile);
       const { data } = await parseSeerStatFiles(dictionaryFile, dataFile);
-      const followUpYears = getMaxFollowUpYears(config);
+      const sessionOptions = config["Session Options"];
+      const followUpYears = getMaxFollowUpYears(sessionOptions);
 
       setState({
         seerData: {
           ...useStore.getState().seerData,
           seerStatDictionary: headers,
           seerStatData: data,
+          sessionOptions,
           seerStatDataFileNames: [dictionaryFile.name, dataFile.name],
         },
       });
@@ -155,8 +157,7 @@ export default function GroupDataForm({ id }) {
     }
   }
 
-  function getMaxFollowUpYears(config) {
-    const sessionOptions = config["Session Options"];
+  function getMaxFollowUpYears(sessionOptions) {
     const numberOfIntervals = +sessionOptions?.NumberOfIntervals || 30;
     const monthsPerInterval = +sessionOptions?.MonthsPerInterval || 12;
     return Math.ceil((monthsPerInterval * numberOfIntervals) / 12);
@@ -416,11 +417,13 @@ export default function GroupDataForm({ id }) {
               <Form.Select
                 {...register("followUpYears", { required: "This field is required." })}
                 isInvalid={!!errors.followUpYears}>
-                {Array.from({ length: getMaxFollowUpYears(seerData.seerStatDictionary) }, (_, i) => (
-                  <option key={i} value={i + 1}>
-                    {i + 1}
-                  </option>
-                ))}
+                {Array(getMaxFollowUpYears(seerData.sessionOptions))
+                  .fill()
+                  .map((_, i) => (
+                    <option key={i} value={i + 1}>
+                      {i + 1}
+                    </option>
+                  ))}
               </Form.Select>
               <Form.Control.Feedback type="invalid">{errors.followUpYears?.message}</Form.Control.Feedback>
             </Form.Group>
