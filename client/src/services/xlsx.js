@@ -1,10 +1,32 @@
 import { utils, writeFile } from "@e965/xlsx";
 
+function getCohortLabel(params, cohortIndex) {
+  return (
+    params.cohortCombos?.[cohortIndex]
+      ?.map((c, i) => params.cohorts[i].options.find((o) => o.value == c)?.label)
+      .join(" + ") ?? `Cohort ${cohortIndex}`
+  );
+}
+
 export function downloadAll(modelData, coefData, seerData, params, filename) {
   const wb = utils.book_new();
-  const combinedData = modelData.flat().reduce((acc, fit) => [...acc, ...fit.fullpredicted], []);
-  const dataWs = utils.json_to_sheet(combinedData);
-  utils.book_append_sheet(wb, dataWs, "Data");
+
+  const indexRows = modelData.flatMap((models, cohortIndex) =>
+    models.map((fit, modelIndex) => ({
+      Sheet: `${cohortIndex}-${modelIndex}`,
+      Cohort: getCohortLabel(params, cohortIndex),
+      Joinpoints: modelIndex,
+    }))
+  );
+  const indexWs = utils.json_to_sheet(indexRows);
+  utils.book_append_sheet(wb, indexWs, "Index");
+
+  modelData.forEach((models, cohortIndex) => {
+    models.forEach((fit, modelIndex) => {
+      const dataWs = utils.json_to_sheet(fit.fullpredicted);
+      utils.book_append_sheet(wb, dataWs, `Data ${cohortIndex}-${modelIndex}`);
+    });
+  });
 
   coefData.forEach((modelEstimates, cohortIndex) => {
     modelEstimates.forEach((me, modelIndex) => {
