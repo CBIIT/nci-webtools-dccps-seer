@@ -87,7 +87,7 @@ export default function AnalysisMain({ id }) {
 
   return (
     <Container>
-      <Status seerData={seerData} status={jobStatus} />
+      <Status status={jobStatus} />
       {!jobStatus && <Description />}
       {params.id && manifest && (
         <div className="shadow p-3 border rounded bg-white mb-3">

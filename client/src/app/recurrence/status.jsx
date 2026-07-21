@@ -1,15 +1,9 @@
 import { Spinner, Alert } from "react-bootstrap";
-export default function Status({ seerData, status }) {
+export default function Status({ status }) {
   return (
     <>
-      {!status || status?.status !== "COMPLETED" ? (
+      {["SUBMITTED", "IN_PROGRESS", "FAILED"].includes(status?.status) ? (
         <div className="shadow border rounded bg-white p-3">
-          {!status && Object.keys(seerData).length === 0 && (
-            <div>Please upload your data on the left and click on Submit</div>
-          )}
-          {!status && Object.keys(seerData).length > 0 && (
-            <div>Please configure your stage variables on the left and click on Submit</div>
-          )}
           {status?.status === "SUBMITTED" && <div>Your job has been submitted.</div>}
           {status?.status === "IN_PROGRESS" && (
             <div className="text-center">
