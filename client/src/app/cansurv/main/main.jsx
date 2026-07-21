@@ -70,7 +70,8 @@ export default function AnalysisMain({ id }) {
 
   return (
     <Container>
-      {!Object.keys(seerData).length > 0 ? <Description /> : <Status seerData={seerData} status={jobStatus} />}
+      <Status status={jobStatus} />
+      {!jobStatus && <Description />}
       {manifest && (
         <div className="shadow p-3 border rounded bg-white mb-3">
           <Controls manifest={manifest} results={results} seerData={seerData} handleSaveResults={handleSaveResults} />

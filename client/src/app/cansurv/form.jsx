@@ -162,8 +162,8 @@ export default function AnalysisForm({ id }) {
   }, [session, setState, getValues, reset, populatecovariates, setSeerVariables]);
   // parse seerdata after data upload (or clear it if the file selection becomes invalid)
   useEffect(() => {
-    if (inputFile) handleLoadData(inputType, inputFile);
-  }, [inputType, inputFile, handleLoadData]);
+    if (inputFile && !seerData?.cohortVariables) handleLoadData(inputType, inputFile);
+  }, [inputType, inputFile, seerData, handleLoadData]);
   // populate form after seerdata is parsed
   useEffect(() => {
     if (Object.keys(seerData).length && fields.length == 0) {
