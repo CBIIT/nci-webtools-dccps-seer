@@ -205,8 +205,15 @@ export default function AnalysisForm({ id }) {
       setValue(`covariates.${fieldIndex}.type.mu`, false);
       setValue(`covariates.${fieldIndex}.type.sigma`, false);
       setValue(`covariates.${fieldIndex}.type.cure`, false);
-    } else if (field === "continuous" && checked) {
-      setValue(`covariates.${fieldIndex}.type.by`, false);
+    } else if (field === "continuous") {
+      if (checked) {
+        setValue(`covariates.${fieldIndex}.type.by`, false);
+      } else {
+        // mu, sigma, and cure only apply to continuous covariates
+        setValue(`covariates.${fieldIndex}.type.mu`, false);
+        setValue(`covariates.${fieldIndex}.type.sigma`, false);
+        setValue(`covariates.${fieldIndex}.type.cure`, false);
+      }
     }
 
     // automatically check stratum (by) if all other options are unchecked
@@ -572,7 +579,7 @@ export default function AnalysisForm({ id }) {
                     <div className="ms-3">
                       <Form.Check
                         {...register(`covariates.${fieldIndex}.type.mu`, {
-                          disabled: watch(`covariates.${fieldIndex}.type.by`),
+                          disabled: !watch(`covariates.${fieldIndex}.type.continuous`),
                         })}
                         onChange={(e) => {
                           handleCheck(e, `covariates.${fieldIndex}.type.mu`);
@@ -584,7 +591,7 @@ export default function AnalysisForm({ id }) {
                       />
                       <Form.Check
                         {...register(`covariates.${fieldIndex}.type.sigma`, {
-                          disabled: watch(`covariates.${fieldIndex}.type.by`),
+                          disabled: !watch(`covariates.${fieldIndex}.type.continuous`),
                         })}
                         onChange={(e) => {
                           handleCheck(e, `covariates.${fieldIndex}.type.sigma`);
@@ -596,7 +603,7 @@ export default function AnalysisForm({ id }) {
                       />
                       <Form.Check
                         {...register(`covariates.${fieldIndex}.type.cure`, {
-                          disabled: watch(`covariates.${fieldIndex}.type.by`),
+                          disabled: !watch(`covariates.${fieldIndex}.type.continuous`),
                         })}
                         onChange={(e) => {
                           handleCheck(e, `covariates.${fieldIndex}.type.cure`);
