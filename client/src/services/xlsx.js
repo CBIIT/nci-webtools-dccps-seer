@@ -8,12 +8,18 @@ function getCohortLabel(params, cohortIndex) {
   );
 }
 
-export function downloadAll(modelData, coefData, seerData, params, filename) {
+export function downloadAll(modelData, coefData, seerData, params, filename, manifest) {
   const wb = utils.book_new();
+
+  // align valid manifest entries with modelData (same filter as fetchAll)
+  const validManifest = manifest?.filter((e) => e?.model);
+  const isFinalModel = (cohortIndex, modelIndex) => validManifest?.[cohortIndex]?.final_model_index === modelIndex;
 
   const indexRows = modelData.flatMap((models, cohortIndex) =>
     models.map((fit, modelIndex) => ({
-      Sheet: `${cohortIndex}-${modelIndex}`,
+      Sheet: isFinalModel(cohortIndex, modelIndex)
+        ? `${cohortIndex}-${modelIndex} (final selected model)`
+        : `${cohortIndex}-${modelIndex}`,
       Cohort: getCohortLabel(params, cohortIndex),
       Joinpoints: modelIndex,
     }))
@@ -24,7 +30,8 @@ export function downloadAll(modelData, coefData, seerData, params, filename) {
   modelData.forEach((models, cohortIndex) => {
     models.forEach((fit, modelIndex) => {
       const dataWs = utils.json_to_sheet(fit.fullpredicted);
-      utils.book_append_sheet(wb, dataWs, `Data ${cohortIndex}-${modelIndex}`);
+      const suffix = isFinalModel(cohortIndex, modelIndex) ? " (final selected model)" : "";
+      utils.book_append_sheet(wb, dataWs, `Data ${cohortIndex}-${modelIndex}${suffix}`);
     });
   });
 
