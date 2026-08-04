@@ -135,7 +135,7 @@ export default function AnalysisForm({ id }) {
               cohortVariables,
               config,
             };
-
+            console.log(seerData);
             setState({ seerData });
           } catch (e) {
             console.error(e);
@@ -162,7 +162,7 @@ export default function AnalysisForm({ id }) {
   }, [session, setState, getValues, reset, populatecovariates, setSeerVariables]);
   // parse seerdata after data upload (or clear it if the file selection becomes invalid)
   useEffect(() => {
-    if (inputType == "seerstat" && inputFile && !seerData?.cohortVariables) handleLoadData(inputType, inputFile);
+    if (inputType == "seer" && inputFile && !seerData?.cohortVariables) handleLoadData(inputType, inputFile);
   }, [inputType, inputFile, seerData, handleLoadData]);
   // populate form after seerdata is parsed
   useEffect(() => {
