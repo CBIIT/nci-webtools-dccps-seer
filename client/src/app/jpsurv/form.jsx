@@ -13,7 +13,7 @@ import { useQuery, useMutation, useQueryClient, useIsMutating } from "@tanstack/
 import { v4 as uuidv4 } from "uuid";
 import Image from "next/image";
 import { useStore, defaultForm, defaultAdvOptions } from "./store";
-import { parseSeerStatDictionary, parseSeerStatFiles } from "@/services/file/file.service";
+import { buildSeerData } from "@/services/file/file.service";
 import { asFileList } from "@/components/file-input";
 import { fetchSession, submit, importWorkspace } from "@/services/queries";
 import { Accordion } from "react-bootstrap";
@@ -95,41 +95,12 @@ export default function AnalysisForm({ id }) {
         setIsLoading(true);
         try {
           const files = Array.from(inputFile);
-          const dictionaryFile = files.find((file) => /.dic$/i.test(file.name));
           const dataFile = files.find((file) => /(.txt|.csv|.tsv)$/i.test(file.name));
 
-          if (inputType === "seer" && dictionaryFile && dataFile) {
-            if (dictionaryFile && dataFile) {
-              // parse SEER*Stat files to extract dictionary headers and data
-              const { headers, config } = await parseSeerStatDictionary(dictionaryFile);
-              const { data } = await parseSeerStatFiles(dictionaryFile, dataFile);
-              // get cohort variables by filtering unknown labels
-              const exclude = ["Page type", "Interval", /^year/gi];
-              const cohortVariables = headers
-                .filter(
-                  (e) =>
-                    e.factors.length &&
-                    !exclude.some((item) => (item instanceof RegExp ? item.test(e.label) : item === e.label))
-                )
-                .map((e) => ({
-                  ...e,
-                  factors: e.factors.map((f) => ({ ...f, label: f.label.replace(/"/gi, "").trim() })),
-                }));
-
-              const seer = {
-                dictionaryFile: dictionaryFile.name,
-                dataFile: dataFile.name,
-                seerStatDictionary: headers,
-                seerStatData: data,
-                cohortVariables,
-                config,
-              };
-
-              setModelOptions(seer);
-              setState({ seerData: seer });
-            } else {
-              throw new Error("Invalid SEER*STAT files selected.");
-            }
+          if (inputType === "seer") {
+            const seer = await buildSeerData(inputFile);
+            setModelOptions(seer);
+            setState({ seerData: seer });
           } else if (inputType === "csv" && dataFile) {
             setUserCsv({ userData: dataFile, openConfigDataModal: true });
           }

@@ -12,7 +12,7 @@ import { VscPreview } from "react-icons/vsc";
 import { useQuery, useMutation, useQueryClient, useIsMutating } from "@tanstack/react-query";
 import { v4 as uuidv4 } from "uuid";
 import { useStore, defaultForm } from "./store";
-import { parseSeerStatDictionary, parseSeerStatFiles } from "@/services/file/file.service";
+import { buildSeerData } from "@/services/file/file.service";
 import { asFileList } from "@/components/file-input";
 import { fetchSession, submit, importWorkspace } from "@/services/queries";
 
@@ -111,31 +111,7 @@ export default function AnalysisForm({ id }) {
             return;
           }
           try {
-            // parse SEER*Stat files to extract dictionary headers and data
-            const { headers, config } = await parseSeerStatDictionary(dictionaryFile);
-            const { data } = await parseSeerStatFiles(dictionaryFile, dataFile);
-            // get cohort variables by filtering unknown labels
-            const exclude = ["Page type", "Interval", /^year/gi];
-            const cohortVariables = headers
-              .filter(
-                (e) =>
-                  e.factors.length &&
-                  !exclude.some((item) => (item instanceof RegExp ? item.test(e.label) : item === e.label))
-              )
-              .map((e) => ({
-                ...e,
-                factors: e.factors.map((f) => ({ ...f, label: f.label.replace(/"/gi, "").trim() })),
-              }));
-
-            const seerData = {
-              dictionaryFile: dictionaryFile.name,
-              dataFile: dataFile.name,
-              seerStatDictionary: headers,
-              seerStatData: data,
-              cohortVariables,
-              config,
-            };
-            console.log(seerData);
+            const seerData = await buildSeerData(inputFile);
             setState({ seerData });
           } catch (e) {
             console.error(e);
