@@ -205,9 +205,9 @@ export async function parseSeerStatFiles(seerStatDictionaryFile, seerStatDataFil
 /**
  * Parse a SEER*Stat file selection (dictionary + data file) into a seerData object.
  * Locates the `.dic` dictionary file and the data file (.txt/.csv/.tsv), parses both,
- * and extracts cohort and non-cohort variables. Throws if either required file is missing.
+ * and extracts cohort variables. Throws if either required file is missing.
  */
-export async function buildSeerData(inputFile) {
+export async function buildSeerData(inputFile, exclude = ["Page type", "Interval", /^year/gi]) {
   const files = Array.from(inputFile);
   const dictionaryFile = files.find((file) => /.dic$/i.test(file.name));
   const dataFile = files.find((file) => /(.txt|.csv|.tsv)$/i.test(file.name));
@@ -221,7 +221,6 @@ export async function buildSeerData(inputFile) {
   const { data } = await parseSeerStatFiles(dictionaryFile, dataFile);
 
   // get cohort variables by filtering unknown labels
-  const exclude = ["Page type", "Interval", /^year/gi];
   const matchesExclude = (label) =>
     exclude.some((item) => (item instanceof RegExp ? item.test(label) : item === label));
   const cleanFactors = (e) => ({
@@ -230,7 +229,7 @@ export async function buildSeerData(inputFile) {
   });
 
   const cohortVariables = headers.filter((e) => e.factors.length && !matchesExclude(e.label)).map(cleanFactors);
-  const nonCohortVariables = headers.filter((e) => e.factors.length && matchesExclude(e.label)).map(cleanFactors);
+  const excludedVariables = headers.filter((e) => e.factors.length && matchesExclude(e.label)).map(cleanFactors);
 
   return {
     dictionaryFile: dictionaryFile.name,
@@ -238,7 +237,7 @@ export async function buildSeerData(inputFile) {
     seerStatDictionary: headers,
     seerStatData: data,
     cohortVariables,
-    nonCohortVariables,
+    excludedVariables,
     config,
   };
 }

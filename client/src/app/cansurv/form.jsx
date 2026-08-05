@@ -111,7 +111,7 @@ export default function AnalysisForm({ id }) {
             return;
           }
           try {
-            const seerData = await buildSeerData(inputFile);
+            const seerData = await buildSeerData(inputFile, ["Page type", "Interval"]);
             setState({ seerData });
           } catch (e) {
             console.error(e);
