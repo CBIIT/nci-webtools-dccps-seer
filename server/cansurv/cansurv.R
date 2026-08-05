@@ -45,24 +45,35 @@ calculateCanSurv <- function(inputFolder, outputFolder) {
 
 parseFitList <- function(fit.list) {
     lapply(fit.list, function(data) {
+        converged <- isTRUE(data$fitlist$converged)
         list(
             fitlist = list(
-                fit = parseMleObject(data$fitlist$fit),
+                fit = if (converged) parseMleObject(data$fitlist$fit) else NULL,
                 converged = data$fitlist$converged,
+                message = data$fitlist$message,
                 init.estimates = data$fitlist$init.estimates,
                 init.loglike = data$fitlist$init.loglike,
-                estimates = data$fitlist$estimates %>% as.data.frame() %>% tibble::rownames_to_column(var = "parameter"),
-                loglike = as.numeric(logLik(data$fitlist$loglike)),
+                estimates = if (converged) {
+                    data$fitlist$estimates %>%
+                        as.data.frame() %>%
+                        tibble::rownames_to_column(var = "parameter")
+                } else {
+                    NULL
+                },
+                loglike = if (converged) as.numeric(logLik(data$fitlist$loglike)) else NULL,
                 vcov = data$fitlist$vcov
             ),
             obj = data$obj,
             data = data$data,
-            profileLL = getProfileLoglike(data, lower = 0, upper = 1, step = 0.1)
+            profileLL = if (converged) getProfileLoglike(data, lower = 0, upper = 1, step = 0.1) else NULL
         )
     })
 }
 
 parseMleObject <- function(mleObj) {
+    if (!isS4(mleObj) || !methods::is(mleObj, "mle")) {
+        return(NULL)
+    }
     list(
         call = as.character(mleObj@call),
         coef = coef(mleObj),
