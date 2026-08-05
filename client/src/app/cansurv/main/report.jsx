@@ -47,7 +47,9 @@ export default function Report({ data, seerData, precision, stratumIndex = 0 }) 
       header: () => "Value",
       cell: (info) => {
         const value = info.getValue();
-        return typeof value === "number" ? value.toFixed(precision) : "NA";
+        if (typeof value === "number") return value.toFixed(precision);
+        if (value && typeof value === "object" && Object.keys(value).length === 0) return "NA";
+        return value?.toString?.() ?? "NA";
       },
     }),
   ];
