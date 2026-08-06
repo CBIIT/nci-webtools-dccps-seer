@@ -158,6 +158,7 @@ export default function AnalysisForm({ id }) {
     const allIntervals = intervals.map((e) => e.value);
 
     // add dynamic fields for cohort variables
+    setValue("cohorts", []);
     cohortVariables.forEach(({ label, name, factors }) => append({ label, name, options: factors }));
 
     // set default values in form

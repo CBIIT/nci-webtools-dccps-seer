@@ -115,6 +115,8 @@ export default function AnalysisForm({ id }) {
           try {
             const seerData = await buildSeerData(inputFile, ["Page type", "Interval"]);
             setState({ seerData });
+            populatecovariates(seerData.cohortVariables);
+            setSeerVariables(seerData.seerStatDictionary);
           } catch (e) {
             console.error(e);
             setState({ seerData: {} });
@@ -126,7 +128,7 @@ export default function AnalysisForm({ id }) {
         }
       }
     },
-    [setState, setUserCsv]
+    [setState, setUserCsv, populatecovariates, setSeerVariables]
   );
 
   // load previous params if available
@@ -142,13 +144,6 @@ export default function AnalysisForm({ id }) {
   useEffect(() => {
     if (inputType == "seer" && inputFile && !seerData?.cohortVariables) handleLoadData(inputType, inputFile);
   }, [inputType, inputFile, seerData, handleLoadData]);
-  // populate form after seerdata is parsed
-  useEffect(() => {
-    if (Object.keys(seerData).length && fields.length == 0) {
-      populatecovariates(seerData.cohortVariables);
-      setSeerVariables(seerData.seerStatDictionary);
-    }
-  }, [seerData, fields, populatecovariates, setSeerVariables]);
 
   // sync form state to store on every change
   useEffect(() => {
@@ -327,6 +322,8 @@ export default function AnalysisForm({ id }) {
             onChange={() => {
               trigger("inputFile");
               setState({ seerData: {} });
+              const { est_cure, distribution, maxit, reltol, n_restart_conv, seed } = defaultForm;
+              reset((values) => ({ ...values, est_cure, distribution, maxit, reltol, n_restart_conv, seed }));
             }}
             disabled={!!id}
           />
