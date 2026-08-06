@@ -8,7 +8,7 @@ import Button from "react-bootstrap/Button";
 import Spinner from "react-bootstrap/Spinner";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Popover from "react-bootstrap/Popover";
-import { VscPreview } from "react-icons/vsc";
+import { VscSettingsGear } from "react-icons/vsc";
 import { useQuery, useMutation, useQueryClient, useIsMutating } from "@tanstack/react-query";
 import { v4 as uuidv4 } from "uuid";
 import { useStore, defaultForm } from "./store";
@@ -70,7 +70,9 @@ export default function AnalysisForm({ id }) {
     (cohortVariables) => {
       // add dynamic fields for cohort variables
       setValue("covariates", []);
-      cohortVariables.forEach(({ label, name }) => append({ label, name, type: { by: true } }));
+      cohortVariables.forEach(({ label, name, factors }) =>
+        append({ label, name, type: { by: true }, options: (factors ?? []).map((f) => ({ ...f, checked: true })) })
+      );
     },
     [setValue, append]
   );
@@ -220,16 +222,28 @@ export default function AnalysisForm({ id }) {
       return options;
     };
     const variableOptions = getVariableOptions(formData.covariates);
+
+    // selected factor values per categorical/stratum variable; R filters rows to these (none checked => all)
+    const byFactors = Object.fromEntries(
+      formData.covariates
+        .filter((v) => v.type?.by && (v.options ?? []).length)
+        .map((v) => {
+          const selected = v.options.filter((o) => o.checked);
+          return [v.name, (selected.length ? selected : v.options).map((o) => o.value)];
+        })
+    );
+
     const params = {
       ...formData,
       ...variableOptions,
+      byFactors,
       id,
       files: {
         dictionaryFile: seerData?.dictionaryFile,
         dataFile: seerData.dataFile,
         headers: seerData.seerStatDictionary.map((e) => e.name),
       },
-      inputFile: Array.from(inputFile).map((file) => file.name),
+      inputFile: Array.from(inputFile).map((file) => (typeof file === "string" ? file : file.name)),
     };
 
     await submitForm.mutateAsync({ params, data: seerData });
@@ -506,17 +520,48 @@ export default function AnalysisForm({ id }) {
                           placement="right"
                           overlay={
                             <Popover>
-                              <Popover.Header as="h3">
-                                {label} ({factors.length})
-                              </Popover.Header>
+                              <Popover.Header as="h3">Select {label}</Popover.Header>
                               <Popover.Body>
-                                <ul className="mb-0 ps-3">
-                                  {factors.map((f) => (
-                                    <li key={f.value}>
-                                      <strong>{f.value}</strong>: {String(f.label).replace(/"/g, "").trim()}
-                                    </li>
-                                  ))}
-                                </ul>
+                                <div className="d-flex gap-2 mb-2">
+                                  <Button
+                                    variant="link"
+                                    size="sm"
+                                    className="p-0"
+                                    disabled={!watch(`covariates.${fieldIndex}.type.by`)}
+                                    onClick={() =>
+                                      factors.forEach((f, oIndex) =>
+                                        setValue(`covariates.${fieldIndex}.options.${oIndex}.checked`, true)
+                                      )
+                                    }>
+                                    Select all
+                                  </Button>
+                                  <Button
+                                    variant="link"
+                                    size="sm"
+                                    className="p-0"
+                                    disabled={!watch(`covariates.${fieldIndex}.type.by`)}
+                                    onClick={() =>
+                                      factors.forEach((f, oIndex) =>
+                                        setValue(`covariates.${fieldIndex}.options.${oIndex}.checked`, false)
+                                      )
+                                    }>
+                                    Clear
+                                  </Button>
+                                </div>
+                                {factors.map((f, oIndex) => (
+                                  <Form.Check
+                                    key={f.value}
+                                    {...register(`covariates.${fieldIndex}.options.${oIndex}.checked`)}
+                                    checked={!!watch(`covariates.${fieldIndex}.options.${oIndex}.checked`)}
+                                    disabled={!watch(`covariates.${fieldIndex}.type.by`)}
+                                    onChange={(e) =>
+                                      setValue(`covariates.${fieldIndex}.options.${oIndex}.checked`, e.target.checked)
+                                    }
+                                    label={`${f.value} - ${String(f.label).replace(/"/g, "").trim()}`}
+                                    id={`${label}.option.${f.value}`}
+                                    type="checkbox"
+                                  />
+                                ))}
                               </Popover.Body>
                             </Popover>
                           }>
@@ -524,8 +569,8 @@ export default function AnalysisForm({ id }) {
                             variant="link"
                             size="sm"
                             className="p-0 d-flex align-items-center"
-                            aria-label={`View ${label} factors`}>
-                            <VscPreview />
+                            aria-label={`Configure ${label} factors`}>
+                            <VscSettingsGear />
                           </Button>
                         </OverlayTrigger>
                       )}

@@ -9,6 +9,14 @@ calculateCanSurv <- function(inputFolder, outputFolder) {
     data <- read_json(file.path(inputFolder, "data.json"), simplifyDataFrame = T)
     data <- bind_rows(data$seerStatData)
 
+    # restrict analysis to user-selected factor values per categorical/stratum variable
+    for (name in names(params$byFactors)) {
+        values <- unlist(params$byFactors[[name]])
+        if (name %in% colnames(data) && length(values)) {
+            data <- data[data[[name]] %in% values, , drop = FALSE]
+        }
+    }
+
     manifest <- tryCatch(
         {
             results <- CanSurv(data,

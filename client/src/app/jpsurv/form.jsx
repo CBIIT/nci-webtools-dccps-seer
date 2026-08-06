@@ -257,7 +257,7 @@ export default function AnalysisForm({ id }) {
         dataFile: seerData.dataFile,
         headers: seerData.seerStatDictionary.map((e) => e.name),
       },
-      inputFile: Array.from(inputFile).map((file) => file.name),
+      inputFile: Array.from(inputFile).map((file) => (typeof file === "string" ? file : file.name)),
     };
 
     // const seerStatFile = asFileList(
