@@ -524,7 +524,6 @@ export default function AnalysisForm({ id }) {
                                     variant="link"
                                     size="sm"
                                     className="p-0"
-                                    disabled={!watch(`covariates.${fieldIndex}.type.by`)}
                                     onClick={() =>
                                       factors.forEach((f, oIndex) =>
                                         setValue(`covariates.${fieldIndex}.options.${oIndex}.checked`, true)
@@ -536,7 +535,6 @@ export default function AnalysisForm({ id }) {
                                     variant="link"
                                     size="sm"
                                     className="p-0"
-                                    disabled={!watch(`covariates.${fieldIndex}.type.by`)}
                                     onClick={() =>
                                       factors.forEach((f, oIndex) =>
                                         setValue(`covariates.${fieldIndex}.options.${oIndex}.checked`, false)
@@ -550,7 +548,6 @@ export default function AnalysisForm({ id }) {
                                     key={f.value}
                                     {...register(`covariates.${fieldIndex}.options.${oIndex}.checked`)}
                                     checked={!!watch(`covariates.${fieldIndex}.options.${oIndex}.checked`)}
-                                    disabled={!watch(`covariates.${fieldIndex}.type.by`)}
                                     onChange={(e) =>
                                       setValue(`covariates.${fieldIndex}.options.${oIndex}.checked`, e.target.checked)
                                     }
