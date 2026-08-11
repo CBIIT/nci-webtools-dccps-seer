@@ -37,6 +37,7 @@ export default function ConfigureDataModal() {
     { label: "Number Alive", value: "Alive_at_Start" },
     { label: "Number Dead", value: "Died" },
     { label: "Number Lost", value: "Lost_to_Followup" },
+    { label: "Observed Survival Interval", value: "Observed_Survival_Interval" },
     { label: "Expected Survival Interval", value: "Expected_Survival_Interval" },
     { label: `${dataType} Int`, value: `${dataType.replace(" ", "_")}_Interval` },
     { label: `${dataType} Cum`, value: `${dataType.replace(" ", "_")}_Cum` },
