@@ -48,19 +48,23 @@ export async function recurrence(params, logger, env) {
 
     if (notify) {
       logger.info("Sending results email");
-      await sendNotification(
-        email,
-        `Recurrence Risk - ${jobName} - ${submittedAt} EST`,
-        "templates/user-success-email.html",
-        {
-          appName: "Recurrence Risk",
-          submittedAt,
-          resultsUrl: `${env.APP_BASE_URL}/recurrence?id=${id}`,
-          emailAdmin: env.EMAIL_ADMIN,
-          jobName: jobName,
-        },
-        env
-      );
+      try {
+        await sendNotification(
+          email,
+          `Recurrence Risk - ${jobName} - ${submittedAt} EST`,
+          "templates/user-success-email.html",
+          {
+            appName: "Recurrence Risk",
+            submittedAt,
+            resultsUrl: `${env.APP_BASE_URL}/recurrence?id=${id}`,
+            emailAdmin: env.EMAIL_ADMIN,
+            jobName: jobName,
+          },
+          env
+        );
+      } catch (notificationError) {
+        logger.error(notificationError);
+      }
     }
   } catch (error) {
     logger.error(error);

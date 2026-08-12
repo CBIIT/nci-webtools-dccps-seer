@@ -20,18 +20,22 @@ export async function cansurv(params, logger, env) {
     await writeJson(statusFilePath, { ...prevStatus, status: "COMPLETED", done: new Date() });
     if (params.sendNotification) {
       logger.info(`Sending results email`);
-      await sendNotification(
-        params.email,
-        `CanSurv - ${params.jobName} - ${submittedAt} EST`,
-        "templates/user-success-email.html",
-        {
-          appName: "CanSurv",
-          submittedAt,
-          resultsUrl: `${env.APP_BASE_URL}/cansurv?id=${id}`,
-          emailAdmin: env.EMAIL_ADMIN,
-          jobName: params.jobName,
-        }
-      );
+      try {
+        await sendNotification(
+          params.email,
+          `CanSurv - ${params.jobName} - ${submittedAt} EST`,
+          "templates/user-success-email.html",
+          {
+            appName: "CanSurv",
+            submittedAt,
+            resultsUrl: `${env.APP_BASE_URL}/cansurv?id=${id}`,
+            emailAdmin: env.EMAIL_ADMIN,
+            jobName: params.jobName,
+          }
+        );
+      } catch (notificationError) {
+        logger.error(notificationError);
+      }
     }
   } catch (error) {
     logger.error(error);
