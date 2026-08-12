@@ -60,15 +60,14 @@ export default function DeathVsYear({
     }));
   }, [data, conditional, intervalsD, observedHeader, predictedHeader]);
 
-  const deathTrend = useMemo(
-    () =>
-      (trendQueryData as TrendQueryData)?.data?.jpTrend
-        ? (trendQueryData as TrendQueryData).data.jpTrend[fitIndex].deathTrend
-            .reduce((acc: TrendDataPoint[], ar: TrendDataPoint[]) => [...acc, ...ar], [])
-            .filter((e: TrendDataPoint) => intervalsD.includes(e.interval))
-        : [],
-    [trendQueryData, intervalsD, fitIndex]
-  );
+  const deathTrend = useMemo(() => {
+    const deathTrendByFit = (trendQueryData as TrendQueryData)?.data?.jpTrend?.[fitIndex]?.deathTrend;
+    return deathTrendByFit
+      ? deathTrendByFit
+          .reduce((acc: TrendDataPoint[], ar: TrendDataPoint[]) => [...acc, ...ar], [])
+          .filter((e: TrendDataPoint) => intervalsD.includes(e.interval))
+      : [];
+  }, [trendQueryData, intervalsD, fitIndex]);
 
   // disable trends for conditional recalculation
   useEffect(() => {
@@ -76,8 +75,9 @@ export default function DeathVsYear({
   }, [conditional, jpTrend, setValue]);
   // auto select interval on conditional recalculation switch
   useEffect(() => {
-    if (!intervalsD.every((interval) => intervalOptions.includes(interval)))
-      setValue("intervalsD", [...intervalsD, defaultInterval]);
+    const validIntervals = intervalsD.filter((interval) => intervalOptions.includes(interval));
+    if (validIntervals.length !== intervalsD.length)
+      setValue("intervalsD", validIntervals.length ? validIntervals : [defaultInterval]);
   }, [conditional, defaultInterval, intervalOptions, intervalsD, setValue]);
   useEffect(() => {
     setState({ deathTrendQueryKey: ["deathTrend", cohortIndex] });
@@ -157,6 +157,9 @@ export default function DeathVsYear({
       <Row>
         <Col>
           {jpTrend && deathTrend.length > 0 && <TrendTable data={deathTrend} params={params} precision={precision} />}
+          {jpTrend && (trendQueryData as TrendQueryData)?.data?.jpTrend && deathTrend.length === 0 && (
+            <div className="text-danger">Trend measures unavailable</div>
+          )}
         </Col>
       </Row>
       <Row>

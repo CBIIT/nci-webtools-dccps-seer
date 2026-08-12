@@ -66,27 +66,24 @@ export default function SurvivalVsYear({
   );
 
   const trendQueryData = queryClient.getQueryData(survTrendQueryKey);
-  const survTrend = useMemo(
-    () =>
-      (trendQueryData as TrendQueryData)?.data?.jpTrend
-        ? (trendQueryData as TrendQueryData).data.jpTrend[fitIndex].survTrend
-            .reduce((acc: TrendDataPoint[], ar: TrendDataPoint[]) => [...acc, ...ar], [])
-            .filter((e: TrendDataPoint) => intervals.includes(e.interval))
-        : [],
-    [trendQueryData, intervals, fitIndex]
-  );
+  const survTrend = useMemo(() => {
+    const survTrendByFit = (trendQueryData as TrendQueryData)?.data?.jpTrend?.[fitIndex]?.survTrend;
+    return survTrendByFit
+      ? survTrendByFit
+          .reduce((acc: TrendDataPoint[], ar: TrendDataPoint[]) => [...acc, ...ar], [])
+          .filter((e: TrendDataPoint) => intervals.includes(e.interval))
+      : [];
+  }, [trendQueryData, intervals, fitIndex]);
 
   const calTrend = useMemo(() => {
-    if (!(trendQueryData as TrendQueryData)?.data?.calendarTrend) return [];
+    const calendarTrend = (trendQueryData as TrendQueryData)?.data?.calendarTrend as any;
+    if (!calendarTrend) return [];
 
-    const calendarTrend = (trendQueryData as TrendQueryData).data.calendarTrend as any;
-    let trendArray: TrendDataPoint[][];
+    const trendArray: TrendDataPoint[][] | undefined = params.useRelaxModel
+      ? calendarTrend[cluster!]?.[fitIndex]
+      : calendarTrend[fitIndex];
 
-    if (params.useRelaxModel) {
-      trendArray = calendarTrend[cluster!][fitIndex] as TrendDataPoint[][];
-    } else {
-      trendArray = calendarTrend[fitIndex] as TrendDataPoint[][];
-    }
+    if (!trendArray) return [];
 
     return trendArray
       .reduce((acc: TrendDataPoint[], ar: TrendDataPoint[]) => [...acc, ...ar], [])
@@ -109,8 +106,9 @@ export default function SurvivalVsYear({
   }, [conditional, jpTrend, calendarTrend, setValue]);
   // auto select interval on conditional recalculation switch
   useEffect(() => {
-    if (!intervals.every((interval) => intervalOptions.includes(interval)))
-      setValue("intervals", [...intervals, defaultInterval]);
+    const validIntervals = intervals.filter((interval) => intervalOptions.includes(interval));
+    if (validIntervals.length !== intervals.length)
+      setValue("intervals", validIntervals.length ? validIntervals : [defaultInterval]);
   }, [conditional, defaultInterval, intervalOptions, intervals, setValue]);
   useEffect(() => {
     setState({ survTrendQueryKey: ["trend", cohortIndex, trendStart, trendEnd] });
@@ -263,6 +261,9 @@ export default function SurvivalVsYear({
               </small>
             </div>
           )}
+          {jpTrend && (trendQueryData as TrendQueryData)?.data?.jpTrend && survTrend.length === 0 && (
+            <div className="text-danger">Trend measures unavailable</div>
+          )}
         </Col>
       </Row>
       <Row>
@@ -272,6 +273,9 @@ export default function SurvivalVsYear({
               <h5>Trend Measures for User Selected Years</h5>
               <TrendTable data={calTrend} params={params} precision={precision} />
             </div>
+          )}
+          {calendarTrend && (trendQueryData as TrendQueryData)?.data?.calendarTrend && calTrend.length === 0 && (
+            <div className="mt-3 text-danger">Trend measures unavailable</div>
           )}
         </Col>
       </Row>
