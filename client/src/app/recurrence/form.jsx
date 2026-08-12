@@ -224,7 +224,7 @@ export default function GroupDataForm({ id }) {
               }}
               disabled={!!id}>
               <option value="data">SEER*Stat/CanSurv Files</option>
-              {/* <option value="zip">Workspace (.zip)</option> */}
+              <option value="zip">Workspace (.zip)</option>
             </Form.Select>
           </Form.Group>
 
