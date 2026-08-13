@@ -62,8 +62,8 @@ export default function Table({
 
   return (
     <Container className="mb-3">
-      {useFilter && (
-        <Row className="mb-2">
+      <Row className="mb-2">
+        {useFilter && (
           <Col sm="2">
             <Form.Control
               aria-label="Search filter"
@@ -72,14 +72,14 @@ export default function Table({
               onChange={(e) => setGlobalFilter(e.target.value)}
             />
           </Col>
-          {componentHeader &&
-            componentHeader.map((e, i) => (
-              <Col sm="auto" key={i} className={i === 0 ? "ms-auto" : ""}>
-                {e}
-              </Col>
-            ))}
-        </Row>
-      )}
+        )}
+        {componentHeader &&
+          componentHeader.map((e, i) => (
+            <Col sm="auto" key={i} className={i === 0 ? "ms-auto" : ""}>
+              {e}
+            </Col>
+          ))}
+      </Row>
 
       <div tabIndex="0" className="table-responsive" style={usePagination ? undefined : { maxHeight: "650px" }}>
         <BsTable striped bordered {...props} className="m-0">
