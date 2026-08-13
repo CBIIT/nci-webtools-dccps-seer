@@ -17,7 +17,15 @@ export default function RootLayout({ children }) {
     { title: "JPSurv", path: "/jpsurv", subRoutes: [] },
     { title: "CanSurv", path: "/cansurv", subRoutes: [] },
     { title: "RecurRisk", path: "/recurrence", subRoutes: [] },
-    { title: "Help", path: "/help", subRoutes: [] },
+    {
+      title: "Help",
+      path: "/help/jpsurv",
+      subRoutes: [
+        { title: "JPSurv", path: "/help/jpsurv" },
+        { title: "CanSurv", path: "/help/cansurv" },
+        { title: "RecurRisk", path: "/help/recurrence" },
+      ],
+    },
   ];
   const queryClient = new QueryClient({});
   const pathname = usePathname();

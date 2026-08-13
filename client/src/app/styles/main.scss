@@ -54,42 +54,27 @@ body {
   overflow-wrap: break-word;
 }
 
-.navbar-nav .nav-item .nav-link.nav-menu-active,
-.navbar-nav .nav-item .nav-link.nav-menu-active:hover {
+.navbar-nav .nav-link.active,
+.navbar-nav .nav-link.active:hover,
+.navbar-nav .nav-item.dropdown.active > .nav-link {
   background-color: #df3041;
   color: white;
 }
 
-.submenu {
-  color: black;
-  text-decoration: none;
-}
-.submenu:hover {
-  background-color: white;
+.navbar-nav .dropdown-menu .dropdown-item.active,
+.navbar-nav .dropdown-menu .dropdown-item:active {
+  background-color: #df3041;
+  color: white;
 }
 
-.submenu-border {
-  box-shadow: 0 20px 20px rgba(180, 22, 22, 0.1); /* Adjust the shadow values */
-  border-bottom: 0.01px solid #d9d9d9;
-  z-index: 10;
+/* Keep the toggle label white while its menu is open (navbar active color is black). */
+.navbar-nav .nav-item.dropdown.show > .nav-link {
+  color: white;
 }
 
-.submenu:hover {
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.submenu .active {
-  text-decoration: underline;
-  text-decoration-thickness: 2px; /* Set the desired thickness */
-  text-decoration-color: #bf00a4; /* Set the desired underline color */
-  text-underline-offset: 10px; /* Set the desired space between the line and the text */
-  text-decoration-skip-ink: none; /* Ensure the underline is not skipped over descenders */
-  color: black;
-}
-
-.active-submenu {
-  text-decoration: none;
+/* Sit the hover menu flush against the button so the cursor doesn't cross a dead gap. */
+.navbar-nav .dropdown-menu[data-bs-popper] {
+  margin-top: 0;
 }
 
 .navbar-toggler {

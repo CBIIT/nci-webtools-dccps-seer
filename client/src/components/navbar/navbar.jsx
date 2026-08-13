@@ -1,160 +1,31 @@
 "use client";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
+import { useState } from "react";
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
-import clsx from "clsx";
-import React, { useState } from "react";
+import NavDropdown from "react-bootstrap/NavDropdown";
 import { BsList } from "react-icons/bs";
-import { useRouter } from "next/navigation";
 
 function pathsMatch(path1, path2) {
-  // Check if path1 or path2 is undefined
   if (!path1 || !path2) {
     return false;
   }
-
-  // remove trailing slash
-  path1 = path1.replace(/\/$/, "");
-  path2 = path2.replace(/\/$/, "");
-
-  return path1 === path2;
-}
-
-function SubMenu({ subRoutes, pathName, isOpen, isMainActive }) {
-  return (
-    <div className={clsx("d-flex flex-row", !isOpen && "d-none", isMainActive && "active-submenu")}>
-      {subRoutes.map((subRoute) => (
-        <Nav.Item key={subRoute.path}>
-          <Link
-            href={subRoute.path || "#"}
-            className={clsx("nav-link", "submenu", pathsMatch(pathName, subRoute.path) && "active")}>
-            {subRoute.title}
-          </Link>
-        </Nav.Item>
-      ))}
-    </div>
-  );
+  return path1.replace(/\/$/, "") === path2.replace(/\/$/, "");
 }
 
 function isRouteActive(route, pathName) {
   if (route.path && pathsMatch(pathName, route.path)) {
     return true;
   }
-
-  if (route.subRoutes) {
-    const isSubRouteActive = route.subRoutes.some((subRoute) => {
-      const isActive = pathsMatch(pathName, subRoute.path);
-
-      return isActive;
-    });
-
-    if (isSubRouteActive) {
-      return true;
-    }
-  }
-
-  return false;
+  return route.subRoutes?.some((subRoute) => pathsMatch(pathName, subRoute.path)) ?? false;
 }
 
-// Function to render routes
-function renderRoutes({ routes, pathName, openSubmenu, handleOpenSubmenu, handleCloseSubmenu, isMobileView }) {
-  return routes.map((route) => (
-    <div key={route.path || route.title}>
-      {route.subRoutes.length == 0 ? (
-        <Nav.Item className="">
-          <Link
-            href={route.path}
-            className={clsx("nav-link", isRouteActive(route, pathName) && "nav-menu-active", "pointer-cursor")}
-            onClick={() => {
-              // Add the 'nav-menu-active' class to the clicked item
-              document.querySelectorAll(".navbar-nav .nav-link .nav-menu-active").forEach((link) => {
-                link.classList.remove("nav-menu-active");
-              });
-
-              const currentLink = document.querySelector(`.nav-item a[href="${route.path}"]`);
-
-              if (currentLink) {
-                currentLink.classList.add("nav-menu-active");
-              }
-              handleCloseSubmenu();
-            }}>
-            {route.title}
-          </Link>
-        </Nav.Item>
-      ) : (
-        <div className="nav-item">
-          <div
-            className={clsx(
-              "nav-link",
-              (openSubmenu === route.title || openSubmenu === route.subRoutes.title || isRouteActive(route, pathName)) &&
-                "nav-menu-active",
-              "pointer-cursor"
-            )}
-            onClick={(e) => {
-              handleOpenSubmenu(e, route.title, route.subRoutes);
-              // Unhighlight all other navbar items with a path
-              document.querySelectorAll(".navbar-nav .nav-link.nav-menu-active").forEach((link) => {
-                link.classList.remove("nav-menu-active");
-              });
-            }}>
-            {route.title}
-          </div>
-          {route.subRoutes && isMobileView && (
-            <div className="submenu">
-              <SubMenu
-                subRoutes={route.subRoutes}
-                pathName={pathName}
-                // activeSubmenu={openSubmenu === route.title}
-                // onSubmenuClick={(path) => handleOpenSubmenu(null, path)}
-                isOpen={openSubmenu === route.title || isRouteActive(route, pathName)}
-                isMainActive={isRouteActive(route, pathName)}
-              />
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  ));
-}
-
-// Main AppNavbar component
 export default function AppNavbar({ routes = [] }) {
   const pathName = usePathname();
-  const [openSubmenu, setOpenSubmenu] = useState(null);
-  const [isMobileView, setIsMobileView] = useState(false);
-  const router = useRouter(); // Move the useRouter hook to the main component
-  const handleSubmenuClick = (path) => {
-    router.push(path);
-  };
-
-  const handleOpenSubmenu = (event, title, subRoutes) => {
-    event.preventDefault();
-    setOpenSubmenu((prevOpenSubmenu) => {
-      // Set the first subRoute as the default open submenu
-      handleSubmenuClick(subRoutes[0].path);
-      return title;
-    });
-  };
-
-  const handleCloseSubmenu = () => {
-    setOpenSubmenu(null);
-  };
-
-  // Check for mobile view
-  React.useEffect(() => {
-    const handleResize = () => {
-      setIsMobileView(window.innerWidth <= 768); // Adjust the breakpoint as needed
-    };
-
-    handleResize(); // Set initial view
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
+  const router = useRouter();
+  const [openMenu, setOpenMenu] = useState(null);
 
   return (
     <div>
@@ -173,52 +44,51 @@ export default function AppNavbar({ routes = [] }) {
       {/* Main Navbar */}
       <Navbar bg="dark" data-bs-theme="dark" className="text-uppercase font-title" expand="md">
         <Container>
-          {/* Navbar Brand and Toggle */}
           <Navbar.Toggle aria-controls="navbar-nav" className="px-0 py-3 text-uppercase">
             <BsList className="me-1" />
             Menu
           </Navbar.Toggle>
-          {/* Navbar Content */}
           <Navbar.Collapse id="navbar-nav" className="align-items-stretch">
             <Nav className="me-auto">
-              {/* Render routes */}
-              {renderRoutes({
-                routes,
-                pathName,
-                openSubmenu,
-                handleOpenSubmenu,
-                handleCloseSubmenu,
-                isMobileView, // Pass isMobileView prop
-              })}
+              {routes.map((route) =>
+                route.subRoutes?.length ? (
+                  <NavDropdown
+                    key={route.title}
+                    id={`nav-dropdown-${route.title}`}
+                    active={isRouteActive(route, pathName)}
+                    show={openMenu === route.title}
+                    onMouseEnter={() => setOpenMenu(route.title)}
+                    onMouseLeave={() => setOpenMenu(null)}
+                    onToggle={(isOpen) => setOpenMenu(isOpen ? route.title : null)}
+                    title={
+                      // Clicking the label navigates to the first sub-route while hover reveals the menu.
+                      <span onClick={() => router.push(route.subRoutes[0].path)}>{route.title}</span>
+                    }>
+                    {route.subRoutes.map((subRoute) => (
+                      <NavDropdown.Item
+                        key={subRoute.path}
+                        as={Link}
+                        href={subRoute.path}
+                        active={pathsMatch(pathName, subRoute.path)}
+                        onClick={() => setOpenMenu(null)}>
+                        {subRoute.title}
+                      </NavDropdown.Item>
+                    ))}
+                  </NavDropdown>
+                ) : (
+                  <Nav.Link
+                    key={route.path}
+                    as={Link}
+                    href={route.path}
+                    active={isRouteActive(route, pathName)}>
+                    {route.title}
+                  </Nav.Link>
+                )
+              )}
             </Nav>
           </Navbar.Collapse>
         </Container>
       </Navbar>
-
-      {/* Subnavbar */}
-      <div className="submenu-border">
-        <div className="text-uppercase font-title">
-          <Container className="">
-            <Nav className="me-auto">
-              {/* Render submenus */}
-              {routes.map((route) => (
-                <div key={route.title}>
-                  {route.subRoutes && (
-                    <div className="submenu">
-                      <SubMenu
-                        subRoutes={route.subRoutes}
-                        pathName={pathName}
-                        isOpen={openSubmenu === route.title || isRouteActive(route, pathName)}
-                        isMainActive={isRouteActive(route, pathName)}
-                      />
-                    </div>
-                  )}
-                </div>
-              ))}
-            </Nav>
-          </Container>
-        </div>
-      </div>
     </div>
   );
 }
