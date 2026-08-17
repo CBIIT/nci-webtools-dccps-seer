@@ -1,4 +1,5 @@
 library(jsonlite)
+library(parallel)
 
 calculateJoinpoint <- function(inputFolder, outputFolder) {
     library(JPSurv)
@@ -319,18 +320,45 @@ relabelData <- function(FitList, params) {
     })
 }
 
+getTrendCores <- function(n) {
+    requested <- suppressWarnings(as.integer(Sys.getenv("JPSURV_TREND_CORES", "")))
+    avail <- parallel::detectCores()
+    if (is.na(avail) || avail < 1) avail <- 1
+    if (is.na(requested) || requested < 1) requested <- avail
+    max(1, min(requested, n, avail))
+}
+
+stopIfMclapplyErrors <- function(results) {
+    isErr <- vapply(results, function(x) inherits(x, "error") || inherits(x, "try-error"), logical(1))
+    if (any(isErr)) {
+        messages <- vapply(results[isErr], function(e) {
+            if (inherits(e, "error")) conditionMessage(e) else as.character(e)
+        }, character(1))
+        stop(paste(unique(messages), collapse = "; "), call. = FALSE)
+    }
+    invisible(results)
+}
+
 joinpointTrends <- function(params, outputFolder) {
     library(JPSurv)
     load(file.path(outputFolder, paste0(params$cohortIndex, ".RData")))
-    trends <- lapply(model$FitList, function(fit) {
-        if (params$type == "surv") {
-            survTrend <- aapc.multiints(fit, type = "AbsChgSur", int.select = unique(fit$predicted$Interval))
-            list("survTrend" = survTrend)
-        } else if (params$type == "death") {
-            deathTrend <- aapc.multiints(fit, type = "RelChgHaz", int.select = unique(fit$predicted$Interval))
-            list("deathTrend" = deathTrend)
-        }
-    })
+    fits <- model$FitList
+    if (is.null(fits)) fits <- list()
+    trends <- parallel::mclapply(fits, function(fit) {
+        tryCatch(
+            {
+                if (params$type == "surv") {
+                    survTrend <- aapc.multiints(fit, type = "AbsChgSur", int.select = unique(fit$predicted$Interval))
+                    list("survTrend" = survTrend)
+                } else if (params$type == "death") {
+                    deathTrend <- aapc.multiints(fit, type = "RelChgHaz", int.select = unique(fit$predicted$Interval))
+                    list("deathTrend" = deathTrend)
+                }
+            },
+            error = function(e) e
+        )
+    }, mc.cores = getTrendCores(length(fits)), mc.preschedule = FALSE)
+    stopIfMclapplyErrors(trends)
     trends
 }
 
@@ -339,24 +367,67 @@ calendarTrends <- function(params, outputFolder) {
     library(JPSurv)
     # load previous calculated model
     load(file.path(outputFolder, paste0(params$cohortIndex, ".RData")))
-    trends <- list()
+    yearRange <- unlist(params$yearRange)
+
     if (params$useRelaxModel) {
-        for (cutpoint in 1:length(model$all.results)) {
-            uncond <- model$all.results[[cutpoint]]$fit.uncond
-            cond <- model$all.results[[cutpoint]]$fit.cond
-            trends$uncond[[cutpoint]] <- aapc.multiints(uncond, type = "AbsChgSur", int.select = unique(uncond$predicted$Interval), ACS.range = unlist(params$yearRange), ACS.out = "user")
-            if (!is.null(cond)) {
-                trends$cond[[cutpoint]] <- aapc.multiints(cond, type = "AbsChgSur", int.select = unique(cond$predicted$Interval), ACS.range = unlist(params$yearRange), ACS.out = "user")
+        tasks <- list()
+        for (cutpoint in seq_along(model$all.results)) {
+            tasks[[length(tasks) + 1]] <- list(cutpoint = cutpoint, kind = "uncond")
+            if (!is.null(model$all.results[[cutpoint]]$fit.cond)) {
+                tasks[[length(tasks) + 1]] <- list(cutpoint = cutpoint, kind = "cond")
             }
         }
-    } else {
-        for (fitIndex in 1:length(model$FitList)) {
-            fit <- model$FitList[[fitIndex]]
-            range <- unlist(params$yearRange)
-            trends[[fitIndex]] <- aapc.multiints(fit, type = "AbsChgSur", int.select = unique(fit$predicted$Interval), ACS.range = unlist(params$yearRange), ACS.out = "user")
+
+        results <- parallel::mclapply(tasks, function(task) {
+            tryCatch(
+                {
+                    fit <- if (task$kind == "uncond") {
+                        model$all.results[[task$cutpoint]]$fit.uncond
+                    } else {
+                        model$all.results[[task$cutpoint]]$fit.cond
+                    }
+                    aapc.multiints(
+                        fit,
+                        type = "AbsChgSur",
+                        int.select = unique(fit$predicted$Interval),
+                        ACS.range = yearRange,
+                        ACS.out = "user"
+                    )
+                },
+                error = function(e) e
+            )
+        }, mc.cores = getTrendCores(length(tasks)), mc.preschedule = FALSE)
+        stopIfMclapplyErrors(results)
+
+        trends <- list()
+        for (i in seq_along(tasks)) {
+            task <- tasks[[i]]
+            if (task$kind == "uncond") {
+                trends$uncond[[task$cutpoint]] <- results[[i]]
+            } else {
+                trends$cond[[task$cutpoint]] <- results[[i]]
+            }
         }
+        trends
+    } else {
+        trends <- parallel::mclapply(seq_along(model$FitList), function(fitIndex) {
+            tryCatch(
+                {
+                    fit <- model$FitList[[fitIndex]]
+                    aapc.multiints(
+                        fit,
+                        type = "AbsChgSur",
+                        int.select = unique(fit$predicted$Interval),
+                        ACS.range = yearRange,
+                        ACS.out = "user"
+                    )
+                },
+                error = function(e) e
+            )
+        }, mc.cores = getTrendCores(length(model$FitList)), mc.preschedule = FALSE)
+        stopIfMclapplyErrors(trends)
+        trends
     }
-    trends
 }
 
 # calculate jp, calendar, or both trends
