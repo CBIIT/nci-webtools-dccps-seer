@@ -26,8 +26,36 @@ export async function submit(id, params, data) {
   return await axios.post(`/api/submit/${id}`, { params, data });
 }
 
+export async function submitTrends(id, params) {
+  return (await axios.post(`/api/trends/${id}`, params)).data;
+}
+
+export async function fetchTrendStatus(id, statusFile) {
+  return (await axios.get(`/api/data/output/${id}/${statusFile}?t=${Date.now()}`)).data;
+}
+
+export async function fetchTrendResults(id, resultFile) {
+  return (await axios.get(`/api/data/output/${id}/${resultFile}?t=${Date.now()}`)).data;
+}
+
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export async function calculateTrends(id, params) {
-  return await axios.post(`/api/trends/${id}`, params);
+  const { statusFile, resultFile, ...rest } = await submitTrends(id, params);
+  let current = rest;
+
+  while (current.status === "SUBMITTED" || current.status === "IN_PROGRESS") {
+    await delay(5000);
+    current = await fetchTrendStatus(id, statusFile);
+  }
+
+  if (current.status === "FAILED") {
+    throw new Error(current.error || "Trend calculation failed");
+  }
+
+  return { data: await fetchTrendResults(id, resultFile) };
 }
 
 export async function recalculateConditional(id, params) {

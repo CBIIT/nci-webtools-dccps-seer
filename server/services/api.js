@@ -6,7 +6,7 @@ import multer from "multer";
 import path from "path";
 import DiskStorage from "./storage.js";
 import { logRequests, logErrors, logFiles, handleValidationErrors, logForbiddenErrors } from "./middleware.js";
-import { getTrends, recalculateConditional } from "../jpsurv/jpsurv.js";
+import { submitTrends, recalculateConditional } from "../jpsurv/jpsurv.js";
 import { submit } from "./workers.js";
 import { exportWorkspace, importWorkspace } from "./workspace.js";
 
@@ -42,7 +42,7 @@ export function createApi(env) {
   });
 
   router.post("/trends/:id", validate, handleValidationErrors, async (req, res) => {
-    res.json(await getTrends({ ...req.body, id: req.params.id }, req.app.locals.logger));
+    res.json(await submitTrends({ ...req.body, id: req.params.id }, req.app.locals.logger));
   });
 
   router.post("/recalculateConditional/:id", validate, handleValidationErrors, async (req, res) => {

@@ -1,6 +1,6 @@
 import path from "path";
 import r from "r-wrapper";
-import { readJson, writeJson } from "../services/utils.js";
+import { mkdirs, readJson, writeJson } from "../services/utils.js";
 import { sendNotification } from "../services/notifications.js";
 
 export async function jpsurv(params, logger, env) {
@@ -78,6 +78,66 @@ export async function joinpointConditional(params, logger, env) {
 
 export async function getTrends(params, logger, env = process.env) {
   return await trends(params, logger, env);
+}
+
+function trendVariant(params) {
+  const parts = [];
+  if (params.jpTrend) parts.push("jp");
+  if (params.calendarTrend) {
+    const [start, end] = params.yearRange ?? [];
+    parts.push(`calendar-${start}-${end}`);
+  }
+  return parts.join("_") || "trend";
+}
+
+function getTrendPaths(params, env) {
+  const relDir = path.posix.join("trends", params.type, String(params.cohortIndex), trendVariant(params));
+  const outputFolder = path.resolve(env.OUTPUT_FOLDER, params.id);
+  return {
+    statusFile: path.posix.join(relDir, "status.json"),
+    resultFile: path.posix.join(relDir, "result.json"),
+    statusFilePath: path.resolve(outputFolder, relDir, "status.json"),
+    resultFilePath: path.resolve(outputFolder, relDir, "result.json"),
+  };
+}
+
+const ACTIVE_TREND_STATUSES = ["SUBMITTED", "IN_PROGRESS", "COMPLETED"];
+
+export async function submitTrends(params, logger, env = process.env) {
+  const { statusFile, resultFile, statusFilePath, resultFilePath } = getTrendPaths(params, env);
+  await mkdirs([path.dirname(statusFilePath)]);
+
+  const existing = await readJson(statusFilePath);
+  if (existing && ACTIVE_TREND_STATUSES.includes(existing.status)) {
+    return { status: existing.status, statusFile, resultFile };
+  }
+
+  await writeJson(statusFilePath, { status: "SUBMITTED", submittedAt: new Date() });
+  runTrends(params, statusFilePath, resultFilePath, logger, env).catch(console.error);
+  return { status: "SUBMITTED", statusFile, resultFile };
+}
+
+export async function runTrends(params, statusFilePath, resultFilePath, logger, env = process.env) {
+  const prevStatus = (await readJson(statusFilePath)) || {};
+  const start = new Date();
+
+  await writeJson(statusFilePath, { ...prevStatus, status: "IN_PROGRESS" });
+
+  try {
+    const result = await getTrends(params, logger, env);
+    await writeJson(resultFilePath, result);
+    await writeJson(statusFilePath, { ...prevStatus, status: "COMPLETED", done: new Date() });
+  } catch (error) {
+    logger.error(error);
+    await writeJson(statusFilePath, {
+      ...prevStatus,
+      status: "FAILED",
+      done: new Date(),
+      error: error.message,
+    });
+  } finally {
+    logger.info(`Trends duration: ${(new Date() - start) / 1000} seconds`);
+  }
 }
 
 export async function recalculateConditional(params, logger, env = process.env) {
