@@ -9,11 +9,12 @@ import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { usePathname } from "next/navigation";
+import { FaHome } from "react-icons/fa";
 import "./styles/main.scss";
 
 export default function RootLayout({ children }) {
   const routes = [
-    // { title: "Home", path: "/", subRoutes: [] },
+    { title: "Home", path: "/", icon: <FaHome aria-hidden="true" />, subRoutes: [] },
     { title: "JPSurv", path: "/jpsurv", subRoutes: [] },
     { title: "CanSurv", path: "/cansurv", subRoutes: [] },
     { title: "RecurRisk", path: "/recurrence", subRoutes: [] },

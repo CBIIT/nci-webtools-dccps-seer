@@ -30,13 +30,10 @@ export default function AppNavbar({ routes = [] }) {
   return (
     <div>
       <div className="bg-primary">
-        <Container
-          style={{
-            background: `url('https://surveillance.cancer.gov/images/dccps_logo.png') right -5px no-repeat`,
-          }}>
+        <Container>
           <h4 className="py-1">
             <Link href="/" title="JPSurv Home" className="text-white text-decoration-none">
-              Surveillance Research Program
+              Survival Stats Tools
             </Link>
           </h4>
         </Container>
@@ -80,8 +77,9 @@ export default function AppNavbar({ routes = [] }) {
                     key={route.path}
                     as={Link}
                     href={route.path}
-                    active={isRouteActive(route, pathName)}>
-                    {route.title}
+                    active={isRouteActive(route, pathName)}
+                    aria-label={route.icon ? route.title : undefined}>
+                    {route.icon ?? route.title}
                   </Nav.Link>
                 )
               )}
