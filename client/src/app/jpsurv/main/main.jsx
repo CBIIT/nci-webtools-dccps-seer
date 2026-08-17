@@ -131,6 +131,7 @@ export default function AnalysisMain({ id }) {
                   params={params}
                   cohortIndex={cohortIndex}
                   fitIndex={fitIndex}
+                  cutpointIndex={cutpointIndex}
                   conditional={useConditional ? conditional : null}
                   cluster={cluster}
                   precision={precision}

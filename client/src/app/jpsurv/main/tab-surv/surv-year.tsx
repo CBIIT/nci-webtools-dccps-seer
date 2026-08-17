@@ -20,6 +20,7 @@ export default function SurvivalVsYear({
   params,
   cohortIndex,
   fitIndex,
+  cutpointIndex,
   conditional,
   cluster,
   precision,
@@ -68,7 +69,7 @@ export default function SurvivalVsYear({
   const trendQueryData = queryClient.getQueryData(survTrendQueryKey);
   const survTrend = useMemo(() => {
     const survTrendByFit = (trendQueryData as TrendQueryData)?.data?.jpTrend?.[fitIndex]?.survTrend;
-    return survTrendByFit
+    return Array.isArray(survTrendByFit)
       ? survTrendByFit
           .reduce((acc: TrendDataPoint[], ar: TrendDataPoint[]) => [...acc, ...ar], [])
           .filter((e: TrendDataPoint) => intervals.includes(e.interval))
@@ -79,16 +80,17 @@ export default function SurvivalVsYear({
     const calendarTrend = (trendQueryData as TrendQueryData)?.data?.calendarTrend as any;
     if (!calendarTrend) return [];
 
+    // relax model trends are indexed by cutpoint (1-based cutpoint_index), not the joinpoint fit
     const trendArray: TrendDataPoint[][] | undefined = params.useRelaxModel
-      ? calendarTrend[cluster!]?.[fitIndex]
+      ? calendarTrend[cluster!]?.[(cutpointIndex ?? 1) - 1]
       : calendarTrend[fitIndex];
 
-    if (!trendArray) return [];
+    if (!Array.isArray(trendArray) || trendArray.length === 0) return [];
 
     return trendArray
       .reduce((acc: TrendDataPoint[], ar: TrendDataPoint[]) => [...acc, ...ar], [])
       .filter((e: TrendDataPoint) => intervals.includes(e.interval));
-  }, [trendQueryData, intervals, fitIndex, cluster, params.useRelaxModel]);
+  }, [trendQueryData, intervals, fitIndex, cutpointIndex, cluster, params.useRelaxModel]);
 
   const observedHeader = isRecalcCond ? "observed" : params?.observed;
   const observedSeHeader = isRecalcCond
@@ -174,7 +176,7 @@ export default function SurvivalVsYear({
                         label="Between Joinpoints"
                         aria-label="Between Joinpoints"
                         type="checkbox"
-                        disabled={!!conditional}
+                        disabled={!!conditional || !!isFetching}
                       />
                     </Form.Group>
                   </Col>
@@ -186,7 +188,7 @@ export default function SurvivalVsYear({
                         label="Between Calendar Years of Diagnosis"
                         aria-label="Between Calendar Years of Diagnosis"
                         type="checkbox"
-                        disabled={!!conditional}
+                        disabled={!!conditional || !!isFetching}
                       />
                     </Form.Group>
                   </Col>
@@ -198,7 +200,7 @@ export default function SurvivalVsYear({
                           valueAsNumber: true,
                           required: calendarTrend ? "Required" : false,
                         })}
-                        disabled={!calendarTrend}
+                        disabled={!calendarTrend || !!isFetching}
                         isInvalid={!!errors?.trendStart}>
                         {yearOptions.map((year) => (
                           <option key={year} value={+year}>
@@ -221,7 +223,7 @@ export default function SurvivalVsYear({
                             value > form.trendStart ||
                             `'To' Must be greater than ${+form.trendStart + firstYear}`,
                         })}
-                        disabled={!calendarTrend}
+                        disabled={!calendarTrend || !!isFetching}
                         isInvalid={!!errors?.trendEnd}>
                         {yearOptions.map((year) => (
                           <option key={year} value={+year}>

@@ -34,6 +34,7 @@ export interface SurvivalVsYearProps {
   params: Params;
   cohortIndex: number;
   fitIndex: number;
+  cutpointIndex?: number;
   conditional?: DataPoint[];
   cluster?: number;
   precision: number;

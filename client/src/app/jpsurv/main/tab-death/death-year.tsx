@@ -62,7 +62,7 @@ export default function DeathVsYear({
 
   const deathTrend = useMemo(() => {
     const deathTrendByFit = (trendQueryData as TrendQueryData)?.data?.jpTrend?.[fitIndex]?.deathTrend;
-    return deathTrendByFit
+    return Array.isArray(deathTrendByFit)
       ? deathTrendByFit
           .reduce((acc: TrendDataPoint[], ar: TrendDataPoint[]) => [...acc, ...ar], [])
           .filter((e: TrendDataPoint) => intervalsD.includes(e.interval))
@@ -135,7 +135,7 @@ export default function DeathVsYear({
                     label="Between Joinpoints"
                     aria-label="Between Joinpoints"
                     type="checkbox"
-                    disabled={!!conditional}
+                    disabled={!!conditional || !!isFetching}
                   />
                 </Form.Group>
               </Col>
