@@ -100,7 +100,7 @@ export default function AnalysisForm({ id }) {
         if (inputType === "seer") {
           if (!dictionaryFile || !dataFile) {
             // invalid seer file selection - clear any previously parsed data
-            setState({ seerData: {} });
+            if (Object.keys(useStore.getState().seerData).length) setState({ seerData: {} });
             return;
           }
           // skip re-parsing if the same files are already loaded
