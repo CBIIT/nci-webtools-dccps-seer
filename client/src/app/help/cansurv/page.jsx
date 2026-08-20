@@ -5,7 +5,7 @@ export default function CanSurvHelp() {
   return (
     <Container className="py-3">
       <article className="shadow p-4 rounded">
-        <h2 className="text-primary">RecurRisk Help</h2>
+        <h2 className="text-primary">CanSurv Help</h2>
         <p>
           CanSurv has been developed to analyze population-based survival data. For grouped data, it can fit both
           standard survival models and mixture cure survival models.
