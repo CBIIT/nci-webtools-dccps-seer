@@ -86,7 +86,19 @@ export default function Report({ data, seerData, precision, stratumIndex = 0 }) 
       <Row>
         <Col>
           <h4>Final Estimates and Tests</h4>
-          <Table data={fit.fitlist.estimates} columns={columnEstimates} size="sm" />
+          <Table
+            data={fit.fitlist.estimates}
+            columns={columnEstimates}
+            size="sm"
+            emptyMessage={
+              <div>
+                CanSurv has failed to converge. Please review your data and/or model inputs to ensure that they have
+                been entered correctly. If further issues persist, please refer to the CanSurv Help Page (link to the
+                tool Help page) or email{" "}
+                <a href="mailto:NCIJPSurvWebAdmin@mail.nih.gov">NCIJPSurvWebAdmin@mail.nih.gov</a>.
+              </div>
+            }
+          />
           <Table data={loglikeTable} columns={columnLoglike} size="sm" />
         </Col>
       </Row>
