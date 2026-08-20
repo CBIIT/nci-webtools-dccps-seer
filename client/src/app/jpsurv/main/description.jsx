@@ -70,7 +70,7 @@ export default function Instructions() {
             a-Statistics in Society. 2009;172:405-25.
           </p>
 
-          <Link aria-label="Help" href="/help" title="Help for Joinpoint Model for Relative Survival">
+          <Link aria-label="Help" href="/help/jpsurv" title="Help for Joinpoint Model for Relative Survival">
             Help for Joinpoint Model for Relative Survival
           </Link>
         </Col>
