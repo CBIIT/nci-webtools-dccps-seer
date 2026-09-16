@@ -1,5 +1,4 @@
-import path from "path";
-import { mkdirs, readJson, writeJson } from "./utils.js";
+import { assertValidId, mkdirs, readJson, resolveWithin, writeJson } from "./utils.js";
 import ECS, { ECSClient, RunTaskCommand } from "@aws-sdk/client-ecs";
 import { createLogger } from "./logger.js";
 import { jpsurv } from "../jpsurv/jpsurv.js";
@@ -15,12 +14,12 @@ import { recurrence } from "../recurrence/recurrence.js";
  * @returns {Promise<object>} Job status object containing id, status, and submittedAt.
  */
 export async function submit(params, data, env = process.env) {
-  const { id } = params;
-  const inputFolder = path.resolve(env.INPUT_FOLDER, id);
-  const outputFolder = path.resolve(env.OUTPUT_FOLDER, id);
-  const paramsFilePath = path.resolve(inputFolder, "params.json");
-  const dataFilePath = path.resolve(inputFolder, "data.json");
-  const statusFilePath = path.resolve(outputFolder, "status.json");
+  const id = assertValidId(params.id);
+  const inputFolder = resolveWithin(env.INPUT_FOLDER, id);
+  const outputFolder = resolveWithin(env.OUTPUT_FOLDER, id);
+  const paramsFilePath = resolveWithin(inputFolder, "params.json");
+  const dataFilePath = resolveWithin(inputFolder, "data.json");
+  const statusFilePath = resolveWithin(outputFolder, "status.json");
   await mkdirs([inputFolder, outputFolder]);
 
   const worker = getWorker(params.sendNotification ? env.WORKER_TYPE : "local");
@@ -75,7 +74,8 @@ export async function runAnalysis(params, logger, env) {
  * @returns
  */
 export async function runLocalWorker(id, env = process.env) {
-  const paramsFilePath = path.resolve(env.INPUT_FOLDER, id, "params.json");
+  assertValidId(id);
+  const paramsFilePath = resolveWithin(env.INPUT_FOLDER, id, "params.json");
   const params = await readJson(paramsFilePath);
   const logger = createLogger(`${params.worker} - ${id}`, env.LOG_LEVEL);
   return runAnalysis(params, logger, env);

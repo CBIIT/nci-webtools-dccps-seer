@@ -1,13 +1,12 @@
-import path from "path";
 import r from "r-wrapper";
-import { readJson, writeJson } from "../services/utils.js";
+import { assertValidId, readJson, resolveWithin, writeJson } from "../services/utils.js";
 import { sendNotification } from "../services/notifications.js";
 
 export async function cansurv(params, logger, env) {
-  const id = params.id;
-  const inputFolder = path.resolve(env.INPUT_FOLDER, id);
-  const outputFolder = path.resolve(env.OUTPUT_FOLDER, id);
-  const statusFilePath = path.resolve(outputFolder, "status.json");
+  const id = assertValidId(params.id);
+  const inputFolder = resolveWithin(env.INPUT_FOLDER, id);
+  const outputFolder = resolveWithin(env.OUTPUT_FOLDER, id);
+  const statusFilePath = resolveWithin(outputFolder, "status.json");
   const prevStatus = await readJson(statusFilePath);
   const submittedAt = new Date(prevStatus.submittedAt).toDateString();
 

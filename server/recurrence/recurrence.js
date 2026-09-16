@@ -1,5 +1,4 @@
-import path from "path";
-import { readJson, writeJson } from "../services/utils.js";
+import { assertValidId, readJson, resolveWithin, writeJson } from "../services/utils.js";
 import { sendNotification } from "../services/notifications.js";
 import { fileURLToPath } from "url";
 import r from "r-wrapper";
@@ -26,14 +25,15 @@ export const recurrenceFunctions = {
  * @param {NodeJS.ProcessEnv} env
  */
 export async function recurrence(params, logger, env) {
-  const { id, version, functionName, sendNotification: notify, email, jobName } = params;
+  const { version, functionName, sendNotification: notify, email, jobName } = params;
+  const id = assertValidId(params.id);
 
-  const inputFolder = path.resolve(env.INPUT_FOLDER, id);
-  const outputFolder = path.resolve(env.OUTPUT_FOLDER, id);
-  const statusFilePath = path.resolve(outputFolder, "status.json");
-  const resultsFilePath = path.resolve(outputFolder, "results.json");
+  const inputFolder = resolveWithin(env.INPUT_FOLDER, id);
+  const outputFolder = resolveWithin(env.OUTPUT_FOLDER, id);
+  const statusFilePath = resolveWithin(outputFolder, "status.json");
+  const resultsFilePath = resolveWithin(outputFolder, "results.json");
 
-  const data = await readJson(path.resolve(inputFolder, "data.json"));
+  const data = await readJson(resolveWithin(inputFolder, "data.json"));
   const prevStatus = await readJson(statusFilePath);
   const submittedAt = new Date(prevStatus?.submittedAt).toDateString();
 
@@ -43,7 +43,7 @@ export async function recurrence(params, logger, env) {
   try {
     const results = await recurrenceFunctions[version][functionName]({ ...params, ...data });
     await writeJson(resultsFilePath, results);
-    await writeJson(path.resolve(outputFolder, "manifest.json"), { data: "results.json" });
+    await writeJson(resolveWithin(outputFolder, "manifest.json"), { data: "results.json" });
     await writeJson(statusFilePath, { ...prevStatus, id, status: "COMPLETED", done: new Date() });
 
     if (notify) {

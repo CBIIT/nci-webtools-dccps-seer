@@ -1,5 +1,4 @@
-import path from "path";
-import { isMainModule, readJson } from "./services/utils.js";
+import { assertValidId, isMainModule, readJson, resolveWithin } from "./services/utils.js";
 import { createLogger } from "./services/logger.js";
 import { runAnalysis } from "./services/workers.js";
 
@@ -14,9 +13,8 @@ if (isMainModule(import.meta)) {
 }
 
 export async function main(argv = process.argv, env = process.env) {
-  const id = argv[2];
-  if (!id) throw new Error("Missing id");
-  const paramsFilePath = path.resolve(env.INPUT_FOLDER, id, "params.json");
+  const id = assertValidId(argv[2]);
+  const paramsFilePath = resolveWithin(env.INPUT_FOLDER, id, "params.json");
   const params = await readJson(paramsFilePath);
   const logger = createLogger(`${params.worker} - ${id}`, env.LOG_LEVEL);
   logger.info(params);

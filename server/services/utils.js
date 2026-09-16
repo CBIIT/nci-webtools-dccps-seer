@@ -6,9 +6,53 @@ import { promisify } from "util";
 import { execFile } from "child_process";
 import template from "lodash/template.js";
 import { pickBy } from "lodash-es";
+import { validate as isUuid } from "uuid";
 
 // promisified executeFile
 export const execFileAsync = promisify(execFile);
+
+/**
+ * Resolves path segments against a base directory and throws if the result escapes it.
+ * @param {string} baseDir
+ * @param {...string} segments
+ * @returns {string}
+ */
+export function resolveWithin(baseDir, ...segments) {
+  const base = path.resolve(baseDir);
+  const target = path.resolve(base, ...segments);
+  if (target !== base && !target.startsWith(base + path.sep)) {
+    throw new Error("Resolved path escapes the base directory");
+  }
+  return target;
+}
+
+/**
+ * Asserts that id is a valid UUID and returns it.
+ * @param {string} id
+ * @returns {string}
+ */
+export function assertValidId(id) {
+  if (!isUuid(id)) {
+    throw new Error("Invalid workspace id");
+  }
+  return id;
+}
+
+/**
+ * Returns a basename-only filename, rejecting empty / `.` / `..`.
+ * @param {string} name
+ * @returns {string}
+ */
+export function assertSafeFilename(name) {
+  if (typeof name !== "string" || name.length === 0) {
+    throw new Error("Invalid filename");
+  }
+  const safe = path.basename(name);
+  if (!safe || safe === "." || safe === "..") {
+    throw new Error("Invalid filename");
+  }
+  return safe;
+}
 
 /**
  * Checks if the current module is the main module.

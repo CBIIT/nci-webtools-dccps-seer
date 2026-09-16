@@ -1,13 +1,15 @@
 import path from "path";
 import r from "r-wrapper";
-import { mkdirs, readJson, writeJson } from "../services/utils.js";
+import { assertValidId, mkdirs, readJson, resolveWithin, writeJson } from "../services/utils.js";
 import { sendNotification } from "../services/notifications.js";
 
+const TREND_TYPES = new Set(["surv", "death"]);
+
 export async function jpsurv(params, logger, env) {
-  const id = params.id;
-  const inputFolder = path.resolve(env.INPUT_FOLDER, id);
-  const outputFolder = path.resolve(env.OUTPUT_FOLDER, id);
-  const statusFilePath = path.resolve(outputFolder, "status.json");
+  const id = assertValidId(params.id);
+  const inputFolder = resolveWithin(env.INPUT_FOLDER, id);
+  const outputFolder = resolveWithin(env.OUTPUT_FOLDER, id);
+  const statusFilePath = resolveWithin(outputFolder, "status.json");
   const prevStatus = await readJson(statusFilePath);
   const submittedAt = new Date(prevStatus.submittedAt).toDateString();
 
@@ -64,14 +66,14 @@ export async function jpsurv(params, logger, env) {
 }
 
 export async function trends(params, logger, env) {
-  const id = params.id;
-  const outputFolder = path.resolve(env.OUTPUT_FOLDER, id);
+  const id = assertValidId(params.id);
+  const outputFolder = resolveWithin(env.OUTPUT_FOLDER, id);
   return await r.async("jpsurv/jpsurv.R", "getTrends", { params, outputFolder });
 }
 
 export async function joinpointConditional(params, logger, env) {
-  const id = params.id;
-  const outputFolder = path.resolve(env.OUTPUT_FOLDER, id);
+  const id = assertValidId(params.id);
+  const outputFolder = resolveWithin(env.OUTPUT_FOLDER, id);
 
   return await r.async("jpsurv/jpsurv.R", "joinpointConditional", { params, outputFolder });
 }
@@ -85,19 +87,35 @@ function trendVariant(params) {
   if (params.jpTrend) parts.push("jp");
   if (params.calendarTrend) {
     const [start, end] = params.yearRange ?? [];
-    parts.push(`calendar-${start}-${end}`);
+    const startYear = Number(start);
+    const endYear = Number(end);
+    if (!Number.isFinite(startYear) || !Number.isFinite(endYear)) {
+      throw new Error("Invalid year range");
+    }
+    parts.push(`calendar-${startYear}-${endYear}`);
   }
   return parts.join("_") || "trend";
 }
 
 function getTrendPaths(params, env) {
-  const relDir = path.posix.join("trends", params.type, String(params.cohortIndex), trendVariant(params));
-  const outputFolder = path.resolve(env.OUTPUT_FOLDER, params.id);
+  const id = assertValidId(params.id);
+  if (!TREND_TYPES.has(params.type)) {
+    throw new Error("Invalid trend type");
+  }
+  const cohortIndex = Number(params.cohortIndex);
+  if (!Number.isInteger(cohortIndex) || cohortIndex < 0) {
+    throw new Error("Invalid cohort index");
+  }
+
+  const relDir = path.posix.join("trends", params.type, String(cohortIndex), trendVariant(params));
+  const outputFolder = resolveWithin(env.OUTPUT_FOLDER, id);
+  const statusFilePath = resolveWithin(outputFolder, relDir, "status.json");
+  const resultFilePath = resolveWithin(outputFolder, relDir, "result.json");
   return {
     statusFile: path.posix.join(relDir, "status.json"),
     resultFile: path.posix.join(relDir, "result.json"),
-    statusFilePath: path.resolve(outputFolder, relDir, "status.json"),
-    resultFilePath: path.resolve(outputFolder, relDir, "result.json"),
+    statusFilePath,
+    resultFilePath,
   };
 }
 

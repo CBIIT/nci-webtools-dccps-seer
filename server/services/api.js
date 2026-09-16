@@ -3,18 +3,18 @@ import { check } from "express-validator";
 import compression from "compression";
 import cors from "cors";
 import multer from "multer";
-import path from "path";
 import DiskStorage from "./storage.js";
 import { logRequests, logErrors, logFiles, handleValidationErrors, logForbiddenErrors } from "./middleware.js";
 import { submitTrends, recalculateConditional } from "../jpsurv/jpsurv.js";
 import { submit } from "./workers.js";
 import { exportWorkspace, importWorkspace } from "./workspace.js";
+import { assertSafeFilename, resolveWithin } from "./utils.js";
 
 export function createApi(env) {
   // define middleware
   const storage = new DiskStorage({
-    filename: (req, file) => file.originalname,
-    destination: (req) => path.resolve(env.INPUT_FOLDER, req.params.id),
+    filename: (req, file) => assertSafeFilename(file.originalname),
+    destination: (req) => resolveWithin(env.INPUT_FOLDER, req.params.id),
   });
   const upload = multer({ storage });
   const validate = check("id").isUUID();
@@ -38,7 +38,7 @@ export function createApi(env) {
   // });
 
   router.post("/submit/:id", validate, handleValidationErrors, async (req, res) => {
-    res.json(await submit(req.body.params, req.body.data));
+    res.json(await submit({ ...req.body.params, id: req.params.id }, req.body.data, env));
   });
 
   router.post("/trends/:id", validate, handleValidationErrors, async (req, res) => {
@@ -57,7 +57,7 @@ export function createApi(env) {
   });
 
   router.post("/import/:id", validate, handleValidationErrors, upload.single("files"), async (req, res) => {
-    res.json(await importWorkspace(req.params.id, req.file.originalname, env));
+    res.json(await importWorkspace(req.params.id, req.file.filename, env));
   });
 
   router.use(logForbiddenErrors());
