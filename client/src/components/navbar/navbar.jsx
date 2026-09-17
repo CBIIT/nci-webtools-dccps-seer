@@ -30,7 +30,10 @@ export default function AppNavbar({ routes = [] }) {
   return (
     <div>
       <div className="bg-primary">
-        <Container>
+        <Container
+          style={{
+            background: `url('https://surveillance.cancer.gov/images/dccps_logo.png') right -5px no-repeat`,
+          }}>
           <h4 className="py-1">
             <Link href="/" title="JPSurv Home" className="text-white text-decoration-none">
               Survival Stats Tools
