@@ -15,10 +15,6 @@ export default function GoogleAnalytics({ id }) {
         gtag("config", "${id}");
       `}
       </Script>
-
-      <Script
-        src="https://assets.adobedtm.com/6a4249cd0a2c/785de09de161/launch-70d67a6a40a8.min.js"
-        strategy="afterInteractive"></Script>
     </>
   );
 }
