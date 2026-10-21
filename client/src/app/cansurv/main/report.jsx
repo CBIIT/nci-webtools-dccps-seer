@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import Table from "@/components/table";
 import { createColumnHelper } from "@tanstack/react-table";
 import { groupBy } from "lodash";
+import { Link } from "next/link";
 import { getValueToLabelMap } from "./controls";
 
 export default function Report({ data, seerData, precision, stratumIndex = 0 }) {
@@ -93,8 +94,8 @@ export default function Report({ data, seerData, precision, stratumIndex = 0 }) 
             emptyMessage={
               <div>
                 CanSurv has failed to converge. Please review your data and/or model inputs to ensure that they have
-                been entered correctly. If further issues persist, please refer to the CanSurv Help Page (link to the
-                tool Help page) or email{" "}
+                been entered correctly. If further issues persist, please refer to the{" "}
+                <Link href="/help/cansurv">CanSurv Help Page</Link> or email{" "}
                 <a href="mailto:NCIJPSurvWebAdmin@mail.nih.gov">NCIJPSurvWebAdmin@mail.nih.gov</a>.
               </div>
             }
