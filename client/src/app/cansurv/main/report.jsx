@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import Table from "@/components/table";
 import { createColumnHelper } from "@tanstack/react-table";
 import { groupBy } from "lodash";
-import { Link } from "next/link";
+import Link from "next/link";
 import { getValueToLabelMap } from "./controls";
 
 export default function Report({ data, seerData, precision, stratumIndex = 0 }) {
