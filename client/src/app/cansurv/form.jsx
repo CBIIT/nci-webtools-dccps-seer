@@ -71,7 +71,12 @@ export default function AnalysisForm({ id }) {
       // add dynamic fields for cohort variables
       setValue("covariates", []);
       cohortVariables.forEach(({ label, name, factors }) =>
-        append({ label, name, type: { by: true }, options: (factors ?? []).map((f) => ({ ...f, checked: true })) })
+        append({
+          label,
+          name,
+          type: { by: false, mu: false, sigma: false, cure: false },
+          options: (factors ?? []).map((f) => ({ ...f, checked: true })),
+        })
       );
     },
     [setValue, append]
@@ -169,31 +174,12 @@ export default function AnalysisForm({ id }) {
     const { checked } = e.target;
     setValue(key, checked);
 
-    const fieldIndex = key.split(".")[1];
-    const field = key.split(".").pop();
-
-    // "Categorical / Stratum" (by) and "Continuous" are mutually exclusive
+    const [, fieldIndex, , field] = key.split(".");
+    // mu, sigma, and cure are unavailable for stratum variables
     if (field === "by" && checked) {
-      setValue(`covariates.${fieldIndex}.type.continuous`, false);
       setValue(`covariates.${fieldIndex}.type.mu`, false);
       setValue(`covariates.${fieldIndex}.type.sigma`, false);
       setValue(`covariates.${fieldIndex}.type.cure`, false);
-    } else if (field === "continuous") {
-      if (checked) {
-        setValue(`covariates.${fieldIndex}.type.by`, false);
-      } else {
-        // mu, sigma, and cure only apply to continuous covariates
-        setValue(`covariates.${fieldIndex}.type.mu`, false);
-        setValue(`covariates.${fieldIndex}.type.sigma`, false);
-        setValue(`covariates.${fieldIndex}.type.cure`, false);
-      }
-    }
-
-    // automatically check stratum (by) if all other options are unchecked
-    const { continuous, mu, sigma, cure } = getValues(`covariates.${fieldIndex}.type`);
-
-    if (!continuous && !mu && !sigma && !cure) {
-      setValue(`covariates.${fieldIndex}.type.by`, true);
     }
   }
 
@@ -208,10 +194,10 @@ export default function AnalysisForm({ id }) {
   async function submitCalculation(formData) {
     const id = uuidv4();
     const getVariableOptions = (covariates) => {
-      let options = { cure: [], mu: [], sigma: [], continuous: [], by: [] };
+      const options = { cure: [], mu: [], sigma: [], continuous: [], by: [] };
       covariates.forEach((v) =>
-        Object.entries(v.type).forEach(([option, bool]) => {
-          if (bool) options[option].push(v.name);
+        ["by", "mu", "sigma", "cure"].forEach((option) => {
+          if (v.type?.[option]) options[option].push(v.name);
         })
       );
       return options;
@@ -221,7 +207,7 @@ export default function AnalysisForm({ id }) {
     // selected factor values per categorical/stratum variable; R filters rows to these (none checked => all)
     const byFactors = Object.fromEntries(
       formData.covariates
-        .filter((v) => v.type?.by && (v.options ?? []).length)
+        .filter((v) => (v.options ?? []).length)
         .map((v) => {
           const selected = v.options.filter((o) => o.checked);
           return [v.name, (selected.length ? selected : v.options).map((o) => o.value)];
@@ -570,65 +556,61 @@ export default function AnalysisForm({ id }) {
                       )}
                     </div>
                     <Form.Check
+                      checked
+                      disabled
+                      readOnly
+                      label={"Categorical"}
+                      id={`${label}.categorical`}
+                      type="checkbox"
+                    />
+                    <Form.Check
                       {...register(`covariates.${fieldIndex}.type.by`, {})}
                       checked={!!watch(`covariates.${fieldIndex}.type.by`)}
                       onChange={(e) => {
                         handleCheck(e, `covariates.${fieldIndex}.type.by`);
                       }}
-                      label={"Categorical / Stratum"}
+                      label={"Stratum"}
                       id={`${label}.by`}
                       name={`${label}.by`}
-                      type="radio"
+                      type="checkbox"
+                    />
+
+                    <Form.Check
+                      {...register(`covariates.${fieldIndex}.type.mu`, {
+                        disabled: !!watch(`covariates.${fieldIndex}.type.by`),
+                      })}
+                      onChange={(e) => {
+                        handleCheck(e, `covariates.${fieldIndex}.type.mu`);
+                      }}
+                      label={"Mu"}
+                      id={`${label}.mu`}
+                      name={`${label}.mu`}
+                      type="checkbox"
                     />
                     <Form.Check
-                      {...register(`covariates.${fieldIndex}.type.continuous`, {})}
-                      checked={!!watch(`covariates.${fieldIndex}.type.continuous`)}
+                      {...register(`covariates.${fieldIndex}.type.sigma`, {
+                        disabled: !!watch(`covariates.${fieldIndex}.type.by`),
+                      })}
                       onChange={(e) => {
-                        handleCheck(e, `covariates.${fieldIndex}.type.continuous`);
+                        handleCheck(e, `covariates.${fieldIndex}.type.sigma`);
                       }}
-                      label={"Continuous"}
-                      id={`${label}.continuous`}
-                      name={`${label}.continuous`}
-                      type="radio"
+                      label={"Sigma"}
+                      id={`${label}.sigma`}
+                      name={`${label}.sigma`}
+                      type="checkbox"
                     />
-                    <div className="ms-3">
-                      <Form.Check
-                        {...register(`covariates.${fieldIndex}.type.mu`, {
-                          disabled: !watch(`covariates.${fieldIndex}.type.continuous`),
-                        })}
-                        onChange={(e) => {
-                          handleCheck(e, `covariates.${fieldIndex}.type.mu`);
-                        }}
-                        label={"Mu"}
-                        id={`${label}.mu`}
-                        name={`${label}.mu`}
-                        type="checkbox"
-                      />
-                      <Form.Check
-                        {...register(`covariates.${fieldIndex}.type.sigma`, {
-                          disabled: !watch(`covariates.${fieldIndex}.type.continuous`),
-                        })}
-                        onChange={(e) => {
-                          handleCheck(e, `covariates.${fieldIndex}.type.sigma`);
-                        }}
-                        label={"Sigma"}
-                        id={`${label}.sigma`}
-                        name={`${label}.sigma`}
-                        type="checkbox"
-                      />
-                      <Form.Check
-                        {...register(`covariates.${fieldIndex}.type.cure`, {
-                          disabled: !watch(`covariates.${fieldIndex}.type.continuous`),
-                        })}
-                        onChange={(e) => {
-                          handleCheck(e, `covariates.${fieldIndex}.type.cure`);
-                        }}
-                        label={"Cure"}
-                        id={`${label}.cure`}
-                        name={`${label}.cure`}
-                        type="checkbox"
-                      />
-                    </div>
+                    <Form.Check
+                      {...register(`covariates.${fieldIndex}.type.cure`, {
+                        disabled: !!watch(`covariates.${fieldIndex}.type.by`),
+                      })}
+                      onChange={(e) => {
+                        handleCheck(e, `covariates.${fieldIndex}.type.cure`);
+                      }}
+                      label={"Cure"}
+                      id={`${label}.cure`}
+                      name={`${label}.cure`}
+                      type="checkbox"
+                    />
                   </Form.Group>
                 );
               })
