@@ -65,12 +65,6 @@ export default function AnalysisMain({ id }) {
     setState({ main: { ...main, fitIndex: index } });
   }
 
-  // periodically dispatch resize event to trigger plotly redraw
-  useEffect(() => {
-    setInterval(() => {
-      if (window) dispatchEvent(new Event("resize"));
-    }, 1000);
-  }, []);
   useEffect(() => {
     // if (jobStatus && jobStatus.status === "COMPLETED") {
     if (id) {
