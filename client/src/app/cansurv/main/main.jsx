@@ -38,12 +38,6 @@ export default function AnalysisMain({ id }) {
     queryFn: () => (jobStatus?.status === "COMPLETED" && manifest?.data ? fetchOutput(id, manifest.data) : null),
   });
 
-  // periodically dispatch resize event to trigger plotly redraw
-  useEffect(() => {
-    setInterval(() => {
-      if (window) dispatchEvent(new Event("resize"));
-    }, 1000);
-  }, []);
   useEffect(() => {
     // if (jobStatus && jobStatus.status === "COMPLETED") {
     if (id) {

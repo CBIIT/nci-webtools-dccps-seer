@@ -21,6 +21,7 @@ export default function SurvivalPlot({ data, layout, config, removeAnnotation })
               responsive: true,
               displaylogo: false,
               editable: true,
+              modeBarButtonsToRemove: ["sendDataToCloud"],
               toImageButtonOptions: {
                 format: "svg",
                 // filename: filename || divId,
