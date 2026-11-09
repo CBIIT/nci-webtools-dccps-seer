@@ -46,6 +46,7 @@ export const defaultState = {
   conditional: null,
   survTrendQueryKey: [],
   deathTrendQueryKey: [],
+  openReviewDataModal: false,
 };
 
 export const useStore = create((set) => ({

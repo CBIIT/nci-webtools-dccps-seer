@@ -20,6 +20,7 @@ export const defaultState = {
   seerData: {},
   results: [],
   openSidebar: true,
+  openReviewDataModal: false,
 };
 
 export const useStore = create((set) => ({

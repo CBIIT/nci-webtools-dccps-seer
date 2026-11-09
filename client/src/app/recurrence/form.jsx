@@ -280,11 +280,15 @@ export default function GroupDataForm({ id }) {
                 )}
               </Form.Group>
 
-              {(hasSeerStatData || hasCanSurvData) && seerData.seerStatDataFileNames && (
+              {(hasSeerStatData || hasCanSurvData) && (
                 <div className="mb-3">
-                  <small className="text-muted">
-                    <b>SEER*Stat:</b> {seerData.seerStatDataFileNames.join(", ")}
-                  </small>
+                  {seerData.seerStatDataFileNames && (
+                    <div>
+                      <small className="text-muted">
+                        <b>SEER*Stat:</b> {seerData.seerStatDataFileNames.join(", ")}
+                      </small>
+                    </div>
+                  )}
                   {seerData.canSurvDataFileName && (
                     <div>
                       <small className="text-muted">
@@ -292,6 +296,9 @@ export default function GroupDataForm({ id }) {
                       </small>
                     </div>
                   )}
+                  <Button className="p-0" variant="link" onClick={() => setState({ openReviewDataModal: true })}>
+                    Review Data
+                  </Button>
                 </div>
               )}
 

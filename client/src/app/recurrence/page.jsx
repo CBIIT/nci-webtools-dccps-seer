@@ -11,16 +11,20 @@ import { SidebarContainer, SidebarPanel, MainPanel } from "@/components/sidebar-
 import GroupDataForm from "./form";
 import { useStore } from "./store";
 import Main from "./main/main";
+import ReviewDataModal from "@/components/review-data-modal";
 
 export default function GroupPage() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
+  const setState = useStore((state) => state.setState);
   const openSidebar = useStore((state) => state.openSidebar);
   const toggleSidebar = useStore((state) => state.toggleSidebar);
   const storeId = useStore((state) => state.params.id);
   const resetMain = useStore((state) => state.resetMain);
+  const openReviewDataModal = useStore((state) => state.openReviewDataModal);
+  const seerData = useStore((state) => state.seerData);
 
   // Reset results panel when session id changes
   useEffect(() => {
@@ -60,6 +64,14 @@ export default function GroupPage() {
           </MainPanel>
         </SidebarContainer>
       </Row>
+      <ReviewDataModal
+        show={openReviewDataModal}
+        onHide={() => setState({ openReviewDataModal: false })}
+        datasets={[
+          { label: "SEER*Stat", data: seerData.seerStatData, dictionary: seerData.seerStatDictionary },
+          { label: "CanSurv", data: seerData.canSurvData },
+        ].filter((d) => d.data)}
+      />
     </Container>
   );
 }

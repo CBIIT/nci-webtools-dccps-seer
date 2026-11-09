@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
@@ -6,27 +6,46 @@ import Table from "react-bootstrap/Table";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
-import { useStore } from "./store";
-import { getValueToLabelMap } from "./main/controls";
 
-export default function ReviewDataModal() {
-  const setState = useStore((state) => state.setState);
-  const openReviewDataModal = useStore((state) => state.openReviewDataModal);
-  const seerData = useStore((state) => state.seerData);
+function getValueToLabelMap(dictionary) {
+  const map = {};
+  (dictionary ?? []).forEach((entry) => {
+    map[entry.name] = {};
+    (entry.factors ?? []).forEach((factor) => {
+      map[entry.name][factor.value] = factor.label;
+    });
+  });
+  return map;
+}
+
+/**
+ * Generic "Review Data" modal for previewing a tabular dataset, optionally with a
+ * SEER*Stat-style dictionary used to map coded values to labels.
+ *
+ * @param {boolean} show
+ * @param {() => void} onHide
+ * @param {Array<{label: string, data: Array<object>, dictionary?: Array<object>}>} datasets
+ */
+export default function ReviewDataModal({ show, onHide, datasets = [] }) {
   const [displayLines, setDisplayLines] = useState(20);
   const [showLabels, setShowLabels] = useState(true);
+  const [datasetIndex, setDatasetIndex] = useState(0);
   const columnHelper = createColumnHelper();
 
-  const handleClose = () => setState({ openReviewDataModal: false });
+  // reset the selected dataset if the modal is reopened or the available datasets change
+  useEffect(() => {
+    if (datasetIndex >= datasets.length) setDatasetIndex(0);
+  }, [datasets, datasetIndex]);
 
-  const seerStatData = seerData?.seerStatData || [];
-  const seerStatDictionary = seerData?.seerStatDictionary || [];
+  const dataset = datasets[datasetIndex] ?? {};
+  const data = dataset.data || [];
+  const dictionary = dataset.dictionary || [];
 
-  const valueToLabelMap = useMemo(() => getValueToLabelMap(seerStatDictionary), [seerStatDictionary]);
+  const valueToLabelMap = useMemo(() => getValueToLabelMap(dictionary), [dictionary]);
 
   const columns = useMemo(() => {
-    if (seerStatDictionary.length) {
-      return seerStatDictionary.map((entry) =>
+    if (dictionary.length) {
+      return dictionary.map((entry) =>
         columnHelper.accessor(entry.name, {
           header: entry.label || entry.name,
           cell: (info) => {
@@ -40,8 +59,8 @@ export default function ReviewDataModal() {
         })
       );
     }
-    if (seerStatData.length) {
-      return Object.keys(seerStatData[0]).map((key) =>
+    if (data.length) {
+      return Object.keys(data[0]).map((key) =>
         columnHelper.accessor(key, {
           header: key,
           cell: (info) => info.getValue(),
@@ -49,9 +68,10 @@ export default function ReviewDataModal() {
       );
     }
     return [];
-  }, [seerStatDictionary, seerStatData, showLabels, valueToLabelMap]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dictionary, data, showLabels, valueToLabelMap]);
 
-  const tableData = useMemo(() => seerStatData.slice(0, displayLines), [seerStatData, displayLines]);
+  const tableData = useMemo(() => data.slice(0, displayLines), [data, displayLines]);
 
   const table = useReactTable({
     data: tableData,
@@ -60,12 +80,26 @@ export default function ReviewDataModal() {
   });
 
   return (
-    <Modal show={openReviewDataModal} onHide={handleClose} size="xl">
+    <Modal show={show} onHide={onHide} size="xl">
       <Modal.Header closeButton>
         <Modal.Title>Review Data</Modal.Title>
       </Modal.Header>
       <Modal.Body className="bg-light">
         <Row>
+          {datasets.length > 1 && (
+            <Col sm="auto">
+              <Form.Group className="mb-3" controlId="reviewDataset">
+                <Form.Label className="fw-bold">Dataset</Form.Label>
+                <Form.Select value={datasetIndex} onChange={(e) => setDatasetIndex(Number(e.target.value))}>
+                  {datasets.map((e, i) => (
+                    <option key={e.label ?? i} value={i}>
+                      {e.label ?? `Dataset ${i + 1}`}
+                    </option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
+            </Col>
+          )}
           <Col sm="auto">
             <Form.Group className="mb-3" controlId="reviewDisplayLines">
               <Form.Label className="fw-bold">Display Lines</Form.Label>
@@ -79,20 +113,22 @@ export default function ReviewDataModal() {
               <Form.Text>Number of lines to preview from data</Form.Text>
             </Form.Group>
           </Col>
-          <Col sm="auto" className="d-flex align-items-center">
-            <Form.Group controlId="reviewShowLabels">
-              <Form.Check
-                type="checkbox"
-                label="Show Labels"
-                checked={showLabels}
-                onChange={(e) => setShowLabels(e.target.checked)}
-              />
-              <Form.Text>Uncheck to display original values</Form.Text>
-            </Form.Group>
-          </Col>
+          {dictionary.length > 0 && (
+            <Col sm="auto" className="d-flex align-items-center">
+              <Form.Group controlId="reviewShowLabels">
+                <Form.Check
+                  type="checkbox"
+                  label="Show Labels"
+                  checked={showLabels}
+                  onChange={(e) => setShowLabels(e.target.checked)}
+                />
+                <Form.Text>Uncheck to display original values</Form.Text>
+              </Form.Group>
+            </Col>
+          )}
         </Row>
         <div className="mb-2">
-          Showing {tableData.length} of {seerStatData.length} rows
+          Showing {tableData.length} of {data.length} rows
         </div>
         {tableData.length > 0 ? (
           <div style={{ maxHeight: "400px", overflow: "scroll" }}>
@@ -124,7 +160,7 @@ export default function ReviewDataModal() {
         )}
       </Modal.Body>
       <Modal.Footer className="bg-white">
-        <Button variant="secondary" onClick={handleClose}>
+        <Button variant="secondary" onClick={onHide}>
           Close
         </Button>
       </Modal.Footer>

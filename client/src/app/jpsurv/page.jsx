@@ -9,6 +9,7 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import AnalysisForm from "./form";
 import AnalysisMain from "./main/main";
+import ReviewDataModal from "@/components/review-data-modal";
 import { SidebarContainer, SidebarPanel, MainPanel } from "@/components/sidebar-container";
 import ConfigureDataModal from "./configure-data-modal";
 import { useStore } from "./store";
@@ -17,10 +18,13 @@ export default function Analysis(props) {
   const searchParams = use(props.searchParams);
   const router = useRouter();
   const pathname = usePathname();
+  const setState = useStore((state) => state.setState);
   const openSidebar = useStore((state) => state.openSidebar);
   const toggleSidebar = useStore((state) => state.toggleSidebar);
   const storedId = useStore((state) => state.params.id);
   const resetMain = useStore((state) => state.resetMain);
+  const openReviewDataModal = useStore((state) => state.openReviewDataModal);
+  const seerData = useStore((state) => state.seerData);
   const { id } = searchParams;
 
   // reset main state when id changes
@@ -61,6 +65,13 @@ export default function Analysis(props) {
         </SidebarContainer>
       </Row>
       <ConfigureDataModal />
+      <ReviewDataModal
+        show={openReviewDataModal}
+        onHide={() => setState({ openReviewDataModal: false })}
+        datasets={[
+          { label: "SEER*Stat", data: seerData.seerStatData, dictionary: seerData.seerStatDictionary },
+        ]}
+      />
     </Container>
   );
 }
