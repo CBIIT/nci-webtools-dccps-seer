@@ -89,11 +89,6 @@ export default function GroupDataForm({ id }) {
     return () => unsubscribe();
   }, [watch, setState]);
 
-  // Reset distantStageValue when stageVariable changes
-  useEffect(() => {
-    setValue("distantStageValue", "");
-  }, [stageVariable]);
-
   async function handleSeerStatDataFilesChange(e) {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
@@ -330,6 +325,8 @@ export default function GroupDataForm({ id }) {
                         setValue("canSurvDataFile", asFileList([cansurvFile]));
                         await handleSeerStatDataFilesChange({ target: { files: [dicFile, txtFile] } });
                         await handleCanSurvDataFileChange({ target: { files: [cansurvFile] } });
+                        setValue("stageVariable", "SEER_historic_stage_LRD");
+                        setValue("distantStageValue", 2);
                       } catch (err) {
                         console.error("Error loading example files:", err);
                       }
@@ -359,7 +356,12 @@ export default function GroupDataForm({ id }) {
             <Form.Group className="mb-4" controlId="stageVariable">
               <Form.Label className="required fw-bold">Stage Variable</Form.Label>
               <Form.Select
-                {...register("stageVariable", { required: "This field is required." })}
+                {...register("stageVariable", {
+                  required: "This field is required.",
+                  // Reset distant stage value only when the user changes the stage variable
+                  onChange: () => setValue("distantStageValue", ""),
+                })}
+                value={stageVariable ?? ""}
                 isInvalid={!!errors.stageVariable}>
                 <option value="" hidden>
                   No stage variable selected
@@ -379,6 +381,7 @@ export default function GroupDataForm({ id }) {
               <Form.Label className="required fw-bold">Distant Stage Value</Form.Label>
               <Form.Select
                 {...register("distantStageValue", { required: "This field is required." })}
+                value={distantStageValue ?? ""}
                 isInvalid={!!errors.distantStageValue}>
                 {!distantStageValue && (
                   <option value="" hidden>
