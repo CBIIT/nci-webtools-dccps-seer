@@ -3,8 +3,11 @@ import { useMemo } from "react";
 import { createColumnHelper } from "@tanstack/react-table";
 import Table from "@/components/table";
 import Button from "react-bootstrap/Button";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Tooltip from "react-bootstrap/Tooltip";
 import { FaDownload } from "react-icons/fa";
 import { downloadGroupResults } from "@/services/xlsx";
+import { getTableColumn } from "./table-columns";
 
 const DEFAULT_COLUMN_KEYS = [
   "followup",
@@ -37,18 +40,48 @@ function formatCell(value) {
   return String(value);
 }
 
+function ColumnHeader({ label, definition }) {
+  if (!definition) {
+    return <div className="mx-3">{label}</div>;
+  }
+  return (
+    <OverlayTrigger
+      placement="top"
+      trigger={["hover", "focus"]}
+      overlay={
+        <Tooltip id={`table-column-tooltip-${label}`} style={{ "--bs-tooltip-max-width": "28rem" }}>
+          {definition}
+        </Tooltip>
+      }>
+      <div
+        tabIndex="0"
+        className="mx-3"
+        style={{
+          whiteSpace: "normal",
+          maxWidth: "14rem",
+          textDecoration: "underline dotted",
+          textDecorationColor: "currentColor",
+        }}>
+        {label}
+      </div>
+    </OverlayTrigger>
+  );
+}
+
 function buildColumns(keys, columnLabels, cohortMaps) {
   const helper = createColumnHelper();
-  return keys.map((key) =>
-    helper.accessor(key, {
-      header: () => <div className="mx-3">{columnLabels[key] ?? key}</div>,
+  return keys.map((key) => {
+    const tableColumn = getTableColumn(key);
+    const label = tableColumn?.label ?? columnLabels[key] ?? key;
+    return helper.accessor(key, {
+      header: () => <ColumnHeader label={label} definition={tableColumn?.definition} />,
       cell: (info) => formatCell(info.getValue()),
+      meta: cohortMaps[key] ? { filterVariant: "select", filterLabel: label } : { filterLabel: label },
       ...(cohortMaps[key] && {
-        meta: { filterVariant: "select" },
         filterFn: (row, columnId, value) => String(row.getValue(columnId)) === value,
       }),
-    })
-  );
+    });
+  });
 }
 
 export default function Results({ data, params, seerData }) {

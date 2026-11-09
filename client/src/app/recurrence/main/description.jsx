@@ -1,5 +1,7 @@
 "use client";
 
+import { TABLE_COLUMNS } from "./table-columns";
+
 export default function Description({}) {
   return (
     <div className="shadow border rounded bg-white p-3 mt-2">
@@ -63,71 +65,12 @@ export default function Description({}) {
 
       <h2 className="h5 mb-2">Output</h2>
       <ul>
-        <li>
-          <strong>link: </strong>
-          the parametric survival distribution among those not cured specified in CanSurv.
-        </li>
-        <li>
-          <strong>cure: </strong>
-          the cure fraction estimated from the mixture cure survival model.
-        </li>
-        <li>
-          <strong>lambda/k: </strong>
-          the estimated parameters of the survival distribution for those not cured.
-        </li>
-        <li>
-          <strong>theta: </strong>
-          the exponential hazard of the time from recurrence to cancer death.
-        </li>
-        <li>
-          <strong>surv_curemodel: </strong>
-          the survival estimated from the mixture cure survival model.
-        </li>
-        <li>
-          <strong>surv_notcure: </strong>
-          the estimated survival for the non-cured fraction.
-        </li>
-        <li>
-          <strong>median_surv_notcured: </strong>
-          the median survival time for the non-cured fraction.
-        </li>
-        <li>
-          <strong>s1_numerical: </strong>
-          the numerical estimated survival to recurrence (recurrence-free survival) for the non-cured fraction.
-        </li>
-        <li>
-          <strong>G_numerical: </strong>
-          the numerical estimated survival to recurrence.
-        </li>
-        <li>
-          <strong>CI_numerical: </strong>
-          1-G_numerical, the numerical estimated cumulative incidence of recurrence which is the probability of
-          progressing to cancer recurrence.
-        </li>
-        <li>
-          <strong>s1_analytical: </strong>
-          the analytical estimated survival to recurrence (recurrence-free survival) for the non-cured fraction.
-        </li>
-        <li>
-          <strong>G_analytical: </strong>
-          the analytical estimated survival to recurrence.
-        </li>
-        <li>
-          <strong>CI_analytical: </strong>
-          1- G_analytical, the analytical estimated cumulative incidence of recurrence.
-        </li>
-        <li>
-          <strong>se_CI_analytical: </strong>
-          the standard error of CI_analytical.
-        </li>
-        <li>
-          <strong>obs_surv: </strong>
-          the observed survival from SEER*Stat.
-        </li>
-        <li>
-          <strong>obs_dist_surv: </strong>
-          the observed survival for distant stage from SEER*Stat.
-        </li>
+        {TABLE_COLUMNS.map((column) => (
+          <li key={column.key}>
+            <strong>{column.label}: </strong>
+            {column.definition}
+          </li>
+        ))}
       </ul>
 
       <h2 className="h5 mb-2">References</h2>

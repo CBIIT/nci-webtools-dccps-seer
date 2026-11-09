@@ -126,13 +126,14 @@ export default function Table({
                   }
 
                   const isSelectFilter = header.column.columnDef.meta?.filterVariant === "select";
+                  const filterLabel = header.column.columnDef.meta?.filterLabel ?? header.column.id;
 
                   return (
                     <th key={header.id} className="p-1 bg-light">
                       {isSelectFilter ? (
                         <Form.Select
                           size="sm"
-                          aria-label={`Filter ${header.column.id}`}
+                          aria-label={`Filter ${filterLabel}`}
                           value={header.column.getFilterValue() ?? ""}
                           onChange={(e) => header.column.setFilterValue(e.target.value || undefined)}>
                           <option value="">All</option>
@@ -145,7 +146,7 @@ export default function Table({
                       ) : (
                         <Form.Control
                           size="sm"
-                          aria-label={`Filter ${header.column.id}`}
+                          aria-label={`Filter ${filterLabel}`}
                           placeholder="Filter"
                           value={header.column.getFilterValue() ?? ""}
                           onChange={(e) => header.column.setFilterValue(e.target.value)}
