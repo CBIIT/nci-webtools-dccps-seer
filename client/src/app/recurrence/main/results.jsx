@@ -37,12 +37,16 @@ function formatCell(value) {
   return String(value);
 }
 
-function buildColumns(keys, columnLabels) {
+function buildColumns(keys, columnLabels, cohortMaps) {
   const helper = createColumnHelper();
   return keys.map((key) =>
     helper.accessor(key, {
       header: () => <div className="mx-3">{columnLabels[key] ?? key}</div>,
       cell: (info) => formatCell(info.getValue()),
+      ...(cohortMaps[key] && {
+        meta: { filterVariant: "select" },
+        filterFn: (row, columnId, value) => String(row.getValue(columnId)) === value,
+      }),
     })
   );
 }
@@ -76,8 +80,8 @@ export default function Results({ data, params, seerData }) {
 
   const columns = useMemo(() => {
     const keys = rows.length > 0 ? Object.keys(rows[0]) : DEFAULT_COLUMN_KEYS;
-    return buildColumns(keys, columnLabels);
-  }, [rows, columnLabels]);
+    return buildColumns(keys, columnLabels, cohortMaps);
+  }, [rows, columnLabels, cohortMaps]);
 
   function handleDownloadResults() {
     const prefix = params.id ? `recurrisk_group_data_results_${params.id}` : "recurrisk_group_data_results";

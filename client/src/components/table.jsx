@@ -8,6 +8,8 @@ import Col from "react-bootstrap/Col";
 import {
   flexRender,
   getCoreRowModel,
+  getFacetedRowModel,
+  getFacetedUniqueValues,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
@@ -15,6 +17,14 @@ import {
 } from "@tanstack/react-table";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
+
+function getSelectFilterOptions(column) {
+  const uniqueValues = column.getFacetedUniqueValues();
+  return Array.from(uniqueValues.keys())
+    .filter((value) => value !== null && value !== undefined && value !== "")
+    .map((value) => String(value))
+    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+}
 
 export default function Table({
   data,
@@ -47,6 +57,10 @@ export default function Table({
     onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
     ...((useFilter || useColumnFilter) && { getFilteredRowModel: getFilteredRowModel() }),
+    ...(useColumnFilter && {
+      getFacetedRowModel: getFacetedRowModel(),
+      getFacetedUniqueValues: getFacetedUniqueValues(),
+    }),
     ...(useSort && { getSortedRowModel: getSortedRowModel() }),
     ...(usePagination && { getPaginationRowModel: getPaginationRowModel() }),
   });
@@ -102,19 +116,44 @@ export default function Table({
             ))}
             {useColumnFilter && (
               <tr>
-                {table.getHeaderGroups()[0]?.headers.map((header) => (
-                  <th key={header.id} className="p-1 bg-light">
-                    {header.column.getCanFilter() ? (
-                      <Form.Control
-                        size="sm"
-                        aria-label={`Filter ${header.column.id}`}
-                        placeholder="Filter"
-                        value={header.column.getFilterValue() ?? ""}
-                        onChange={(e) => header.column.setFilterValue(e.target.value)}
-                      />
-                    ) : null}
-                  </th>
-                ))}
+                {table.getHeaderGroups()[0]?.headers.map((header) => {
+                  if (!header.column.getCanFilter()) {
+                    return (
+                      <th key={header.id} className="p-1 bg-light">
+                        {null}
+                      </th>
+                    );
+                  }
+
+                  const isSelectFilter = header.column.columnDef.meta?.filterVariant === "select";
+
+                  return (
+                    <th key={header.id} className="p-1 bg-light">
+                      {isSelectFilter ? (
+                        <Form.Select
+                          size="sm"
+                          aria-label={`Filter ${header.column.id}`}
+                          value={header.column.getFilterValue() ?? ""}
+                          onChange={(e) => header.column.setFilterValue(e.target.value || undefined)}>
+                          <option value="">All</option>
+                          {getSelectFilterOptions(header.column).map((value) => (
+                            <option key={value} value={value}>
+                              {value}
+                            </option>
+                          ))}
+                        </Form.Select>
+                      ) : (
+                        <Form.Control
+                          size="sm"
+                          aria-label={`Filter ${header.column.id}`}
+                          placeholder="Filter"
+                          value={header.column.getFilterValue() ?? ""}
+                          onChange={(e) => header.column.setFilterValue(e.target.value)}
+                        />
+                      )}
+                    </th>
+                  );
+                })}
               </tr>
             )}
           </thead>
