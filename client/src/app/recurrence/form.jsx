@@ -7,6 +7,9 @@ import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import Spinner from "react-bootstrap/Spinner";
 import Alert from "react-bootstrap/Alert";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Tooltip from "react-bootstrap/Tooltip";
+import { CiCircleQuestion } from "react-icons/ci";
 import { useQuery, useMutation, useQueryClient, useIsMutating } from "@tanstack/react-query";
 import { v4 as uuidv4 } from "uuid";
 import { parseSeerStatDictionary, parseSeerStatFiles, parseCsvFile } from "@/services/file/file.service";
@@ -405,7 +408,21 @@ export default function GroupDataForm({ id }) {
             </Form.Group>
 
             <Form.Group className="mb-4" controlId="adjustmentFactorR">
-              <Form.Label className="required fw-bold">Adjustment Factor r</Form.Label>
+              <Form.Label className="required fw-bold">
+                Adjustment Factor r{" "}
+                <OverlayTrigger
+                  placement="top"
+                  overlay={
+                    <Tooltip id="adjustmentFactorR-tooltip">
+                      This factor is used to adjust the registry-based survival curves for sensitivity analysis. Click
+                      the up and down arrows to change the value or type in any value. The default value is 1.
+                    </Tooltip>
+                  }>
+                  <span>
+                    <CiCircleQuestion />
+                  </span>
+                </OverlayTrigger>
+              </Form.Label>
               <Form.Control
                 {...register("adjustmentFactorR", {
                   required: "This field is required.",
