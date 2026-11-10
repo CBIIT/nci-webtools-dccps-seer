@@ -15,6 +15,7 @@ import { useStore, defaultForm } from "./store";
 import { buildSeerData } from "@/services/file/file.service";
 import { asFileList } from "@/components/file-input";
 import { fetchSession, submit, importWorkspace } from "@/services/queries";
+import ModelFormula from "./model-formula";
 
 const FileInput = dynamic(() => import("@/components/file-input"), { ssr: false });
 
@@ -47,6 +48,8 @@ export default function AnalysisForm({ id }) {
   const inputType = watch("inputType");
   const inputFile = watch("inputFile");
   const sendNotification = watch("sendNotification");
+  const estCure = watch("est_cure");
+  const distribution = watch("distribution");
   const isMutatingSubmit = useIsMutating({ mutationKey: ["submitCansurv"] });
   const isMutatingImport = useIsMutating({ mutationKey: ["importCansurv"] });
   const isSubmitting = isMutatingSubmit || isMutatingImport;
@@ -415,6 +418,7 @@ export default function AnalysisForm({ id }) {
                   </option>
                 ))}
               </Form.Select>
+              <ModelFormula estCure={estCure} distribution={distribution} />
             </Form.Group>
 
             <h5>Computation Specifications</h5>
