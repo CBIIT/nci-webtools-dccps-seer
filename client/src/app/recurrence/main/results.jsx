@@ -69,11 +69,12 @@ function buildColumns(keys, columnLabels, cohortMaps) {
   return keys.map((key) => {
     const tableColumn = getTableColumn(key);
     const label = tableColumn?.label ?? columnLabels[key] ?? key;
+    const filterVariant = cohortMaps[key] ? "select" : tableColumn?.filterVariant;
     return helper.accessor(key, {
       header: () => <ColumnHeader label={label} definition={tableColumn?.definition} />,
       cell: (info) => formatCell(info.getValue()),
-      meta: cohortMaps[key] ? { filterVariant: "select", filterLabel: label } : { filterLabel: label },
-      ...(cohortMaps[key] && {
+      meta: { filterVariant, filterLabel: label },
+      ...(filterVariant === "select" && {
         filterFn: (row, columnId, value) => String(row.getValue(columnId)) === value,
       }),
     });

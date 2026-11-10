@@ -5,8 +5,13 @@
 
 export const TABLE_COLUMNS = [
   {
+    key: "followup",
+    filterVariant: "select",
+  },
+  {
     key: "link",
     label: "Survival distribution for the noncured fraction",
+    filterVariant: "select",
     definition:
       "Parametric distribution specified in CanSurv for survival from diagnosis to cancer death among the noncured fraction: Weibull or log-logistic.",
   },
