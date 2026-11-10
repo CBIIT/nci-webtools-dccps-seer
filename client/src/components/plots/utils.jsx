@@ -11,6 +11,16 @@ export const colors = [
   "#17becf", // blue-teal
 ];
 
+// Convert a "#rrggbb" hex color to an "rgba(r, g, b, alpha)" string, for use
+// as a translucent fill (e.g. a shaded confidence band) in Plotly traces.
+export function hexToRgba(hex, alpha) {
+  const bigint = parseInt(hex.replace("#", ""), 16);
+  const r = (bigint >> 16) & 255;
+  const g = (bigint >> 8) & 255;
+  const b = bigint & 255;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 export function makeLineTrace(name = "", group, index, xArray, yArray, statistic, precision = 2, fontSize = 14) {
   return {
     name,

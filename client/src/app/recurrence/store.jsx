@@ -15,10 +15,15 @@ export const defaultParams = {
   version: "v2", // api version
 };
 
+export const defaultMain = {
+  stratum: {},
+};
+
 export const defaultState = {
   params: defaultParams,
   seerData: {},
   results: [],
+  main: defaultMain,
   openSidebar: true,
   openReviewDataModal: false,
 };
@@ -28,5 +33,5 @@ export const useStore = create((set) => ({
   toggleSidebar: () => set((state) => ({ openSidebar: !state.openSidebar })),
   setState: (update) => set((state) => ({ ...state, ...update })),
   resetStore: () => set(() => defaultState),
-  resetMain: () => set((state) => ({ ...state, results: defaultState.results })),
+  resetMain: () => set((state) => ({ ...state, results: defaultState.results, main: defaultMain })),
 }));

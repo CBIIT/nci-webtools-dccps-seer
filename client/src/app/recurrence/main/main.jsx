@@ -1,17 +1,23 @@
 "use client";
-import { Container } from "react-bootstrap";
-import { useEffect } from "react";
+import { Container, Tab, Tabs } from "react-bootstrap";
+import { useEffect, useMemo } from "react";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useStore } from "../store";
 import { fetchStatus, fetchOutput } from "@/services/queries";
 import Status from "../status";
 import Results from "./results";
 import Description from "./description";
+import Metastatic from "./tab-metastatic/metastatic";
+import Controls, { getStratumVariables, filterByStratum, getStratumLabel } from "./controls";
+
+const PRECISION = 4;
 
 export default function AnalysisMain({ id }) {
   const setState = useStore((state) => state.setState);
   const seerData = useStore((state) => state.seerData);
   const params = useStore((state) => state.params);
+  const main = useStore((state) => state.main);
+  const stratum = main?.stratum ?? {};
 
   const { data: jobStatus } = useQuery({
     queryKey: ["status", id],
@@ -25,6 +31,50 @@ export default function AnalysisMain({ id }) {
     queryFn: () => (jobStatus?.status === "COMPLETED" ? fetchOutput(id, "results.json") : null),
   });
 
+  const stratumVariables = useMemo(() => getStratumVariables(results, seerData), [results, seerData]);
+
+  // Default (or re-clamp) the selected stratum whenever the available variables/results change.
+  useEffect(() => {
+    if (!stratumVariables.length) return;
+    const next = { ...stratum };
+    let changed = false;
+    for (const variable of stratumVariables) {
+      const isValid = variable.options.some((o) => o.value == next[variable.name]);
+      if (!isValid) {
+        next[variable.name] = variable.options[0]?.value;
+        changed = true;
+      }
+    }
+    if (changed) {
+      setState({ main: { ...main, stratum: next } });
+    }
+  }, [stratumVariables]);
+
+  const filteredResults = useMemo(() => filterByStratum(results, stratum), [results, stratum]);
+  const stratumLabel = useMemo(() => getStratumLabel(stratumVariables, stratum), [stratumVariables, stratum]);
+
+  function handleStratumChange(name, value) {
+    setState({ main: { ...main, stratum: { ...stratum, [name]: value } } });
+  }
+
+  async function handleSaveWorkspace() {
+    const jobId = params?.id;
+    if (!jobId) return;
+    const response = await fetch(`/api/export/${jobId}`);
+    if (!response.ok) {
+      throw new Error("Error during workspace export");
+    }
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `recurrence-${jobId}.zip`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+  }
+
   useEffect(() => {
     if (id) {
       setState({ openSidebar: false });
@@ -36,9 +86,27 @@ export default function AnalysisMain({ id }) {
       <Status status={jobStatus} />
       {!jobStatus && <Description />}
       {jobStatus?.status === "COMPLETED" && (
-        <div className="shadow p-3 border rounded bg-white mb-3">
-          <Results data={results} params={params} seerData={seerData} />
-        </div>
+        <>
+          <div className="shadow p-3 border rounded bg-white mb-3">
+            <Controls
+              stratumVariables={stratumVariables}
+              stratum={stratum}
+              onStratumChange={handleStratumChange}
+              onSaveWorkspace={handleSaveWorkspace}
+              id={params?.id}
+            />
+          </div>
+          <div className="shadow border rounded bg-white mb-3">
+            <Tabs defaultActiveKey="metastatic">
+              <Tab eventKey="metastatic" title="Net Metastatic Recurrence Risk">
+                <Metastatic data={filteredResults} params={params} stratumLabel={stratumLabel} precision={PRECISION} />
+              </Tab>
+              <Tab eventKey="results" title="Results">
+                <Results data={filteredResults} allData={results} params={params} seerData={seerData} />
+              </Tab>
+            </Tabs>
+          </div>
+        </>
       )}
     </Container>
   );

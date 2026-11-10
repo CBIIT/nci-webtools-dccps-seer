@@ -3,10 +3,9 @@ import { useMemo } from "react";
 import { createColumnHelper } from "@tanstack/react-table";
 import Table from "@/components/table";
 import Button from "react-bootstrap/Button";
-import OverlayTrigger from "react-bootstrap/OverlayTrigger";
-import Tooltip from "react-bootstrap/Tooltip";
 import { FaDownload } from "react-icons/fa";
 import { downloadGroupResults } from "@/services/xlsx";
+import ColumnHeader from "@/components/column-header";
 import { getTableColumn } from "./table-columns";
 
 const DEFAULT_COLUMN_KEYS = [
@@ -40,30 +39,6 @@ function formatCell(value) {
   return String(value);
 }
 
-function ColumnHeader({ label, definition }) {
-  if (!definition) {
-    return (
-      <div className="mx-2" style={{ whiteSpace: "normal" }}>
-        {label}
-      </div>
-    );
-  }
-  return (
-    <OverlayTrigger
-      placement="top"
-      trigger={["hover", "focus"]}
-      overlay={
-        <Tooltip id={`table-column-tooltip-${label}`} style={{ "--bs-tooltip-max-width": "28rem" }}>
-          {definition}
-        </Tooltip>
-      }>
-      <div tabIndex="0" className="mx-2" style={{ whiteSpace: "normal" }}>
-        {label}
-      </div>
-    </OverlayTrigger>
-  );
-}
-
 function buildColumns(keys, columnLabels, cohortMaps) {
   const helper = createColumnHelper();
   return keys.map((key) => {
@@ -81,7 +56,7 @@ function buildColumns(keys, columnLabels, cohortMaps) {
   });
 }
 
-export default function Results({ data, params, seerData }) {
+export default function Results({ data, allData, params, seerData }) {
   const { cohortMaps, columnLabels } = useMemo(() => {
     const dict = seerData?.seerStatDictionary ?? [];
     const cohortMaps = {};
@@ -115,25 +90,7 @@ export default function Results({ data, params, seerData }) {
 
   function handleDownloadResults() {
     const prefix = params.id ? `recurrisk_group_data_results_${params.id}` : "recurrisk_group_data_results";
-    downloadGroupResults(rows, params, prefix);
-  }
-
-  async function handleSaveWorkspace() {
-    const jobId = params?.id;
-    if (!jobId) return;
-    const response = await fetch(`/api/export/${jobId}`);
-    if (!response.ok) {
-      throw new Error("Error during workspace export");
-    }
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `recurrence-${jobId}.zip`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    window.URL.revokeObjectURL(url);
+    downloadGroupResults(allData ?? data ?? [], params, prefix);
   }
 
   const componentHeader = [
@@ -142,16 +99,8 @@ export default function Results({ data, params, seerData }) {
       variant="link"
       onClick={handleDownloadResults}
       className="text-decoration-none"
-      disabled={rows.length === 0}>
+      disabled={(allData ?? data ?? []).length === 0}>
       <FaDownload /> Results
-    </Button>,
-    <Button
-      key="save-workspace"
-      variant="link"
-      onClick={handleSaveWorkspace}
-      className="text-decoration-none"
-      disabled={!params?.id}>
-      <FaDownload /> Workspace
     </Button>,
   ];
 
