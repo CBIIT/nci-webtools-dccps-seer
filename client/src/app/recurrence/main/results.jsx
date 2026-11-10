@@ -42,7 +42,11 @@ function formatCell(value) {
 
 function ColumnHeader({ label, definition }) {
   if (!definition) {
-    return <div className="mx-3">{label}</div>;
+    return (
+      <div className="mx-2" style={{ whiteSpace: "normal" }}>
+        {label}
+      </div>
+    );
   }
   return (
     <OverlayTrigger
@@ -53,15 +57,7 @@ function ColumnHeader({ label, definition }) {
           {definition}
         </Tooltip>
       }>
-      <div
-        tabIndex="0"
-        className="mx-3"
-        style={{
-          whiteSpace: "normal",
-          maxWidth: "14rem",
-          textDecoration: "underline dotted",
-          textDecorationColor: "currentColor",
-        }}>
+      <div tabIndex="0" className="mx-2" style={{ whiteSpace: "normal" }}>
         {label}
       </div>
     </OverlayTrigger>
