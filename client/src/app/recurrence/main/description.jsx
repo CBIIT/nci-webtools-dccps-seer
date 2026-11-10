@@ -65,7 +65,7 @@ export default function Description({}) {
 
       <h2 className="h5 mb-2">Output</h2>
       <ul>
-        {TABLE_COLUMNS.map((column) => (
+        {TABLE_COLUMNS.filter((column) => column.definition).map((column) => (
           <li key={column.key}>
             <strong>{column.label}: </strong>
             {column.definition}
