@@ -10,9 +10,9 @@ function formatPercent(value, precision) {
   return value === null || value === undefined ? "NA" : (value * 100).toFixed(precision);
 }
 
-function header(key, fallbackLabel) {
+function header(key, fallbackLabel, suffix = "") {
   const column = getTableColumn(key);
-  return () => <ColumnHeader label={column?.label ?? fallbackLabel} definition={column?.definition} />;
+  return () => <ColumnHeader label={`${column?.label ?? fallbackLabel}${suffix}`} definition={column?.definition} />;
 }
 
 export default function MetastaticTable({ data, method, showBand, precision = 4 }) {
@@ -32,7 +32,7 @@ export default function MetastaticTable({ data, method, showBand, precision = 4 
       cols.push(
         helper.accessor("CI_analytical", {
           id: "metastatic-analytical",
-          header: header("CI_analytical", "Net Recurrence Risk - Analytical (%)"),
+          header: header("CI_analytical", "Net Recurrence Risk - Analytical", " (%)"),
           cell: (info) => formatPercent(info.getValue(), precision),
         })
       );
@@ -53,7 +53,7 @@ export default function MetastaticTable({ data, method, showBand, precision = 4 
       cols.push(
         helper.accessor((row) => getAnalyticalSE(row), {
           id: "metastatic-analytical-se",
-          header: header("se_CI_analytical", "Standard Error - Analytical (%)"),
+          header: header("se_CI_analytical", "Standard Error - Analytical", " (%)"),
           cell: (info) => formatPercent(info.getValue(), precision),
         })
       );
@@ -63,7 +63,7 @@ export default function MetastaticTable({ data, method, showBand, precision = 4 
       cols.push(
         helper.accessor("CI_numerical", {
           id: "metastatic-numerical",
-          header: header("CI_numerical", "Net Recurrence Risk - Numerical (%)"),
+          header: header("CI_numerical", "Net Recurrence Risk - Numerical", " (%)"),
           cell: (info) => formatPercent(info.getValue(), precision),
         })
       );

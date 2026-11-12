@@ -1,6 +1,7 @@
 "use client";
-import { Form, Row, Col, Button } from "react-bootstrap";
+import { Form, Row, Col, Button, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { FaDownload } from "react-icons/fa";
+import { CiCircleQuestion } from "react-icons/ci";
 
 // Build the list of stratum/covariate variables from the results columns that
 // precede "followup" (see server/recurrence/recurrenceV1.R), using only the
@@ -41,7 +42,15 @@ export function getStratumLabel(stratumVariables, stratum) {
     .join(" / ");
 }
 
-export default function Controls({ stratumVariables, stratum, onStratumChange, onSaveWorkspace, id }) {
+export default function Controls({
+  stratumVariables,
+  stratum,
+  onStratumChange,
+  precision,
+  onPrecisionChange,
+  onSaveWorkspace,
+  id,
+}) {
   function handleChange(name, rawValue) {
     const numericValue = Number(rawValue);
     onStratumChange(name, Number.isNaN(numericValue) ? rawValue : numericValue);
@@ -66,6 +75,27 @@ export default function Controls({ stratumVariables, stratum, onStratumChange, o
             </Form.Group>
           </Col>
         ))}
+        <Col sm="auto">
+          <Form.Group controlId="precision">
+            <Form.Label>
+              Precision{" "}
+              <OverlayTrigger
+                placement="top"
+                overlay={<Tooltip id="precision-tooltip">Number of decimal places in data</Tooltip>}>
+                <span>
+                  <CiCircleQuestion />
+                </span>
+              </OverlayTrigger>
+            </Form.Label>
+            <Form.Select value={precision} onChange={(e) => onPrecisionChange(+e.target.value)}>
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((e) => (
+                <option key={e} value={e}>
+                  {e}
+                </option>
+              ))}
+            </Form.Select>
+          </Form.Group>
+        </Col>
         <Col />
         <Col sm="auto">
           <Button variant="link" onClick={onSaveWorkspace} disabled={!id} className="text-decoration-none">

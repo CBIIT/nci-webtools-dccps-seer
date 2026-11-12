@@ -17,6 +17,7 @@ export const defaultParams = {
 
 export const defaultMain = {
   stratum: {},
+  precision: 2,
 };
 
 export const defaultState = {

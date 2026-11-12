@@ -10,14 +10,13 @@ import Description from "./description";
 import Metastatic from "./tab-metastatic/metastatic";
 import Controls, { getStratumVariables, filterByStratum, getStratumLabel } from "./controls";
 
-const PRECISION = 4;
-
 export default function AnalysisMain({ id }) {
   const setState = useStore((state) => state.setState);
   const seerData = useStore((state) => state.seerData);
   const params = useStore((state) => state.params);
   const main = useStore((state) => state.main);
   const stratum = main?.stratum ?? {};
+  const precision = main?.precision ?? 4;
 
   const { data: jobStatus } = useQuery({
     queryKey: ["status", id],
@@ -57,6 +56,10 @@ export default function AnalysisMain({ id }) {
     setState({ main: { ...main, stratum: { ...stratum, [name]: value } } });
   }
 
+  function handlePrecisionChange(value) {
+    setState({ main: { ...main, precision: value } });
+  }
+
   async function handleSaveWorkspace() {
     const jobId = params?.id;
     if (!jobId) return;
@@ -92,6 +95,8 @@ export default function AnalysisMain({ id }) {
               stratumVariables={stratumVariables}
               stratum={stratum}
               onStratumChange={handleStratumChange}
+              precision={precision}
+              onPrecisionChange={handlePrecisionChange}
               onSaveWorkspace={handleSaveWorkspace}
               id={params?.id}
             />
@@ -99,10 +104,10 @@ export default function AnalysisMain({ id }) {
           <div className="shadow border rounded bg-white mb-3">
             <Tabs defaultActiveKey="metastatic">
               <Tab eventKey="metastatic" title="Net Metastatic Recurrence Risk">
-                <Metastatic data={filteredResults} params={params} stratumLabel={stratumLabel} precision={PRECISION} />
+                <Metastatic data={filteredResults} params={params} stratumLabel={stratumLabel} precision={precision} />
               </Tab>
               <Tab eventKey="results" title="Results">
-                <Results data={filteredResults} allData={results} params={params} seerData={seerData} />
+                <Results data={results} params={params} seerData={seerData} precision={precision} />
               </Tab>
             </Tabs>
           </div>

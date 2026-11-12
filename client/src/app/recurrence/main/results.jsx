@@ -30,16 +30,14 @@ const DEFAULT_COLUMN_KEYS = [
   "obs_dist_surv",
 ];
 
-const PRECISION = 4;
-
-function formatCell(value) {
+function formatCell(value, precision) {
   if (value === null || value === undefined) return "";
-  if (typeof value === "number") return value.toFixed(PRECISION);
-  if (Array.isArray(value)) return value.map((v) => formatCell(v)).join(", ");
+  if (typeof value === "number") return value.toFixed(precision);
+  if (Array.isArray(value)) return value.map((v) => formatCell(v, precision)).join(", ");
   return String(value);
 }
 
-function buildColumns(keys, columnLabels, cohortMaps) {
+function buildColumns(keys, columnLabels, cohortMaps, precision) {
   const helper = createColumnHelper();
   return keys.map((key) => {
     const tableColumn = getTableColumn(key);
@@ -47,7 +45,7 @@ function buildColumns(keys, columnLabels, cohortMaps) {
     const filterVariant = cohortMaps[key] ? "select" : tableColumn?.filterVariant;
     return helper.accessor(key, {
       header: () => <ColumnHeader label={label} definition={tableColumn?.definition} />,
-      cell: (info) => formatCell(info.getValue()),
+      cell: (info) => formatCell(info.getValue(), precision),
       meta: { filterVariant, filterLabel: label },
       ...(filterVariant === "select" && {
         filterFn: (row, columnId, value) => String(row.getValue(columnId)) === value,
@@ -56,7 +54,7 @@ function buildColumns(keys, columnLabels, cohortMaps) {
   });
 }
 
-export default function Results({ data, allData, params, seerData }) {
+export default function Results({ data, params, seerData, precision = 4 }) {
   const { cohortMaps, columnLabels } = useMemo(() => {
     const dict = seerData?.seerStatDictionary ?? [];
     const cohortMaps = {};
@@ -85,12 +83,12 @@ export default function Results({ data, allData, params, seerData }) {
 
   const columns = useMemo(() => {
     const keys = rows.length > 0 ? Object.keys(rows[0]) : DEFAULT_COLUMN_KEYS;
-    return buildColumns(keys, columnLabels, cohortMaps);
-  }, [rows, columnLabels, cohortMaps]);
+    return buildColumns(keys, columnLabels, cohortMaps, precision);
+  }, [rows, columnLabels, cohortMaps, precision]);
 
   function handleDownloadResults() {
     const prefix = params.id ? `recurrisk_group_data_results_${params.id}` : "recurrisk_group_data_results";
-    downloadGroupResults(allData ?? data ?? [], params, prefix);
+    downloadGroupResults(data ?? [], params, prefix);
   }
 
   const componentHeader = [
@@ -99,8 +97,8 @@ export default function Results({ data, allData, params, seerData }) {
       variant="link"
       onClick={handleDownloadResults}
       className="text-decoration-none"
-      disabled={(allData ?? data ?? []).length === 0}>
-      <FaDownload /> Results
+      disabled={(data ?? []).length === 0}>
+      <FaDownload /> Save
     </Button>,
   ];
 
