@@ -74,12 +74,15 @@ export default function AnalysisForm({ id }) {
       // add dynamic fields for cohort variables
       setValue("covariates", []);
       cohortVariables.forEach(({ label, name, factors }) =>
-        append({
-          label,
-          name,
-          type: { by: false, mu: false, sigma: false, cure: false },
-          options: (factors ?? []).map((f) => ({ ...f, checked: true })),
-        })
+        append(
+          {
+            label,
+            name,
+            type: { by: false, mu: false, sigma: false, cure: false },
+            options: (factors ?? []).map((f) => ({ ...f, checked: true })),
+          },
+          { shouldFocus: false }
+        )
       );
     },
     [setValue, append]

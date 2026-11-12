@@ -159,7 +159,9 @@ export default function AnalysisForm({ id }) {
 
     // add dynamic fields for cohort variables
     setValue("cohorts", []);
-    cohortVariables.forEach(({ label, name, factors }) => append({ label, name, options: factors }));
+    cohortVariables.forEach(({ label, name, factors }) =>
+      append({ label, name, options: factors }, { shouldFocus: false })
+    );
 
     // set default values in form
     setValue("year", yearOptions[0]?.name);
