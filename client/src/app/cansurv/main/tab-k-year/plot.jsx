@@ -1,5 +1,5 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Container, Row, Col, Button, Form } from "react-bootstrap";
 import { makeMarkerTrace, makeLineTrace, makeLegendTrace, makeAnnotation } from "@/components/plots/utils";
 import Plot from "@/components/plots/survival";
@@ -65,7 +65,7 @@ export default function KYearPlot({ data, xAxisVar, valueToLabelMap, title, subt
     autosize: true,
   };
 
-  const layoutMemo = useMemo(() => ({ ...layout, annotations }), [layout, annotations]);
+  const plotLayout = { ...layout, annotations };
 
   async function addAnnotation() {
     const xMid = Math.max(...data.map((e) => e.Interval)) / 2;
@@ -97,7 +97,7 @@ export default function KYearPlot({ data, xAxisVar, valueToLabelMap, title, subt
           </Form.Group>
         </Col>
       </Row>
-      <Plot data={traces} layout={layoutMemo} removeAnnotation={removeAnnotation} />
+      <Plot data={traces} layout={plotLayout} removeAnnotation={removeAnnotation} />
     </Container>
   );
 }

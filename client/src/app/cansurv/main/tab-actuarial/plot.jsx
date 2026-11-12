@@ -1,5 +1,5 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Container, Row, Col, Button, Form } from "react-bootstrap";
 import {
   makeLineTrace,
@@ -64,7 +64,7 @@ export default function ActPlot({ data, params, title, subtitle, xTitle, yTitle,
   const traces = [obsTraces, estTraces, cureTraces, estLegendTrace, actLegendTrace, cureLegendTrace];
 
   const layout = makeLayout([0, data.length + 1], title, subtitle, xTitle, yTitle, fontSize);
-  const layoutMemo = useMemo(() => ({ ...layout, annotations }), [layout, annotations]);
+  const plotLayout = { ...layout, annotations };
 
   async function addAnnotation() {
     const xMid = data.length / 2;
@@ -96,7 +96,7 @@ export default function ActPlot({ data, params, title, subtitle, xTitle, yTitle,
           </Form.Group>
         </Col>
       </Row>
-      <Plot data={traces} layout={layoutMemo} removeAnnotation={removeAnnotation} />
+      <Plot data={traces} layout={plotLayout} removeAnnotation={removeAnnotation} />
     </Container>
   );
 }

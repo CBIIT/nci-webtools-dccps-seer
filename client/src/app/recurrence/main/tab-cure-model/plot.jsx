@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Container, Row, Col, Button, Form } from "react-bootstrap";
 import { colors, makeLegendTrace, makeAnnotation } from "@/components/plots/utils";
 import Plot from "@/components/plots/survival";
@@ -11,18 +11,10 @@ export default function CureModelPlot({ data, title, subtitle, precision = 4 }) 
   const [fontSize, setFontSize] = useState(14);
   const [annotations, setAnnotations] = useState([]);
 
-  // `data` is expected to already be sorted by followup (see cure-model.jsx).
-  const sortedData = data ?? [];
-  const observedData = useMemo(
-    () => sortedData.filter((r) => r.obs_surv !== null && r.obs_surv !== undefined),
-    [sortedData]
-  );
-  const fittedData = useMemo(
-    () => sortedData.filter((r) => r.surv_curemodel !== null && r.surv_curemodel !== undefined),
-    [sortedData]
-  );
+  const observedData = data.filter((r) => r.obs_surv !== null && r.obs_surv !== undefined);
+  const fittedData = data.filter((r) => r.surv_curemodel !== null && r.surv_curemodel !== undefined);
 
-  const traces = useMemo(() => {
+  const traces = (() => {
     const result = [];
 
     result.push({
@@ -61,9 +53,9 @@ export default function CureModelPlot({ data, title, subtitle, precision = 4 }) 
     result.push(makeLegendTrace("Fitted Mixture Cure Model (surv_curemodel)", "fitted", FITTED_COLOR_INDEX, "lines"));
 
     return result;
-  }, [observedData, fittedData, precision]);
+  })();
 
-  const followups = sortedData.map((r) => r.followup);
+  const followups = data.map((r) => r.followup);
   const maxFollowup = followups.length ? Math.max(...followups) : 1;
   const minFollowup = followups.length ? Math.min(...followups) : 0;
 
@@ -91,9 +83,8 @@ export default function CureModelPlot({ data, title, subtitle, precision = 4 }) 
     },
     height: 700,
     autosize: true,
+    annotations,
   };
-
-  const layoutMemo = useMemo(() => ({ ...layout, annotations }), [layout, annotations]);
 
   async function addAnnotation() {
     const xMid = maxFollowup / 2;
@@ -125,7 +116,7 @@ export default function CureModelPlot({ data, title, subtitle, precision = 4 }) 
           </Form.Group>
         </Col>
       </Row>
-      <Plot data={traces} layout={layoutMemo} removeAnnotation={removeAnnotation} />
+      <Plot data={traces} layout={layout} removeAnnotation={removeAnnotation} />
     </Container>
   );
 }

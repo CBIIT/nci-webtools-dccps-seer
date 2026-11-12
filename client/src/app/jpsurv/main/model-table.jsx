@@ -3,6 +3,18 @@ import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from "
 import { useMemo, useRef, useEffect } from "react";
 import { Table } from "react-bootstrap";
 
+const columnHelper = createColumnHelper();
+
+function IndeterminateCheckbox({ indeterminate, className = "", label = "", ...rest }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    if (typeof indeterminate === "boolean") {
+      ref.current.indeterminate = !rest.checked && indeterminate;
+    }
+  }, [indeterminate, rest.checked]);
+  return <input type="radio" ref={ref} className={className + " cursor-pointer"} aria-label={label} {...rest} />;
+}
+
 export default function ModelTable({ data, params, manifest, cohortIndex, handleRowSelect, precision }) {
   const { firstYear } = params;
   const { final_model_index } = manifest[cohortIndex - 1];
@@ -21,11 +33,11 @@ export default function ModelTable({ data, params, manifest, cohortIndex, handle
         ll: m.ll.toFixed(precision),
         converged: m.converged ? "Yes" : "No",
       })),
-    [data, precision]
+    [data, precision, firstYear]
   );
 
-  const columnHelper = createColumnHelper();
-  const columns = [
+  // useReactTable opts this component out of the compiler, so columns need manual stability
+  const columns = useMemo(() => [
     {
       id: "select",
       header: () => <span className="visually-hidden">Select Model</span>,
@@ -75,7 +87,7 @@ export default function ModelTable({ data, params, manifest, cohortIndex, handle
       header: "Converged",
       cell: (info) => info.renderValue(),
     }),
-  ];
+  ], [handleRowSelect, final_model_index]);
 
   const table = useReactTable({
     data: models,
@@ -85,16 +97,6 @@ export default function ModelTable({ data, params, manifest, cohortIndex, handle
     enableMultiRowSelection: false,
     initialState: { rowSelection: { [0]: true } },
   });
-
-  function IndeterminateCheckbox({ indeterminate, className = "", label = "", ...rest }) {
-    const ref = useRef(null);
-    useEffect(() => {
-      if (typeof indeterminate === "boolean") {
-        ref.current.indeterminate = !rest.checked && indeterminate;
-      }
-    }, [ref, indeterminate]);
-    return <input type="radio" ref={ref} className={className + " cursor-pointer"} aria-label={label} {...rest} />;
-  }
 
   return (
     <Table responsive striped bordered>

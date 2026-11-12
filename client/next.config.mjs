@@ -4,6 +4,7 @@ const nextConfig = {
   experimental: {
     proxyTimeout: 1000 * 60 * 15,
   },
+  reactCompiler: true,
   async rewrites() {
     return [
       {

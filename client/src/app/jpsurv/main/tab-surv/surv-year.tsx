@@ -1,8 +1,8 @@
 "use client";
 import { useMemo, useEffect } from "react";
 import { Container, Row, Col, Form, Button, Spinner } from "react-bootstrap";
-import { useForm } from "react-hook-form";
-import { useQueryClient, useIsFetching } from "@tanstack/react-query";
+import { useForm, useWatch } from "react-hook-form";
+import { useQuery, useQueryClient, useIsFetching, skipToken } from "@tanstack/react-query";
 import { calculateTrends } from "@/services/queries";
 import SelectHookForm from "@/components/selectHookForm";
 import SurvYearPlot from "./surv-year-plot";
@@ -39,7 +39,6 @@ export default function SurvivalVsYear({
   const {
     control,
     register,
-    watch,
     setValue,
     handleSubmit,
     formState: { errors },
@@ -53,11 +52,11 @@ export default function SurvivalVsYear({
     },
   });
 
-  const intervals = watch("intervals");
-  const jpTrend = watch("jpTrend");
-  const calendarTrend = watch("calendarTrend");
-  const trendStart = watch("trendStart");
-  const trendEnd = watch("trendEnd");
+  const intervals = useWatch({ control, name: "intervals" });
+  const jpTrend = useWatch({ control, name: "jpTrend" });
+  const calendarTrend = useWatch({ control, name: "calendarTrend" });
+  const trendStart = useWatch({ control, name: "trendStart" });
+  const trendEnd = useWatch({ control, name: "trendEnd" });
   const statistic = seerData?.config["Session Options"]["Statistic"];
   const { firstYear } = params;
   const yearOptions = [...new Set(data.predicted.map((e: DataPoint) => e[params.year] as number))];
@@ -66,7 +65,8 @@ export default function SurvivalVsYear({
     [data, conditional, intervals]
   );
 
-  const trendQueryData = queryClient.getQueryData(survTrendQueryKey);
+  // read-only cache subscription; fetching happens in getTrends
+  const { data: trendQueryData } = useQuery({ queryKey: survTrendQueryKey, queryFn: skipToken });
   const survTrend = useMemo(() => {
     const survTrendByFit = (trendQueryData as TrendQueryData)?.data?.jpTrend?.[fitIndex]?.survTrend;
     return Array.isArray(survTrendByFit)

@@ -1,7 +1,7 @@
 "use client";
 import { useMemo } from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import SelectHookForm from "@/components/selectHookForm";
 import SurvTimePlot from "./surv-time-plot";
 import SurvTimeTable from "./surv-time-table";
@@ -14,12 +14,13 @@ export default function SurvivalVsTime({ data, seerData, params, cohortIndex, fi
   const observedHeader = isRecalcCond ? "observed" : params?.observed;
   const predictedHeader = isRecalcCond ? "pred_cum" : "Predicted_Survival_Cum";
   const yearOptions = [...new Set((conditional || data).map((e) => e[params.year]))];
-  const { control, register, watch } = useForm({
+  const { control } = useForm({
     defaultValues: { years: [yearOptions[0]] },
   });
-  const years = watch("years");
-  const memoData = useMemo(() =>
-    (conditional || data).filter((e) => years.includes(e[params.year]), [data, conditional, years])
+  const years = useWatch({ control, name: "years" });
+  const memoData = useMemo(
+    () => (conditional || data).filter((e) => years.includes(e[params.year])),
+    [data, conditional, years, params.year]
   );
 
   return (

@@ -50,6 +50,7 @@ export default function Controls({
   onPrecisionChange,
   onSaveWorkspace,
   id,
+  showStratum = true,
 }) {
   function handleChange(name, rawValue) {
     const numericValue = Number(rawValue);
@@ -59,22 +60,23 @@ export default function Controls({
   return (
     <Form>
       <Row className="align-items-end">
-        {stratumVariables.map((variable) => (
-          <Col key={variable.name} sm="auto">
-            <Form.Group controlId={`stratum-${variable.name}`}>
-              <Form.Label>{variable.label}</Form.Label>
-              <Form.Select
-                value={stratum?.[variable.name] ?? ""}
-                onChange={(e) => handleChange(variable.name, e.target.value)}>
-                {variable.options.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </Form.Select>
-            </Form.Group>
-          </Col>
-        ))}
+        {showStratum &&
+          stratumVariables.map((variable) => (
+            <Col key={variable.name} sm="auto">
+              <Form.Group controlId={`stratum-${variable.name}`}>
+                <Form.Label>{variable.label}</Form.Label>
+                <Form.Select
+                  value={stratum?.[variable.name] ?? ""}
+                  onChange={(e) => handleChange(variable.name, e.target.value)}>
+                  {variable.options.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
+            </Col>
+          ))}
         <Col sm="auto">
           <Form.Group controlId="precision">
             <Form.Label>

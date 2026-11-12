@@ -12,7 +12,9 @@ function formatPercent(value, precision) {
 
 function header(key, fallbackLabel, suffix = "") {
   const column = getTableColumn(key);
-  return () => <ColumnHeader label={`${column?.label ?? fallbackLabel}${suffix}`} definition={column?.definition} />;
+  return function Header() {
+    return <ColumnHeader label={`${column?.label ?? fallbackLabel}${suffix}`} definition={column?.definition} />;
+  };
 }
 
 export default function MethodCurveTable({ config, data, method, showBand, precision = 4 }) {

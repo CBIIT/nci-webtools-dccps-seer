@@ -1,6 +1,6 @@
 "use client";
 import { Container, Tab, Tabs } from "react-bootstrap";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useStore } from "../store";
 import { fetchStatus, fetchOutput } from "@/services/queries";
@@ -21,6 +21,7 @@ export default function AnalysisMain({ id }) {
   const main = useStore((state) => state.main);
   const stratum = main?.stratum ?? {};
   const precision = main?.precision ?? 4;
+  const [activeTab, setActiveTab] = useState("metastatic");
 
   const { data: jobStatus } = useQuery({
     queryKey: ["status", id],
@@ -53,8 +54,11 @@ export default function AnalysisMain({ id }) {
     }
   }, [stratumVariables]);
 
-  const filteredResults = useMemo(() => filterByStratum(results, stratum), [results, stratum]);
-  const stratumLabel = useMemo(() => getStratumLabel(stratumVariables, stratum), [stratumVariables, stratum]);
+  const filteredResults = useMemo(
+    () => [...filterByStratum(results, stratum)].sort((a, b) => a.followup - b.followup),
+    [results, stratum]
+  );
+  const stratumLabel = getStratumLabel(stratumVariables, stratum);
 
   function handleStratumChange(name, value) {
     setState({ main: { ...main, stratum: { ...stratum, [name]: value } } });
@@ -103,10 +107,11 @@ export default function AnalysisMain({ id }) {
               onPrecisionChange={handlePrecisionChange}
               onSaveWorkspace={handleSaveWorkspace}
               id={params?.id}
+              showStratum={activeTab !== "results"}
             />
           </div>
           <div className="shadow border rounded bg-white mb-3">
-            <Tabs defaultActiveKey="metastatic">
+            <Tabs activeKey={activeTab} onSelect={(key) => key && setActiveTab(key)}>
               <Tab eventKey="metastatic" title="Net Metastatic Recurrence Risk">
                 <MethodCurve
                   config={METASTATIC}

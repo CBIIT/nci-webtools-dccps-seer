@@ -29,7 +29,7 @@ export default function Analysis() {
   // reset main state when id changes
   useEffect(() => {
     resetMain();
-  }, [id]);
+  }, [id, resetMain]);
 
   useEffect(() => {
     if (!id && storeId) router.push(`${pathname}?id=${storeId}`, { shallow: true });

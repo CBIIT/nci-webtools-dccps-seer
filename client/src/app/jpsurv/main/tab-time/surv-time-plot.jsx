@@ -1,5 +1,5 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { groupBy } from "lodash";
 import { Container, Row, Col, Button, Form } from "react-bootstrap";
 import {
@@ -102,7 +102,7 @@ export default function SurvTimePlot({
     .flat();
 
   const layout = makeLayout([intervalStart, intervalEnd], title, subtitle, xTitle, yTitle, fontSize);
-  const layoutMemo = useMemo(() => ({ ...layout, annotations }), [layout, annotations]);
+  const plotLayout = { ...layout, annotations };
 
   async function addAnnotation() {
     const xMean = params.useCondModel ? (params.conditionalStart + params.conditionalEnd) / 2 : params.interval / 2;
@@ -134,7 +134,7 @@ export default function SurvTimePlot({
           </Form.Group>
         </Col>
       </Row>
-      <Plot data={traces} layout={layoutMemo} removeAnnotation={removeAnnotation} />
+      <Plot data={traces} layout={plotLayout} removeAnnotation={removeAnnotation} />
     </Container>
   );
 }

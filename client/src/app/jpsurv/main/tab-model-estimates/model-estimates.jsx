@@ -43,7 +43,7 @@ export default function ModelEstimates({ data, results, params, cohortIndex, fit
             { key: "Converged", value: results.converged ? "Yes" : "No" },
           ]
         : [],
-    [results]
+    [results, precision]
   );
   const resultsColumns = [
     columnHelper.accessor("key", {

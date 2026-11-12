@@ -1,5 +1,5 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Container, Row, Col, Button, Form } from "react-bootstrap";
 import { makeMarkerTrace, makeAnnotation } from "@/components/plots/utils";
 import Plot from "@/components/plots/survival";
@@ -46,7 +46,7 @@ export default function DevPlot({ data, params, title, subtitle, xTitle, yTitle,
     autosize: true,
   };
 
-  const layoutMemo = useMemo(() => ({ ...layout, annotations }), [layout, annotations]);
+  const plotLayout = { ...layout, annotations };
 
   async function addAnnotation() {
     const xMid = Math.max(...data.map((e) => e.Interval)) / 2;
@@ -78,7 +78,7 @@ export default function DevPlot({ data, params, title, subtitle, xTitle, yTitle,
           </Form.Group>
         </Col>
       </Row>
-      <Plot data={traces} layout={layoutMemo} removeAnnotation={removeAnnotation} />
+      <Plot data={traces} layout={plotLayout} removeAnnotation={removeAnnotation} />
     </Container>
   );
 }

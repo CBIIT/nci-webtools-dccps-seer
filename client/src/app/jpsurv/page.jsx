@@ -30,7 +30,7 @@ export default function Analysis(props) {
   // reset main state when id changes
   useEffect(() => {
     resetMain();
-  }, [id]);
+  }, [id, resetMain]);
 
   useEffect(() => {
     if (!id && storedId) router.push(`${pathname}?id=${storedId}`, { shallow: true });

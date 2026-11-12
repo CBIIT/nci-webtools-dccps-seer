@@ -10,19 +10,16 @@
 //   - exp(-theta*t) is the exponential approximation of that same curve,
 //     used by the analytical method.
 
-// Returns rows sorted by followup, each with two derived fields added:
+// Returns a new array of rows with two derived fields added:
 // `dist_surv_adjusted` ([obs_dist_surv]^r) and `dist_surv_exponential`
 // (exp(-theta*followup)). Both are null when an input is missing.
+// Rows are expected to already be sorted by followup (see main.jsx).
 export function withMetastaticSurvivalCurves(rows) {
-  const sorted = [...(rows ?? [])].sort((a, b) => a.followup - b.followup);
-  return sorted.map((row) => {
+  return (rows ?? []).map((row) => {
     const { obs_dist_surv: obsDistSurv, r, theta, followup } = row;
     const distSurvAdjusted =
-      obsDistSurv === null || obsDistSurv === undefined || r === null || r === undefined
-        ? null
-        : obsDistSurv ** r;
-    const distSurvExponential =
-      theta === null || theta === undefined ? null : Math.exp(-theta * followup);
+      obsDistSurv === null || obsDistSurv === undefined || r === null || r === undefined ? null : obsDistSurv ** r;
+    const distSurvExponential = theta === null || theta === undefined ? null : Math.exp(-theta * followup);
     return { ...row, dist_surv_adjusted: distSurvAdjusted, dist_surv_exponential: distSurvExponential };
   });
 }

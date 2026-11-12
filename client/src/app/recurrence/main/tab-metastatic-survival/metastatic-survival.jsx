@@ -69,7 +69,7 @@ export default function MetastaticSurvival({ data, params, stratumLabel, precisi
             <Row className="mt-2">
               <Col>
                 <Form.Text muted>
-                  Adjustment factor r = {Number(r).toFixed(precision)}; \u03b8 = {Number(theta).toFixed(precision)}
+                  Adjustment factor r = {Number(r).toFixed(precision)}; θ = {Number(theta).toFixed(precision)}
                 </Form.Text>
               </Col>
             </Row>

@@ -1,9 +1,9 @@
 "use client";
 import { useMemo, useEffect } from "react";
 import { Container, Row, Col, Form, Button, Spinner } from "react-bootstrap";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import SelectHookForm from "@/components/selectHookForm";
-import { useQueryClient, useIsFetching } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useIsFetching, skipToken } from "@tanstack/react-query";
 import { calculateTrends } from "@/services/queries";
 import DeathYearPlot from "./death-year-plot";
 import DeathYearTable from "./death-year-table";
@@ -27,7 +27,8 @@ export default function DeathVsYear({
   const deathTrendQueryKey = useStore((state) => state.deathTrendQueryKey).slice(0, 2);
   const queryClient = useQueryClient();
   const isFetching = useIsFetching({ queryKey: ["deathTrend"] });
-  const trendQueryData = queryClient.getQueryData(deathTrendQueryKey);
+  // read-only cache subscription; fetching happens in getTrends
+  const { data: trendQueryData } = useQuery({ queryKey: deathTrendQueryKey, queryFn: skipToken });
   const intervalOptions = useMemo(
     () => [...new Set((conditional || data.fullpredicted).map((e: DataPoint) => e.Interval))],
     [conditional, data.fullpredicted]
@@ -36,15 +37,14 @@ export default function DeathVsYear({
   const {
     control,
     register,
-    watch,
     setValue,
     handleSubmit,
     formState: { errors },
   } = useForm<DeathFormData>({
     defaultValues: { intervalsD: [defaultInterval], jpTrend: false, useRange: false, trendRange: [] },
   });
-  const intervalsD = watch("intervalsD");
-  const jpTrend = watch("jpTrend");
+  const intervalsD = useWatch({ control, name: "intervalsD" });
+  const jpTrend = useWatch({ control, name: "jpTrend" });
   const observedHeader = params?.observed.includes("Relative")
     ? "Relative_Survival_Interval"
     : "CauseSpecific_Survival_Interval";

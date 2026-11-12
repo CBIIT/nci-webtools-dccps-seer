@@ -11,7 +11,9 @@ function formatPercent(value, precision) {
 
 function header(key, fallbackLabel, suffix = "") {
   const column = getTableColumn(key);
-  return () => <ColumnHeader label={`${column?.label ?? fallbackLabel}${suffix}`} definition={column?.definition} />;
+  return function Header() {
+    return <ColumnHeader label={`${column?.label ?? fallbackLabel}${suffix}`} definition={column?.definition} />;
+  };
 }
 
 export default function CureModelTable({ data, precision = 4 }) {
@@ -33,5 +35,7 @@ export default function CureModelTable({ data, precision = 4 }) {
     ];
   }, [precision]);
 
-  return <Table data={data} columns={columns} useSort usePagination emptyMessage="No data available for this stratum" />;
+  return (
+    <Table data={data} columns={columns} useSort usePagination emptyMessage="No data available for this stratum" />
+  );
 }

@@ -1,7 +1,7 @@
 "use client";
 import { useMemo } from "react";
 import { Container, Row, Col, Form, Button, Alert } from "react-bootstrap";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import KYearPlot from "./plot";
 import KYearTable from "./table";
 import { getValueToLabelMap } from "../controls";
@@ -19,8 +19,8 @@ export default function KYear({ data, params, seerData, precision, stratumIndex 
     return { k: 1, xAxisVar: Object.keys(subs)[0], ...subs };
   }, [data, seerData]);
 
-  const { register, watch } = useForm({ defaultValues });
-  const formState = watch();
+  const { register, control } = useForm({ defaultValues });
+  const formState = useWatch({ control });
   const hasStrata = data["fit.list.by"]?.length > 0;
 
   const valueToLabelMap = useMemo(
@@ -43,7 +43,7 @@ export default function KYear({ data, params, seerData, precision, stratumIndex 
   const subStratumVars = useMemo(() => {
     const stratum = data["fit.list.by"].length ? Object.keys(data["fit.list.by"][0]) : [];
     return seerData.cohortVariables.filter((e) => ![...stratum, formState.xAxisVar].includes(e.name));
-  }, [data, formState.xAxisVar]);
+  }, [data, seerData.cohortVariables, formState.xAxisVar]);
 
   const memoData = useMemo(() => {
     const { k, xAxisVar, [xAxisVar]: _, ...subStratum } = formState;

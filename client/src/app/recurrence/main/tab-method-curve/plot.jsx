@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Container, Row, Col, Button, Form } from "react-bootstrap";
 import { colors, hexToRgba, makeLegendTrace, makeAnnotation } from "@/components/plots/utils";
 import Plot from "@/components/plots/survival";
@@ -16,24 +16,19 @@ export default function MethodCurvePlot({ config, data, method, showBand, title,
   const analyticalName = `Analytical${seriesSuffix}`;
   const numericalName = `Numerical${seriesSuffix}`;
 
-  // `data` is expected to already be sorted by followup (see method-curve.jsx).
-  const sortedData = data ?? [];
-  const numericalData = useMemo(
-    () => sortedData.filter((r) => hasNumericalEstimate(r, numericalKey)),
-    [sortedData, numericalKey]
-  );
+  const numericalData = data.filter((r) => hasNumericalEstimate(r, numericalKey));
 
   const showAnalytical = method === "analytical" || method === "both";
   const showNumerical = method === "numerical" || method === "both";
   const canShowBand = Boolean(getCI) && showAnalytical && showBand;
 
-  const traces = useMemo(() => {
+  const traces = (() => {
     const result = [];
 
     if (canShowBand) {
-      const x = sortedData.map((r) => r.followup);
-      const upperY = sortedData.map((r) => (getCI(r)?.[1] ?? r[analyticalKey]) * 100);
-      const lowerY = sortedData.map((r) => (getCI(r)?.[0] ?? r[analyticalKey]) * 100);
+      const x = data.map((r) => r.followup);
+      const upperY = data.map((r) => (getCI(r)?.[1] ?? r[analyticalKey]) * 100);
+      const lowerY = data.map((r) => (getCI(r)?.[0] ?? r[analyticalKey]) * 100);
 
       result.push({
         name: `95% CI upper bound (${analyticalName})`,
@@ -64,9 +59,9 @@ export default function MethodCurvePlot({ config, data, method, showBand, title,
     if (showAnalytical) {
       result.push({
         name: analyticalName,
-        x: sortedData.map((r) => r.followup),
-        y: sortedData.map((r) => r[analyticalKey] * 100),
-        customdata: sortedData.map((r) => {
+        x: data.map((r) => r.followup),
+        y: data.map((r) => r[analyticalKey] * 100),
+        customdata: data.map((r) => {
           const ci = getCI ? getCI(r) : null;
           return ci ? [ci[0] * 100, ci[1] * 100] : [null, null];
         }),
@@ -126,22 +121,9 @@ export default function MethodCurvePlot({ config, data, method, showBand, title,
     }
 
     return result;
-  }, [
-    sortedData,
-    numericalData,
-    showAnalytical,
-    showNumerical,
-    canShowBand,
-    precision,
-    analyticalKey,
-    numericalKey,
-    getCI,
-    analyticalName,
-    numericalName,
-    valueLabel,
-  ]);
+  })();
 
-  const followups = sortedData.map((r) => r.followup);
+  const followups = data.map((r) => r.followup);
   const maxFollowup = followups.length ? Math.max(...followups) : 1;
   const minFollowup = followups.length ? Math.min(...followups) : 0;
 
@@ -170,9 +152,8 @@ export default function MethodCurvePlot({ config, data, method, showBand, title,
     },
     height: 700,
     autosize: true,
+    annotations,
   };
-
-  const layoutMemo = useMemo(() => ({ ...layout, annotations }), [layout, annotations]);
 
   async function addAnnotation() {
     const xMid = maxFollowup / 2;
@@ -204,7 +185,7 @@ export default function MethodCurvePlot({ config, data, method, showBand, title,
           </Form.Group>
         </Col>
       </Row>
-      <Plot data={traces} layout={layoutMemo} removeAnnotation={removeAnnotation} />
+      <Plot data={traces} layout={layout} removeAnnotation={removeAnnotation} />
     </Container>
   );
 }

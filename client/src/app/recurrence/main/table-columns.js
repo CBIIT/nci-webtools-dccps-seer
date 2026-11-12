@@ -7,7 +7,9 @@ export const TABLE_COLUMNS = [
   {
     key: "followup",
     filterVariant: "select",
+    label: "Follow-up years",
   },
+  { key: "r", label: "Adjustment factor r" },
   {
     key: "link",
     label: "Survival distribution for the noncured fraction",

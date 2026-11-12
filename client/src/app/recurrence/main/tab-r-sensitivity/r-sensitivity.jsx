@@ -17,7 +17,7 @@ function defaultRText(r) {
 }
 
 export default function RSensitivity({ data, params, stratumLabel, precision }) {
-  const sortedData = useMemo(() => [...(data ?? [])].sort((a, b) => a.followup - b.followup), [data]);
+  const sortedData = data ?? [];
   const modelR = sortedData[0]?.r;
   const link = sortedData[0]?.link;
   const thetaMissing = sortedData[0]?.theta === null || sortedData[0]?.theta === undefined;
@@ -28,10 +28,11 @@ export default function RSensitivity({ data, params, stratumLabel, precision }) 
   const effectiveMethod = method === "analytical" && thetaMissing ? "numerical" : method;
   const methodLabel = effectiveMethod === "analytical" ? "Analytical method" : "Numerical method";
 
-  const { values: parsedValues, error: parseError } = useMemo(() => parseRValues(rText), [rText]);
+  const { error: parseError } = parseRValues(rText);
 
   const series = useMemo(() => {
     if (!sortedData.length) return [];
+    const { values: parsedValues } = parseRValues(rText);
     const allRs =
       modelR !== undefined && modelR !== null
         ? [...new Set([modelR, ...parsedValues])].sort((a, b) => a - b)
@@ -41,7 +42,7 @@ export default function RSensitivity({ data, params, stratumLabel, precision }) 
       isModel: r === modelR,
       values: effectiveMethod === "analytical" ? analyticalRisk(sortedData, r) : numericalRisk(sortedData, r),
     }));
-  }, [sortedData, parsedValues, modelR, effectiveMethod]);
+  }, [sortedData, rText, modelR, effectiveMethod]);
 
   const followups = sortedData.map((r) => r.followup);
 
@@ -80,7 +81,7 @@ export default function RSensitivity({ data, params, stratumLabel, precision }) 
                   ))}
                 </Form.Select>
                 {thetaMissing && (
-                  <Form.Text muted>Analytical is not available for this stratum (no fitted \u03b8).</Form.Text>
+                  <Form.Text muted>Analytical is not available for this stratum (no fitted θ).</Form.Text>
                 )}
               </Form.Group>
             </Col>
@@ -107,10 +108,6 @@ export default function RSensitivity({ data, params, stratumLabel, precision }) 
           </Row>
         </Col>
       </Row>
-      <Alert variant="info">
-        Curves for r values other than the model r are recalculated from the fitted model parameters. Confidence
-        bands are not available in this view.
-      </Alert>
       <Row>
         <Col>
           <RSensitivityPlot

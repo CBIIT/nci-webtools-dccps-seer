@@ -1,14 +1,14 @@
 "use client";
 import { useMemo } from "react";
 import { Container, Row, Col, Form, Button, Spinner } from "react-bootstrap";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import ActuarialPlot from "./plot";
 import ActuarialTable from "./table";
 import { getValueToLabelMap } from "../controls";
 import { downloadTableCansurv } from "@/services/xlsx";
 
 export default function Actuarial({ data, seerData, params, precision, stratumIndex = 0, stratumValueToLabel = {} }) {
-  const { register, watch } = useForm({
+  const { register, control } = useForm({
     defaultValues: useMemo(() => {
       const stratum = data["fit.list.by"].length ? Object.keys(data["fit.list.by"][0]) : [];
       return seerData.cohortVariables
@@ -19,14 +19,14 @@ export default function Actuarial({ data, seerData, params, precision, stratumIn
         }, {});
     }, [data, seerData]),
   });
-  const formState = watch();
+  const formState = useWatch({ control });
   const statistic = seerData?.config["Session Options"]["Statistic"];
   const hasStrata = data["fit.list.by"]?.length > 0;
 
   const subStratumVars = useMemo(() => {
     const stratum = data["fit.list.by"].length ? Object.keys(data["fit.list.by"][0]) : [];
     return seerData.cohortVariables.filter((e) => !stratum.includes(e.name));
-  }, [data]);
+  }, [data, seerData.cohortVariables]);
 
   const memoData = useMemo(() => {
     const fit = data["fit.list"][stratumIndex]?.data ?? [];

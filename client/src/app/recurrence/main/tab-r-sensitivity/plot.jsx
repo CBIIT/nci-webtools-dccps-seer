@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Container, Row, Col, Button, Form } from "react-bootstrap";
 import { colors, makeLegendTrace, makeAnnotation } from "@/components/plots/utils";
 import Plot from "@/components/plots/survival";
@@ -12,7 +12,7 @@ export default function RSensitivityPlot({ followups, series, title, subtitle, p
   const [fontSize, setFontSize] = useState(14);
   const [annotations, setAnnotations] = useState([]);
 
-  const traces = useMemo(() => {
+  const traces = (() => {
     const result = [];
 
     series.forEach((s, index) => {
@@ -42,7 +42,7 @@ export default function RSensitivityPlot({ followups, series, title, subtitle, p
     });
 
     return result;
-  }, [series, followups, precision]);
+  })();
 
   const maxFollowup = followups.length ? Math.max(...followups) : 1;
   const minFollowup = followups.length ? Math.min(...followups) : 0;
@@ -71,9 +71,8 @@ export default function RSensitivityPlot({ followups, series, title, subtitle, p
     },
     height: 700,
     autosize: true,
+    annotations,
   };
-
-  const layoutMemo = useMemo(() => ({ ...layout, annotations }), [layout, annotations]);
 
   async function addAnnotation() {
     const xMid = maxFollowup / 2;
@@ -105,7 +104,7 @@ export default function RSensitivityPlot({ followups, series, title, subtitle, p
           </Form.Group>
         </Col>
       </Row>
-      <Plot data={traces} layout={layoutMemo} removeAnnotation={removeAnnotation} />
+      <Plot data={traces} layout={layout} removeAnnotation={removeAnnotation} />
     </Container>
   );
 }

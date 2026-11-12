@@ -11,7 +11,9 @@ function formatPercent(value, precision) {
 
 function header(key, fallbackLabel, suffix = "") {
   const column = getTableColumn(key);
-  return () => <ColumnHeader label={`${column?.label ?? fallbackLabel}${suffix}`} definition={column?.definition} />;
+  return function Header() {
+    return <ColumnHeader label={`${column?.label ?? fallbackLabel}${suffix}`} definition={column?.definition} />;
+  };
 }
 
 export default function MetastaticSurvivalTable({ data, showObserved, showAdjusted, showExponential, precision = 4 }) {
@@ -52,5 +54,7 @@ export default function MetastaticSurvivalTable({ data, showObserved, showAdjust
     return cols;
   }, [showObserved, showAdjusted, showExponential, precision]);
 
-  return <Table data={data} columns={columns} useSort usePagination emptyMessage="No data available for this stratum" />;
+  return (
+    <Table data={data} columns={columns} useSort usePagination emptyMessage="No data available for this stratum" />
+  );
 }

@@ -7,6 +7,8 @@ import { useStore, defaultState } from "./store";
 import { parseCsvFile2 } from "@/services/file/file.service";
 import { renameKeys } from "@/services/utils";
 
+const columnHelper = createColumnHelper();
+
 export default function ConfigureDataModal() {
   const setState = useStore((state) => state.setState);
   const setUserCsv = useStore((state) => state.setUserCsv);
@@ -17,7 +19,6 @@ export default function ConfigureDataModal() {
   const form = useStore((state) => state.userCsv.form);
   const setConfigDataModal = (e) => setUserCsv({ openConfigDataModal: e });
   const handleClose = () => setConfigDataModal(false);
-  const columnHelper = createColumnHelper();
 
   const {
     register,
@@ -129,7 +130,7 @@ export default function ConfigureDataModal() {
           )
         : [];
     }
-  }, [displayLines, parsedNoHead, parsedHead.data]);
+  }, [hasHeaders, displayLines, parsedNoHead, parsedHead.data]);
   const columns = useMemo(() => {
     if (hasHeaders) {
       return parsedHead.headers.map((col) =>
@@ -148,7 +149,7 @@ export default function ConfigureDataModal() {
           )
         : [];
     }
-  }, [tableData, parsedHead.headers]);
+  }, [hasHeaders, tableData, parsedHead.headers]);
 
   const table = useReactTable({
     data: tableData,

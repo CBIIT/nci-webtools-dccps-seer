@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Container, Row, Col, Button, Form } from "react-bootstrap";
 import { colors, makeLegendTrace, makeAnnotation } from "@/components/plots/utils";
 import Plot from "@/components/plots/survival";
@@ -24,14 +24,11 @@ export default function MetastaticSurvivalPlot({
   const [fontSize, setFontSize] = useState(14);
   const [annotations, setAnnotations] = useState([]);
 
-  // `data` is expected to already be sorted by followup (see metastatic-survival.jsx).
-  const sortedData = data ?? [];
-
-  const traces = useMemo(() => {
+  const traces = (() => {
     const result = [];
 
     if (showObserved) {
-      const rows = withDefined(sortedData, "obs_dist_surv");
+      const rows = withDefined(data, "obs_dist_surv");
       result.push({
         name: "Survival after metastatic disease at diagnosis",
         x: rows.map((r) => r.followup),
@@ -51,7 +48,7 @@ export default function MetastaticSurvivalPlot({
     }
 
     if (showAdjusted) {
-      const rows = withDefined(sortedData, "dist_surv_adjusted");
+      const rows = withDefined(data, "dist_surv_adjusted");
       result.push({
         name: "Assumed survival after metastatic recurrence",
         x: rows.map((r) => r.followup),
@@ -70,7 +67,7 @@ export default function MetastaticSurvivalPlot({
     }
 
     if (showExponential) {
-      const rows = withDefined(sortedData, "dist_surv_exponential");
+      const rows = withDefined(data, "dist_surv_exponential");
       result.push({
         name: "Exponential approximation (analytical method)",
         x: rows.map((r) => r.followup),
@@ -90,19 +87,32 @@ export default function MetastaticSurvivalPlot({
 
     if (showObserved)
       result.push(
-        makeLegendTrace("Survival after metastatic disease at diagnosis", "observed", OBSERVED_COLOR_INDEX, "lines+markers")
+        makeLegendTrace(
+          "Survival after metastatic disease at diagnosis",
+          "observed",
+          OBSERVED_COLOR_INDEX,
+          "lines+markers"
+        )
       );
     if (showAdjusted)
-      result.push(makeLegendTrace("Assumed survival after metastatic recurrence", "adjusted", ADJUSTED_COLOR_INDEX, "lines"));
+      result.push(
+        makeLegendTrace("Assumed survival after metastatic recurrence", "adjusted", ADJUSTED_COLOR_INDEX, "lines")
+      );
     if (showExponential)
       result.push(
-        makeLegendTrace("Exponential approximation (analytical method)", "exponential", EXPONENTIAL_COLOR_INDEX, "lines", "dash")
+        makeLegendTrace(
+          "Exponential approximation (analytical method)",
+          "exponential",
+          EXPONENTIAL_COLOR_INDEX,
+          "lines",
+          "dash"
+        )
       );
 
     return result;
-  }, [sortedData, showObserved, showAdjusted, showExponential, precision]);
+  })();
 
-  const followups = sortedData.map((r) => r.followup);
+  const followups = data.map((r) => r.followup);
   const maxFollowup = followups.length ? Math.max(...followups) : 1;
   const minFollowup = followups.length ? Math.min(...followups) : 0;
 
@@ -132,9 +142,8 @@ export default function MetastaticSurvivalPlot({
     margin: { b: 160 },
     height: 700,
     autosize: true,
+    annotations,
   };
-
-  const layoutMemo = useMemo(() => ({ ...layout, annotations }), [layout, annotations]);
 
   async function addAnnotation() {
     const xMid = maxFollowup / 2;
@@ -166,7 +175,7 @@ export default function MetastaticSurvivalPlot({
           </Form.Group>
         </Col>
       </Row>
-      <Plot data={traces} layout={layoutMemo} removeAnnotation={removeAnnotation} />
+      <Plot data={traces} layout={layout} removeAnnotation={removeAnnotation} />
     </Container>
   );
 }

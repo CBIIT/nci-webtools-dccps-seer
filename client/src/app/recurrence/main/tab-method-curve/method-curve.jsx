@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Container, Row, Col, Form, Alert, Button } from "react-bootstrap";
 import MethodCurvePlot from "./plot";
 import MethodCurveTable from "./table";
@@ -16,24 +16,25 @@ export default function MethodCurve({ config, data, params, stratumLabel, precis
   const [method, setMethod] = useState("both");
   const [showBand, setShowBand] = useState(true);
 
-  const sortedData = useMemo(() => [...(data ?? [])].sort((a, b) => a.followup - b.followup), [data]);
-
   // Years after which numerical estimates are unavailable for this stratum, if any.
-  const truncationYear = useMemo(() => {
-    if (!sortedData.length) return null;
-    const withNumerical = sortedData.filter((r) => hasNumericalEstimate(r, config.numericalKey));
-    const lastYear = Math.max(...sortedData.map((r) => r.followup));
-    if (!withNumerical.length) return lastYear;
-    const lastNumericalYear = Math.max(...withNumerical.map((r) => r.followup));
-    return lastNumericalYear < lastYear ? lastNumericalYear : null;
-  }, [sortedData, config.numericalKey]);
+  let truncationYear = null;
+  if (data.length) {
+    const withNumerical = data.filter((r) => hasNumericalEstimate(r, config.numericalKey));
+    const lastYear = Math.max(...data.map((r) => r.followup));
+    if (!withNumerical.length) {
+      truncationYear = lastYear;
+    } else {
+      const lastNumericalYear = Math.max(...withNumerical.map((r) => r.followup));
+      truncationYear = lastNumericalYear < lastYear ? lastNumericalYear : null;
+    }
+  }
 
   const hasBand = Boolean(config.getCI);
   const bandDisabled = method === "numerical";
 
   function handleDownload() {
-    const columns = config.downloadColumns ?? Object.keys(sortedData[0] ?? {});
-    downloadTableCansurv(sortedData, columns, params, `${config.filenamePrefix}-${stratumLabel || "data"}`);
+    const columns = config.downloadColumns ?? Object.keys(data[0] ?? {});
+    downloadTableCansurv(data, columns, params, `${config.filenamePrefix}-${stratumLabel || "data"}`);
   }
 
   return (
@@ -74,13 +75,15 @@ export default function MethodCurve({ config, data, params, stratumLabel, precis
       </Row>
       {config.note && <Alert variant="secondary">{config.note}</Alert>}
       {truncationYear !== null && method !== "analytical" && (
-        <Alert variant="info">Numerical estimates are not available after year {truncationYear} for this stratum.</Alert>
+        <Alert variant="info">
+          Numerical estimates are not available after year {truncationYear} for this stratum.
+        </Alert>
       )}
       <Row>
         <Col>
           <MethodCurvePlot
             config={config}
-            data={sortedData}
+            data={data}
             method={method}
             showBand={hasBand && showBand && !bandDisabled}
             title={config.title}
@@ -90,9 +93,9 @@ export default function MethodCurve({ config, data, params, stratumLabel, precis
         </Col>
       </Row>
       <Row className="justify-content-between align-items-center">
-        <Col sm="auto">Total Row Count: {sortedData.length}</Col>
+        <Col sm="auto">Total Row Count: {data.length}</Col>
         <Col sm="auto">
-          <Button variant="link" onClick={handleDownload} disabled={sortedData.length === 0}>
+          <Button variant="link" onClick={handleDownload} disabled={data.length === 0}>
             Download Graph Dataset
           </Button>
         </Col>
@@ -101,7 +104,7 @@ export default function MethodCurve({ config, data, params, stratumLabel, precis
         <Col>
           <MethodCurveTable
             config={config}
-            data={sortedData}
+            data={data}
             method={method}
             showBand={hasBand && showBand && !bandDisabled}
             precision={precision}

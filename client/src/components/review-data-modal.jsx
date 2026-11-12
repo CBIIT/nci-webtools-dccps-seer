@@ -7,6 +7,8 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 
+const columnHelper = createColumnHelper();
+
 function getValueToLabelMap(dictionary) {
   const map = {};
   (dictionary ?? []).forEach((entry) => {
@@ -30,16 +32,15 @@ export default function ReviewDataModal({ show, onHide, datasets = [] }) {
   const [displayLines, setDisplayLines] = useState(20);
   const [showLabels, setShowLabels] = useState(true);
   const [datasetIndex, setDatasetIndex] = useState(0);
-  const columnHelper = createColumnHelper();
 
   // reset the selected dataset if the modal is reopened or the available datasets change
   useEffect(() => {
     if (datasetIndex >= datasets.length) setDatasetIndex(0);
   }, [datasets, datasetIndex]);
 
-  const dataset = datasets[datasetIndex] ?? {};
-  const data = dataset.data || [];
-  const dictionary = dataset.dictionary || [];
+  const dataset = datasets[datasetIndex];
+  const data = dataset?.data || [];
+  const dictionary = dataset?.dictionary || [];
 
   const valueToLabelMap = useMemo(() => getValueToLabelMap(dictionary), [dictionary]);
 
@@ -68,7 +69,6 @@ export default function ReviewDataModal({ show, onHide, datasets = [] }) {
       );
     }
     return [];
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dictionary, data, showLabels, valueToLabelMap]);
 
   const tableData = useMemo(() => data.slice(0, displayLines), [data, displayLines]);

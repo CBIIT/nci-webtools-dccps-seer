@@ -1,5 +1,5 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { groupBy } from "lodash";
 import { Container, Row, Col, Button, Form } from "react-bootstrap";
 import {
@@ -106,9 +106,8 @@ export default function DeathYearPlot({
     })
     .flat();
 
-  const trendAnnotations = useMemo(() => {
-    if (!trendData || trendData.length === 0) return [];
-    return Object.entries(groupBy(trendData, "interval")).flatMap(([interval, trends]: [string, TrendDataPoint[]], intervalIndex: number) =>
+  const trendAnnotations = Object.entries(groupBy(trendData ?? [], "interval")).flatMap(
+    ([interval, trends]: [string, TrendDataPoint[]], intervalIndex: number) =>
       trends.map((trend: TrendDataPoint, index: number) => {
         const { "start.year": startYear, "end.year": endYear, estimate } = trend;
         const intervalData = groupByInterval[interval] || [];
@@ -124,17 +123,10 @@ export default function DeathYearPlot({
           { captureevents: false }
         );
       })
-    );
-  }, [trendData, groupByInterval, observedHeader, predictedHeader, precision, params.firstYear]);
+  );
 
   const layout = makeLayout([yearStart, yearEnd], title, subtitle, xTitle, yTitle, fontSize);
-  const layoutMemo = useMemo(
-    () => ({
-      ...layout,
-      annotations: [...annotations, ...trendAnnotations],
-    }),
-    [layout, annotations, trendAnnotations]
-  );
+  const plotLayout = { ...layout, annotations: [...annotations, ...trendAnnotations] };
 
   async function addAnnotation(): Promise<void> {
     const xMid = params.firstYear + (params.yearStart + params.yearEnd) / 2;
@@ -166,7 +158,7 @@ export default function DeathYearPlot({
           </Form.Group>
         </Col>
       </Row>
-      <Plot data={traces} layout={layoutMemo} removeAnnotation={removeAnnotation} />
+      <Plot data={traces} layout={plotLayout} removeAnnotation={removeAnnotation} />
     </Container>
   );
 }

@@ -58,7 +58,7 @@ export default function AnalysisMain({ id }) {
       results
         ? results.map((e) => ({ ...e, fullpredicted: changePrecision(scaleData(e.fullpredicted, 100), precision) }))
         : [],
-    [results]
+    [results, precision]
   );
 
   function setFitIndex(index) {

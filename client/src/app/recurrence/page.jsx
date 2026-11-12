@@ -29,7 +29,7 @@ export default function GroupPage() {
   // Reset results panel when session id changes
   useEffect(() => {
     resetMain();
-  }, [id]);
+  }, [id, resetMain]);
 
   // Restore URL if session id is in store but not in URL
   useEffect(() => {

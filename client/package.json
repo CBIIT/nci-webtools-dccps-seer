@@ -34,6 +34,7 @@
   "devDependencies": {
     "@types/lodash": "^4.17.27",
     "@types/node": "26.6.6",
+    "babel-plugin-react-compiler": "^1.0.0",
     "eslint": "9.39.5",
     "eslint-config-next": "16.4.5"
   }
