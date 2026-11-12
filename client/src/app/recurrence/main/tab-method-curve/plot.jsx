@@ -3,33 +3,40 @@ import { useMemo, useState } from "react";
 import { Container, Row, Col, Button, Form } from "react-bootstrap";
 import { colors, hexToRgba, makeLegendTrace, makeAnnotation } from "@/components/plots/utils";
 import Plot from "@/components/plots/survival";
-import { getAnalyticalCI, hasNumericalEstimate } from "./utils";
+import { hasNumericalEstimate } from "./utils";
 
 const ANALYTICAL_COLOR_INDEX = 0;
 const NUMERICAL_COLOR_INDEX = 1;
 
-export default function MetastaticPlot({ data, method, showBand, title, subtitle, precision = 4 }) {
+export default function MethodCurvePlot({ config, data, method, showBand, title, subtitle, precision = 4 }) {
   const [fontSize, setFontSize] = useState(14);
   const [annotations, setAnnotations] = useState([]);
 
-  // `data` is expected to already be sorted by followup (see metastatic.jsx).
+  const { analyticalKey, numericalKey, getCI, valueLabel, seriesSuffix, yAxis } = config;
+  const analyticalName = `Analytical${seriesSuffix}`;
+  const numericalName = `Numerical${seriesSuffix}`;
+
+  // `data` is expected to already be sorted by followup (see method-curve.jsx).
   const sortedData = data ?? [];
-  const numericalData = useMemo(() => sortedData.filter(hasNumericalEstimate), [sortedData]);
+  const numericalData = useMemo(
+    () => sortedData.filter((r) => hasNumericalEstimate(r, numericalKey)),
+    [sortedData, numericalKey]
+  );
 
   const showAnalytical = method === "analytical" || method === "both";
   const showNumerical = method === "numerical" || method === "both";
-  const canShowBand = showAnalytical && showBand;
+  const canShowBand = Boolean(getCI) && showAnalytical && showBand;
 
   const traces = useMemo(() => {
     const result = [];
 
     if (canShowBand) {
       const x = sortedData.map((r) => r.followup);
-      const upperY = sortedData.map((r) => (getAnalyticalCI(r)?.[1] ?? r.CI_analytical) * 100);
-      const lowerY = sortedData.map((r) => (getAnalyticalCI(r)?.[0] ?? r.CI_analytical) * 100);
+      const upperY = sortedData.map((r) => (getCI(r)?.[1] ?? r[analyticalKey]) * 100);
+      const lowerY = sortedData.map((r) => (getCI(r)?.[0] ?? r[analyticalKey]) * 100);
 
       result.push({
-        name: "95% CI upper bound (analytical)",
+        name: `95% CI upper bound (${analyticalName})`,
         x,
         y: upperY,
         mode: "lines",
@@ -40,7 +47,7 @@ export default function MetastaticPlot({ data, method, showBand, title, subtitle
         type: "scatter",
       });
       result.push({
-        name: "95% CI (analytical)",
+        name: `95% CI (${analyticalName})`,
         x,
         y: lowerY,
         mode: "lines",
@@ -56,11 +63,11 @@ export default function MetastaticPlot({ data, method, showBand, title, subtitle
 
     if (showAnalytical) {
       result.push({
-        name: "Analytical",
+        name: analyticalName,
         x: sortedData.map((r) => r.followup),
-        y: sortedData.map((r) => r.CI_analytical * 100),
+        y: sortedData.map((r) => r[analyticalKey] * 100),
         customdata: sortedData.map((r) => {
-          const ci = getAnalyticalCI(r);
+          const ci = getCI ? getCI(r) : null;
           return ci ? [ci[0] * 100, ci[1] * 100] : [null, null];
         }),
         mode: "lines",
@@ -70,42 +77,42 @@ export default function MetastaticPlot({ data, method, showBand, title, subtitle
         type: "scatter",
         hovertemplate: canShowBand
           ? [
-              "<b>Analytical</b>",
+              `<b>${analyticalName}</b>`,
               "<br>\u2022    Years Since Diagnosis: %{x}",
-              `<br>\u2022    Net Recurrence Risk: %{y:.${precision}f}%`,
+              `<br>\u2022    ${valueLabel}: %{y:.${precision}f}%`,
               `<br>\u2022    95% CI: %{customdata[0]:.${precision}f}% \u2013 %{customdata[1]:.${precision}f}%<extra></extra>`,
             ].join("")
           : [
-              "<b>Analytical</b>",
+              `<b>${analyticalName}</b>`,
               "<br>\u2022    Years Since Diagnosis: %{x}",
-              `<br>\u2022    Net Recurrence Risk: %{y:.${precision}f}%<extra></extra>`,
+              `<br>\u2022    ${valueLabel}: %{y:.${precision}f}%<extra></extra>`,
             ].join(""),
       });
     }
 
     if (showNumerical) {
       result.push({
-        name: "Numerical",
+        name: numericalName,
         x: numericalData.map((r) => r.followup),
-        y: numericalData.map((r) => r.CI_numerical * 100),
+        y: numericalData.map((r) => r[numericalKey] * 100),
         mode: "lines",
         line: { shape: "spline", color: colors[NUMERICAL_COLOR_INDEX] },
         showlegend: false,
         legendgroup: "numerical",
         type: "scatter",
         hovertemplate: [
-          "<b>Numerical</b>",
+          `<b>${numericalName}</b>`,
           "<br>\u2022    Years Since Diagnosis: %{x}",
-          `<br>\u2022    Net Recurrence Risk: %{y:.${precision}f}%<extra></extra>`,
+          `<br>\u2022    ${valueLabel}: %{y:.${precision}f}%<extra></extra>`,
         ].join(""),
       });
     }
 
-    if (showAnalytical) result.push(makeLegendTrace("Analytical", "analytical", ANALYTICAL_COLOR_INDEX, "lines"));
-    if (showNumerical) result.push(makeLegendTrace("Numerical", "numerical", NUMERICAL_COLOR_INDEX, "lines"));
+    if (showAnalytical) result.push(makeLegendTrace(analyticalName, "analytical", ANALYTICAL_COLOR_INDEX, "lines"));
+    if (showNumerical) result.push(makeLegendTrace(numericalName, "numerical", NUMERICAL_COLOR_INDEX, "lines"));
     if (canShowBand) {
       result.push({
-        name: "95% CI (analytical)",
+        name: `95% CI (${analyticalName})`,
         x: [null],
         y: [null],
         mode: "lines",
@@ -119,7 +126,20 @@ export default function MetastaticPlot({ data, method, showBand, title, subtitle
     }
 
     return result;
-  }, [sortedData, numericalData, showAnalytical, showNumerical, canShowBand, precision]);
+  }, [
+    sortedData,
+    numericalData,
+    showAnalytical,
+    showNumerical,
+    canShowBand,
+    precision,
+    analyticalKey,
+    numericalKey,
+    getCI,
+    analyticalName,
+    numericalName,
+    valueLabel,
+  ]);
 
   const followups = sortedData.map((r) => r.followup);
   const maxFollowup = followups.length ? Math.max(...followups) : 1;
@@ -138,10 +158,11 @@ export default function MetastaticPlot({ data, method, showBand, title, subtitle
       range: [Math.max(0, minFollowup - 1), maxFollowup + 1],
     },
     yaxis: {
-      title: "<b>Net Metastatic Recurrence Risk (%)</b>",
+      title: `<b>${yAxis.title}</b>`,
       showline: true,
       ticksuffix: "%",
-      rangemode: "tozero",
+      ...(yAxis.rangemode ? { rangemode: yAxis.rangemode } : {}),
+      ...(yAxis.range ? { range: yAxis.range } : {}),
     },
     legend: {
       orientation: "h",
@@ -171,7 +192,7 @@ export default function MetastaticPlot({ data, method, showBand, title, subtitle
           </Button>
         </Col>
         <Col sm="auto">
-          <Form.Group className="d-flex text-nowrap align-items-center" controlId="fontSizeMetastatic">
+          <Form.Group className="d-flex text-nowrap align-items-center" controlId={`fontSize-${config.id}`}>
             <Form.Label className="me-2">Font Size</Form.Label>
             <Form.Control
               type="number"

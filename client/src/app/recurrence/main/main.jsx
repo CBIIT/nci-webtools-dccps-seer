@@ -7,7 +7,11 @@ import { fetchStatus, fetchOutput } from "@/services/queries";
 import Status from "../status";
 import Results from "./results";
 import Description from "./description";
-import Metastatic from "./tab-metastatic/metastatic";
+import MethodCurve from "./tab-method-curve/method-curve";
+import { METASTATIC, RECURRENCE_FREE, NONCURED } from "./tab-method-curve/configs";
+import CureModel from "./tab-cure-model/cure-model";
+import MetastaticSurvival from "./tab-metastatic-survival/metastatic-survival";
+import RSensitivity from "./tab-r-sensitivity/r-sensitivity";
 import Controls, { getStratumVariables, filterByStratum, getStratumLabel } from "./controls";
 
 export default function AnalysisMain({ id }) {
@@ -104,9 +108,52 @@ export default function AnalysisMain({ id }) {
           <div className="shadow border rounded bg-white mb-3">
             <Tabs defaultActiveKey="metastatic">
               <Tab eventKey="metastatic" title="Net Metastatic Recurrence Risk">
-                <Metastatic data={filteredResults} params={params} stratumLabel={stratumLabel} precision={precision} />
+                <MethodCurve
+                  config={METASTATIC}
+                  data={filteredResults}
+                  params={params}
+                  stratumLabel={stratumLabel}
+                  precision={precision}
+                />
               </Tab>
-              <Tab eventKey="results" title="Results">
+              <Tab eventKey="cure-model" title="Mixture Cure Model Fit">
+                <CureModel data={filteredResults} params={params} stratumLabel={stratumLabel} precision={precision} />
+              </Tab>
+              <Tab eventKey="recurrence-free" title="Net Recurrence-free Probability">
+                <MethodCurve
+                  config={RECURRENCE_FREE}
+                  data={filteredResults}
+                  params={params}
+                  stratumLabel={stratumLabel}
+                  precision={precision}
+                />
+              </Tab>
+              <Tab eventKey="noncured" title="Recurrence-free Probability among the Noncured Fraction">
+                <MethodCurve
+                  config={NONCURED}
+                  data={filteredResults}
+                  params={params}
+                  stratumLabel={stratumLabel}
+                  precision={precision}
+                />
+              </Tab>
+              <Tab eventKey="metastatic-survival" title="Survival After Metastatic Disease">
+                <MetastaticSurvival
+                  data={filteredResults}
+                  params={params}
+                  stratumLabel={stratumLabel}
+                  precision={precision}
+                />
+              </Tab>
+              <Tab eventKey="r-sensitivity" title="Sensitivity of Recurrence Risk to r">
+                <RSensitivity
+                  data={filteredResults}
+                  params={params}
+                  stratumLabel={stratumLabel}
+                  precision={precision}
+                />
+              </Tab>
+              <Tab eventKey="results" title="Data">
                 <Results data={results} params={params} seerData={seerData} precision={precision} />
               </Tab>
             </Tabs>
