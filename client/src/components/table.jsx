@@ -136,7 +136,7 @@ export default function Table({
                           aria-label={`Filter ${filterLabel}`}
                           value={header.column.getFilterValue() ?? ""}
                           onChange={(e) => header.column.setFilterValue(e.target.value || undefined)}>
-                          <option value="">All</option>
+                          <option value="">---</option>
                           {getSelectFilterOptions(header.column).map((value) => (
                             <option key={value} value={value}>
                               {value}
