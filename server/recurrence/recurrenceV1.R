@@ -1251,9 +1251,17 @@ getRiskFromGroupData <- function(
   distantStageValue,
   adjustmentFactorR,
   followUpYears = 25,
+  strataFilters = NULL,
   ...
 ) {
   columns = colnames(seerStatData)
+  for (name in intersect(names(strataFilters), columns)) {
+    values <- as.numeric(unlist(strataFilters[[name]]))
+    # distant-stage rows are required to estimate theta
+    if (identical(name, stageVariable)) values <- union(values, as.numeric(distantStageValue))
+    if (length(values)) seerStatData <- seerStatData[seerStatData[[name]] %in% values, , drop = FALSE]
+  }
+
   recurrencerisk.group(
     data = seerStatData,
     data.cansurv = canSurvData,

@@ -2,9 +2,11 @@
 import dynamic from "next/dynamic";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
+import Accordion from "react-bootstrap/Accordion";
+import Badge from "react-bootstrap/Badge";
 import Spinner from "react-bootstrap/Spinner";
 import Alert from "react-bootstrap/Alert";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
@@ -19,6 +21,20 @@ import LoadingOverlay from "@/components/loading-overlay";
 import { useStore, defaultParams } from "./store";
 
 const FileInput = dynamic(() => import("@/components/file-input"), { ssr: false });
+
+function getStrataOptions(headers) {
+  return (headers ?? [])
+    .filter((h) => h.factors?.length && !/^(page type|interval)$/i.test(String(h.label).trim()))
+    .map((h) => ({
+      name: h.name,
+      label: h.label,
+      options: h.factors.map((f) => ({
+        value: Number(f.value),
+        label: String(f.label).replace(/"/g, "").trim(),
+        checked: true,
+      })),
+    }));
+}
 
 export default function GroupDataForm({ id }) {
   const queryClient = useQueryClient();
@@ -48,6 +64,44 @@ export default function GroupDataForm({ id }) {
   const stageVariable = watch("stageVariable");
   const distantStageValue = watch("distantStageValue");
   const selectedHeader = seerData.seerStatDictionary?.find((h) => h.name === stageVariable);
+  const strataOptions = useWatch({ control, name: "strataOptions" }) ?? [];
+
+  // RecurRisk needs the distant-stage rows, so that level can never be excluded
+  function isLockedOption(variable, option) {
+    return (
+      variable.name === stageVariable &&
+      distantStageValue !== "" &&
+      distantStageValue != null &&
+      Number(option.value) === Number(distantStageValue)
+    );
+  }
+
+  function isCheckedOption(variable, option) {
+    return isLockedOption(variable, option) || !!option.checked;
+  }
+
+  function getStrataStatus(variable) {
+    const total = variable.options.length;
+    const checkedCount = variable.options.filter((o) => isCheckedOption(variable, o)).length;
+    const unlockedCheckedCount = variable.options.filter((o) => !isLockedOption(variable, o) && o.checked).length;
+    const isValid = unlockedCheckedCount > 0;
+    const message =
+      variable.name === stageVariable
+        ? "Select at least one level other than the distant stage."
+        : "Select at least one level.";
+    return { total, checkedCount, isValid, message };
+  }
+
+  function setStrataChecked(vIndex, oIndex, checked) {
+    setValue(`strataOptions.${vIndex}.options.${oIndex}.checked`, checked);
+  }
+
+  function setAllStrataChecked(vIndex, checked) {
+    setValue(
+      `strataOptions.${vIndex}.options`,
+      strataOptions[vIndex].options.map((o) => ({ ...o, checked }))
+    );
+  }
 
   const isMutatingSubmit = useIsMutating({ mutationKey: ["submitRecurrence"] });
   const isMutatingImport = useIsMutating({ mutationKey: ["importRecurrence"] });
@@ -82,7 +136,10 @@ export default function GroupDataForm({ id }) {
   useEffect(() => {
     if (session && !getValues("id")) {
       setState({ seerData: session.seerData });
-      reset({ ...session.params });
+      reset({
+        ...session.params,
+        strataOptions: session.params?.strataOptions ?? getStrataOptions(session.seerData?.seerStatDictionary),
+      });
     }
   }, [session]);
 
@@ -121,6 +178,7 @@ export default function GroupDataForm({ id }) {
         },
       });
       setValue("followUpYears", followUpYears);
+      setValue("strataOptions", getStrataOptions(headers));
       setValue("stageVariable", "");
       setValue("distantStageValue", "");
     } catch (err) {
@@ -170,9 +228,22 @@ export default function GroupDataForm({ id }) {
   }
 
   async function submitCalculation(formData) {
+    const strata = formData.strataOptions ?? [];
+    if (strata.some((v) => !getStrataStatus(v).isValid)) {
+      setError("Select at least one level for each strata variable.");
+      return;
+    }
+    const strataFilters = Object.fromEntries(
+      strata
+        .map((v) => [v, v.options.filter((o) => isCheckedOption(v, o))])
+        .filter(([v, selected]) => selected.length < v.options.length)
+        .map(([v, selected]) => [v.name, selected.map((o) => Number(o.value))])
+    );
+
     const id = uuidv4();
     const params = {
       ...formData,
+      strataFilters,
       id,
       distantStageValue: Number(formData.distantStageValue),
       adjustmentFactorR: Number(formData.adjustmentFactorR),
@@ -454,6 +525,63 @@ export default function GroupDataForm({ id }) {
               </Form.Select>
               <Form.Control.Feedback type="invalid">{errors.followUpYears?.message}</Form.Control.Feedback>
             </Form.Group>
+          </fieldset>
+        )}
+
+        {hasSeerStatData && strataOptions.length > 0 && (
+          <fieldset className="fieldset border rounded my-4 pt-4 px-3">
+            <legend className="legend fw-bold">Strata</legend>
+            <Form.Text as="p" className="text-muted">
+              Select the levels of each variable to include in the analysis.
+            </Form.Text>
+            <Accordion alwaysOpen className="mb-4">
+              {strataOptions.map((variable, vIndex) => {
+                const { total, checkedCount, isValid, message } = getStrataStatus(variable);
+                return (
+                  <Accordion.Item key={variable.name} eventKey={variable.name}>
+                    <Accordion.Header>
+                      <span className="me-2">{variable.label}</span>
+                      <Badge bg={!isValid ? "danger" : checkedCount === total ? "secondary" : "primary"}>
+                        {!isValid ? "Invalid" : checkedCount === total ? "All" : `${checkedCount} of ${total}`}
+                      </Badge>
+                    </Accordion.Header>
+                    <Accordion.Body>
+                      <div className="d-flex gap-3 mb-2">
+                        <Button
+                          variant="link"
+                          size="sm"
+                          className="p-0"
+                          onClick={() => setAllStrataChecked(vIndex, true)}>
+                          Select all
+                        </Button>
+                        <Button
+                          variant="link"
+                          size="sm"
+                          className="p-0"
+                          onClick={() => setAllStrataChecked(vIndex, false)}>
+                          Clear
+                        </Button>
+                      </div>
+                      {variable.options.map((option, oIndex) => {
+                        const locked = isLockedOption(variable, option);
+                        return (
+                          <Form.Check
+                            key={option.value}
+                            id={`strata-${variable.name}-${option.value}`}
+                            type="checkbox"
+                            label={`${option.value} - ${option.label}${locked ? " (required)" : ""}`}
+                            checked={isCheckedOption(variable, option)}
+                            disabled={locked}
+                            onChange={(e) => setStrataChecked(vIndex, oIndex, e.target.checked)}
+                          />
+                        );
+                      })}
+                      {!isValid && <Form.Text className="text-danger">{message}</Form.Text>}
+                    </Accordion.Body>
+                  </Accordion.Item>
+                );
+              })}
+            </Accordion>
           </fieldset>
         )}
 

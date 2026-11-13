@@ -8,6 +8,7 @@ export const defaultParams = {
   distantStageValue: "",
   adjustmentFactorR: 1,
   followUpYears: 25,
+  strataOptions: [],
   sendNotification: false,
   jobName: "",
   email: "",
