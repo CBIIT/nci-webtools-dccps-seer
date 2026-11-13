@@ -121,9 +121,6 @@ export default function AnalysisMain({ id }) {
                   precision={precision}
                 />
               </Tab>
-              <Tab eventKey="cure-model" title="Mixture Cure Model Fit">
-                <CureModel data={filteredResults} params={params} stratumLabel={stratumLabel} precision={precision} />
-              </Tab>
               <Tab eventKey="recurrence-free" title="Net Recurrence-free Probability">
                 <MethodCurve
                   config={RECURRENCE_FREE}
@@ -132,6 +129,9 @@ export default function AnalysisMain({ id }) {
                   stratumLabel={stratumLabel}
                   precision={precision}
                 />
+              </Tab>
+              <Tab eventKey="cure-model" title="Mixture Cure Model Fit">
+                <CureModel data={filteredResults} params={params} stratumLabel={stratumLabel} precision={precision} />
               </Tab>
               <Tab eventKey="noncured" title="Recurrence-free Probability among the Noncured Fraction">
                 <MethodCurve
