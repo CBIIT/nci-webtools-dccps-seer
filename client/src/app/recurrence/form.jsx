@@ -9,7 +9,7 @@ import Spinner from "react-bootstrap/Spinner";
 import Alert from "react-bootstrap/Alert";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
-import { CiCircleQuestion } from "react-icons/ci";
+import { FaCircleInfo } from "react-icons/fa6";
 import { useQuery, useMutation, useQueryClient, useIsMutating } from "@tanstack/react-query";
 import { v4 as uuidv4 } from "uuid";
 import { parseSeerStatDictionary, parseSeerStatFiles, parseCsvFile } from "@/services/file/file.service";
@@ -419,7 +419,7 @@ export default function GroupDataForm({ id }) {
                     </Tooltip>
                   }>
                   <span>
-                    <CiCircleQuestion />
+                    <FaCircleInfo />
                   </span>
                 </OverlayTrigger>
               </Form.Label>

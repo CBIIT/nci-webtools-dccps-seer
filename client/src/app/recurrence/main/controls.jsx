@@ -1,7 +1,7 @@
 "use client";
 import { Form, Row, Col, Button, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { FaDownload } from "react-icons/fa";
-import { CiCircleQuestion } from "react-icons/ci";
+import { FaCircleInfo } from "react-icons/fa6";
 
 // Build the list of stratum/covariate variables from the results columns that
 // precede "followup" (see server/recurrence/recurrenceV1.R), using only the
@@ -85,7 +85,7 @@ export default function Controls({
                 placement="top"
                 overlay={<Tooltip id="precision-tooltip">Number of decimal places in data</Tooltip>}>
                 <span>
-                  <CiCircleQuestion />
+                  <FaCircleInfo />
                 </span>
               </OverlayTrigger>
             </Form.Label>

@@ -7,7 +7,7 @@ import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
-import { CiCircleQuestion } from "react-icons/ci";
+import { FaCircleInfo } from "react-icons/fa6";
 import { useStore } from "../store";
 
 // Build display options for the Stratum select from the fit list metadata.
@@ -112,7 +112,7 @@ export function Controls({ manifest, results, seerData, className, handleSaveRes
                 placement="top"
                 overlay={<Tooltip id="precision-tooltip">Number of decimal places in data</Tooltip>}>
                 <span>
-                  <CiCircleQuestion />
+                  <FaCircleInfo />
                 </span>
               </OverlayTrigger>
             </Form.Label>
