@@ -108,6 +108,7 @@ export default function AnalysisMain({ id }) {
               onSaveWorkspace={handleSaveWorkspace}
               id={params?.id}
               showStratum={activeTab !== "results"}
+              summaryRow={filteredResults[0]}
             />
           </div>
           <div className="shadow border rounded bg-white mb-3">

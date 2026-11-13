@@ -1,7 +1,18 @@
 "use client";
-import { Form, Row, Col, Button, OverlayTrigger, Tooltip } from "react-bootstrap";
+import { Form, Row, Col, Button, Card, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { FaDownload } from "react-icons/fa";
 import { FaCircleInfo } from "react-icons/fa6";
+import ColumnHeader from "@/components/column-header";
+import { getTableColumn } from "./table-columns";
+
+// Parameters that do not vary with years since diagnosis within a stratum.
+const SUMMARY_KEYS = ["link", "r", "cure", "lambda", "k", "theta", "median_surv_notcured"];
+
+function formatSummaryValue(value, precision) {
+  if (value === null || value === undefined) return "";
+  if (typeof value === "number") return value.toFixed(precision);
+  return String(value);
+}
 
 // Build the list of stratum/covariate variables from the results columns that
 // precede "followup" (see server/recurrence/recurrenceV1.R), using only the
@@ -51,6 +62,7 @@ export default function Controls({
   onSaveWorkspace,
   id,
   showStratum = true,
+  summaryRow,
 }) {
   function handleChange(name, rawValue) {
     const numericValue = Number(rawValue);
@@ -105,6 +117,26 @@ export default function Controls({
           </Button>
         </Col>
       </Row>
+      {showStratum && summaryRow && (
+        <Card className="mt-3" style={{ transform: "none", boxShadow: "none" }}>
+          <Card.Header className="py-1 small fw-semibold">Model parameters</Card.Header>
+          <Card.Body className="py-2">
+            <Row xs={2} md={4} xl={7} className="g-2">
+              {SUMMARY_KEYS.map((key) => {
+                const column = getTableColumn(key);
+                return (
+                  <Col key={key}>
+                    <div className="text-muted small lh-sm">
+                      <ColumnHeader label={column?.label ?? key} definition={column?.definition} />
+                    </div>
+                    <div className="mx-2 fw-semibold">{formatSummaryValue(summaryRow[key], precision)}</div>
+                  </Col>
+                );
+              })}
+            </Row>
+          </Card.Body>
+        </Card>
+      )}
     </Form>
   );
 }
