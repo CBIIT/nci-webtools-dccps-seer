@@ -1,6 +1,6 @@
 "use client";
 import Container from "react-bootstrap/Container";
-import { TABLE_COLUMNS, TABLE_COLUMN_MAP } from "@/app/recurrence/main/table-columns";
+import { TABLE_COLUMN_MAP } from "@/app/recurrence/main/table-columns";
 
 const MODEL_PARAMETER_KEYS = [
   "link",
@@ -15,10 +15,6 @@ const MODEL_PARAMETER_KEYS = [
   "obs_dist_surv",
 ];
 
-const CURRENT_NAME_OVERRIDES = {
-  surv_notcured: "surv_notcure",
-};
-
 function DefinitionList({ keys }) {
   return (
     <ul>
@@ -32,33 +28,6 @@ function DefinitionList({ keys }) {
           </li>
         ))}
     </ul>
-  );
-}
-
-function SuggestedNamesTable() {
-  const columns = TABLE_COLUMNS.filter((column) => column.definition);
-
-  return (
-    <div className="table-responsive">
-      <table className="table table-sm table-bordered align-middle">
-        <thead className="text-center">
-          <tr>
-            <th scope="col">Current name</th>
-            <th scope="col">Display label</th>
-            <th scope="col">Technical definition</th>
-          </tr>
-        </thead>
-        <tbody>
-          {columns.map((column) => (
-            <tr key={column.key}>
-              <td>{CURRENT_NAME_OVERRIDES[column.key] ?? column.key}</td>
-              <td>{column.label}</td>
-              <td>{column.definition}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
   );
 }
 
@@ -236,9 +205,6 @@ export default function RecurRiskHelp() {
           and rectum cancers. Agreement was weaker during years 1-3 after diagnosis. This evidence does not establish
           equivalent performance for other cancers or populations.
         </p>
-
-        <h2 className="h5 mb-2">Table. RecurRisk variable naming suggestions</h2>
-        <SuggestedNamesTable />
       </article>
     </Container>
   );
