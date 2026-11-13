@@ -1,112 +1,244 @@
 "use client";
 import Container from "react-bootstrap/Container";
-import { TABLE_COLUMNS } from "@/app/recurrence/main/table-columns";
+import { TABLE_COLUMNS, TABLE_COLUMN_MAP } from "@/app/recurrence/main/table-columns";
+
+const MODEL_PARAMETER_KEYS = [
+  "link",
+  "cure",
+  "lambda",
+  "k",
+  "theta",
+  "median_surv_notcured",
+  "surv_notcured",
+  "surv_curemodel",
+  "obs_surv",
+  "obs_dist_surv",
+];
+
+const CURRENT_NAME_OVERRIDES = {
+  surv_notcured: "surv_notcure",
+};
+
+function DefinitionList({ keys }) {
+  return (
+    <ul>
+      {keys
+        .map((key) => TABLE_COLUMN_MAP[key])
+        .filter((column) => column?.definition)
+        .map((column) => (
+          <li key={column.key}>
+            <strong>{column.label}: </strong>
+            {column.definition}
+          </li>
+        ))}
+    </ul>
+  );
+}
+
+function SuggestedNamesTable() {
+  const columns = TABLE_COLUMNS.filter((column) => column.definition);
+
+  return (
+    <div className="table-responsive">
+      <table className="table table-sm table-bordered align-middle">
+        <thead className="text-center">
+          <tr>
+            <th scope="col">Current name</th>
+            <th scope="col">Display label</th>
+            <th scope="col">Technical definition</th>
+          </tr>
+        </thead>
+        <tbody>
+          {columns.map((column) => (
+            <tr key={column.key}>
+              <td>{CURRENT_NAME_OVERRIDES[column.key] ?? column.key}</td>
+              <td>{column.label}</td>
+              <td>{column.definition}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
 
 export default function RecurRiskHelp() {
   return (
     <Container className="py-3">
       <article className="shadow p-4 rounded">
-        <h2 className="text-primary">RecurRisk Help</h2>
+        <h2 className="text-primary">About RecurRisk</h2>
         <p>
-          The RecurRisk tool has been developed to estimate the risk of progressing to distant recurrence using
-          disease-specific survival typically provided by cancer registries. The disease-specific survival is assessed
-          via cause-specific survival or relative survival using SEER*Stat software. The cause-specific survival or
-          relative survival is assumed to follow a mixture-cure model and the risk of recurrence is inferred from the
-          survival among the non-cured fraction. The cure fraction and parametric survival distribution among those not
-          cured are estimated using CanSurv software. The current version can handle Weibull and log-logistic
-          distributions for the non-cured survival.
+          RecurRisk estimates the population-level risk of distant metastatic recurrence or progression among patients
+          whose cancer was nonmetastatic at diagnosis. Estimates describe groups of patients, rather than individualized
+          prognosis.
         </p>
+        <p>
+          Here, <b>recurrence</b> includes both progression to metastatic disease and distant metastatic recurrence,
+          whether or not a disease-free interval was documented. Time is measured from diagnosis. Estimates represent
+          risk in the absence of other causes of death.
+        </p>
+        <p>
+          The tool uses relative or cause-specific survival data in life-table format exported from SEER*Stat, together
+          with mixture cure model estimates from CanSurv. The model separates the population into a statistically cured
+          fraction, patients not at risk of dying from their cancer, and a noncured fraction. It assumes that patients
+          who die from their cancer first develop metastatic disease. Recurrence risk is inferred from survival among
+          the noncured fraction and an estimate of survival after metastatic recurrence.
+        </p>
+        <p>RecurRisk supports Weibull and log-logistic mixture cure distributions.</p>
 
-        <h2 className="h5 mb-2">
-          Input
-          <small className="fw-normal h6 ms-1">
-            <a href="/data/recurrence_risk_groupdata/recurrence_risk_groupdata.zip" target="_blank">
-              (sample: recurrence_risk_groupdata.zip)
-            </a>
-          </small>
-        </h2>
+        <h2 className="h5 mb-2">Intended uses</h2>
+        <p>
+          Population-based recurrence data are not routinely available from cancer registries. RecurRisk can help
+          researchers:
+        </p>
         <ul>
           <li>
-            <strong>SEER*Stat Dic File: </strong>
-            the dictionary file exported from SEER*Stat software with .dic extension which contains the information
-            describing the layout of the export data file.
+            Estimate the proportion of patients who develop metastatic recurrence or progression within specified
+            periods after diagnosis.
           </li>
-          <li>
-            <strong>SEER*Stat Data File: </strong>
-            the cause-specific survival or relative survival data generated from SEER*Stat in .txt format. Note that, if
-            the .txt file is not exported from SEER*Stat but manually converted, the user should make sure the delimiter
-            used in the txt file is the same as the one specified in the dic file - field delimiter option.
-          </li>
-          <li>
-            <strong>CanSurv CSV File: </strong>
-            the CSV format output from CanSurv software including information on strata/covariates and estimated
-            parameters for the mixture cure survival model.
-          </li>
-          <li>
-            <strong>Stage Variable: </strong>
-            the stage variable defined in SEER*Stat data. All variable names in the data set will be listed after
-            uploading the SEER*Stat files. If there are more than 1 stage variable, the user will need to select the one
-            which contains the distant stage.
-          </li>
-          <li>
-            <strong>Distant Stage Value: </strong>
-            the user will need to select the numeric value of distant stage from the listed values of Stage Variable.
-          </li>
-          <li>
-            <strong>Adjustment Factor r: </strong>
-            the factor used to adjust the registry-based survival curves for sensitivity analysis. The user may click
-            the up and down arrows to change the value or type in any value. The default value is 1.
-          </li>
-          <li>
-            <strong>Years of Follow-up: </strong>
-            the range of follow-up years in the output. The default number is 25. If the maximum number of follow-up
-            years (max.num.year) in the SEER*Stat data is less than 25, then the default number will be updated to the
-            max.num.year.
-          </li>
+          <li>Describe differences across population groups or diagnosis periods.</li>
+          <li>Provide model-based comparisons for studies collecting recurrence data.</li>
         </ul>
 
-        <h2 className="h5 mb-2">Output</h2>
-        <ul>
-          {TABLE_COLUMNS.filter((column) => column.definition).map((column) => (
-            <li key={column.key}>
-              <strong>{column.label}: </strong>
-              {column.definition}
-            </li>
-          ))}
-        </ul>
-
-        <h2 className="h5 mb-2">References</h2>
+        <h2 className="h5 mb-2">Quick start</h2>
         <ol>
           <li>
-            Mariotto AB, Zou Z, Zhang F, Howlader N, Kurian AW, Etzioni R. Can We Use Survival Data from Cancer
-            Registries to Learn about Disease Recurrence? The Case of Breast Cancer. Cancer Epidemiol Biomarkers Prev.
-            2018 Nov; 27(11):1332-1341.
+            <b>
+              Download the <a href="/data/recurrence_risk_groupdata/recurrence_risk_groupdata.zip">example files</a>.
+            </b>{" "}
+            The example includes cause-specific survival for female breast cancer patients by AJCC stage (I-IV),
+            diagnosis period (2000-2004 and 2005-2015), and age at diagnosis (15-59, 60-74, and 75-84 years).
           </li>
           <li>
-            Yu B, Tiwari RC, Cronin KA, McDonald C, Feuer EJ. CANSURV: A Windows program for population-based cancer
-            survival analysis. Comput.Methods Programs Biomed. 2005;80(3):195-203.
+            <b>Identify stage.</b> Select the variable containing stage at diagnosis, then select the value representing
+            distant metastatic disease, such as stage IV. Survival for this group is used to estimate survival after
+            metastatic recurrence.
           </li>
           <li>
-            Yu B, Tiwari RC, Cronin KA, Feuer EJ. Cure fraction estimation from the mixture cure models for grouped
-            survival data. Stat.Med. 2004;23(11):1733-47.
+            <b>Select the groups to analyze.</b> Run all groups or select specific strata. In the example, stages I-III,
+            two diagnosis periods, and three age groups produce estimates for 18 groups. Selecting all age groups and
+            stages but only the most recent period (2005-2015) produces 9 groups.
           </li>
           <li>
-            De Angelis R, Capocaccia R, Hakulinen T, Soderman B, Verdecchia A. Mixture models for cancer survival
-            analysis: application to population-based data with covariates. Stat.Med. 1999;18(4):441-54.
+            <b>Obtain CanSurv estimates.</b> Fit mixture cure models for the nonmetastatic groups in CanSurv and export
+            the results. These provide the cure fraction and survival parameters for the noncured fraction.
           </li>
           <li>
-            Capocaccia R. Relationships between incidence and mortality in non-reversible diseases. Stat Med.
-            1993;12(24):2395-415.
+            <b>
+              Specify the adjustment factor, <em>r</em>.
+            </b>{" "}
+            This factor adjusts the cancer mortality hazard after metastatic recurrence relative to that after an
+            initial diagnosis of metastatic disease. The default is 1. Choose other values using relevant external
+            evidence and explore plausible alternatives in sensitivity analyses.
+            <ul>
+              <li>
+                <b>
+                  <em>r</em> = 1:
+                </b>{" "}
+                assumes the same survival.
+              </li>
+              <li>
+                <b>
+                  <em>r</em> &lt; 1:
+                </b>{" "}
+                assumes better survival after metastatic recurrence.
+              </li>
+              <li>
+                <b>
+                  <em>r</em> &gt; 1:
+                </b>{" "}
+                assumes poorer survival after metastatic recurrence.
+              </li>
+            </ul>
           </li>
           <li>
-            Li CS, Taylor JMG, Sy JP. Identifiability of cure models. Statistics & Probability Letters.
-            2001;54(4):389-95.
-          </li>
-          <li>
-            Howlader N, Ries LA, Mariotto AB, Reichman ME, Ruhl J, Cronin KA. Improved estimates of cancer-specific
-            survival rates from population-based data. J Natl Cancer Inst. 2010;102(20):1584-98.
+            <b>Run the analysis and review the results.</b> Check model convergence, fit, and sensitivity before
+            interpreting or reporting recurrence estimates.
           </li>
         </ol>
+
+        <h2 className="h5 mb-2">Prepare your data</h2>
+        <p>
+          RecurRisk accepts survival data exported from SEER*Stat. Include a stage variable that distinguishes
+          nonmetastatic from distant metastatic disease. <b>CanSurv</b> uses the same SEER*Stat data as RecurRisk.
+        </p>
+        <p>
+          Long-term follow-up is important for estimating the cure fraction and survival among the noncured fraction.
+          The follow-up needed depends on the cancer and its survival pattern; a minimum of 10 years is recommended.
+          Interpret projections beyond observed follow-up cautiously.
+        </p>
+        <p>
+          Grouping variables define separate strata rather than covariate effects within a model. Analyze all available
+          strata or select particular values.
+        </p>
+
+        <h2 className="h5 mb-2">Understand your results</h2>
+        <p>
+          The main recurrence estimates are net metastatic recurrence risks from the analytical or numerical methods.
+          They should not be interpreted as cumulative incidence accounting for competing causes of death.
+        </p>
+        <h3 className="h6">Recurrence estimates using Analytical or Numerical Method</h3>
+        <p>
+          Analytical uses the assumption that survival from recurrence follows an exponential distribution and numerical
+          uses a numerical solution to a deconvolution equation.
+        </p>
+        <ul>
+          <li>
+            <strong>Net metastatic recurrence risk: </strong>Estimated net cumulative incidence of metastatic recurrence
+            or progression by a specified time after diagnosis. Equal to 1 minus the corresponding net recurrence-free
+            probability.
+          </li>
+          <li>
+            <strong>Standard error of net recurrence risk: </strong>Standard error of the corresponding net recurrence
+            risk estimate.
+          </li>
+          <li>
+            <strong>Net recurrence-free probability: </strong>Estimated probability of remaining free of metastatic
+            recurrence or progression beyond a specified time from diagnosis in the strata.
+          </li>
+          <li>
+            <strong>Recurrence-free probability among the noncured fraction: </strong>Estimated probability of remaining
+            free of metastatic recurrence or progression beyond a specified time from diagnosis in the specified cohort.
+          </li>
+        </ul>
+
+        <h3 className="h6">Model Parameters</h3>
+        <DefinitionList keys={MODEL_PARAMETER_KEYS} />
+
+        <h2 className="h5 mb-2">Check your results</h2>
+        <p>
+          <b>Start with the mixture cure model.</b> Confirm that the CanSurv models converged and that the fitted
+          survival curves adequately describe the input survival data, including the later follow-up years. Convergence
+          alone does not establish good fit.
+        </p>
+        <p>
+          <b>Compare methods and assumptions.</b> Examine agreement between analytical and numerical solutions. The
+          analytical method assumes an exponential distribution for survival after recurrence; the numerical method does
+          not require this assumption. Investigate substantial differences.
+        </p>
+        <p>
+          <b>
+            Assess sensitivity to <em>r</em> and model distribution.
+          </b>{" "}
+          Repeat analyses using plausible values of <em>r</em>
+          and, where appropriate, both Weibull and log-logistic models. Published analyses showed robustness under
+          several evaluated scenarios, but misspecifying survival after recurrence can bias estimates. Assess robustness
+          for each application.
+        </p>
+        <p>
+          <b>Distinguish statistical uncertainty from uncertainty in assumptions.</b> The provided standard-error
+          calculation does not incorporate uncertainty in <em>r</em>; sensitivity analyses provide additional
+          information.
+        </p>
+        <p>
+          <b>Interpret estimates in the 1-2 years from diagnosis cautiously.</b> A 2023 validation study found close
+          agreement between modeled and empirically derived five-year recurrence-free survival for female breast, colon,
+          and rectum cancers. Agreement was weaker during years 1-3 after diagnosis. This evidence does not establish
+          equivalent performance for other cancers or populations.
+        </p>
+
+        <h2 className="h5 mb-2">Table. RecurRisk variable naming suggestions</h2>
+        <SuggestedNamesTable />
       </article>
     </Container>
   );
