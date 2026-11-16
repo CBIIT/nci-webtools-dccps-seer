@@ -128,20 +128,49 @@ function settingsSheet(params) {
   return utils.aoa_to_sheet(transposedData);
 }
 
-export function downloadGroupResults(results, params, filename) {
+export function downloadGroupResults(results, params, seerData, filename) {
   const wb = utils.book_new();
 
+  const stageHeader = seerData?.seerStatDictionary?.find((h) => h.name === params.stageVariable);
+  const distantFactor = stageHeader?.factors?.find((f) => String(f.value) === String(params.distantStageValue));
+  const distantStageValue = distantFactor
+    ? `${distantFactor.value} - ${String(distantFactor.label).replace(/"/g, "").trim()}`
+    : (params.distantStageValue ?? "");
+
+  const strataRows = (params.strataOptions ?? []).map((variable) => {
+    // The distant stage level is always included in the analysis
+    const isIncluded = (o) =>
+      o.checked || (variable.name === params.stageVariable && String(o.value) === String(params.distantStageValue));
+    const selected = variable.options.filter(isIncluded);
+    return {
+      Parameter: `Strata: ${variable.label}`,
+      Value: selected.length === variable.options.length ? "All" : selected.map((o) => o.label).join(", "),
+    };
+  });
+
   const parameterRows = [
+    { Parameter: "Job ID", Value: params.id ?? "" },
+    { Parameter: "Input Type", Value: params.inputType === "zip" ? "Workspace (.zip)" : "SEER*Stat/CanSurv Files" },
+    { Parameter: "SEER*Stat Files", Value: seerData?.seerStatDataFileNames?.join(", ") ?? "" },
+    { Parameter: "CanSurv File", Value: seerData?.canSurvDataFileName ?? "" },
     { Parameter: "Stage Variable", Value: params.stageVariable ?? "" },
-    { Parameter: "Distant Stage Value", Value: params.distantStageValue ?? "" },
+    { Parameter: "Distant Stage Value", Value: distantStageValue },
     { Parameter: "Adjustment Factor r", Value: params.adjustmentFactorR ?? "" },
     { Parameter: "Years of Follow-up", Value: params.followUpYears ?? "" },
+    ...strataRows,
+    { Parameter: "Long-running Job Notification", Value: params.sendNotification ? "Yes" : "No" },
+    ...(params.sendNotification
+      ? [
+          { Parameter: "Job Name", Value: params.jobName ?? "" },
+          { Parameter: "Email", Value: params.email ?? "" },
+        ]
+      : []),
   ];
   const paramsWs = utils.json_to_sheet(parameterRows);
   utils.book_append_sheet(wb, paramsWs, "Parameters");
 
-  const resultsWs = utils.json_to_sheet(results);
-  utils.book_append_sheet(wb, resultsWs, "Results");
+  const dataWs = utils.json_to_sheet(results);
+  utils.book_append_sheet(wb, dataWs, "Data");
 
   writeFile(wb, `${filename}.xlsx`);
 }

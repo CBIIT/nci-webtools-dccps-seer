@@ -37,11 +37,15 @@ function formatCell(value, precision) {
   return String(value);
 }
 
+function getColumnLabel(key, columnLabels) {
+  return getTableColumn(key)?.label ?? columnLabels[key] ?? key;
+}
+
 function buildColumns(keys, columnLabels, cohortMaps, precision) {
   const helper = createColumnHelper();
   return keys.map((key) => {
     const tableColumn = getTableColumn(key);
-    const label = tableColumn?.label ?? columnLabels[key] ?? key;
+    const label = getColumnLabel(key, columnLabels);
     const filterVariant = cohortMaps[key] ? "select" : tableColumn?.filterVariant;
     return helper.accessor(key, {
       header: () => <ColumnHeader label={label} definition={tableColumn?.definition} />,
@@ -88,7 +92,16 @@ export default function Results({ data, params, seerData, precision = 4 }) {
 
   function handleDownloadResults() {
     const prefix = params.id ? `recurrisk_group_data_results_${params.id}` : "recurrisk_group_data_results";
-    downloadGroupResults(data ?? [], params, prefix);
+    const keys = rows.length > 0 ? Object.keys(rows[0]) : [];
+    const exportRows = rows.map((row) =>
+      Object.fromEntries(
+        keys.map((key) => [
+          getColumnLabel(key, columnLabels),
+          Array.isArray(row[key]) ? row[key].join(", ") : (row[key] ?? ""),
+        ])
+      )
+    );
+    downloadGroupResults(exportRows, params, seerData, prefix);
   }
 
   const componentHeader = [
