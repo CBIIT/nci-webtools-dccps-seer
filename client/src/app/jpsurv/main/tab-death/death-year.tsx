@@ -203,6 +203,7 @@ export default function DeathVsYear({
         </Col>
       </Row>
       <DatasetTable
+        title={`${conditional ? "Conditional " : ""}Annual Probability of Dying of Cancer by Diagnosis Year`}
         data={memoData}
         columns={columns}
         filename={`deathByYear - Model ${fitIndex} - ${cohortIndex}`}

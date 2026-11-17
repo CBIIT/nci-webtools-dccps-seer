@@ -45,6 +45,7 @@ export default function Loglike({ data, seerData, params, precision, stratumInde
             </Col>
           </Row>
           <DatasetTable
+            title="Profile Log-Likelihood Plot with Cure Fraction C"
             data={Object.values(memoData)}
             columns={getLoglikeColumns({ precision })}
             filename={`loglike-${getPlotSubtitle()}`}

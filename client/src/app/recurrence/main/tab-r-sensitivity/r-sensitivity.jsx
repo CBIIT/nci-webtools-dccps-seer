@@ -115,6 +115,7 @@ export default function RSensitivity({ data, params, seerData, stratumLabel, pre
         </Col>
       </Row>
       <DatasetTable
+        title="Sensitivity of Recurrence Risk to r"
         data={rows}
         columns={columns}
         filename={`recurrisk-r-sensitivity-${stratumLabel || "data"}`}

@@ -39,6 +39,7 @@ export default function Deviance({ data, seerData, params, precision, stratumInd
         </Col>
       </Row>
       <DatasetTable
+        title="Plot of Deviance Residuals"
         data={memoData}
         columns={getDevianceColumns({ seerData, valueToLabelMap, precision })}
         filename={`deviance-${getPlotSubtitle()}`}

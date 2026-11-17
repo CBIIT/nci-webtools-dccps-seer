@@ -97,6 +97,7 @@ export default function Actuarial({ data, seerData, params, precision, stratumIn
         </Col>
       </Row>
       <DatasetTable
+        title="Comparison of Estimated and Actuarial Survival"
         data={memoData}
         columns={getActuarialColumns({ data: memoData, formState, seerData, valueToLabelMap, precision, stratumIndex })}
         filename={`EstAct-${getPlotSubtitle()}`}

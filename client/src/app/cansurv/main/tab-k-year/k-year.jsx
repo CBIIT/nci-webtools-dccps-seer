@@ -145,6 +145,7 @@ export default function KYear({ data, params, seerData, precision, stratumIndex 
             </Col>
           </Row>
           <DatasetTable
+            title={`Plot of ${formState.k}-Year Survival by Covariate`}
             data={memoData}
             columns={getKYearColumns({ seerData, valueToLabelMap, precision })}
             filename={`kYear-${getPlotSubtitle()}`}

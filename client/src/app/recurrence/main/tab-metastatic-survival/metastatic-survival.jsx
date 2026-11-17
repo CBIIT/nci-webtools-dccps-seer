@@ -99,6 +99,7 @@ export default function MetastaticSurvival({ data, params, seerData, stratumLabe
         </Col>
       </Row>
       <DatasetTable
+        title="Survival After Metastatic Disease"
         data={sortedData}
         columns={columns}
         filename={`recurrisk-metastatic-survival-${stratumLabel || "data"}`}

@@ -327,6 +327,7 @@ export default function SurvivalVsYear({
         </Col>
       </Row>
       <DatasetTable
+        title={`${conditional ? "Conditional " : ""}${statistic} by Diagnosis Year`}
         data={memoData}
         columns={columns}
         filename={`survByYear - Model ${fitIndex} - ${cohortIndex}`}

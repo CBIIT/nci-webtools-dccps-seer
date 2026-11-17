@@ -11,11 +11,25 @@ import { downloadDataset } from "@/services/xlsx";
  * @param {object[]} props.data
  * @param {object[]} props.columns - column specs (see components/column-spec)
  * @param {string} props.filename
+ * @param {string} [props.title] - plot/tab name, written as the first Settings row
  * @param {() => [string, any][]} props.getSettingsRows - called on download
  * @param {boolean} [props.useColumnHeader]
  */
-export default function DatasetTable({ data, columns, filename, getSettingsRows, useColumnHeader = false, ...props }) {
+export default function DatasetTable({
+  data,
+  columns,
+  filename,
+  title,
+  getSettingsRows,
+  useColumnHeader = false,
+  ...props
+}) {
   const tableColumns = useMemo(() => toTableColumns(columns, { useColumnHeader }), [columns, useColumnHeader]);
+
+  function handleDownload() {
+    const settingsRows = [...(title ? [["Plot", title]] : []), ...getSettingsRows()];
+    downloadDataset(data, columns, settingsRows, filename);
+  }
 
   return (
     <>
@@ -24,7 +38,7 @@ export default function DatasetTable({ data, columns, filename, getSettingsRows,
         <Col sm="auto">
           <Button
             variant="link"
-            onClick={() => downloadDataset(data, columns, getSettingsRows(), filename)}
+            onClick={handleDownload}
             disabled={data.length === 0}>
             Download Graph Dataset
           </Button>

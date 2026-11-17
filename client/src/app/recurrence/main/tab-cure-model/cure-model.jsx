@@ -14,6 +14,7 @@ export default function CureModel({ data, params, seerData, stratumLabel, precis
         </Col>
       </Row>
       <DatasetTable
+        title="Mixture Cure Model Fit"
         data={data}
         columns={getCureModelColumns({ precision })}
         filename={`recurrisk-cure-model-${stratumLabel || "data"}`}

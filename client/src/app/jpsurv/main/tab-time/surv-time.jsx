@@ -73,6 +73,7 @@ export default function SurvivalVsTime({ data, seerData, params, cohortIndex, fi
         </Col>
       </Row>
       <DatasetTable
+        title={`${conditional ? "Conditional " : ""}${statistic} by Diagnosis Year for Selected Diagnosis Year`}
         data={memoData}
         columns={getSurvTimeColumns({ params, observedHeader, predictedHeader, isRecalcCond, precision })}
         filename={`survByTime - Model ${fitIndex} - ${cohortIndex}`}

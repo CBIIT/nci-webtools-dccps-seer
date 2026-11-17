@@ -99,6 +99,7 @@ export default function MethodCurve({ config, data, params, seerData, stratumLab
         </Col>
       </Row>
       <DatasetTable
+        title={config.title}
         data={data}
         columns={columns}
         filename={`${config.filenamePrefix}-${stratumLabel || "data"}`}

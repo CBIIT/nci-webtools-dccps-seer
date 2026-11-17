@@ -63,7 +63,7 @@ export default function ModelEstimates({ data, results, params, cohortIndex, fit
               downloadDataset(
                 coefMemo,
                 COEF_COLUMNS,
-                getJpsurvSettingsRows(params, seerData, { main, conditionalIntervals: null }),
+                [["Plot", "Model Estimates"], ...getJpsurvSettingsRows(params, seerData, { main, conditionalIntervals: null })],
                 `Model Estimates ${fitIndex} - ${cohortIndex}`
               )
             }>
