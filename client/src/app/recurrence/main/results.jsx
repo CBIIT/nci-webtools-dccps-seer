@@ -49,7 +49,7 @@ function buildColumns(keys, columnLabels, cohortMaps, precision) {
     const label = getColumnLabel(key, columnLabels);
     const filterVariant = cohortMaps[key] ? "select" : tableColumn?.filterVariant;
     return helper.accessor(key, {
-      header: () => <ColumnHeader label={label} definition={tableColumn?.definition} />,
+      header: () => <ColumnHeader label={label} definition={tableColumn?.tooltip ?? tableColumn?.definition} />,
       cell: (info) => formatCell(info.getValue(), precision),
       meta: { filterVariant, filterLabel: label },
       ...(filterVariant === "select" && {

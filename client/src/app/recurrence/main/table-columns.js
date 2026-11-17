@@ -9,7 +9,13 @@ export const TABLE_COLUMNS = [
     filterVariant: "select",
     label: "Follow-up years",
   },
-  { key: "r", label: "Adjustment factor r" },
+  {
+    key: "r",
+    label: "Adjustment factor r",
+    // Header tooltip only; unlike `definition`, not listed in the About/Help pages.
+    tooltip:
+      "This factor adjusts the cancer mortality hazard after metastatic recurrence relative to that after an initial diagnosis of metastatic disease.",
+  },
   {
     key: "link",
     label: "Survival distribution for the noncured fraction",

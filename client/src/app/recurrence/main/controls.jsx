@@ -127,7 +127,7 @@ export default function Controls({
                 return (
                   <Col key={key}>
                     <div className="text-muted small lh-sm">
-                      <ColumnHeader label={column?.label ?? key} definition={column?.definition} />
+                      <ColumnHeader label={column?.label ?? key} definition={column?.tooltip ?? column?.definition} />
                     </div>
                     <div className="mx-2 fw-semibold">{formatSummaryValue(summaryRow[key], precision)}</div>
                   </Col>
