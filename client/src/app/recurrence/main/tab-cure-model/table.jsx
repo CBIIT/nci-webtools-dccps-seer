@@ -1,39 +1,23 @@
 "use client";
 import { useMemo } from "react";
-import { createColumnHelper } from "@tanstack/react-table";
 import Table from "@/components/table";
-import ColumnHeader from "@/components/column-header";
-import { getTableColumn } from "../table-columns";
+import { toTableColumns } from "@/components/column-spec";
+import { catalogColumn, formatPercent } from "../table-columns";
 
-function formatPercent(value, precision) {
-  return value === null || value === undefined ? "NA" : (value * 100).toFixed(precision);
-}
-
-function header(key, fallbackLabel, suffix = "") {
-  const column = getTableColumn(key);
-  return function Header() {
-    return <ColumnHeader label={`${column?.label ?? fallbackLabel}${suffix}`} definition={column?.definition} />;
-  };
+export function getCureModelColumns({ precision = 4 }) {
+  const percent = (value) => formatPercent(value, precision);
+  return [
+    catalogColumn("followup", "Years Since Diagnosis"),
+    catalogColumn("obs_surv", "Input Net Cancer Survival", { suffix: " (%)", format: percent }),
+    catalogColumn("surv_curemodel", "Fitted Net Cancer Survival", { suffix: " (%)", format: percent }),
+  ];
 }
 
 export default function CureModelTable({ data, precision = 4 }) {
-  const columns = useMemo(() => {
-    const helper = createColumnHelper();
-    return [
-      helper.accessor("followup", {
-        header: header("followup", "Years Since Diagnosis"),
-        cell: (info) => info.getValue(),
-      }),
-      helper.accessor("obs_surv", {
-        header: header("obs_surv", "Input Net Cancer Survival", " (%)"),
-        cell: (info) => formatPercent(info.getValue(), precision),
-      }),
-      helper.accessor("surv_curemodel", {
-        header: header("surv_curemodel", "Fitted Net Cancer Survival", " (%)"),
-        cell: (info) => formatPercent(info.getValue(), precision),
-      }),
-    ];
-  }, [precision]);
+  const columns = useMemo(
+    () => toTableColumns(getCureModelColumns({ precision }), { useColumnHeader: true }),
+    [precision]
+  );
 
   return (
     <Table data={data} columns={columns} useSort usePagination emptyMessage="No data available for this stratum" />

@@ -118,6 +118,7 @@ export default function AnalysisMain({ id }) {
                   config={METASTATIC}
                   data={filteredResults}
                   params={params}
+                  seerData={seerData}
                   stratumLabel={stratumLabel}
                   precision={precision}
                 />
@@ -127,18 +128,26 @@ export default function AnalysisMain({ id }) {
                   config={RECURRENCE_FREE}
                   data={filteredResults}
                   params={params}
+                  seerData={seerData}
                   stratumLabel={stratumLabel}
                   precision={precision}
                 />
               </Tab>
               <Tab eventKey="cure-model" title="Mixture Cure Model Fit">
-                <CureModel data={filteredResults} params={params} stratumLabel={stratumLabel} precision={precision} />
+                <CureModel
+                  data={filteredResults}
+                  params={params}
+                  seerData={seerData}
+                  stratumLabel={stratumLabel}
+                  precision={precision}
+                />
               </Tab>
               <Tab eventKey="noncured" title="Recurrence-free Probability among the Noncured Fraction">
                 <MethodCurve
                   config={NONCURED}
                   data={filteredResults}
                   params={params}
+                  seerData={seerData}
                   stratumLabel={stratumLabel}
                   precision={precision}
                 />
@@ -147,6 +156,7 @@ export default function AnalysisMain({ id }) {
                 <MetastaticSurvival
                   data={filteredResults}
                   params={params}
+                  seerData={seerData}
                   stratumLabel={stratumLabel}
                   precision={precision}
                 />
@@ -155,6 +165,7 @@ export default function AnalysisMain({ id }) {
                 <RSensitivity
                   data={filteredResults}
                   params={params}
+                  seerData={seerData}
                   stratumLabel={stratumLabel}
                   precision={precision}
                 />

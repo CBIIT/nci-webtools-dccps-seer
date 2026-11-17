@@ -1,10 +1,11 @@
 "use client";
 import { useMemo, useState } from "react";
-import { Container, Row, Col, Form, Alert, Button } from "react-bootstrap";
+import { Container, Row, Col, Form } from "react-bootstrap";
 import RSensitivityPlot from "./plot";
-import RSensitivityTable from "./table";
+import { getRSensitivityColumns, getRSensitivityRows } from "./columns";
 import { analyticalRisk, numericalRisk, parseRValues } from "./utils";
-import { downloadTableCansurv } from "@/services/xlsx";
+import DatasetTable from "@/components/dataset-table";
+import { getRecurrenceSettingsRows } from "../download-settings";
 
 const METHOD_OPTIONS = [
   { value: "analytical", label: "Analytical" },
@@ -16,7 +17,7 @@ function defaultRText(r) {
   return [r + 0.5, r + 1, r + 1.5, r + 2].map((v) => Number(v.toFixed(4))).join(", ");
 }
 
-export default function RSensitivity({ data, params, stratumLabel, precision }) {
+export default function RSensitivity({ data, params, seerData, stratumLabel, precision }) {
   const sortedData = data ?? [];
   const modelR = sortedData[0]?.r;
   const link = sortedData[0]?.link;
@@ -45,21 +46,15 @@ export default function RSensitivity({ data, params, stratumLabel, precision }) 
   }, [sortedData, rText, modelR, effectiveMethod]);
 
   const followups = sortedData.map((r) => r.followup);
+  const rows = getRSensitivityRows(followups, series);
+  const columns = getRSensitivityColumns({ series, precision });
 
-  function handleDownload() {
-    const rows = followups.map((followup, i) => {
-      const row = { followup };
-      series.forEach((s) => {
-        row[`CI_r=${s.r}`] = s.values[i];
-      });
-      return row;
-    });
-    downloadTableCansurv(
-      rows,
-      ["followup", ...series.map((s) => `CI_r=${s.r}`)],
-      params,
-      `recurrisk-r-sensitivity-${stratumLabel || "data"}`
-    );
+  function getSettingsRows() {
+    return getRecurrenceSettingsRows(params, seerData, stratumLabel, [
+      ["Method", METHOD_OPTIONS.find((o) => o.value === effectiveMethod)?.label],
+      ["r values to compare", series.filter((s) => !s.isModel).map((s) => s.r).join(", ")],
+      ["Model r", modelR],
+    ]);
   }
 
   return (
@@ -119,19 +114,16 @@ export default function RSensitivity({ data, params, stratumLabel, precision }) 
           />
         </Col>
       </Row>
-      <Row className="justify-content-between align-items-center">
-        <Col sm="auto">Total Row Count: {followups.length}</Col>
-        <Col sm="auto">
-          <Button variant="link" onClick={handleDownload} disabled={followups.length === 0 || series.length === 0}>
-            Download Graph Dataset
-          </Button>
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          <RSensitivityTable followups={followups} series={series} precision={precision} />
-        </Col>
-      </Row>
+      <DatasetTable
+        data={rows}
+        columns={columns}
+        filename={`recurrisk-r-sensitivity-${stratumLabel || "data"}`}
+        getSettingsRows={getSettingsRows}
+        useColumnHeader
+        useSort
+        usePagination
+        emptyMessage="No data available for this stratum"
+      />
     </Container>
   );
 }

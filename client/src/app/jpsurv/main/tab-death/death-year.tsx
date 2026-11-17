@@ -6,11 +6,12 @@ import SelectHookForm from "@/components/selectHookForm";
 import { useQuery, useQueryClient, useIsFetching, skipToken } from "@tanstack/react-query";
 import { calculateTrends } from "@/services/queries";
 import DeathYearPlot from "./death-year-plot";
-import DeathYearTable from "./death-year-table";
 import TrendTable from "../tab-surv/surv-trend-table";
-import { downloadTable } from "@/services/xlsx";
+import DatasetTable from "@/components/dataset-table";
 import { useStore } from "../../store";
 import { getCohortLabel } from "../cohort-select";
+import { getJpsurvSettingsRows } from "../download-settings";
+import { getDeathYearColumns } from "../table-columns";
 import { TrendQueryData, DataPoint, TrendDataPoint } from "../types";
 import { DeathVsYearProps, DeathFormData } from "./types";
 
@@ -24,6 +25,8 @@ export default function DeathVsYear({
   precision,
 }: DeathVsYearProps) {
   const setState = useStore((state) => state.setState);
+  const main = useStore((state) => state.main);
+  const conditionalIntervals = useStore((state) => state.conditionalIntervals);
   const deathTrendQueryKey = useStore((state) => state.deathTrendQueryKey).slice(0, 2);
   const queryClient = useQueryClient();
   const isFetching = useIsFetching({ queryKey: ["deathTrend"] });
@@ -82,6 +85,27 @@ export default function DeathVsYear({
   useEffect(() => {
     setState({ deathTrendQueryKey: ["deathTrend", cohortIndex] });
   }, [setState, cohortIndex]);
+
+  const columns = getDeathYearColumns({
+    params,
+    observedHeader,
+    observedSeHeader,
+    predictedHeader,
+    predictedSeHeader,
+    precision,
+  });
+
+  function getSettingsRows() {
+    return getJpsurvSettingsRows(
+      params,
+      seerData,
+      { main, conditionalIntervals: conditional ? conditionalIntervals : null },
+      [
+        ["Years Since Diagnosis", intervalsD.join(", ")],
+        ["Trend Measures: Between Joinpoints", jpTrend ? "Yes" : "No"],
+      ]
+    );
+  }
 
   async function getTrends(form: DeathFormData): Promise<void> {
     try {
@@ -178,45 +202,12 @@ export default function DeathVsYear({
           />
         </Col>
       </Row>
-      <Row className="justify-content-between align-items-center">
-        <Col sm="auto">Total Row Count: {memoData.length}</Col>
-        <Col sm="auto">
-          <Button
-            variant="link"
-            onClick={() =>
-              downloadTable(
-                memoData,
-                [
-                  ...params.cohortVars,
-                  params.year,
-                  "Interval",
-                  observedHeader,
-                  observedSeHeader,
-                  predictedHeader,
-                  predictedSeHeader,
-                ],
-                seerData,
-                params,
-                `deathByYear - Model ${fitIndex} - ${cohortIndex}`
-              )
-            }>
-            Download Graph Dataset
-          </Button>
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          <DeathYearTable
-            data={memoData}
-            params={params}
-            observedHeader={observedHeader}
-            observedSeHeader={observedSeHeader}
-            predictedHeader={predictedHeader}
-            predictedSeHeader={predictedSeHeader}
-            precision={precision}
-          />
-        </Col>
-      </Row>
+      <DatasetTable
+        data={memoData}
+        columns={columns}
+        filename={`deathByYear - Model ${fitIndex} - ${cohortIndex}`}
+        getSettingsRows={getSettingsRows}
+      />
     </Container>
   );
 }

@@ -128,3 +128,19 @@ export const TABLE_COLUMN_MAP = TABLE_COLUMNS.reduce((acc, entry) => {
 export function getTableColumn(key) {
   return TABLE_COLUMN_MAP[key];
 }
+
+export function formatPercent(value, precision) {
+  return value === null || value === undefined ? "NA" : (value * 100).toFixed(precision);
+}
+
+// Column spec (see components/column-spec) labeled from the catalog
+export function catalogColumn(key, fallbackLabel, { suffix = "", ...spec } = {}) {
+  const column = getTableColumn(key);
+  return {
+    id: key,
+    label: `${column?.label ?? fallbackLabel}${suffix}`,
+    definition: column?.definition,
+    getValue: (row) => row[key],
+    ...spec,
+  };
+}

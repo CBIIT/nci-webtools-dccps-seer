@@ -15,7 +15,6 @@ export const METASTATIC = {
   seKey: "se_CI_analytical",
   seriesSuffix: "",
   note: null,
-  downloadColumns: null,
   filenamePrefix: "recurrisk",
 };
 
@@ -30,7 +29,6 @@ export const RECURRENCE_FREE = {
   seKey: "se_CI_analytical",
   seriesSuffix: "",
   note: null,
-  downloadColumns: ["followup", "G_analytical", "se_CI_analytical", "G_numerical"],
   filenamePrefix: "recurrisk-recurrence-free",
 };
 
@@ -45,6 +43,5 @@ export const NONCURED = {
   seKey: null,
   seriesSuffix: " (Noncured Fraction)",
   note: "These estimates apply only to the modeled noncured fraction (patients at risk of cancer death), not to the full cohort.",
-  downloadColumns: ["followup", "s1_analytical", "s1_numerical"],
   filenamePrefix: "recurrisk-noncured",
 };

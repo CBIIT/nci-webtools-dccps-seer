@@ -1,5 +1,13 @@
 import { create } from "zustand";
 
+export const DISTRIBUTION_OPTIONS = [
+  { label: "Lognormal", value: "lnorm" },
+  { label: "Loglogistic", value: "llogis" },
+  { label: "Weibull", value: "weibull" },
+  { label: "Gompertz", value: "gompertz" },
+  { label: "Semi-Parametric", value: "semi-parametric" },
+];
+
 export const defaultForm = {
   id: "",
   worker: "cansurv",

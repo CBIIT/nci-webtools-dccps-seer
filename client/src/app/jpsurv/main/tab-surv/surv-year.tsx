@@ -6,11 +6,12 @@ import { useQuery, useQueryClient, useIsFetching, skipToken } from "@tanstack/re
 import { calculateTrends } from "@/services/queries";
 import SelectHookForm from "@/components/selectHookForm";
 import SurvYearPlot from "./surv-year-plot";
-import SurvYearTable from "./surv-year-table";
 import TrendTable from "./surv-trend-table";
-import { downloadTable } from "@/services/xlsx";
+import DatasetTable from "@/components/dataset-table";
 import { useStore } from "../../store";
 import { getCohortLabel } from "../cohort-select";
+import { getJpsurvSettingsRows } from "../download-settings";
+import { getSurvYearColumns } from "../table-columns";
 import { TrendQueryData, DataPoint, TrendDataPoint } from "../types";
 import { SurvivalVsYearProps, SurvFormData } from "./types";
 
@@ -26,6 +27,8 @@ export default function SurvivalVsYear({
   precision,
 }: SurvivalVsYearProps) {
   const setState = useStore((state) => state.setState);
+  const main = useStore((state) => state.main);
+  const conditionalIntervals = useStore((state) => state.conditionalIntervals);
   const survTrendQueryKey = useStore((state) => state.survTrendQueryKey);
   const queryClient = useQueryClient();
   const isFetching = useIsFetching({ queryKey: ["trend"] });
@@ -115,6 +118,32 @@ export default function SurvivalVsYear({
   useEffect(() => {
     setState({ survTrendQueryKey: ["trend", cohortIndex, trendStart, trendEnd] });
   }, [setState, jpTrend, calendarTrend, trendStart, trendEnd, cohortIndex]);
+
+  const columns = getSurvYearColumns({
+    params,
+    observedHeader,
+    observedSeHeader,
+    predictedHeader,
+    predictedSeHeader,
+    isRecalcCond,
+    precision,
+  });
+
+  function getSettingsRows() {
+    return getJpsurvSettingsRows(
+      params,
+      seerData,
+      { main, conditionalIntervals: isRecalcCond ? conditionalIntervals : null },
+      [
+        ["Years Since Diagnosis", intervals.join(", ")],
+        ["Trend Measures: Between Joinpoints", jpTrend ? "Yes" : "No"],
+        ["Trend Measures: Between Calendar Years of Diagnosis", calendarTrend ? "Yes" : "No"],
+        ...(calendarTrend
+          ? [["Trend Calendar Years", `${+trendStart + firstYear} - ${+trendEnd + firstYear}`]]
+          : []),
+      ]
+    );
+  }
 
   async function getTrends(form: SurvFormData): Promise<void> {
     try {
@@ -297,46 +326,12 @@ export default function SurvivalVsYear({
           />
         </Col>
       </Row>
-      <Row className="justify-content-between align-items-center">
-        <Col sm="auto">Total Row Count: {memoData.length}</Col>
-        <Col sm="auto">
-          <Button
-            variant="link"
-            onClick={() =>
-              downloadTable(
-                memoData,
-                [
-                  ...params.cohortVars,
-                  params.year,
-                  "Interval",
-                  observedHeader,
-                  observedSeHeader,
-                  predictedHeader,
-                  predictedSeHeader,
-                ],
-                seerData,
-                params,
-                `survByYear - Model ${fitIndex} - ${cohortIndex}`
-              )
-            }>
-            Download Graph Dataset
-          </Button>
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          <SurvYearTable
-            data={memoData}
-            params={params}
-            observedHeader={observedHeader}
-            observedSeHeader={observedSeHeader}
-            predictedHeader={predictedHeader}
-            predictedSeHeader={predictedSeHeader}
-            isRecalcCond={isRecalcCond}
-            precision={precision}
-          />
-        </Col>
-      </Row>
+      <DatasetTable
+        data={memoData}
+        columns={columns}
+        filename={`survByYear - Model ${fitIndex} - ${cohortIndex}`}
+        getSettingsRows={getSettingsRows}
+      />
     </Container>
   );
 }

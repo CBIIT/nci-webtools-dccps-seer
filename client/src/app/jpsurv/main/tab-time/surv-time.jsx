@@ -1,14 +1,18 @@
 "use client";
 import { useMemo } from "react";
-import { Container, Row, Col, Button } from "react-bootstrap";
+import { Container, Row, Col } from "react-bootstrap";
 import { useForm, useWatch } from "react-hook-form";
 import SelectHookForm from "@/components/selectHookForm";
 import SurvTimePlot from "./surv-time-plot";
-import SurvTimeTable from "./surv-time-table";
-import { downloadTable } from "@/services/xlsx";
+import DatasetTable from "@/components/dataset-table";
 import { getCohortLabel } from "../cohort-select";
+import { useStore } from "../../store";
+import { getJpsurvSettingsRows } from "../download-settings";
+import { getSurvTimeColumns } from "../table-columns";
 
 export default function SurvivalVsTime({ data, seerData, params, cohortIndex, fitIndex, conditional, precision }) {
+  const main = useStore((state) => state.main);
+  const conditionalIntervals = useStore((state) => state.conditionalIntervals);
   const isRecalcCond = !!conditional;
   const { statistic } = params;
   const observedHeader = isRecalcCond ? "observed" : params?.observed;
@@ -22,6 +26,15 @@ export default function SurvivalVsTime({ data, seerData, params, cohortIndex, fi
     () => (conditional || data).filter((e) => years.includes(e[params.year])),
     [data, conditional, years, params.year]
   );
+
+  function getSettingsRows() {
+    return getJpsurvSettingsRows(
+      params,
+      seerData,
+      { main, conditionalIntervals: isRecalcCond ? conditionalIntervals : null },
+      [["Year of Diagnosis (plot)", years.join(", ")]]
+    );
+  }
 
   return (
     <Container fluid>
@@ -59,36 +72,12 @@ export default function SurvivalVsTime({ data, seerData, params, cohortIndex, fi
           />
         </Col>
       </Row>
-      <Row className="justify-content-between align-items-center">
-        <Col sm="auto">Total Row Count: {memoData.length}</Col>
-        <Col sm="auto">
-          <Button
-            variant="link"
-            onClick={() =>
-              downloadTable(
-                memoData,
-                [...params.cohortVars, params.year, "Interval", observedHeader, predictedHeader],
-                seerData,
-                params,
-                `survByTime - Model ${fitIndex} - ${cohortIndex}`
-              )
-            }>
-            Download Graph Dataset
-          </Button>
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          <SurvTimeTable
-            data={memoData}
-            params={params}
-            observedHeader={observedHeader}
-            predictedHeader={predictedHeader}
-            isRecalcCond={isRecalcCond}
-            precision={precision}
-          />
-        </Col>
-      </Row>
+      <DatasetTable
+        data={memoData}
+        columns={getSurvTimeColumns({ params, observedHeader, predictedHeader, isRecalcCond, precision })}
+        filename={`survByTime - Model ${fitIndex} - ${cohortIndex}`}
+        getSettingsRows={getSettingsRows}
+      />
     </Container>
   );
 }

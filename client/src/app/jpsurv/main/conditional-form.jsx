@@ -55,7 +55,10 @@ export default function ConditionalForm({ data, params, cohortIndex, fitIndex, c
           }),
       });
 
-      setState({ conditional: relabelData(changePrecision(scaleData(data, 100), precision), seerData, params) });
+      setState({
+        conditional: relabelData(changePrecision(scaleData(data, 100), precision), seerData, params),
+        conditionalIntervals: form.conditionalIntervals,
+      });
     } catch (e) {
       console.error(e);
     }

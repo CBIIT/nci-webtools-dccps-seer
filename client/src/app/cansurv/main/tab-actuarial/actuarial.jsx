@@ -1,11 +1,12 @@
 "use client";
 import { useMemo } from "react";
-import { Container, Row, Col, Form, Button, Spinner } from "react-bootstrap";
+import { Container, Row, Col, Form, Spinner } from "react-bootstrap";
 import { useForm, useWatch } from "react-hook-form";
 import ActuarialPlot from "./plot";
-import ActuarialTable from "./table";
 import { getValueToLabelMap } from "../controls";
-import { downloadTableCansurv } from "@/services/xlsx";
+import { getActuarialColumns } from "../table-columns";
+import DatasetTable from "@/components/dataset-table";
+import { getCansurvSettingsRows, getSubStratumRows } from "../download-settings";
 
 export default function Actuarial({ data, seerData, params, precision, stratumIndex = 0, stratumValueToLabel = {} }) {
   const { register, control } = useForm({
@@ -50,6 +51,16 @@ export default function Actuarial({ data, seerData, params, precision, stratumIn
     return subtitle;
   }
 
+  function getSettingsRows() {
+    const stratumLabel = hasStrata ? valueToLabelMap.stratum[stratumIndex] : "";
+    return getCansurvSettingsRows(
+      params,
+      seerData,
+      stratumLabel,
+      getSubStratumRows(formState, seerData, valueToLabelMap)
+    );
+  }
+
   return (
     <Container fluid>
       <Row className="border-bottom mb-3">
@@ -85,30 +96,12 @@ export default function Actuarial({ data, seerData, params, precision, stratumIn
           />
         </Col>
       </Row>
-      <Row className="justify-content-between align-items-center">
-        <Col sm="auto">Total Row Count: {memoData.length}</Col>
-        <Col sm="auto">
-          <Button
-            variant="link"
-            onClick={() =>
-              downloadTableCansurv(memoData, Object.keys(memoData[0]), params, `EstAct-${getPlotSubtitle()}`)
-            }>
-            Download Graph Dataset
-          </Button>
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          <ActuarialTable
-            data={memoData}
-            formState={formState}
-            seerData={seerData}
-            valueToLabelMap={valueToLabelMap}
-            precision={precision}
-            stratumIndex={stratumIndex}
-          />
-        </Col>
-      </Row>
+      <DatasetTable
+        data={memoData}
+        columns={getActuarialColumns({ data: memoData, formState, seerData, valueToLabelMap, precision, stratumIndex })}
+        filename={`EstAct-${getPlotSubtitle()}`}
+        getSettingsRows={getSettingsRows}
+      />
     </Container>
   );
 }

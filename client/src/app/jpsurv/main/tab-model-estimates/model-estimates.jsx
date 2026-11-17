@@ -3,9 +3,20 @@ import { useMemo } from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
 import { createColumnHelper } from "@tanstack/react-table";
 import Table from "@/components/table";
-import { downloadTable } from "@/services/xlsx";
+import { toTableColumns } from "@/components/column-spec";
+import { downloadDataset } from "@/services/xlsx";
+import { useStore } from "../../store";
+import { getJpsurvSettingsRows } from "../download-settings";
+
+const COEF_COLUMNS = [
+  { id: "_row", label: "Parameter", getValue: (row) => row._row },
+  { id: "Estimates", label: "Estimate (%)", getValue: (row) => row.Estimates },
+  { id: "stderror", label: "Standard Error (%)", getValue: (row) => row["Std.Error"] },
+];
 
 export default function ModelEstimates({ data, results, params, cohortIndex, fitIndex, precision }) {
+  const main = useStore((state) => state.main);
+  const seerData = useStore((state) => state.seerData);
   const coefMemo = useMemo(
     () =>
       data
@@ -18,21 +29,7 @@ export default function ModelEstimates({ data, results, params, cohortIndex, fit
     [data, fitIndex, precision]
   );
   const columnHelper = createColumnHelper();
-  const coefColumns = [
-    columnHelper.accessor("_row", {
-      header: () => "Parameter",
-      cell: (info) => info.renderValue(),
-    }),
-    columnHelper.accessor("Estimates", {
-      header: () => "Estimate (%)",
-      cell: (info) => info.renderValue(),
-    }),
-    columnHelper.accessor((row) => row["Std.Error"], {
-      id: "stderror",
-      header: () => "Standard Error (%)",
-      cell: (info) => info.renderValue(),
-    }),
-  ];
+  const coefColumns = toTableColumns(COEF_COLUMNS);
   const resultsMemo = useMemo(
     () =>
       results
@@ -63,11 +60,10 @@ export default function ModelEstimates({ data, results, params, cohortIndex, fit
           <Button
             variant="link"
             onClick={() =>
-              downloadTable(
+              downloadDataset(
                 coefMemo,
-                Object.keys(coefMemo[0]),
-                null,
-                params,
+                COEF_COLUMNS,
+                getJpsurvSettingsRows(params, seerData, { main, conditionalIntervals: null }),
                 `Model Estimates ${fitIndex} - ${cohortIndex}`
               )
             }>

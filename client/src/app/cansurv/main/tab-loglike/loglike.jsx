@@ -1,10 +1,11 @@
 "use client";
 import { useMemo } from "react";
-import { Container, Row, Col, Alert, Button } from "react-bootstrap";
+import { Container, Row, Col, Alert } from "react-bootstrap";
 import LoglikePlot from "./plot";
-import LoglikeTable from "./table";
 import { getValueToLabelMap } from "../controls";
-import { downloadTableCansurv } from "@/services/xlsx";
+import { getLoglikeColumns } from "../table-columns";
+import DatasetTable from "@/components/dataset-table";
+import { getCansurvSettingsRows } from "../download-settings";
 
 export default function Loglike({ data, seerData, params, precision, stratumIndex = 0, stratumValueToLabel = {} }) {
   const hasStrata = data["fit.list.by"]?.length > 0;
@@ -43,28 +44,12 @@ export default function Loglike({ data, seerData, params, precision, stratumInde
               />
             </Col>
           </Row>
-          <Row className="justify-content-between align-items-center">
-            <Col sm="auto">Total Row Count: {memoData.length}</Col>
-            <Col sm="auto">
-              <Button
-                variant="link"
-                onClick={() =>
-                  downloadTableCansurv(memoData, Object.keys(memoData), params, `loglike-${getPlotSubtitle()}`)
-                }>
-                Download Graph Dataset
-              </Button>
-            </Col>
-          </Row>
-          <Row>
-            <Col>
-              <LoglikeTable
-                data={memoData}
-                seerData={seerData}
-                valueToLabelMap={valueToLabelMap}
-                precision={precision}
-              />
-            </Col>
-          </Row>
+          <DatasetTable
+            data={Object.values(memoData)}
+            columns={getLoglikeColumns({ precision })}
+            filename={`loglike-${getPlotSubtitle()}`}
+            getSettingsRows={() => getCansurvSettingsRows(params, seerData, getPlotSubtitle())}
+          />
         </>
       )}
     </Container>

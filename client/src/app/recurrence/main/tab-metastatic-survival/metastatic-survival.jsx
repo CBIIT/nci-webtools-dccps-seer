@@ -1,14 +1,14 @@
 "use client";
 import { useMemo, useState } from "react";
-import { Container, Row, Col, Form, Alert, Button } from "react-bootstrap";
+import { Container, Row, Col, Form, Alert } from "react-bootstrap";
 import MetastaticSurvivalPlot from "./plot";
-import MetastaticSurvivalTable from "./table";
+import { getMetastaticSurvivalColumns } from "./columns";
 import { withMetastaticSurvivalCurves } from "./utils";
-import { downloadTableCansurv } from "@/services/xlsx";
+import DatasetTable from "@/components/dataset-table";
+import { getRecurrenceSettingsRows } from "../download-settings";
+import { yesNo } from "@/services/download-settings";
 
-const DOWNLOAD_COLUMNS = ["followup", "obs_dist_surv", "dist_surv_adjusted", "dist_surv_exponential", "r", "theta"];
-
-export default function MetastaticSurvival({ data, params, stratumLabel, precision }) {
+export default function MetastaticSurvival({ data, params, seerData, stratumLabel, precision }) {
   const [showObserved, setShowObserved] = useState(true);
   const [showAdjusted, setShowAdjusted] = useState(true);
   const [showExponential, setShowExponential] = useState(true);
@@ -18,14 +18,20 @@ export default function MetastaticSurvival({ data, params, stratumLabel, precisi
   const r = sortedData[0]?.r;
   const theta = sortedData[0]?.theta;
   const thetaMissing = theta === null || theta === undefined;
+  const exponentialShown = showExponential && !thetaMissing;
+  const columns = getMetastaticSurvivalColumns({
+    showObserved,
+    showAdjusted,
+    showExponential: exponentialShown,
+    precision,
+  });
 
-  function handleDownload() {
-    downloadTableCansurv(
-      sortedData,
-      DOWNLOAD_COLUMNS,
-      params,
-      `recurrisk-metastatic-survival-${stratumLabel || "data"}`
-    );
+  function getSettingsRows() {
+    return getRecurrenceSettingsRows(params, seerData, stratumLabel, [
+      ["Survival after metastatic disease at diagnosis", yesNo(showObserved)],
+      ["Assumed survival after metastatic recurrence", yesNo(showAdjusted)],
+      ["Exponential approximation (analytical method)", thetaMissing ? "N/A" : yesNo(showExponential)],
+    ]);
   }
 
   return (
@@ -85,32 +91,23 @@ export default function MetastaticSurvival({ data, params, stratumLabel, precisi
             data={sortedData}
             showObserved={showObserved}
             showAdjusted={showAdjusted}
-            showExponential={showExponential && !thetaMissing}
+            showExponential={exponentialShown}
             title="Survival After Metastatic Disease"
             subtitle={stratumLabel}
             precision={precision}
           />
         </Col>
       </Row>
-      <Row className="justify-content-between align-items-center">
-        <Col sm="auto">Total Row Count: {sortedData.length}</Col>
-        <Col sm="auto">
-          <Button variant="link" onClick={handleDownload} disabled={sortedData.length === 0}>
-            Download Graph Dataset
-          </Button>
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          <MetastaticSurvivalTable
-            data={sortedData}
-            showObserved={showObserved}
-            showAdjusted={showAdjusted}
-            showExponential={showExponential && !thetaMissing}
-            precision={precision}
-          />
-        </Col>
-      </Row>
+      <DatasetTable
+        data={sortedData}
+        columns={columns}
+        filename={`recurrisk-metastatic-survival-${stratumLabel || "data"}`}
+        getSettingsRows={getSettingsRows}
+        useColumnHeader
+        useSort
+        usePagination
+        emptyMessage="No data available for this stratum"
+      />
     </Container>
   );
 }

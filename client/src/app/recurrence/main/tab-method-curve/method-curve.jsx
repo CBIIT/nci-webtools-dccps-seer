@@ -1,10 +1,12 @@
 "use client";
 import { useState } from "react";
-import { Container, Row, Col, Form, Alert, Button } from "react-bootstrap";
+import { Container, Row, Col, Form, Alert } from "react-bootstrap";
 import MethodCurvePlot from "./plot";
-import MethodCurveTable from "./table";
+import { getMethodCurveColumns } from "./columns";
 import { hasNumericalEstimate } from "./utils";
-import { downloadTableCansurv } from "@/services/xlsx";
+import DatasetTable from "@/components/dataset-table";
+import { getRecurrenceSettingsRows } from "../download-settings";
+import { yesNo } from "@/services/download-settings";
 
 const METHOD_OPTIONS = [
   { value: "both", label: "Analytical and Numerical" },
@@ -12,7 +14,7 @@ const METHOD_OPTIONS = [
   { value: "numerical", label: "Numerical" },
 ];
 
-export default function MethodCurve({ config, data, params, stratumLabel, precision }) {
+export default function MethodCurve({ config, data, params, seerData, stratumLabel, precision }) {
   const [method, setMethod] = useState("both");
   const [showBand, setShowBand] = useState(true);
 
@@ -31,10 +33,14 @@ export default function MethodCurve({ config, data, params, stratumLabel, precis
 
   const hasBand = Boolean(config.getCI);
   const bandDisabled = method === "numerical";
+  const bandShown = hasBand && showBand && !bandDisabled;
+  const columns = getMethodCurveColumns({ config, method, showBand: bandShown, precision });
 
-  function handleDownload() {
-    const columns = config.downloadColumns ?? Object.keys(data[0] ?? {});
-    downloadTableCansurv(data, columns, params, `${config.filenamePrefix}-${stratumLabel || "data"}`);
+  function getSettingsRows() {
+    return getRecurrenceSettingsRows(params, seerData, stratumLabel, [
+      ["Method", METHOD_OPTIONS.find((o) => o.value === method)?.label],
+      ...(hasBand ? [["Show 95% confidence band", bandDisabled ? "N/A" : yesNo(showBand)]] : []),
+    ]);
   }
 
   return (
@@ -85,32 +91,23 @@ export default function MethodCurve({ config, data, params, stratumLabel, precis
             config={config}
             data={data}
             method={method}
-            showBand={hasBand && showBand && !bandDisabled}
+            showBand={bandShown}
             title={config.title}
             subtitle={stratumLabel}
             precision={precision}
           />
         </Col>
       </Row>
-      <Row className="justify-content-between align-items-center">
-        <Col sm="auto">Total Row Count: {data.length}</Col>
-        <Col sm="auto">
-          <Button variant="link" onClick={handleDownload} disabled={data.length === 0}>
-            Download Graph Dataset
-          </Button>
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          <MethodCurveTable
-            config={config}
-            data={data}
-            method={method}
-            showBand={hasBand && showBand && !bandDisabled}
-            precision={precision}
-          />
-        </Col>
-      </Row>
+      <DatasetTable
+        data={data}
+        columns={columns}
+        filename={`${config.filenamePrefix}-${stratumLabel || "data"}`}
+        getSettingsRows={getSettingsRows}
+        useColumnHeader
+        useSort
+        usePagination
+        emptyMessage="No data available for this stratum"
+      />
     </Container>
   );
 }

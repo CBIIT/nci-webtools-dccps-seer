@@ -7,6 +7,7 @@ import { FaDownload } from "react-icons/fa";
 import { downloadGroupResults } from "@/services/xlsx";
 import ColumnHeader from "@/components/column-header";
 import { getTableColumn } from "./table-columns";
+import { getRecurrenceParameterRows } from "./download-settings";
 
 const DEFAULT_COLUMN_KEYS = [
   "followup",
@@ -101,7 +102,7 @@ export default function Results({ data, params, seerData, precision = 4 }) {
         ])
       )
     );
-    downloadGroupResults(exportRows, params, seerData, prefix);
+    downloadGroupResults(exportRows, getRecurrenceParameterRows(params, seerData), prefix);
   }
 
   const componentHeader = [

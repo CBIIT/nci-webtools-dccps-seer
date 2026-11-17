@@ -44,6 +44,7 @@ export const defaultState = {
   openSidebar: true,
   useConditional: false,
   conditional: null,
+  conditionalIntervals: null,
   survTrendQueryKey: [],
   deathTrendQueryKey: [],
   openReviewDataModal: false,

@@ -1,11 +1,12 @@
 "use client";
 import { useMemo } from "react";
-import { Container, Row, Col, Form, Button, Alert } from "react-bootstrap";
+import { Container, Row, Col, Form, Alert } from "react-bootstrap";
 import { useForm, useWatch } from "react-hook-form";
 import KYearPlot from "./plot";
-import KYearTable from "./table";
 import { getValueToLabelMap } from "../controls";
-import { downloadTableCansurv } from "@/services/xlsx";
+import { getKYearColumns } from "../table-columns";
+import DatasetTable from "@/components/dataset-table";
+import { getCansurvSettingsRows, getSubStratumRows } from "../download-settings";
 
 export default function KYear({ data, params, seerData, precision, stratumIndex = 0, stratumValueToLabel = {} }) {
   const defaultValues = useMemo(() => {
@@ -63,6 +64,16 @@ export default function KYear({ data, params, seerData, precision, stratumIndex 
         (subtitle += `${valueToLabelMap[key][value]}${i < Object.keys(subs).length - 1 ? " / " : ""}`)
     );
     return `${subtitle} / K = ${k}`;
+  }
+
+  function getSettingsRows() {
+    const { k, xAxisVar, [xAxisVar]: _, ...subStratum } = formState;
+    const stratumLabel = hasStrata ? valueToLabelMap.stratum[stratumIndex] : "";
+    return getCansurvSettingsRows(params, seerData, stratumLabel, [
+      ["K Value", k],
+      ["X Axis Variable", xAxisOptions.find((o) => o.value === xAxisVar)?.label ?? xAxisVar],
+      ...getSubStratumRows(subStratum, seerData, valueToLabelMap),
+    ]);
   }
   return (
     <Container fluid>
@@ -133,23 +144,12 @@ export default function KYear({ data, params, seerData, precision, stratumIndex 
               />
             </Col>
           </Row>
-          <Row className="justify-content-between align-items-center">
-            <Col sm="auto">Total Row Count: {memoData.length}</Col>
-            <Col sm="auto">
-              <Button
-                variant="link"
-                onClick={() =>
-                  downloadTableCansurv(memoData, Object.keys(memoData[0]), params, `kYear-${getPlotSubtitle()}`)
-                }>
-                Download Graph Dataset
-              </Button>
-            </Col>
-          </Row>
-          <Row>
-            <Col>
-              <KYearTable data={memoData} seerData={seerData} valueToLabelMap={valueToLabelMap} precision={precision} />
-            </Col>
-          </Row>
+          <DatasetTable
+            data={memoData}
+            columns={getKYearColumns({ seerData, valueToLabelMap, precision })}
+            filename={`kYear-${getPlotSubtitle()}`}
+            getSettingsRows={getSettingsRows}
+          />
         </>
       )}
     </Container>

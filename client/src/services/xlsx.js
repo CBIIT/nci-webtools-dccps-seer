@@ -47,42 +47,6 @@ export function downloadAll(modelData, coefData, seerData, params, filename, man
   writeFile(wb, `${filename}.xlsx`);
 }
 
-export function downloadTable(data, headers, seerData, params, filename) {
-  const wb = utils.book_new();
-  const table = data.map((row) =>
-    headers.reduce((acc, key) => {
-      if (row.hasOwnProperty(key)) {
-        acc[key] = row[key];
-      }
-      return acc;
-    }, {})
-  );
-  const dataWs = utils.json_to_sheet(table);
-  utils.book_append_sheet(wb, dataWs, "Data");
-
-  const settingsWs = settingsSheet(params);
-  utils.book_append_sheet(wb, settingsWs, "Settings");
-  writeFile(wb, `${filename}.xlsx`);
-}
-
-export function downloadTableCansurv(data, headers, params, filename) {
-  const wb = utils.book_new();
-  const table = data.map((row) =>
-    headers.reduce((acc, key) => {
-      if (row.hasOwnProperty(key)) {
-        acc[key] = Array.isArray(row[key]) ? row[key].join(", ") : row[key];
-      }
-      return acc;
-    }, {})
-  );
-  const dataWs = utils.json_to_sheet(table);
-  utils.book_append_sheet(wb, dataWs, "Data");
-
-  const settingsWs = utils.json_to_sheet(parseParams(params));
-  utils.book_append_sheet(wb, settingsWs, "Settings");
-  writeFile(wb, `${filename}.xlsx`);
-}
-
 function modelEstimatesSheet(estData, data, jp, params) {
   const estimates = estData.map((e) => ({
     "Parameter": e["_row"],
@@ -128,65 +92,40 @@ function settingsSheet(params) {
   return utils.aoa_to_sheet(transposedData);
 }
 
-export function downloadGroupResults(results, params, seerData, filename) {
+function parameterSheet(parameterRows) {
+  return utils.aoa_to_sheet([["Parameter", "Value"], ...parameterRows.map(([label, value]) => [label, value ?? ""])]);
+}
+
+function formatExportValue(value) {
+  if (value === null || value === undefined) return "";
+  if (Array.isArray(value)) return value.join(", ");
+  // Keep rounded display text numeric so Excel can sort/compute with it
+  if (typeof value === "string" && /^-?\d+(\.\d+)?$/.test(value.trim())) return Number(value);
+  return value;
+}
+
+export function downloadGroupResults(results, parameterRows, filename) {
   const wb = utils.book_new();
-
-  const stageHeader = seerData?.seerStatDictionary?.find((h) => h.name === params.stageVariable);
-  const distantFactor = stageHeader?.factors?.find((f) => String(f.value) === String(params.distantStageValue));
-  const distantStageValue = distantFactor
-    ? `${distantFactor.value} - ${String(distantFactor.label).replace(/"/g, "").trim()}`
-    : (params.distantStageValue ?? "");
-
-  const strataRows = (params.strataOptions ?? []).map((variable) => {
-    // The distant stage level is always included in the analysis
-    const isIncluded = (o) =>
-      o.checked || (variable.name === params.stageVariable && String(o.value) === String(params.distantStageValue));
-    const selected = variable.options.filter(isIncluded);
-    return {
-      Parameter: `Strata: ${variable.label}`,
-      Value: selected.length === variable.options.length ? "All" : selected.map((o) => o.label).join(", "),
-    };
-  });
-
-  const parameterRows = [
-    { Parameter: "Job ID", Value: params.id ?? "" },
-    { Parameter: "Input Type", Value: params.inputType === "zip" ? "Workspace (.zip)" : "SEER*Stat/CanSurv Files" },
-    { Parameter: "SEER*Stat Files", Value: seerData?.seerStatDataFileNames?.join(", ") ?? "" },
-    { Parameter: "CanSurv File", Value: seerData?.canSurvDataFileName ?? "" },
-    { Parameter: "Stage Variable", Value: params.stageVariable ?? "" },
-    { Parameter: "Distant Stage Value", Value: distantStageValue },
-    { Parameter: "Adjustment Factor r", Value: params.adjustmentFactorR ?? "" },
-    { Parameter: "Years of Follow-up", Value: params.followUpYears ?? "" },
-    ...strataRows,
-    { Parameter: "Long-running Job Notification", Value: params.sendNotification ? "Yes" : "No" },
-    ...(params.sendNotification
-      ? [
-          { Parameter: "Job Name", Value: params.jobName ?? "" },
-          { Parameter: "Email", Value: params.email ?? "" },
-        ]
-      : []),
-  ];
-  const paramsWs = utils.json_to_sheet(parameterRows);
-  utils.book_append_sheet(wb, paramsWs, "Parameters");
-
-  const dataWs = utils.json_to_sheet(results);
-  utils.book_append_sheet(wb, dataWs, "Data");
-
+  utils.book_append_sheet(wb, utils.json_to_sheet(results), "Data");
+  utils.book_append_sheet(wb, parameterSheet(parameterRows), "Settings");
   writeFile(wb, `${filename}.xlsx`);
 }
 
-function parseParams(params) {
-  return [
-    Object.fromEntries(
-      Object.entries(params).map(([key, value]) => {
-        if (typeof value === "string") {
-          return [key, value];
-        } else if (Array.isArray(value) && value.every((item) => typeof item === "string")) {
-          return [key, value.join(", ")];
-        } else {
-          return [key, JSON.stringify(value)];
-        }
-      })
-    ),
-  ];
+/**
+ * @param {object[]} rows
+ * @param {{ label: string, getValue: (row: object) => any, format?: (value: any) => any }[]} columns
+ * @param {[string, any][]} settingsRows
+ * @param {string} filename
+ */
+export function downloadDataset(rows, columns, settingsRows, filename) {
+  const wb = utils.book_new();
+  const table = rows.map((row) =>
+    columns.map(({ getValue, format }) => {
+      const value = getValue(row);
+      return formatExportValue(format ? format(value) : value);
+    })
+  );
+  utils.book_append_sheet(wb, utils.aoa_to_sheet([columns.map((c) => c.label), ...table]), "Data");
+  utils.book_append_sheet(wb, parameterSheet(settingsRows), "Settings");
+  writeFile(wb, `${filename}.xlsx`);
 }

@@ -1,10 +1,11 @@
 "use client";
 import { useMemo } from "react";
-import { Container, Row, Col, Button } from "react-bootstrap";
+import { Container, Row, Col } from "react-bootstrap";
 import DeviancePlot from "./plot";
-import DevianceTable from "./table";
 import { getValueToLabelMap } from "../controls";
-import { downloadTableCansurv } from "@/services/xlsx";
+import { getDevianceColumns } from "../table-columns";
+import DatasetTable from "@/components/dataset-table";
+import { getCansurvSettingsRows } from "../download-settings";
 
 export default function Deviance({ data, seerData, params, precision, stratumIndex = 0, stratumValueToLabel = {} }) {
   const hasStrata = data["fit.list.by"]?.length > 0;
@@ -37,23 +38,12 @@ export default function Deviance({ data, seerData, params, precision, stratumInd
           />
         </Col>
       </Row>
-      <Row className="justify-content-between align-items-center">
-        <Col sm="auto">Total Row Count: {memoData.length}</Col>
-        <Col sm="auto">
-          <Button
-            variant="link"
-            onClick={() =>
-              downloadTableCansurv(memoData, Object.keys(memoData[0]), params, `deviance-${getPlotSubtitle()}`)
-            }>
-            Download Graph Dataset
-          </Button>
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          <DevianceTable data={memoData} seerData={seerData} valueToLabelMap={valueToLabelMap} precision={precision} />
-        </Col>
-      </Row>
+      <DatasetTable
+        data={memoData}
+        columns={getDevianceColumns({ seerData, valueToLabelMap, precision })}
+        filename={`deviance-${getPlotSubtitle()}`}
+        getSettingsRows={() => getCansurvSettingsRows(params, seerData, getPlotSubtitle())}
+      />
     </Container>
   );
 }

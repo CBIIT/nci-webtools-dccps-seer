@@ -11,7 +11,7 @@ import Popover from "react-bootstrap/Popover";
 import { VscSettingsGear } from "react-icons/vsc";
 import { useQuery, useMutation, useQueryClient, useIsMutating } from "@tanstack/react-query";
 import { v4 as uuidv4 } from "uuid";
-import { useStore, defaultForm } from "./store";
+import { useStore, defaultForm, DISTRIBUTION_OPTIONS } from "./store";
 import { buildSeerData } from "@/services/file/file.service";
 import { asFileList } from "@/components/file-input";
 import { fetchSession, submit, importWorkspace } from "@/services/queries";
@@ -409,13 +409,7 @@ export default function AnalysisForm({ id }) {
             <Form.Group className="mb-4" controlId="year">
               <Form.Label className="required fw-bold">Distribution</Form.Label>
               <Form.Select required {...register("distribution", { required: true })}>
-                {[
-                  { label: "Lognormal", value: "lnorm" },
-                  { label: "Loglogistic", value: "llogis" },
-                  { label: "Weibull", value: "weibull" },
-                  { label: "Gompertz", value: "gompertz" },
-                  { label: "Semi-Parametric", value: "semi-parametric" },
-                ].map((e) => (
+                {DISTRIBUTION_OPTIONS.map((e) => (
                   <option key={e.value} value={e.value}>
                     {e.label}
                   </option>

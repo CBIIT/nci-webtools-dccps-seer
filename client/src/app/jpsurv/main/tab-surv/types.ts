@@ -14,17 +14,6 @@ export interface SurvYearPlotProps {
   precision: number;
 }
 
-export interface SurvYearTableProps {
-  data: DataPoint[];
-  params: Params;
-  observedHeader: string;
-  observedSeHeader: string;
-  predictedHeader: string;
-  predictedSeHeader: string;
-  isRecalcCond?: boolean;
-  precision: number;
-}
-
 export interface SurvivalVsYearProps {
   data: {
     fullpredicted: DataPoint[];

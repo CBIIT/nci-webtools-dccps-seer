@@ -14,16 +14,6 @@ export interface DeathYearPlotProps {
   precision: number;
 }
 
-export interface DeathYearTableProps {
-  data: DataPoint[];
-  params: Params;
-  observedHeader: string;
-  observedSeHeader: string;
-  predictedHeader: string;
-  predictedSeHeader: string;
-  precision: number;
-}
-
 export interface DeathVsYearProps {
   data: {
     fullpredicted: DataPoint[];
