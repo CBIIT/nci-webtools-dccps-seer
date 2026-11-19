@@ -38,9 +38,9 @@ export default function SurvTimePlot({
       const predictedTraceName = `${+interval} Predicted`;
       const projectedTraceName = `${+interval} Predicted`;
 
-      if (isRecalcCond) {
-        data = [{ [observedHeader]: 100, [predictedHeader]: 100 }, ...data];
-      }
+      data = isRecalcCond
+        ? [{ [observedHeader]: 100, [predictedHeader]: 100 }, ...data]
+        : [{ Interval: 0, [observedHeader]: 100, [predictedHeader]: 100 }, ...data];
 
       const projectedStart = data.map((e) => e[observedHeader]).findIndex((e) => !e);
       const predictedData = data.slice(0, projectedStart > -1 ? projectedStart : data.length);
@@ -102,7 +102,7 @@ export default function SurvTimePlot({
     .flat();
 
   const layout = makeLayout([intervalStart, intervalEnd], title, subtitle, xTitle, yTitle, fontSize);
-  const plotLayout = { ...layout, annotations };
+  const plotLayout = { ...layout, yaxis: { ...layout.yaxis, range: [0, 105] }, annotations };
 
   async function addAnnotation() {
     const xMean = params.useCondModel ? (params.conditionalStart + params.conditionalEnd) / 2 : params.interval / 2;
