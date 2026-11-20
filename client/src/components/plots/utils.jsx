@@ -96,7 +96,9 @@ export function makeLegendTrace(name, group, index, mode = "lines+markers", dash
 
 export function makeLayout(range, title, subtitle, xTitle, yTitle, fontSize = 14) {
   return {
-    title: { text: `<b>${title}</b>`, subtitle: { text: subtitle } },
+    title: {
+      text: `<b>${title}</b>${subtitle ? `<br><span style="font-size:${fontSize}px">${subtitle}</span>` : ""}`,
+    },
     hovermode: "closest",
     font: {
       size: fontSize,

@@ -9,7 +9,7 @@ import DeathYearPlot from "./death-year-plot";
 import TrendTable from "../tab-surv/surv-trend-table";
 import DatasetTable from "@/components/dataset-table";
 import { useStore } from "../../store";
-import { getCohortLabel } from "../cohort-select";
+import { getCohortLabel, getJoinpointLabel } from "../cohort-select";
 import { getJpsurvSettingsRows } from "../download-settings";
 import { getDeathYearColumns } from "../table-columns";
 import { TrendQueryData, DataPoint, TrendDataPoint } from "../types";
@@ -193,7 +193,7 @@ export default function DeathVsYear({
             trendData={deathTrend}
             params={params}
             title={`${conditional ? "Conditional " : ""}` + "Annual Probability of Dying of Cancer by Diagnosis Year"}
-            subtitle={`Joinpoint ${fitIndex} - ${getCohortLabel(params, cohortIndex)}`}
+            subtitle={`${getJoinpointLabel(params, fitIndex, data.jp)} - ${getCohortLabel(params, cohortIndex)}`}
             xTitle={"Year of Diagnosis"}
             yTitle={`Annual Probability of Cancer Death (%)`}
             observedHeader={observedHeader}

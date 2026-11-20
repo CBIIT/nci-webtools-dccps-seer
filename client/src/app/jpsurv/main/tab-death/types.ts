@@ -18,6 +18,7 @@ export interface DeathVsYearProps {
   data: {
     fullpredicted: DataPoint[];
     predicted?: DataPoint[];
+    jp?: number | number[];
   };
   seerData: SeerData;
   params: Params;

@@ -5,12 +5,12 @@ import { useForm, useWatch } from "react-hook-form";
 import SelectHookForm from "@/components/selectHookForm";
 import SurvTimePlot from "./surv-time-plot";
 import DatasetTable from "@/components/dataset-table";
-import { getCohortLabel } from "../cohort-select";
+import { getCohortLabel, getJoinpointLabel } from "../cohort-select";
 import { useStore } from "../../store";
 import { getJpsurvSettingsRows } from "../download-settings";
 import { getSurvTimeColumns } from "../table-columns";
 
-export default function SurvivalVsTime({ data, seerData, params, cohortIndex, fitIndex, conditional, precision }) {
+export default function SurvivalVsTime({ data, jp, seerData, params, cohortIndex, fitIndex, conditional, precision }) {
   const main = useStore((state) => state.main);
   const conditionalIntervals = useStore((state) => state.conditionalIntervals);
   const isRecalcCond = !!conditional;
@@ -62,7 +62,7 @@ export default function SurvivalVsTime({ data, seerData, params, cohortIndex, fi
             data={memoData}
             params={params}
             title={`${conditional ? "Conditional " : ""}${statistic} by Diagnosis Year for Selected Diagnosis Year`}
-            subtitle={`Joinpoint ${fitIndex} - ${getCohortLabel(params, cohortIndex)}`}
+            subtitle={`${getJoinpointLabel(params, fitIndex, jp)} - ${getCohortLabel(params, cohortIndex)}`}
             xTitle={`${isRecalcCond ? "Conditional " : ""}Time Since Diagnosis`}
             yTitle={`${isRecalcCond ? "Conditional " : ""}${statistic}`}
             observedHeader={observedHeader}

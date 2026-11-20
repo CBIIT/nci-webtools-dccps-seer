@@ -9,7 +9,7 @@ import SurvYearPlot from "./surv-year-plot";
 import TrendTable from "./surv-trend-table";
 import DatasetTable from "@/components/dataset-table";
 import { useStore } from "../../store";
-import { getCohortLabel } from "../cohort-select";
+import { getCohortLabel, getJoinpointLabel } from "../cohort-select";
 import { getJpsurvSettingsRows } from "../download-settings";
 import { getSurvYearColumns } from "../table-columns";
 import { TrendQueryData, DataPoint, TrendDataPoint } from "../types";
@@ -317,7 +317,7 @@ export default function SurvivalVsYear({
             trendData={survTrend}
             params={params}
             title={`${conditional ? "Conditional " : ""}${statistic} by Diagnosis Year`}
-            subtitle={`Joinpoint ${fitIndex} - ${getCohortLabel(params, cohortIndex)}`}
+            subtitle={`${getJoinpointLabel(params, fitIndex, data.jp)} - ${getCohortLabel(params, cohortIndex)}`}
             xTitle={"Year of Diagnosis"}
             yTitle={`${isRecalcCond ? "Conditional " : ""}${statistic}`}
             observedHeader={observedHeader}

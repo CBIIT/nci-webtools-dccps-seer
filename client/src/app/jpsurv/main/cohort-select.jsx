@@ -16,6 +16,12 @@ export function getCohortLabel(params, cohort_index) {
     .join(" + ");
 }
 
+// jp is the model's 0-based joinpoint offset(s) from firstYear; may be a scalar or an array
+export function getJoinpointLabel(params, fitIndex, jp) {
+  const years = (Array.isArray(jp) ? jp : jp ? [jp] : []).map((e) => +e + params.firstYear);
+  return `Joinpoint ${fitIndex}${years.length ? ` (${years.join(", ")})` : ""}`;
+}
+
 export function CohortSelect({ params, manifest, className, handleSaveResults }) {
   const setState = useStore((state) => state.setState);
   const main = useStore((state) => state.main);

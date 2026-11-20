@@ -145,6 +145,7 @@ export default function AnalysisMain({ id }) {
               <Tab eventKey="time" title={`${useConditional ? "Conditional " : ""}Survival vs. Time Since Diagnosis`}>
                 <SurvivalVsTime
                   data={memoResults[fitIndex].fullpredicted}
+                  jp={memoResults[fitIndex].jp}
                   seerData={seerData}
                   params={params}
                   cohortIndex={cohortIndex}
