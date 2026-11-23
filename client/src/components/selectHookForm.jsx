@@ -69,7 +69,7 @@ export default function SelectHookForm({
             inputId={name}
             options={options}
             isDisabled={disabled}
-            value={options.filter(e => field.value.includes(e.value))}
+            value={options.filter(e => (field.value ?? []).includes(e.value))}
             onChange={(value) => field.onChange(value.map((e) => e.value))}
             {...rest}
           />
