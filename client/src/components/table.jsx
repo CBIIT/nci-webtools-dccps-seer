@@ -18,6 +18,13 @@ import {
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 
+// Text filters match typed input as a substring; the auto filterFn treats numbers as [min, max] ranges
+function includesText(row, columnId, filterValue) {
+  const value = row.getValue(columnId);
+  const text = Array.isArray(value) ? value.join(", ") : String(value ?? "");
+  return text.toLowerCase().includes(String(filterValue).toLowerCase());
+}
+
 function getSelectFilterOptions(column) {
   const uniqueValues = column.getFacetedUniqueValues();
   return Array.from(uniqueValues.keys())
@@ -45,6 +52,7 @@ export default function Table({
   const table = useReactTable({
     data,
     columns,
+    defaultColumn: { filterFn: includesText },
     state: {
       ...(useFilter && { globalFilter }),
       ...(useColumnFilter && { columnFilters }),
