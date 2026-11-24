@@ -1,0 +1,42 @@
+{
+  "_source": "data/output/45b2d5d2-b684-41f6-a19a-44f47f190d59/results.json",
+  "cohortVariables": [
+    {"label":"Age breast with all 7gr","name":"Age_breast_with_all_7gr","factors":[{"value":0,"label":"15-44"},{"value":1,"label":"45-54"},{"value":2,"label":"55-64"},{"value":3,"label":"65-74"},{"value":4,"label":"75+"},{"value":5,"label":"All ages"},{"value":6,"label":"15-54"}]},
+    {"label":"Merge AJCC stage-breast","name":"Merge_AJCC_stagebreast","factors":[{"value":0,"label":"I"},{"value":1,"label":"II"},{"value":2,"label":"III"},{"value":3,"label":"IV"},{"value":4,"label":"All excl insitu"}]},
+    {"label":"Sex","name":"Sex","factors":[{"value":0,"label":"Male and female"},{"value":1,"label":"Male"},{"value":2,"label":"Female"}]},
+    {"label":"Origin recode NHIA (Hispanic, Non-Hisp)","name":"Origin_recode_NHIA_Hispanic_NonHisp","factors":[{"value":0,"label":"Non-Spanish-Hispanic-Latino"},{"value":1,"label":"Spanish-Hispanic-Latino"}]}
+  ],
+  "by": {"Age_breast_with_all_7gr":0,"Merge_AJCC_stagebreast":0,"Sex":0,"Origin_recode_NHIA_Hispanic_NonHisp":0},
+  "estimates": [
+    {"parameter":"cure.(Intercept)","Estimate":2.05131,"Std. Error":0.10742},
+    {"parameter":"mu.(Intercept)","Estimate":2.48405,"Std. Error":0.0996302},
+    {"parameter":"sigma.(Intercept)","Estimate":-0.612364,"Std. Error":0.0488483}
+  ],
+  "data": [
+    {"Age_breast_with_all_7gr":0,"Merge_AJCC_stagebreast":0,"Sex":0,"Origin_recode_NHIA_Hispanic_NonHisp":0,"Interval":1,"Relative_Survival_Cum":0.99916,".Surv.Est":0.998847,".Dev.Resid":-1.07195,".Cure.Fraction":[0.88608]},
+    {"Age_breast_with_all_7gr":0,"Merge_AJCC_stagebreast":0,"Sex":0,"Origin_recode_NHIA_Hispanic_NonHisp":0,"Interval":2,"Relative_Survival_Cum":0.9967,".Surv.Est":0.995963,".Dev.Resid":-1.09923,".Cure.Fraction":[0.88608]},
+    {"Age_breast_with_all_7gr":0,"Merge_AJCC_stagebreast":0,"Sex":0,"Origin_recode_NHIA_Hispanic_NonHisp":0,"Interval":3,"Relative_Survival_Cum":0.99181,".Surv.Est":0.991794,".Dev.Resid":1.53338,".Cure.Fraction":[0.88608]},
+    {"Age_breast_with_all_7gr":0,"Merge_AJCC_stagebreast":0,"Sex":0,"Origin_recode_NHIA_Hispanic_NonHisp":0,"Interval":4,"Relative_Survival_Cum":0.98634,".Surv.Est":0.986718,".Dev.Resid":0.752808,".Cure.Fraction":[0.88608]},
+    {"Age_breast_with_all_7gr":0,"Merge_AJCC_stagebreast":0,"Sex":0,"Origin_recode_NHIA_Hispanic_NonHisp":0,"Interval":5,"Relative_Survival_Cum":0.9806,".Surv.Est":0.981077,".Dev.Resid":0.177721,".Cure.Fraction":[0.88608]},
+    {"Age_breast_with_all_7gr":0,"Merge_AJCC_stagebreast":0,"Sex":0,"Origin_recode_NHIA_Hispanic_NonHisp":0,"Interval":6,"Relative_Survival_Cum":0.97432,".Surv.Est":0.975161,".Dev.Resid":0.620423,".Cure.Fraction":[0.88608]},
+    {"Age_breast_with_all_7gr":0,"Merge_AJCC_stagebreast":0,"Sex":0,"Origin_recode_NHIA_Hispanic_NonHisp":0,"Interval":7,"Relative_Survival_Cum":0.96882,".Surv.Est":0.9692,".Dev.Resid":-0.738235,".Cure.Fraction":[0.88608]},
+    {"Age_breast_with_all_7gr":0,"Merge_AJCC_stagebreast":0,"Sex":0,"Origin_recode_NHIA_Hispanic_NonHisp":0,"Interval":8,"Relative_Survival_Cum":0.96345,".Surv.Est":0.963363,".Dev.Resid":-0.714765,".Cure.Fraction":[0.88608]},
+    {"Age_breast_with_all_7gr":0,"Merge_AJCC_stagebreast":0,"Sex":0,"Origin_recode_NHIA_Hispanic_NonHisp":0,"Interval":9,"Relative_Survival_Cum":0.95809,".Surv.Est":0.957768,".Dev.Resid":-0.358112,".Cure.Fraction":[0.88608]},
+    {"Age_breast_with_all_7gr":0,"Merge_AJCC_stagebreast":0,"Sex":0,"Origin_recode_NHIA_Hispanic_NonHisp":0,"Interval":10,"Relative_Survival_Cum":0.95389,".Surv.Est":0.952486,".Dev.Resid":-1.59534,".Cure.Fraction":[0.88608]},
+    {"Age_breast_with_all_7gr":0,"Merge_AJCC_stagebreast":0,"Sex":0,"Origin_recode_NHIA_Hispanic_NonHisp":0,"Interval":11,"Relative_Survival_Cum":0.94915,".Surv.Est":0.947557,".Dev.Resid":-0.263672,".Cure.Fraction":[0.88608]},
+    {"Age_breast_with_all_7gr":0,"Merge_AJCC_stagebreast":0,"Sex":0,"Origin_recode_NHIA_Hispanic_NonHisp":0,"Interval":12,"Relative_Survival_Cum":0.94493,".Surv.Est":0.942995,".Dev.Resid":-0.453566,".Cure.Fraction":[0.88608]}
+  ],
+  "profileLL": [
+    [0,-11514.7],
+    [0.1,-11514.1],
+    [0.2,-11513.4],
+    [0.3,-11512.5],
+    [0.4,-11511.2],
+    [0.5,-11509.5],
+    [0.6,-11506.9],
+    [0.7,-11502.8],
+    [0.8,-11495.3],
+    [0.9,-11487.9],
+    [1,"NA"]
+  ]
+}
