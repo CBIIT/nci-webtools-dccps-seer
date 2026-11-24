@@ -23,9 +23,9 @@ export default function DeathVsYear({
   fitIndex,
   conditional,
   precision,
+  selection,
 }: DeathVsYearProps) {
   const setState = useStore((state) => state.setState);
-  const main = useStore((state) => state.main);
   const conditionalIntervals = useStore((state) => state.conditionalIntervals);
   const deathTrendQueryKey = useStore((state) => state.deathTrendQueryKey).slice(0, 2);
   const queryClient = useQueryClient();
@@ -99,7 +99,7 @@ export default function DeathVsYear({
     return getJpsurvSettingsRows(
       params,
       seerData,
-      { main, conditionalIntervals: conditional ? conditionalIntervals : null },
+      { main: selection, conditionalIntervals: conditional ? conditionalIntervals : null },
       [
         ["Years Since Diagnosis", intervalsD.join(", ")],
         ["Trend Measures: Between Joinpoints", jpTrend ? "Yes" : "No"],

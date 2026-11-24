@@ -1,5 +1,4 @@
 "use client";
-import { useEffect } from "react";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
@@ -8,7 +7,26 @@ import Button from "react-bootstrap/Button";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
 import { FaCircleInfo } from "react-icons/fa6";
-import { useStore } from "../store";
+
+function getManifestCohorts(manifest) {
+  return Array.isArray(manifest) ? manifest.filter((e) => typeof e !== "string") : [];
+}
+
+// fills in defaults for anything unset or not present in the manifest
+export function resolveSelection(stored, manifest, useRelaxModel) {
+  const cohorts = getManifestCohorts(manifest);
+  const cohortIndexes = [...new Set(cohorts.map((e) => e.cohort_index))];
+  const cohortIndex = cohortIndexes.find((e) => e == stored.cohortIndex) ?? cohortIndexes[0] ?? null;
+  if (!useRelaxModel) return { ...stored, cohortIndex };
+
+  const cutpoints = cohorts.filter((e) => e.cohort_index == cohortIndex);
+  const cutpointIndex =
+    cutpoints.find((e) => e.cutpoint_index == stored.cutpointIndex)?.cutpoint_index ??
+    cutpoints.find((e) => e.optimal_cutpoint)?.cutpoint_index ??
+    null;
+  const cluster = cutpointIndex == 1 ? "uncond" : stored.cluster ?? "uncond";
+  return { ...stored, cohortIndex, cutpointIndex, cluster };
+}
 
 export function getCohortLabel(params, cohort_index) {
   return params.cohortCombos[cohort_index - 1]
@@ -22,52 +40,27 @@ export function getJoinpointLabel(params, fitIndex, jp) {
   return `Joinpoint ${fitIndex}${years.length ? ` (${years.join(", ")})` : ""}`;
 }
 
-export function CohortSelect({ params, manifest, className, handleSaveResults }) {
-  const setState = useStore((state) => state.setState);
-  const main = useStore((state) => state.main);
-  const id = useStore((state) => state.params.id);
-  const { cohortIndex, cutpointIndex, cluster, precision } = main;
+export function CohortSelect({ id, params, manifest, selection, setSelection, className, handleSaveResults }) {
+  const { cohortIndex, cutpointIndex, cluster, precision } = selection;
   const errors = Array.isArray(manifest) ? manifest.filter((e) => typeof e === "string") : [manifest];
-  const cohorts = Array.isArray(manifest) ? manifest.filter((e) => typeof e !== "string") : [];
+  const cohorts = getManifestCohorts(manifest);
   const cohortIndexes = [...new Set(cohorts.map((e) => e.cohort_index))];
-  const cutpoints = cohorts.filter((e) =>
-    cohortIndex ? e.cohort_index == cohortIndex : e.cohort_index == cohortIndexes[0]
-  );
-
-  // select initial cohort
-  useEffect(() => {
-    if (params.useRelaxModel) {
-      if (!cohortIndex && !cutpointIndex && cohortIndexes.length && cutpoints.length) {
-        setState({
-          main: {
-            ...main,
-            cohortIndex: cohortIndexes[0],
-            cutpointIndex: cutpoints.filter((e) => e.optimal_cutpoint)[0].cutpoint_index,
-            cluster: "uncond",
-          },
-        });
-      }
-    } else if (!cohortIndex && cohortIndexes.length) {
-      setState({ main: { ...main, cohortIndex: cohortIndexes[0] } });
-    }
-  }, [cohortIndexes, cutpoints, cohortIndex, cutpointIndex]);
+  const cutpoints = cohorts.filter((e) => e.cohort_index == cohortIndex);
 
   function handleCohortChange(e) {
-    setState({ main: { ...main, cohortIndex: e.target.value } });
+    setSelection({ cohortIndex: e.target.value });
   }
 
   function handlePrecisionChange(e) {
-    setState({ main: { ...main, precision: +e.target.value } });
+    setSelection({ precision: +e.target.value });
   }
 
   function handleCutpointChange(e) {
-    setState({
-      main: { ...main, cutpointIndex: e.target.value, cluster: e.target.value == 1 ? "uncond" : main.cluster },
-    });
+    setSelection({ cutpointIndex: e.target.value, ...(e.target.value == 1 && { cluster: "uncond" }) });
   }
 
   const handleClusterChange = (e) => {
-    setState({ main: { ...main, cluster: e.target.value } });
+    setSelection({ cluster: e.target.value });
   };
 
   async function handleSaveWorkspace() {

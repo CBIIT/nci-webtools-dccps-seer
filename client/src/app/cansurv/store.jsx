@@ -37,9 +37,12 @@ export const defaultForm = {
   email: "",
 };
 
+// id is the job the selection belongs to; a different id starts from defaults
+export const defaultMain = { id: null, stratumIndex: 0, precision: 2 };
+
 export const defaultState = {
   params: defaultForm,
-  main: { cohortIndex: null, cutpointIndex: null, cluster: null, fitIndex: 0, stratumIndex: 0, precision: 2 },
+  main: defaultMain,
   results: {},
   seerData: {},
 
@@ -63,5 +66,6 @@ export const useStore = create((set) => ({
   setState: (update) => set((state) => ({ ...state, ...update })),
   setUserCsv: (update) => set((state) => ({ userCsv: { ...state.userCsv, ...update } })),
   resetStore: () => set(() => defaultState),
-  resetMain: () => set((state) => ({ ...state, main: defaultState.main })),
+  setMain: (id, update) =>
+    set((state) => ({ main: { ...(state.main.id === id ? state.main : defaultMain), ...update, id } })),
 }));

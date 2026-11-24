@@ -25,9 +25,9 @@ export default function SurvivalVsYear({
   conditional,
   cluster,
   precision,
+  selection,
 }: SurvivalVsYearProps) {
   const setState = useStore((state) => state.setState);
-  const main = useStore((state) => state.main);
   const conditionalIntervals = useStore((state) => state.conditionalIntervals);
   const survTrendQueryKey = useStore((state) => state.survTrendQueryKey);
   const queryClient = useQueryClient();
@@ -133,7 +133,7 @@ export default function SurvivalVsYear({
     return getJpsurvSettingsRows(
       params,
       seerData,
-      { main, conditionalIntervals: isRecalcCond ? conditionalIntervals : null },
+      { main: selection, conditionalIntervals: isRecalcCond ? conditionalIntervals : null },
       [
         ["Years Since Diagnosis", intervals.join(", ")],
         ["Trend Measures: Between Joinpoints", jpTrend ? "Yes" : "No"],

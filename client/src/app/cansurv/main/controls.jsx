@@ -45,21 +45,19 @@ export function getValueToLabelMap(variables, stratumValueToLabel) {
   return map;
 }
 
-export function Controls({ manifest, results, seerData, className, handleSaveResults }) {
-  const setState = useStore((state) => state.setState);
-  const main = useStore((state) => state.main);
+export function Controls({ manifest, results, seerData, selection, setSelection, className, handleSaveResults }) {
   const id = useStore((state) => state.params.id);
-  const { precision, stratumIndex } = main;
+  const { precision, stratumIndex } = selection;
   const errors = typeof manifest === "string" ? [manifest] : [];
 
   const stratumOptions = useMemo(() => getStratumOptions(results, seerData), [results, seerData]);
 
   function handlePrecisionChange(e) {
-    setState({ main: { ...main, precision: +e.target.value } });
+    setSelection({ precision: +e.target.value });
   }
 
   function handleStratumChange(e) {
-    setState({ main: { ...main, stratumIndex: +e.target.value } });
+    setSelection({ stratumIndex: +e.target.value });
   }
 
   async function handleSaveWorkspace() {

@@ -1,6 +1,6 @@
 "use client";
 import Script from "next/script";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { ErrorBoundary } from "next/dist/client/components/error-boundary";
 import Alert from "react-bootstrap/Alert";
 import Loading from "@/components/loading";
@@ -28,7 +28,7 @@ export default function RootLayout({ children }) {
       ],
     },
   ];
-  const queryClient = new QueryClient({});
+  const [queryClient] = useState(() => new QueryClient());
   const pathname = usePathname();
   const currentRoute = routes.find(
     (route) => route.path === pathname || route.subRoutes?.some((sub) => sub.path === pathname)

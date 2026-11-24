@@ -1,9 +1,10 @@
 "use client";
 import { Container, Tab, Tabs } from "react-bootstrap";
 import { useEffect, useMemo, useState } from "react";
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import { useStore } from "../store";
+import { useQuery, skipToken } from "@tanstack/react-query";
+import { useStore, defaultMain } from "../store";
 import { fetchStatus, fetchOutput } from "@/services/queries";
+import Loading from "@/components/loading";
 import Status from "../status";
 import Results from "./results";
 import Description from "./description";
@@ -12,15 +13,16 @@ import { METASTATIC, RECURRENCE_FREE, NONCURED } from "./tab-method-curve/config
 import CureModel from "./tab-cure-model/cure-model";
 import MetastaticSurvival from "./tab-metastatic-survival/metastatic-survival";
 import RSensitivity from "./tab-r-sensitivity/r-sensitivity";
-import Controls, { getStratumVariables, filterByStratum, getStratumLabel } from "./controls";
+import Controls, { getStratumVariables, filterByStratum, getStratumLabel, resolveStratum } from "./controls";
 
 export default function AnalysisMain({ id }) {
   const setState = useStore((state) => state.setState);
+  const setMain = useStore((state) => state.setMain);
   const seerData = useStore((state) => state.seerData);
   const params = useStore((state) => state.params);
-  const main = useStore((state) => state.main);
-  const stratum = main?.stratum ?? {};
-  const precision = main?.precision ?? 4;
+  const storedMain = useStore((state) => state.main);
+  const main = storedMain.id === id ? storedMain : defaultMain;
+  const precision = main.precision;
   const [activeTab, setActiveTab] = useState("metastatic");
 
   const { data: jobStatus } = useQuery({
@@ -30,29 +32,15 @@ export default function AnalysisMain({ id }) {
     refetchInterval: (data) =>
       data?.state?.data?.status === "SUBMITTED" || data?.state?.data?.status === "IN_PROGRESS" ? 5 * 1000 : false,
   });
-  const { data: results } = useSuspenseQuery({
-    queryKey: ["results", id, jobStatus],
-    queryFn: () => (jobStatus?.status === "COMPLETED" ? fetchOutput(id, "results.json") : null),
+  const isCompleted = jobStatus?.status === "COMPLETED";
+  const { data: results, isLoading: isLoadingResults } = useQuery({
+    queryKey: ["results", id],
+    queryFn: isCompleted ? () => fetchOutput(id, "results.json") : skipToken,
+    staleTime: Infinity,
   });
 
   const stratumVariables = useMemo(() => getStratumVariables(results, seerData), [results, seerData]);
-
-  // Default (or re-clamp) the selected stratum whenever the available variables/results change.
-  useEffect(() => {
-    if (!stratumVariables.length) return;
-    const next = { ...stratum };
-    let changed = false;
-    for (const variable of stratumVariables) {
-      const isValid = variable.options.some((o) => o.value == next[variable.name]);
-      if (!isValid) {
-        next[variable.name] = variable.options[0]?.value;
-        changed = true;
-      }
-    }
-    if (changed) {
-      setState({ main: { ...main, stratum: next } });
-    }
-  }, [stratumVariables]);
+  const stratum = useMemo(() => resolveStratum(main.stratum, stratumVariables), [main.stratum, stratumVariables]);
 
   const filteredResults = useMemo(
     () => [...filterByStratum(results, stratum)].sort((a, b) => a.followup - b.followup),
@@ -61,11 +49,11 @@ export default function AnalysisMain({ id }) {
   const stratumLabel = getStratumLabel(stratumVariables, stratum);
 
   function handleStratumChange(name, value) {
-    setState({ main: { ...main, stratum: { ...stratum, [name]: value } } });
+    setMain(id, { stratum: { ...stratum, [name]: value } });
   }
 
   function handlePrecisionChange(value) {
-    setState({ main: { ...main, precision: value } });
+    setMain(id, { precision: value });
   }
 
   async function handleSaveWorkspace() {
@@ -96,7 +84,8 @@ export default function AnalysisMain({ id }) {
     <Container>
       <Status status={jobStatus} />
       {!jobStatus && <Description />}
-      {jobStatus?.status === "COMPLETED" && (
+      {isLoadingResults && <Loading />}
+      {results && (
         <>
           <div className="shadow p-3 border rounded bg-white mb-3">
             <Controls

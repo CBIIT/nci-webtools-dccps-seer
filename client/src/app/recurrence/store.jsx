@@ -16,7 +16,9 @@ export const defaultParams = {
   version: "v2", // api version
 };
 
+// id is the job the selection belongs to; a different id starts from defaults
 export const defaultMain = {
+  id: null,
   stratum: {},
   precision: 2,
 };
@@ -24,7 +26,6 @@ export const defaultMain = {
 export const defaultState = {
   params: defaultParams,
   seerData: {},
-  results: [],
   main: defaultMain,
   openSidebar: true,
   openReviewDataModal: false,
@@ -35,5 +36,6 @@ export const useStore = create((set) => ({
   toggleSidebar: () => set((state) => ({ openSidebar: !state.openSidebar })),
   setState: (update) => set((state) => ({ ...state, ...update })),
   resetStore: () => set(() => defaultState),
-  resetMain: () => set((state) => ({ ...state, results: defaultState.results, main: defaultMain })),
+  setMain: (id, update) =>
+    set((state) => ({ main: { ...(state.main.id === id ? state.main : defaultMain), ...update, id } })),
 }));

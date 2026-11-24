@@ -20,19 +20,13 @@ export default function Analysis() {
   const openSidebar = useStore((state) => state.openSidebar);
   const toggleSidebar = useStore((state) => state.toggleSidebar);
   const storeId = useStore((state) => state.params.id);
-  const resetMain = useStore((state) => state.resetMain);
   const openReviewDataModal = useStore((state) => state.openReviewDataModal);
   const seerData = useStore((state) => state.seerData);
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
 
-  // reset main state when id changes
   useEffect(() => {
-    resetMain();
-  }, [id, resetMain]);
-
-  useEffect(() => {
-    if (!id && storeId) router.push(`${pathname}?id=${storeId}`, { shallow: true });
+    if (!id && storeId) router.replace(`${pathname}?id=${storeId}`);
   }, [id, storeId, router, pathname]);
 
   return (

@@ -1,5 +1,5 @@
 // Survival component type definitions
-import { DataPoint, Params, SeerData, TrendDataPoint } from "../types";
+import { DataPoint, Params, SeerData, Selection, TrendDataPoint } from "../types";
 
 export interface SurvYearPlotProps {
   data: DataPoint[];
@@ -28,6 +28,7 @@ export interface SurvivalVsYearProps {
   conditional?: DataPoint[];
   cluster?: number;
   precision: number;
+  selection: Selection;
 }
 
 export interface SurvFormData {

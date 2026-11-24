@@ -1,9 +1,10 @@
 "use client";
 import { Container, Tab, Tabs } from "react-bootstrap";
 import { useEffect, useMemo } from "react";
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import { useStore } from "../store";
+import { useQuery, skipToken } from "@tanstack/react-query";
+import { useStore, defaultMain } from "../store";
 import { fetchStatus, fetchOutput } from "@/services/queries";
+import Loading from "@/components/loading";
 import Description from "./description";
 import Status from "../status";
 import Report from "./report";
@@ -16,10 +17,11 @@ import { downloadAll } from "@/services/xlsx";
 
 export default function AnalysisMain({ id }) {
   const setState = useStore((state) => state.setState);
+  const setMain = useStore((state) => state.setMain);
   const seerData = useStore((state) => state.seerData);
   const params = useStore((state) => state.params);
-  const main = useStore((state) => state.main);
-  const { precision, stratumIndex } = main;
+  const storedMain = useStore((state) => state.main);
+  const main = storedMain.id === id ? storedMain : defaultMain;
 
   const { data: jobStatus } = useQuery({
     queryKey: ["status", id],
@@ -28,14 +30,17 @@ export default function AnalysisMain({ id }) {
     refetchInterval: (data) =>
       data?.state?.data?.status === "SUBMITTED" || data?.state?.data?.status === "IN_PROGRESS" ? 5 * 1000 : false,
   });
+  const isCompleted = jobStatus?.status === "COMPLETED";
   const { data: manifest } = useQuery({
     queryKey: ["manifest", id],
-    queryFn: () => fetchOutput(id, "manifest.json"),
-    enabled: jobStatus?.status === "COMPLETED",
+    queryFn: isCompleted ? () => fetchOutput(id, "manifest.json") : skipToken,
+    staleTime: Infinity,
   });
-  const { data: results } = useSuspenseQuery({
-    queryKey: ["results", id, jobStatus, manifest],
-    queryFn: () => (jobStatus?.status === "COMPLETED" && manifest?.data ? fetchOutput(id, manifest.data) : null),
+  const resultsFile = manifest?.data;
+  const { data: results, isLoading: isLoadingResults } = useQuery({
+    queryKey: ["results", id, resultsFile],
+    queryFn: resultsFile ? () => fetchOutput(id, resultsFile) : skipToken,
+    staleTime: Infinity,
   });
 
   useEffect(() => {
@@ -47,13 +52,11 @@ export default function AnalysisMain({ id }) {
 
   const stratumOptions = useMemo(() => getStratumOptions(results, seerData), [results, seerData]);
   const stratumValueToLabel = useMemo(() => getStratumValueToLabel(results, seerData), [results, seerData]);
-
-  // clamp stratumIndex when new results have fewer strata
-  useEffect(() => {
-    if (stratumOptions.length > 0 && stratumIndex >= stratumOptions.length) {
-      setState({ main: { ...main, stratumIndex: 0 } });
-    }
-  }, [stratumOptions.length]);
+  // a stored stratum may not exist in these results
+  const stratumIndex = main.stratumIndex < stratumOptions.length ? main.stratumIndex : 0;
+  const { precision } = main;
+  const selection = { ...main, stratumIndex };
+  const setSelection = (update) => setMain(id, update);
 
   async function handleSaveResults() {
     const { modelData, coefData } = await fetchAll(id, manifest);
@@ -68,9 +71,17 @@ export default function AnalysisMain({ id }) {
       {!jobStatus && <Description />}
       {manifest && (
         <div className="shadow p-3 border rounded bg-white mb-3">
-          <Controls manifest={manifest} results={results} seerData={seerData} handleSaveResults={handleSaveResults} />
+          <Controls
+            manifest={manifest}
+            results={results}
+            seerData={seerData}
+            selection={selection}
+            setSelection={setSelection}
+            handleSaveResults={handleSaveResults}
+          />
         </div>
       )}
+      {isLoadingResults && <Loading />}
       {results && Object.keys(seerData).length > 0 && (
         <div className="shadow border rounded bg-white my-3">
           <Tabs defaultActiveKey="report">

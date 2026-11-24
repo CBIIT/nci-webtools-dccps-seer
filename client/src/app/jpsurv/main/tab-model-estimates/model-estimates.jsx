@@ -14,8 +14,7 @@ const COEF_COLUMNS = [
   { id: "stderror", label: "Standard Error (%)", getValue: (row) => row["Std.Error"] },
 ];
 
-export default function ModelEstimates({ data, results, params, cohortIndex, fitIndex, precision }) {
-  const main = useStore((state) => state.main);
+export default function ModelEstimates({ data, results, params, cohortIndex, fitIndex, precision, selection }) {
   const seerData = useStore((state) => state.seerData);
   const coefMemo = useMemo(
     () =>
@@ -63,7 +62,7 @@ export default function ModelEstimates({ data, results, params, cohortIndex, fit
               downloadDataset(
                 coefMemo,
                 COEF_COLUMNS,
-                [["Plot", "Model Estimates"], ...getJpsurvSettingsRows(params, seerData, { main, conditionalIntervals: null })],
+                [["Plot", "Model Estimates"], ...getJpsurvSettingsRows(params, seerData, { main: selection, conditionalIntervals: null })],
                 `Model Estimates ${fitIndex} - ${cohortIndex}`
               )
             }>

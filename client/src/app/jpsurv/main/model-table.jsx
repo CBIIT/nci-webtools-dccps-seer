@@ -15,7 +15,7 @@ function IndeterminateCheckbox({ indeterminate, className = "", label = "", ...r
   return <input type="radio" ref={ref} className={className + " cursor-pointer"} aria-label={label} {...rest} />;
 }
 
-export default function ModelTable({ data, params, manifest, cohortIndex, handleRowSelect, precision }) {
+export default function ModelTable({ data, params, manifest, cohortIndex, fitIndex, handleRowSelect, precision }) {
   const { firstYear } = params;
   const { final_model_index } = manifest[cohortIndex - 1];
   const models = useMemo(
@@ -95,7 +95,7 @@ export default function ModelTable({ data, params, manifest, cohortIndex, handle
     getCoreRowModel: getCoreRowModel(),
     enableRowSelection: true,
     enableMultiRowSelection: false,
-    initialState: { rowSelection: { [0]: true } },
+    initialState: { rowSelection: { [fitIndex]: true } },
   });
 
   return (

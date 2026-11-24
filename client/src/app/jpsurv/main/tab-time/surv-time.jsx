@@ -10,8 +10,17 @@ import { useStore } from "../../store";
 import { getJpsurvSettingsRows } from "../download-settings";
 import { getSurvTimeColumns } from "../table-columns";
 
-export default function SurvivalVsTime({ data, jp, seerData, params, cohortIndex, fitIndex, conditional, precision }) {
-  const main = useStore((state) => state.main);
+export default function SurvivalVsTime({
+  data,
+  jp,
+  seerData,
+  params,
+  cohortIndex,
+  fitIndex,
+  conditional,
+  precision,
+  selection,
+}) {
   const conditionalIntervals = useStore((state) => state.conditionalIntervals);
   const isRecalcCond = !!conditional;
   const { statistic } = params;
@@ -31,7 +40,7 @@ export default function SurvivalVsTime({ data, jp, seerData, params, cohortIndex
     return getJpsurvSettingsRows(
       params,
       seerData,
-      { main, conditionalIntervals: isRecalcCond ? conditionalIntervals : null },
+      { main: selection, conditionalIntervals: isRecalcCond ? conditionalIntervals : null },
       [["Year of Diagnosis (plot)", years.join(", ")]]
     );
   }

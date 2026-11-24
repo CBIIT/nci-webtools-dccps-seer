@@ -24,6 +24,15 @@ export interface Cohort {
   label: string;
 }
 
+export interface Selection {
+  id: string | null;
+  cohortIndex: number | string | null;
+  cutpointIndex: number | string | null;
+  cluster: "uncond" | "cond" | null;
+  fitIndex: number;
+  precision: number;
+}
+
 export interface TrendDataPoint {
   interval: number;
   "start.year": number;

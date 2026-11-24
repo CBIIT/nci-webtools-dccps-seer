@@ -36,6 +36,16 @@ export function getStratumVariables(results, seerData) {
   });
 }
 
+// Keep stored values still present in the results; default the rest to the first option.
+export function resolveStratum(stored, stratumVariables) {
+  return Object.fromEntries(
+    stratumVariables.map(({ name, options }) => [
+      name,
+      options.find((o) => o.value == stored?.[name])?.value ?? options[0]?.value,
+    ])
+  );
+}
+
 // Keep only rows matching the currently selected stratum.
 export function filterByStratum(rows, stratum) {
   const entries = Object.entries(stratum ?? {});

@@ -1,36 +1,31 @@
 "use client";
 import { Container, Tab, Tabs } from "react-bootstrap";
 import { useEffect, useMemo } from "react";
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, skipToken } from "@tanstack/react-query";
 import ModelTable from "./model-table";
 import SurvivalVsYear from "./tab-surv/surv-year";
 import DeathVsYear from "./tab-death/death-year";
 import SurvivalVsTime from "./tab-time/surv-time";
-import { CohortSelect } from "./cohort-select";
-import { useStore } from "../store";
+import { CohortSelect, resolveSelection } from "./cohort-select";
+import { useStore, defaultMain } from "../store";
 import { fetchStatus, fetchResults, fetchAll } from "@/services/queries";
 import ModelEstimates from "./tab-model-estimates/model-estimates";
 import ConditionalRecalcForm from "./conditional-form";
 import { downloadAll } from "@/services/xlsx";
 import Description from "./description";
 import Status from "./status";
+import Loading from "@/components/loading";
 import { scaleData, changePrecision } from "@/services/seer-results-transform";
 
 export default function AnalysisMain({ id }) {
   const setState = useStore((state) => state.setState);
+  const setMain = useStore((state) => state.setMain);
   const seerData = useStore((state) => state.seerData);
   const params = useStore((state) => state.params);
-  const main = useStore((state) => state.main);
-  const { cohortIndex, cutpointIndex, fitIndex, cluster, precision } = main;
+  const storedMain = useStore((state) => state.main);
   const useConditional = useStore((state) => state.useConditional);
   const conditional = useStore((state) => state.conditional);
   const useRelaxModel = params.useRelaxModel;
-  const resultsFile = `${cluster === "cond" ? "cond-" : ""}${
-    useRelaxModel ? `${cohortIndex}-${cutpointIndex}` : cohortIndex
-  }`;
-  const modelEstimatesFile = `${cluster === "cond" ? "cond-" : ""}${cohortIndex}-${
-    cutpointIndex ? `${cutpointIndex}-` : ""
-  }coefficients`;
 
   const { data: jobStatus } = useQuery({
     queryKey: ["status", id],
@@ -39,18 +34,33 @@ export default function AnalysisMain({ id }) {
     refetchInterval: (data) =>
       data?.state?.data?.status === "SUBMITTED" || data?.state?.data?.status === "IN_PROGRESS" ? 5 * 1000 : false,
   });
+  const isCompleted = jobStatus?.status === "COMPLETED";
   const { data: manifest } = useQuery({
     queryKey: ["manifest", id],
-    queryFn: () => fetchResults(id, "manifest"),
-    enabled: jobStatus?.status === "COMPLETED",
+    queryFn: isCompleted ? () => fetchResults(id, "manifest") : skipToken,
+    staleTime: Infinity,
   });
-  const { data: results } = useSuspenseQuery({
-    queryKey: ["results", id, cohortIndex, cutpointIndex, cluster],
-    queryFn: () => (jobStatus?.status === "COMPLETED" && !!cohortIndex ? fetchResults(id, resultsFile) : null),
+
+  const selection = resolveSelection(storedMain.id === id ? storedMain : defaultMain, manifest, useRelaxModel);
+  const { cohortIndex, cutpointIndex, cluster, precision } = selection;
+  const setSelection = (update) => setMain(id, update);
+  const resultsFile = `${cluster === "cond" ? "cond-" : ""}${
+    useRelaxModel ? `${cohortIndex}-${cutpointIndex}` : cohortIndex
+  }`;
+  const modelEstimatesFile = `${cluster === "cond" ? "cond-" : ""}${cohortIndex}-${
+    cutpointIndex ? `${cutpointIndex}-` : ""
+  }coefficients`;
+  const canFetchResults = isCompleted && !!cohortIndex;
+
+  const { data: results, isLoading: isLoadingResults } = useQuery({
+    queryKey: ["results", id, resultsFile],
+    queryFn: canFetchResults ? () => fetchResults(id, resultsFile) : skipToken,
+    staleTime: Infinity,
   });
-  const { data: modelEstimates } = useSuspenseQuery({
+  const { data: modelEstimates } = useQuery({
     queryKey: ["results", id, modelEstimatesFile],
-    queryFn: () => (jobStatus?.status === "COMPLETED" && !!cohortIndex ? fetchResults(id, modelEstimatesFile) : null),
+    queryFn: canFetchResults ? () => fetchResults(id, modelEstimatesFile) : skipToken,
+    staleTime: Infinity,
   });
 
   const memoResults = useMemo(
@@ -60,9 +70,12 @@ export default function AnalysisMain({ id }) {
         : [],
     [results, precision]
   );
+  // a stored fit may not exist in another cohort's results
+  const fitIndex = memoResults[selection.fitIndex] ? selection.fitIndex : 0;
+  const resolvedSelection = { ...selection, fitIndex };
 
   function setFitIndex(index) {
-    setState({ main: { ...main, fitIndex: index } });
+    setSelection({ fitIndex: index });
   }
 
   useEffect(() => {
@@ -92,19 +105,28 @@ export default function AnalysisMain({ id }) {
       {!jobStatus && <Description />}
       {params.id && manifest && (
         <div className="shadow p-3 border rounded bg-white mb-3">
-          <CohortSelect params={params} manifest={manifest} data={memoResults} handleSaveResults={handleSaveResults} />
+          <CohortSelect
+            id={id}
+            params={params}
+            manifest={manifest}
+            selection={resolvedSelection}
+            setSelection={setSelection}
+            handleSaveResults={handleSaveResults}
+          />
           {cohortIndex && (
             <ModelTable
               data={memoResults}
               params={params}
               manifest={manifest}
               cohortIndex={cohortIndex}
+              fitIndex={fitIndex}
               handleRowSelect={setFitIndex}
               precision={precision}
             />
           )}
         </div>
       )}
+      {isLoadingResults && <Loading />}
       {results && (
         <>
           {!params.useCondModel && !params.useRelaxModel && (
@@ -113,6 +135,7 @@ export default function AnalysisMain({ id }) {
               params={params}
               cohortIndex={cohortIndex}
               fitIndex={fitIndex}
+              precision={precision}
               className="shadow"
             />
           )}
@@ -129,6 +152,7 @@ export default function AnalysisMain({ id }) {
                   conditional={useConditional ? conditional : null}
                   cluster={cluster}
                   precision={precision}
+                  selection={resolvedSelection}
                 />
               </Tab>
               <Tab eventKey="death" title="Death vs. Year at Diagnosis" disabled={useConditional}>
@@ -140,6 +164,7 @@ export default function AnalysisMain({ id }) {
                   fitIndex={fitIndex}
                   conditional={useConditional ? conditional : null}
                   precision={precision}
+                  selection={resolvedSelection}
                 />
               </Tab>
               <Tab eventKey="time" title={`${useConditional ? "Conditional " : ""}Survival vs. Time Since Diagnosis`}>
@@ -152,6 +177,7 @@ export default function AnalysisMain({ id }) {
                   fitIndex={fitIndex}
                   conditional={useConditional ? conditional : null}
                   precision={precision}
+                  selection={resolvedSelection}
                 />
               </Tab>
               <Tab eventKey="estimates" title="Model Estimates">
@@ -162,6 +188,7 @@ export default function AnalysisMain({ id }) {
                   cohortIndex={cohortIndex}
                   fitIndex={fitIndex}
                   precision={precision}
+                  selection={resolvedSelection}
                 />
               </Tab>
             </Tabs>

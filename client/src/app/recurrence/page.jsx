@@ -22,18 +22,12 @@ export default function GroupPage() {
   const openSidebar = useStore((state) => state.openSidebar);
   const toggleSidebar = useStore((state) => state.toggleSidebar);
   const storeId = useStore((state) => state.params.id);
-  const resetMain = useStore((state) => state.resetMain);
   const openReviewDataModal = useStore((state) => state.openReviewDataModal);
   const seerData = useStore((state) => state.seerData);
 
-  // Reset results panel when session id changes
-  useEffect(() => {
-    resetMain();
-  }, [id, resetMain]);
-
   // Restore URL if session id is in store but not in URL
   useEffect(() => {
-    if (!id && storeId) router.push(`${pathname}?id=${storeId}`, { shallow: true });
+    if (!id && storeId) router.replace(`${pathname}?id=${storeId}`);
   }, [id, storeId, router, pathname]);
 
   return (

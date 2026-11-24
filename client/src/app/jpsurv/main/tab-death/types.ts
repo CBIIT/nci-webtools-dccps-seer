@@ -1,5 +1,5 @@
 // Death component type definitions
-import { DataPoint, Params, SeerData, TrendDataPoint } from "../types";
+import { DataPoint, Params, SeerData, Selection, TrendDataPoint } from "../types";
 
 export interface DeathYearPlotProps {
   data: DataPoint[];
@@ -26,6 +26,7 @@ export interface DeathVsYearProps {
   fitIndex: number;
   conditional?: DataPoint[];
   precision: number;
+  selection: Selection;
 }
 
 export interface DeathFormData {
