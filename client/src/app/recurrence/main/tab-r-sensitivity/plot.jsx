@@ -55,12 +55,12 @@ export default function RSensitivityPlot({ followups, series, title, subtitle, p
       family: "Inter, sans-serif",
     },
     xaxis: {
-      title: "<b>Years Since Diagnosis</b>",
+      title: { text: "<b>Years Since Diagnosis</b>" },
       dtick: 1,
       range: [Math.max(0, minFollowup - 1), maxFollowup + 1],
     },
     yaxis: {
-      title: "<b>Net Metastatic Recurrence Risk (%)</b>",
+      title: { text: "<b>Net Metastatic Recurrence Risk (%)</b>" },
       showline: true,
       ticksuffix: "%",
       rangemode: "tozero",

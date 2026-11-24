@@ -112,13 +112,13 @@ export function makeLayout(range, title, subtitle, xTitle, yTitle, fontSize = 14
       // xanchor: 'center',
     },
     xaxis: {
-      title: `<b>${xTitle}</b>`,
+      title: { text: `<b>${xTitle}</b>` },
       range: range,
       autorange: true,
       dtick: 1,
     },
     yaxis: {
-      title: `<b>${yTitle}</b>`,
+      title: { text: `<b>${yTitle}</b>` },
       showline: true,
       // tickformat: ".2f",
       ticksuffix: "%",

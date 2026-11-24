@@ -46,12 +46,12 @@ export default function KYearPlot({ data, xAxisVar, valueToLabelMap, title, subt
       family: "Inter, sans-serif",
     },
     xaxis: {
-      title: `<b>${xTitle}</b>`,
+      title: { text: `<b>${xTitle}</b>` },
       autorange: false,
       range: [-1, data.length],
     },
     yaxis: {
-      title: `<b>${yTitle}</b>`,
+      title: { text: `<b>${yTitle}</b>` },
       showline: true,
       dtick: 10,
       range: [0, 105],

@@ -67,12 +67,12 @@ export default function CureModelPlot({ data, title, subtitle, precision = 4 }) 
       family: "Inter, sans-serif",
     },
     xaxis: {
-      title: "<b>Years Since Diagnosis</b>",
+      title: { text: "<b>Years Since Diagnosis</b>" },
       dtick: 1,
       range: [Math.max(0, minFollowup - 1), maxFollowup + 1],
     },
     yaxis: {
-      title: "<b>Net Cancer Survival (%)</b>",
+      title: { text: "<b>Net Cancer Survival (%)</b>" },
       showline: true,
       ticksuffix: "%",
       range: [0, 100],

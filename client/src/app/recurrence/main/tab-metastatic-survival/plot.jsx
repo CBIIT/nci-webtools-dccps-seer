@@ -124,13 +124,13 @@ export default function MetastaticSurvivalPlot({
       family: "Inter, sans-serif",
     },
     xaxis: {
-      title: "<b>Years Since Metastatic Diagnosis or Recurrence</b>",
+      title: { text: "<b>Years Since Metastatic Diagnosis or Recurrence</b>" },
       dtick: 1,
       range: [Math.max(0, minFollowup - 1), maxFollowup + 1],
       automargin: true,
     },
     yaxis: {
-      title: "<b>Survival (%)</b>",
+      title: { text: "<b>Survival (%)</b>" },
       showline: true,
       ticksuffix: "%",
       range: [0, 100],

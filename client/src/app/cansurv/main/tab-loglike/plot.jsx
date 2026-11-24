@@ -29,13 +29,13 @@ export default function LoglikePlot({ data, title, subtitle, xTitle, yTitle, pre
       family: "Inter, sans-serif",
     },
     xaxis: {
-      title: `<b>${xTitle}</b>`,
+      title: { text: `<b>${xTitle}</b>` },
       range: [-0.05, 1.05],
       dtick: 0.1,
       zeroline: false,
     },
     yaxis: {
-      title: `<b>${yTitle}</b>`,
+      title: { text: `<b>${yTitle}</b>` },
       showline: true,
       // autorange: true,
       // dtick: 10,
