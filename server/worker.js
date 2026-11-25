@@ -3,12 +3,13 @@ import { createLogger } from "./services/logger.js";
 import { runAnalysis } from "./services/workers.js";
 
 if (isMainModule(import.meta)) {
+  // exitCode (not process.exit) lets beforeExit fire so dd-trace can flush spans
   try {
     await main(process.argv, process.env);
-    process.exit(0);
+    process.exitCode = 0;
   } catch (e) {
     console.error(e);
-    process.exit(1);
+    process.exitCode = 1;
   }
 }
 

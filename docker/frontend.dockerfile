@@ -30,6 +30,10 @@ RUN dnf -y update \
 RUN npm install -g npm@latest
 RUN npm update -g
 
+# kept outside the Next.js standalone output, which prunes untraced packages
+ARG DD_TRACE_VERSION=6
+RUN npm install --prefix /opt/datadog --omit=dev --no-fund --no-audit dd-trace@$DD_TRACE_VERSION
+
 WORKDIR /app
 
 ENV NODE_ENV=production

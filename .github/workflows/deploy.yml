@@ -33,10 +33,10 @@ jobs:
       CICD_ROLE_ARN: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/power-user-github-actions-cicd
 
     steps:
-      - uses: "actions/checkout@v6.0.2"
+      - uses: "actions/checkout@v7.0.1"
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v6.0.0
+        uses: aws-actions/configure-aws-credentials@v6.3.0
         with:
           role-to-assume: ${{ env.CICD_ROLE_ARN }}
           role-session-name: ${{ env.TIER }}-${{ env.APP }}-deploy-${{ github.ref_name }}
@@ -88,19 +88,19 @@ jobs:
 
       - name: Login to Amazon ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2.1.0
+        uses: aws-actions/amazon-ecr-login@v2.2.0
         with:
           mask-password: true
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4.0.0
+        uses: docker/setup-buildx-action@v4.4.1
 
       - name: Create and use a new builder instance
         run: |
           docker buildx create --name mybuilder --use
 
       - name: Build backend image ${{ env.BACKEND_IMAGE }}
-        uses: docker/build-push-action@v7.0.0
+        uses: docker/build-push-action@v7.4.0
         with:
           context: .
           file: docker/backend.dockerfile
@@ -113,7 +113,7 @@ jobs:
           cache-to: type=inline
 
       - name: Build frontend image ${{ env.FRONTEND_IMAGE }}
-        uses: docker/build-push-action@v7.0.0
+        uses: docker/build-push-action@v7.4.0
         with:
           context: .
           file: docker/frontend.dockerfile
@@ -129,32 +129,25 @@ jobs:
           cache-from: type=registry,ref=${{ env.FRONTEND_IMAGE_LATEST }}
           cache-to: type=inline
 
+      - name: Create rendered task definitions directory
+        run: mkdir -p rendered
+
       - name: Substitute web task definition variables
-        id: substitute-web-task-definition
         run: |
-          echo "Substituting web task definition variables"
-          envsubst < $TASK_DEFINITION_TEMPLATE_PATH/web.yml > web.yml
+          envsubst < "$TASK_DEFINITION_TEMPLATE_PATH/web.yml" > rendered/web.yml
+          echo "Rendered web task definition:"
+          cat rendered/web.yml
 
       - name: Substitute worker task definition variables
-        id: substitute-worker-task-definition
         run: |
-          echo "Substituting worker task definition variables"
-          envsubst < $TASK_DEFINITION_TEMPLATE_PATH/worker.yml > worker.yml
-
-      - name: Print rendered web task definition
-        run: |
-          echo "Rendered web Task Definition:"
-          cat web.yml
-
-      - name: Print rendered worker task definition
-        run: |
-          echo "Rendered Worker Task Definition:"
-          cat worker.yml
+          envsubst < "$TASK_DEFINITION_TEMPLATE_PATH/worker.yml" > rendered/worker.yml
+          echo "Rendered worker task definition:"
+          cat rendered/worker.yml
 
       - name: Register task definitions
         run: |
-          aws ecs register-task-definition --cli-input-yaml file://web.yml
-          aws ecs register-task-definition --cli-input-yaml file://worker.yml
+          aws ecs register-task-definition --cli-input-yaml file://rendered/web.yml
+          aws ecs register-task-definition --cli-input-yaml file://rendered/worker.yml
 
       - name: Update web service
         run: |
