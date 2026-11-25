@@ -1,6 +1,7 @@
 source("renv/activate.R")
 
-# Apply CRAN repository options only for macOS or Windows
-if (.Platform$OS.type == "windows" || grepl("darwin", R.version$os)) {
-    options(repos = c(CRAN = "https://packagemanager.posit.co/cran/latest"))
-}
+options(renv.config.repos.override = "https://packagemanager.posit.co/cran/__linux__/rhel9/latest")
+
+# parallelize installation using all available cores
+options(Ncpus = parallel::detectCores())
+Sys.setenv(MAKEFLAGS = paste0("-j", parallel::detectCores()))

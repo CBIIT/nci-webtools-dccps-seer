@@ -31,9 +31,7 @@ RUN chown -R app:appgroup /app
 USER app
 
 # install R packages with renv
-RUN R -e "\
-    options(renv.config.repos.override = 'https://packagemanager.posit.co/cran/__linux__/rhel9/latest'); \
-    renv::restore();"
+RUN R -e "renv::restore()"
 
 RUN npm install
 
