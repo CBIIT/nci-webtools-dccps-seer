@@ -1,8 +1,8 @@
 "use client";
 
-function parseVersionAndDate(versionString) {
+function parseVersionAndDate(versionString, lastUpdated) {
   if (!versionString)
-    return { version: 'missing env: NEXT_PUBLIC_VERSION', date: 'N/A' };
+    return { version: 'missing env: NEXT_PUBLIC_VERSION', date: lastUpdated || 'N/A' };
 
   // Check for format: app_X.X.X_YYYYMMDD
   const formatMatch = versionString.match(/jpsurv_(\d+\.\d+\.\d+)_(\d{8})/);
@@ -14,14 +14,17 @@ function parseVersionAndDate(versionString) {
       6,
       8
     )}`;
-    return { version, date };
+    return { version, date: lastUpdated || date };
   }
 
-  return { version: versionString, date: 'N/A' };
+  return { version: versionString, date: lastUpdated || 'N/A' };
 }
 
 export default function Footer() {
-  const { version, date } = parseVersionAndDate(process.env.NEXT_PUBLIC_VERSION);
+  const { version, date } = parseVersionAndDate(
+    process.env.NEXT_PUBLIC_VERSION,
+    process.env.NEXT_PUBLIC_LAST_UPDATED
+  );
 
   return (
     <footer className="flex-grow-0">
